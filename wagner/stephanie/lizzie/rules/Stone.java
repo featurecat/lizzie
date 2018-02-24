@@ -1,4 +1,4 @@
-package wagner.stephanie.lizzie.Rules;
+package wagner.stephanie.lizzie.rules;
 
 public enum Stone {
     BLACK, WHITE, EMPTY, BLACK_RECURSED, WHITE_RECURSED;

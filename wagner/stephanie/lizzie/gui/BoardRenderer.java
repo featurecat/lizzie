@@ -1,8 +1,8 @@
 package wagner.stephanie.lizzie.gui;
 
-import wagner.stephanie.lizzie.Rules.Board;
+import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.Lizzie;
-import wagner.stephanie.lizzie.Rules.Stone;
+import wagner.stephanie.lizzie.rules.Stone;
 
 import java.awt.*;
 
@@ -33,7 +33,8 @@ public class BoardRenderer {
             scaledMargin = (int) (MARGIN * size);
             availableWidth = size - 2 * scaledMargin;
         }
-        while ((availableWidth + 1) % (Board.BOARD_SIZE - 1) != 0); // this will be true if BOARD_SIZE - 1 square intersections are possible
+        while (!((availableWidth - 1) % (Board.BOARD_SIZE - 1) == 0));
+        // this will be true if BOARD_SIZE - 1 square intersections plus one line will fit
 
         return new int[]{size, scaledMargin, availableWidth};
     }
@@ -75,11 +76,11 @@ public class BoardRenderer {
         int squareSize = calculateSquareSize(availableWidth);
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             g.drawLine(x + scaledMargin, y + scaledMargin + squareSize * i,
-                    x + scaledMargin + availableWidth + 1, y + scaledMargin + squareSize * i);
+                    x + scaledMargin + availableWidth - 1, y + scaledMargin + squareSize * i);
         }
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             g.drawLine(x + scaledMargin + squareSize * i, y + scaledMargin,
-                    x + scaledMargin + squareSize * i, y + scaledMargin + availableWidth + 1);
+                    x + scaledMargin + squareSize * i, y + scaledMargin + availableWidth - 1);
         }
 
         // draw the star points
@@ -95,26 +96,26 @@ public class BoardRenderer {
 
         // draw the stones
         if (Lizzie.board != null) {
-            int stoneRadius = squareSize / 2;
+            int stoneRadius = squareSize / 2 - 1;
 
             for (int i = 0; i < Board.BOARD_SIZE; i++) {
                 for (int j = 0; j < Board.BOARD_SIZE; j++) {
                     // TODO for some reason these are always off center?!
-                    int stoneX = x + scaledMargin + squareSize * i - stoneRadius - 1;
-                    int stoneY = y + scaledMargin + squareSize * j - stoneRadius - 1;
+                    int stoneX = x + scaledMargin + squareSize * i - stoneRadius;
+                    int stoneY = y + scaledMargin + squareSize * j - stoneRadius;
 
                     switch (Lizzie.board.getStones()[Board.getIndex(i, j)]) {
                         case EMPTY:
                             break;
                         case BLACK:
                             g.setColor(Color.BLACK);
-                            g.fillArc(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1, 0, 360);
+                            g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
                             break;
                         case WHITE:
                             g.setColor(Color.WHITE);
-                            g.fillArc(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1, 0, 360);
+                            g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
                             g.setColor(Color.BLACK);
-                            g.drawArc(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1, 0, 360);
+                            g.drawOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
                             break;
                         default:
                     }
@@ -128,15 +129,14 @@ public class BoardRenderer {
             if (lastMove != null) {
                 stoneRadius = squareSize / 4;
 
-                int stoneX = x + scaledMargin + squareSize * lastMove[0] - stoneRadius - 1;
-                int stoneY = y + scaledMargin + squareSize * lastMove[1] - stoneRadius - 1;
+                int stoneX = x + scaledMargin + squareSize * lastMove[0] - stoneRadius;
+                int stoneY = y + scaledMargin + squareSize * lastMove[1] - stoneRadius;
 
                 // set color to the opposite color of whatever is on the board
                 g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.WHITE ?
                         Color.BLACK : Color.WHITE);
                 Graphics2D g2 = (Graphics2D) g;
                 g2.drawOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
-//                        g.drawArc(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1, 0, 360);
             }
         }
     }
@@ -202,6 +202,6 @@ public class BoardRenderer {
      * @return the size of each intersection square
      */
     public int calculateSquareSize(int availableWidth) {
-        return (availableWidth + 1) / (Board.BOARD_SIZE - 1);
+        return availableWidth / (Board.BOARD_SIZE - 1);
     }
 }

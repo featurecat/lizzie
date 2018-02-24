@@ -1,7 +1,6 @@
 package wagner.stephanie.lizzie.gui;
 
-import wagner.stephanie.lizzie.Rules.Board;
-import wagner.stephanie.lizzie.Input;
+import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.Lizzie;
 
 import javax.swing.*;

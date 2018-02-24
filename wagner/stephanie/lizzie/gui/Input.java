@@ -1,4 +1,6 @@
-package wagner.stephanie.lizzie;
+package wagner.stephanie.lizzie.gui;
+
+import wagner.stephanie.lizzie.Lizzie;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;

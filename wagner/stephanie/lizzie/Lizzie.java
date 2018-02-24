@@ -1,6 +1,6 @@
 package wagner.stephanie.lizzie;
 
-import wagner.stephanie.lizzie.Rules.Board;
+import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 
 import java.io.IOException;

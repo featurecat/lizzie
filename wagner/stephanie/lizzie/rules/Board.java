@@ -1,4 +1,4 @@
-package wagner.stephanie.lizzie.Rules;
+package wagner.stephanie.lizzie.rules;
 
 public class Board {
     public static final int BOARD_SIZE = 19;

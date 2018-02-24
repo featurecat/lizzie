@@ -1,4 +1,4 @@
-package wagner.stephanie.lizzie.Rules;
+package wagner.stephanie.lizzie.rules;
 
 /**
  * Linked list data structure to store board history

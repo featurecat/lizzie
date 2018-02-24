@@ -1,6 +1,6 @@
-package wagner.stephanie.lizzie.test;
+package test;
 
-import wagner.stephanie.lizzie.Rules.Board;
+import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.gui.BoardRenderer;
 
 public class BoardRendererTest {
