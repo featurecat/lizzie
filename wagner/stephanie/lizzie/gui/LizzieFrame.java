@@ -44,7 +44,9 @@ public class LizzieFrame extends JFrame {
                 1000 / FPS,
                 TimeUnit.MILLISECONDS);
 
-        this.addMouseListener(new Input());
+        Input input = new Input();
+        this.addMouseListener(input);
+        this.addKeyListener(input);
     }
 
     /**
@@ -71,7 +73,7 @@ public class LizzieFrame extends JFrame {
         maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
 
         boardRenderer.setLocation((getWidth() - maxSize) / 2, topInset + (getHeight() - topInset - maxSize) / 2);
-        boardRenderer.setSize(maxSize);
+        boardRenderer.setBoardWidth(maxSize);
         boardRenderer.draw(g);
 
         // cleanup

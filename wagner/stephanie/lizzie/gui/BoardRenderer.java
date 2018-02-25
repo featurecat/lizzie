@@ -7,26 +7,26 @@ import wagner.stephanie.lizzie.rules.Stone;
 import java.awt.*;
 
 public class BoardRenderer {
-    private static final double MARGIN = 0.035; // percentage of the size to offset before drawing black lines
+    private static final double MARGIN = 0.035; // percentage of the boardWidth to offset before drawing black lines
     private static final double STAR_POINT_WIDTH = 0.015;
 
     private int x, y;
-    private int size;
+    private int boardWidth;
 
     /**
-     * Calculates the widths and pixel margins from a given size.
-     * Precondition: the size must be size >= BOARD_SIZE - 1
+     * Calculates the widths and pixel margins from a given boardWidth.
+     * Precondition: the boardWidth must be boardWidth >= BOARD_SIZE - 1
      *
      * @return an array containing the three outputs: newWidth, scaledMargin, availableWidth
      */
     public static int[] calculatePixelMargins(int size) {
         if (size < Board.BOARD_SIZE - 1)
-            throw new IllegalArgumentException("size may not be less than " + (Board.BOARD_SIZE - 1) + ", but was " + size);
+            throw new IllegalArgumentException("boardWidth may not be less than " + (Board.BOARD_SIZE - 1) + ", but was " + size);
 
         int scaledMargin;
         int availableWidth;
 
-        // decrease size until the availableWidth will result in square board intersections
+        // decrease boardWidth until the availableWidth will result in square board intersections
         size++;
         do {
             size--;
@@ -58,18 +58,18 @@ public class BoardRenderer {
      * @param g graphics instance
      */
     public void draw(Graphics g) {
-        int scaledMargin; // the pixel size of the margins
-        int availableWidth; // the pixel size of the game board without margins
+        int scaledMargin; // the pixel boardWidth of the margins
+        int availableWidth; // the pixel boardWidth of the game board without margins
 
-        // calculate a good set of size, scaledMargin, and availableWidth to use
+        // calculate a good set of boardWidth, scaledMargin, and availableWidth to use
         int[] calculatedPixelMargins = calculatePixelMargins();
-        size = calculatedPixelMargins[0];
+        boardWidth = calculatedPixelMargins[0];
         scaledMargin = calculatedPixelMargins[1];
         availableWidth = calculatedPixelMargins[2];
 
         // draw the wooden background
         g.setColor(Color.ORANGE.darker());
-        g.fillRect(x, y, size, size);
+        g.fillRect(x, y, boardWidth, boardWidth);
 
         // draw the lines
         g.setColor(Color.BLACK);
@@ -84,13 +84,13 @@ public class BoardRenderer {
         }
 
         // draw the star points
-        int starPointRadius = (int) (STAR_POINT_WIDTH * size) / 2;
+        int starPointRadius = (int) (STAR_POINT_WIDTH * boardWidth) / 2;
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 int centerX = x + scaledMargin + squareSize * (3 + 6 * i) - starPointRadius;
                 int centerY = y + scaledMargin + squareSize * (3 + 6 * j) - starPointRadius;
-                g.fillArc(centerX, centerY, 2 * starPointRadius, 2 * starPointRadius, 0, 360);
+                g.fillOval(centerX, centerY, 2 * starPointRadius, 2 * starPointRadius);
             }
         }
 
@@ -142,7 +142,7 @@ public class BoardRenderer {
     }
 
     public int[] calculatePixelMargins() {
-        return calculatePixelMargins(size);
+        return calculatePixelMargins(boardWidth);
     }
 
     /**
@@ -157,12 +157,12 @@ public class BoardRenderer {
     }
 
     /**
-     * Set the maximum size to render the board
+     * Set the maximum boardWidth to render the board
      *
-     * @param size the size of the board
+     * @param boardWidth the boardWidth of the board
      */
-    public void setSize(int size) {
-        this.size = size;
+    public void setBoardWidth(int boardWidth) {
+        this.boardWidth = boardWidth;
     }
 
     /**
@@ -173,20 +173,20 @@ public class BoardRenderer {
      * @return if there is a valid coordinate, an array (x, y) where x and y are between 0 and BOARD_SIZE - 1. Otherwise, returns null
      */
     public int[] convertScreenToCoordinates(int x, int y) {
-        int scaledMargin; // the pixel size of the margins
-        int availableWidth; // the pixel size of the game board without margins
+        int marginWidth; // the pixel width of the margins
+        int boardWidthWithoutMargins; // the pixel width of the game board without margins
 
-        // calculate a good set of size, scaledMargin, and availableWidth to use
+        // calculate a good set of boardWidth, scaledMargin, and boardWidthWithoutMargins to use
         int[] calculatedPixelMargins = calculatePixelMargins();
-        size = calculatedPixelMargins[0];
-        scaledMargin = calculatedPixelMargins[1];
-        availableWidth = calculatedPixelMargins[2];
+        boardWidth = calculatedPixelMargins[0];
+        marginWidth = calculatedPixelMargins[1];
+        boardWidthWithoutMargins = calculatedPixelMargins[2];
 
-        int squareSize = calculateSquareSize(availableWidth);
+        int squareSize = calculateSquareSize(boardWidthWithoutMargins);
 
         // transform the pixel coordinates to board coordinates
-        x = (x - this.x - scaledMargin + squareSize / 2) / squareSize;
-        y = (y - this.y - scaledMargin + squareSize / 2) / squareSize;
+        x = (x - this.x - marginWidth + squareSize / 2) / squareSize;
+        y = (y - this.y - marginWidth + squareSize / 2) / squareSize;
 
         // return these values if they are valid board coordinates
         if (Board.isValid(x, y))
@@ -196,10 +196,10 @@ public class BoardRenderer {
     }
 
     /**
-     * Calculate the size of each intersection square
+     * Calculate the boardWidth of each intersection square
      *
-     * @param availableWidth the pixel size of the game board without margins
-     * @return the size of each intersection square
+     * @param availableWidth the pixel boardWidth of the game board without margins
+     * @return the boardWidth of each intersection square
      */
     public int calculateSquareSize(int availableWidth) {
         return availableWidth / (Board.BOARD_SIZE - 1);

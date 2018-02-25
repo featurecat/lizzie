@@ -53,43 +53,45 @@ public class Board {
     }
 
     /**
-     * Places a stone onto the board representation
+     * Places a stone onto the board representation. Thread safe
      *
      * @param x     x coordinate
      * @param y     y coordinate
      * @param color the type of stone to place
      */
     private void place(int x, int y, Stone color) {
-        if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
-            return;
+        synchronized (this) {
+            if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
+                return;
 
-        // load a copy of the data at the current node of history
-        Stone[] stones = history.getStones().clone();
-        Zobrist zobrist = history.getZobrist();
-        int[] lastMove = new int[]{x, y}; // keep track of the last played stone
+            // load a copy of the data at the current node of history
+            Stone[] stones = history.getStones().clone();
+            Zobrist zobrist = history.getZobrist();
+            int[] lastMove = new int[]{x, y}; // keep track of the last played stone
 
-        // set the stone at (x, y) to color
-        stones[getIndex(x, y)] = color;
-        zobrist.toggleStone(x, y, color);
+            // set the stone at (x, y) to color
+            stones[getIndex(x, y)] = color;
+            zobrist.toggleStone(x, y, color);
 
-        // remove enemy stones
-        removeDeadChain(x + 1, y, color.opposite(), stones, zobrist);
-        removeDeadChain(x, y + 1, color.opposite(), stones, zobrist);
-        removeDeadChain(x - 1, y, color.opposite(), stones, zobrist);
-        removeDeadChain(x, y - 1, color.opposite(), stones, zobrist);
+            // remove enemy stones
+            removeDeadChain(x + 1, y, color.opposite(), stones, zobrist);
+            removeDeadChain(x, y + 1, color.opposite(), stones, zobrist);
+            removeDeadChain(x - 1, y, color.opposite(), stones, zobrist);
+            removeDeadChain(x, y - 1, color.opposite(), stones, zobrist);
 
-        // check to see if the player made a suicidal move
-        boolean isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
+            // check to see if the player made a suicidal move
+            boolean isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
 
-        // build the new game state
-        BoardData newState = new BoardData(stones, lastMove, !history.isBlacksTurn(), zobrist);
+            // build the new game state
+            BoardData newState = new BoardData(stones, lastMove, !history.isBlacksTurn(), zobrist);
 
-        // don't make this move if it is suicidal or violates superko
-        if (isSuicidal || history.violatesSuperko(newState))
-            return;
+            // don't make this move if it is suicidal or violates superko
+            if (isSuicidal || history.violatesSuperko(newState))
+                return;
 
-        // update history with this move
-        history.add(newState);
+            // update history with this move
+            history.add(newState);
+        }
     }
 
     /**
@@ -207,5 +209,23 @@ public class Board {
      */
     public int[] getLastMove() {
         return history.getLastMove();
+    }
+
+    /**
+     * Goes to the next move, thread safe
+     */
+    public void nextMove() {
+        synchronized (this) {
+            history.next();
+        }
+    }
+
+    /**
+     * Goes to the previous move, thread safe
+     */
+    public void previousMove() {
+        synchronized (this) {
+            history.previous();
+        }
     }
 }
