@@ -64,6 +64,14 @@ public class Board {
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
 
+            // check to see if this move is being replayed in history
+            BoardData next = history.getNext();
+            if (next != null && next.lastMove[0] == x && next.lastMove[1] == y) {
+                // this is the next move in history. Just increment history so that we don't erase the redo's
+                history.next();
+                return;
+            }
+
             // load a copy of the data at the current node of history
             Stone[] stones = history.getStones().clone();
             Zobrist zobrist = history.getZobrist();

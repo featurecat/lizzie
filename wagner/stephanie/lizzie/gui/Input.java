@@ -18,7 +18,8 @@ public class Input implements MouseListener, KeyListener {
         int x = e.getX();
         int y = e.getY();
 
-        Lizzie.frame.onClicked(x, y);
+        if (e.getButton() == MouseEvent.BUTTON1) // left mouse click
+            Lizzie.frame.onClicked(x, y);
     }
 
     @Override

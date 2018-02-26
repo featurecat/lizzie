@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie;
 
+import wagner.stephanie.lizzie.rules.Stone;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,8 +19,12 @@ public class Leelaz {
     private BufferedInputStream inputStream;
     private BufferedOutputStream outputStream;
 
+    // keeps track of whether or not we need to resync all the moves
+//    private boolean inSync = true;
+
     /**
      * Initializes the leelaz process and starts reading output
+     *
      * @throws IOException
      */
     public Leelaz() throws IOException {
@@ -56,7 +62,7 @@ public class Leelaz {
         try {
             int c;
             while ((c = inputStream.read()) != -1) {
-                System.out.print((char)c);
+                System.out.print((char) c);
             }
             // this line will only be reached if Leelaz crashes
             System.err.println("Leelaz process ended unexpectedly.");
@@ -69,6 +75,7 @@ public class Leelaz {
 
     /**
      * Sends a command for leelaz to execute
+     *
      * @param command a GTP command containing no newline characters
      */
     public void sendCommand(String command) {
@@ -78,5 +85,39 @@ public class Leelaz {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     *
+     * @param color color of stone to play
+     * @param move coordinate of the move
+     */
+    public void playMove(Stone color, String move) {
+        String colorString;
+        switch (color) {
+            case BLACK:
+                colorString = "B";
+                break;
+            case WHITE:
+                colorString = "W";
+                break;
+            default:
+                throw new IllegalArgumentException("The stone color must be BLACK or WHITE, but was " + color.toString());
+        }
+
+//        if (inSync)
+        sendCommand("play " + colorString + " " + move);
+    }
+
+    public void undo() {
+//        inSync = false;
+        sendCommand("undo");
+    }
+
+    /**
+     * this initializes leelaz's pondering mode at its current position
+     */
+    public void ponder() {
+        sendCommand("time_left b 0 0");
     }
 }

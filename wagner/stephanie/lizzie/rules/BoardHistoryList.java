@@ -49,6 +49,18 @@ public class BoardHistoryList {
     }
 
     /**
+     * Does not change the pointer position
+     *
+     * @return the data stored at the next index. null if not present
+     */
+    public BoardData getNext() {
+        if (head.next() == null)
+            return null;
+        else
+            return head.next().getData();
+    }
+
+    /**
      * @return the data of the current node
      */
     public BoardData getData() {
