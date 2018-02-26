@@ -61,12 +61,16 @@ public class Leelaz {
     private void read() {
         try {
             int c;
+            StringBuilder line = new StringBuilder();
             while ((c = inputStream.read()) != -1) {
-                System.out.print((char) c);
+                line.append((char)c);
+                if ((c == '\n')) {
+                    System.out.print(line);
+                    line = new StringBuilder();
+                }
             }
-            // this line will only be reached if Leelaz crashes
-            System.err.println("Leelaz process ended unexpectedly.");
-            System.exit(-1);
+            // this line will be reached when Leelaz shuts down
+            System.out.println("Leelaz process ended.");
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
@@ -93,6 +97,7 @@ public class Leelaz {
      * @param move coordinate of the move
      */
     public void playMove(Stone color, String move) {
+        System.out.println(color + " play " + move);
         String colorString;
         switch (color) {
             case BLACK:
@@ -110,6 +115,7 @@ public class Leelaz {
     }
 
     public void undo() {
+        System.out.println("undo");
 //        inSync = false;
         sendCommand("undo");
     }
@@ -119,5 +125,12 @@ public class Leelaz {
      */
     public void ponder() {
         sendCommand("time_left b 0 0");
+    }
+
+    /**
+     * End the process
+     */
+    public void shutdown() {
+        process.destroy();
     }
 }

@@ -17,8 +17,9 @@ public class Lizzie {
      * Launches the game window, and runs the game.
      */
     public static void main(String[] args) throws IOException {
-//        leelaz = new Leelaz();
-//        leelaz.sendCommand("time_left b 0 0");
+        leelaz = new Leelaz();
+        leelaz.ponder();
+
         board = new Board();
         frame = new LizzieFrame();
     }

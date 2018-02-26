@@ -27,10 +27,12 @@ public class BoardHistoryList {
     /**
      * moves the pointer to the left, returns the data stored there
      *
-     * @return data of previous node
+     * @return data of previous node, null if there is no previous node
      */
     public BoardData previous() {
-        if (head.previous() != null)
+        if (head.previous() == null)
+            return null;
+        else
             head = head.previous();
 
         return head.getData();
@@ -39,10 +41,12 @@ public class BoardHistoryList {
     /**
      * moves the pointer to the right, returns the data stored there
      *
-     * @return the data of next node
+     * @return the data of next node, null if there is no next node
      */
     public BoardData next() {
-        if (head.next() != null)
+        if (head.next() == null)
+            return null;
+        else
             head = head.next();
 
         return head.getData();
@@ -73,6 +77,10 @@ public class BoardHistoryList {
 
     public int[] getLastMove() {
         return head.getData().lastMove;
+    }
+
+    public Stone getLastMoveColor() {
+        return head.getData().lastMoveColor;
     }
 
     public boolean isBlacksTurn() {

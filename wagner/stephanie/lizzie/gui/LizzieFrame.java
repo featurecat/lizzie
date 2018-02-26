@@ -5,6 +5,8 @@ import wagner.stephanie.lizzie.Lizzie;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,7 +31,6 @@ public class LizzieFrame extends JFrame {
         setSize(800, 600);
         setLocationRelativeTo(null); // start centered
         setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // kill this program on exit
 
         setVisible(true);
 
@@ -47,6 +48,16 @@ public class LizzieFrame extends JFrame {
         Input input = new Input();
         this.addMouseListener(input);
         this.addKeyListener(input);
+
+        // shut down leelaz, then shut down the program when the window is closed
+        this.addWindowListener(new WindowAdapter()
+        {
+            public void windowClosing(WindowEvent e)
+            {
+                Lizzie.leelaz.shutdown();
+                System.exit(0);
+            }
+        });
     }
 
     /**

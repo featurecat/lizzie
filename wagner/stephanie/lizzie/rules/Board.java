@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie.rules;
 
+import wagner.stephanie.lizzie.Lizzie;
+
 public class Board {
     public static final int BOARD_SIZE = 19;
     private final static String alphabet = "ABCDEFGHJKLMNOPQRST";
@@ -14,7 +16,7 @@ public class Board {
         boolean blackToPlay = true;
         int[] lastMove = null;
 
-        history = new BoardHistoryList(new BoardData(stones, lastMove, blackToPlay, new Zobrist()));
+        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist()));
     }
 
     /**
@@ -39,6 +41,18 @@ public class Board {
         int x = alphabet.indexOf(namedCoordinate.charAt(0));
         int y = Integer.parseInt(namedCoordinate.substring(1));
         return new int[]{x, y};
+    }
+
+    /**
+     * Converts a x and y coordinate to a named coordinate eg C16, T5, K10, etc
+     *
+     * @param x x coordinate -- must be valid
+     * @param y y coordinate -- must be valid
+     * @return a string representing the coordinate
+     */
+    private static String convertCoordinatesToName(int x, int y) {
+        // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
+        return alphabet.charAt(x) + "" + (y+1);
     }
 
     /**
@@ -91,11 +105,15 @@ public class Board {
             boolean isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
 
             // build the new game state
-            BoardData newState = new BoardData(stones, lastMove, !history.isBlacksTurn(), zobrist);
+            BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist);
 
             // don't make this move if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
                 return;
+
+            // update leelaz with board position
+            System.out.println(convertCoordinatesToName(x, y));
+            Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
 
             // update history with this move
             history.add(newState);
@@ -224,7 +242,11 @@ public class Board {
      */
     public void nextMove() {
         synchronized (this) {
-            history.next();
+            if (history.next() != null) {
+                // update leelaz board position, before updating to next node
+                Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
+                Lizzie.leelaz.ponder();
+            }
         }
     }
 
@@ -233,7 +255,10 @@ public class Board {
      */
     public void previousMove() {
         synchronized (this) {
-            history.previous();
+            if (history.previous() != null) {
+                Lizzie.leelaz.undo();
+                Lizzie.leelaz.ponder();
+            }
         }
     }
 }
