@@ -78,6 +78,8 @@ public class Leelaz {
             } else {
                 if (isReadingPonderOutput) {
                     bestMovesTemp.add(new MoveData(line));
+                } else {
+                    System.out.print(line);
                 }
             }
         }

@@ -75,9 +75,10 @@ public class LizzieFrame extends JFrame {
         int topInset = this.getInsets().top;
 
         // test
-        g.setColor(new Color((float) (bouncingMod(System.currentTimeMillis() / 100, 100) / 100.0),
-                (float) (bouncingMod(System.currentTimeMillis() / 200 ,100) / 100.0),
-                (float) (bouncingMod(System.currentTimeMillis() / 300 , 100) / 100.0)));
+//        g.setColor(new Color((float) (bouncingMod(System.currentTimeMillis() / 100, 100) / 100.0),
+//                (float) (bouncingMod(System.currentTimeMillis() / 200 ,100) / 100.0),
+//                (float) (bouncingMod(System.currentTimeMillis() / 300 , 100) / 100.0)));
+        g.setColor(Color.GREEN.darker().darker());
         g.fillRect(0, 0, getWidth(), getHeight());
 
         int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.9);
