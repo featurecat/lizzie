@@ -36,10 +36,10 @@ public class Board {
      * @param namedCoordinate a capitalized version of the named coordinate. Must be a valid 19x19 Go coordinate, without I
      * @return an array containing x, followed by y
      */
-    private static int[] convertNameToCoordinates(String namedCoordinate) {
+    public static int[] convertNameToCoordinates(String namedCoordinate) {
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
         int x = alphabet.indexOf(namedCoordinate.charAt(0));
-        int y = Integer.parseInt(namedCoordinate.substring(1));
+        int y = Integer.parseInt(namedCoordinate.substring(1)) - 1;
         return new int[]{x, y};
     }
 
@@ -50,7 +50,7 @@ public class Board {
      * @param y y coordinate -- must be valid
      * @return a string representing the coordinate
      */
-    private static String convertCoordinatesToName(int x, int y) {
+    public static String convertCoordinatesToName(int x, int y) {
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
         return alphabet.charAt(x) + "" + (y+1);
     }
@@ -78,11 +78,13 @@ public class Board {
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
 
-            // check to see if this move is being replayed in history
+            // check to see if this coordinate is being replayed in history
             BoardData next = history.getNext();
             if (next != null && next.lastMove[0] == x && next.lastMove[1] == y) {
-                // this is the next move in history. Just increment history so that we don't erase the redo's
+                // this is the next coordinate in history. Just increment history so that we don't erase the redo's
                 history.next();
+                Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+                Lizzie.leelaz.ponder();
                 return;
             }
 
@@ -101,21 +103,21 @@ public class Board {
             removeDeadChain(x - 1, y, color.opposite(), stones, zobrist);
             removeDeadChain(x, y - 1, color.opposite(), stones, zobrist);
 
-            // check to see if the player made a suicidal move
+            // check to see if the player made a suicidal coordinate
             boolean isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
 
             // build the new game state
             BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist);
 
-            // don't make this move if it is suicidal or violates superko
+            // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
                 return;
 
             // update leelaz with board position
-            System.out.println(convertCoordinatesToName(x, y));
             Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+            Lizzie.leelaz.ponder();
 
-            // update history with this move
+            // update history with this coordinate
             history.add(newState);
         }
     }
@@ -229,7 +231,7 @@ public class Board {
     }
 
     /**
-     * shows where to mark the last move
+     * shows where to mark the last coordinate
      *
      * @return the last played stone
      */
@@ -238,7 +240,7 @@ public class Board {
     }
 
     /**
-     * Goes to the next move, thread safe
+     * Goes to the next coordinate, thread safe
      */
     public void nextMove() {
         synchronized (this) {
@@ -251,7 +253,7 @@ public class Board {
     }
 
     /**
-     * Goes to the previous move, thread safe
+     * Goes to the previous coordinate, thread safe
      */
     public void previousMove() {
         synchronized (this) {

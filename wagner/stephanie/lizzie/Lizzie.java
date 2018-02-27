@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie;
 
+import wagner.stephanie.lizzie.analysis.Leelaz;
+import wagner.stephanie.lizzie.analysis.MoveData;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 

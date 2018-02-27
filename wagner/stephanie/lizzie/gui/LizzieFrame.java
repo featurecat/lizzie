@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class LizzieFrame extends JFrame {
     private static BoardRenderer boardRenderer = new BoardRenderer();
-    private static final int FPS = 30; // frames per second
+    private static final int FPS = 10; // frames per second
 
     private final BufferStrategy bs;
 

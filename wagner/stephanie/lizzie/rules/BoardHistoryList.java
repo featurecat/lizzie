@@ -100,7 +100,7 @@ public class BoardHistoryList {
 
         // check to see if this position has occurred before
         while (head.previous() != null) {
-            // if two zobrist hashes are equal, and it's the same player to move, they are the same position
+            // if two zobrist hashes are equal, and it's the same player to coordinate, they are the same position
             if (data.zobrist.equals(head.getData().zobrist) && data.blackToPlay == head.getData().blackToPlay)
                 return true;
 

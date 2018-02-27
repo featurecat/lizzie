@@ -1,4 +1,4 @@
-package wagner.stephanie.lizzie;
+package wagner.stephanie.lizzie.analysis;
 
 import wagner.stephanie.lizzie.rules.Stone;
 
@@ -10,8 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TODO: add license information from Leela Zero repo?
  * an interface with leelaz.exe go engine. Can be adapted for GTP, but is specifically designed for GCP's Leela Zero.
+ * leelaz is modified to output information as it ponders
+ * see www.github.com/gcp/leela-zero
  */
 public class Leelaz {
     private Process process;
@@ -19,8 +20,9 @@ public class Leelaz {
     private BufferedInputStream inputStream;
     private BufferedOutputStream outputStream;
 
-    // keeps track of whether or not we need to resync all the moves
-//    private boolean inSync = true;
+    private boolean isReadingPonderOutput;
+    private List<MoveData> bestMoves;
+    private List<MoveData> bestMovesTemp;
 
     /**
      * Initializes the leelaz process and starts reading output
@@ -28,16 +30,21 @@ public class Leelaz {
      * @throws IOException
      */
     public Leelaz() throws IOException {
+        isReadingPonderOutput = false;
+        bestMoves = new ArrayList<>();
+        bestMovesTemp = new ArrayList<>();
+
         // list of commands for the leelaz process
         // TODO replace path names
         List<String> commands = new ArrayList<>();
-        commands.add("C:\\Users\\sww\\Desktop\\lizzie\\leelaz.exe");
+        commands.add("leelaz.exe");
         commands.add("-g");
-        commands.add("-wbest");
+        commands.add("-t2");
+        commands.add("-wnetwork");
 
         // run leelaz.exe
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.directory(new File("C:\\Users\\sww\\Desktop\\lizzie"));
+        processBuilder.directory(new File("."));
         processBuilder.redirectErrorStream(true);
         process = processBuilder.start();
 
@@ -56,6 +63,27 @@ public class Leelaz {
     }
 
     /**
+     * Parse a line of Leelaz output
+     *
+     * @param line output line
+     */
+    private void parseLine(String line) {
+        synchronized (this) {
+            if (line.startsWith("~begin")) {
+                isReadingPonderOutput = true;
+                bestMovesTemp = new ArrayList<>();
+            } else if (line.startsWith("~end")) {
+                isReadingPonderOutput = false;
+                bestMoves = bestMovesTemp;
+            } else {
+                if (isReadingPonderOutput) {
+                    bestMovesTemp.add(new MoveData(line));
+                }
+            }
+        }
+    }
+
+    /**
      * Continually reads and processes output from leelaz
      */
     private void read() {
@@ -63,9 +91,9 @@ public class Leelaz {
             int c;
             StringBuilder line = new StringBuilder();
             while ((c = inputStream.read()) != -1) {
-                line.append((char)c);
+                line.append((char) c);
                 if ((c == '\n')) {
-                    System.out.print(line);
+                    parseLine(line.toString());
                     line = new StringBuilder();
                 }
             }
@@ -92,32 +120,33 @@ public class Leelaz {
     }
 
     /**
-     *
      * @param color color of stone to play
-     * @param move coordinate of the move
+     * @param move  coordinate of the coordinate
      */
     public void playMove(Stone color, String move) {
-        System.out.println(color + " play " + move);
-        String colorString;
-        switch (color) {
-            case BLACK:
-                colorString = "B";
-                break;
-            case WHITE:
-                colorString = "W";
-                break;
-            default:
-                throw new IllegalArgumentException("The stone color must be BLACK or WHITE, but was " + color.toString());
-        }
+        synchronized (this) {
+            String colorString;
+            switch (color) {
+                case BLACK:
+                    colorString = "B";
+                    break;
+                case WHITE:
+                    colorString = "W";
+                    break;
+                default:
+                    throw new IllegalArgumentException("The stone color must be BLACK or WHITE, but was " + color.toString());
+            }
 
-//        if (inSync)
-        sendCommand("play " + colorString + " " + move);
+            bestMoves = new ArrayList<>();
+            sendCommand("play " + colorString + " " + move);
+        }
     }
 
     public void undo() {
-        System.out.println("undo");
-//        inSync = false;
-        sendCommand("undo");
+        synchronized (this) {
+            sendCommand("undo");
+            bestMoves = new ArrayList<>();
+        }
     }
 
     /**
@@ -132,5 +161,11 @@ public class Leelaz {
      */
     public void shutdown() {
         process.destroy();
+    }
+
+    public List<MoveData> getBestMoves() {
+        synchronized (this) {
+            return bestMoves;
+        }
     }
 }
