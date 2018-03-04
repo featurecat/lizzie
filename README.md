@@ -1,5 +1,5 @@
 # lizzie - Leela Zero Interface
-![screenshot](/screenshot.png?raw=true)
+![screenshot](/screen.png?raw=true)
 
 Allows the user to analyze games in realtime using [Leela Zero](www.github.com/gcp/leela-zero). We're currently in beta. You need Java 8 or higher to run this program. Currently only Windows is supported, sorry! This will change soon :)
 
