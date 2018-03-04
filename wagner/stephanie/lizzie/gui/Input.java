@@ -2,12 +2,10 @@ package wagner.stephanie.lizzie.gui;
 
 import wagner.stephanie.lizzie.Lizzie;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import javax.swing.plaf.basic.BasicSliderUI;
+import java.awt.event.*;
 
-public class Input implements MouseListener, KeyListener {
+public class Input implements MouseListener, KeyListener, MouseWheelListener {
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -20,6 +18,8 @@ public class Input implements MouseListener, KeyListener {
 
         if (e.getButton() == MouseEvent.BUTTON1) // left mouse click
             Lizzie.frame.onClicked(x, y);
+        else if (e.getButton() == MouseEvent.BUTTON3) // right mouse click
+            Lizzie.board.previousMove(); // interpret as undo
     }
 
     @Override
@@ -48,11 +48,23 @@ public class Input implements MouseListener, KeyListener {
             Lizzie.board.nextMove();
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             Lizzie.board.previousMove();
+        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            Lizzie.leelaz.togglePonder();
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+    }
 
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+//        for (int i= 0; i < Math.abs(e.getWheelRotation()); i++) {
+            if (e.getWheelRotation() > 0) {
+                Lizzie.board.nextMove();
+            } else if (e.getWheelRotation() < 0) {
+                Lizzie.board.previousMove();
+            }
+//        }
     }
 }

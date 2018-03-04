@@ -15,6 +15,9 @@ import java.util.List;
  * see www.github.com/gcp/leela-zero
  */
 public class Leelaz {
+    private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
+    private static final long MAX_PONDER_TIME_MILLIS = 2000;//10 * MINUTE; // 10 minutes
+
     private Process process;
 
     private BufferedInputStream inputStream;
@@ -23,6 +26,9 @@ public class Leelaz {
     private boolean isReadingPonderOutput;
     private List<MoveData> bestMoves;
     private List<MoveData> bestMovesTemp;
+
+    private boolean isPondering;
+    private long startPonderTime;
 
     /**
      * Initializes the leelaz process and starts reading output
@@ -34,9 +40,12 @@ public class Leelaz {
         bestMoves = new ArrayList<>();
         bestMovesTemp = new ArrayList<>();
 
+        isPondering = false;
+        startPonderTime = System.currentTimeMillis();
+
         // list of commands for the leelaz process
-        // TODO replace path names
         List<String> commands = new ArrayList<>();
+//        commands.add("./leelaz");
         commands.add("leelaz.exe");
         commands.add("-g");
         commands.add("-t2");
@@ -70,6 +79,11 @@ public class Leelaz {
     private void parseLine(String line) {
         synchronized (this) {
             if (line.startsWith("~begin")) {
+                if (System.currentTimeMillis() - startPonderTime > MAX_PONDER_TIME_MILLIS) {
+                    // we have pondered for enough time. pause pondering
+                    togglePonder();
+                }
+
                 isReadingPonderOutput = true;
                 bestMovesTemp = new ArrayList<>();
             } else if (line.startsWith("~end")) {
@@ -77,7 +91,9 @@ public class Leelaz {
                 bestMoves = bestMovesTemp;
             } else {
                 if (isReadingPonderOutput) {
-                    bestMovesTemp.add(new MoveData(line));
+                    // ignore passes
+                    if (!line.startsWith("pass"))
+                        bestMovesTemp.add(new MoveData(line));
                 } else {
                     System.out.print(line);
                 }
@@ -155,7 +171,18 @@ public class Leelaz {
      * this initializes leelaz's pondering mode at its current position
      */
     public void ponder() {
+        isPondering = true;
+        startPonderTime = System.currentTimeMillis();
         sendCommand("time_left b 0 0");
+    }
+
+    public void togglePonder() {
+        isPondering = !isPondering;
+        if (isPondering) {
+            ponder();
+        } else {
+            sendCommand("name"); // ends pondering
+        }
     }
 
     /**
