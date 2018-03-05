@@ -45,8 +45,8 @@ public class Leelaz {
 
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
-        commands.add("./leelaz"); // linux, macosx
-//        commands.add("leelaz.exe"); // windows
+//        commands.add("./leelaz"); // linux, macosx
+        commands.add("leelaz.exe"); // windows
         commands.add("-g");
         commands.add("-t2");
         commands.add("-wnetwork");
@@ -117,6 +117,9 @@ public class Leelaz {
             }
             // this line will be reached when Leelaz shuts down
             System.out.println("Leelaz process ended.");
+
+            shutdown();
+            System.exit(-1);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(-1);
