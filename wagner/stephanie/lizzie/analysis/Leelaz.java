@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Leelaz {
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-    private static final long MAX_PONDER_TIME_MILLIS = 2000;//10 * MINUTE; // 10 minutes
+    private static final long MAX_PONDER_TIME_MILLIS = 10 * MINUTE; // 10 minutes
 
     private Process process;
 
@@ -45,8 +45,8 @@ public class Leelaz {
 
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
-//        commands.add("./leelaz");
-        commands.add("leelaz.exe");
+        commands.add("./leelaz"); // linux, macosx
+//        commands.add("leelaz.exe"); // windows
         commands.add("-g");
         commands.add("-t2");
         commands.add("-wnetwork");
@@ -155,8 +155,8 @@ public class Leelaz {
                     throw new IllegalArgumentException("The stone color must be BLACK or WHITE, but was " + color.toString());
             }
 
-            bestMoves = new ArrayList<>();
             sendCommand("play " + colorString + " " + move);
+            bestMoves = new ArrayList<>();
         }
     }
 
