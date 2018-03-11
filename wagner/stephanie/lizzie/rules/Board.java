@@ -78,19 +78,24 @@ public class Board {
 
             // check to see if this coordinate is being replayed in history
             BoardData next = history.getNext();
-            if (next != null && next.isPass) {
+            if (next != null && next.lastMove == null) {
                 // this is the next coordinate in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, "pass");
                 Lizzie.leelaz.ponder();
                 return;
             }
-
+			
+			Stone[] stones = history.getStones().clone();
+			Zobrist zobrist = history.getZobrist();
+			
             // build the new game state
-            BoardData newState = new BoardData(stones, new int[]{0, 0}, color, !history.isBlacksTurn(), zobrist);
-            
-            newState.isPass = true;
-
+            BoardData newState = new BoardData(stones, null, color, !history.isBlacksTurn(), zobrist);
+			
+			// update leelaz with board position
+            Lizzie.leelaz.playMove(color, "pass");
+            Lizzie.leelaz.ponder();
+			
             // update history with this coordinate
             history.add(newState);
         }
@@ -286,7 +291,7 @@ public class Board {
         synchronized (this) {
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
-                if (history.getData().isPass) {
+                if (history.getData().lastMove == null) {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
                     Lizzie.leelaz.ponder();
                 }
@@ -298,6 +303,10 @@ public class Board {
             }
         }
     }
+	
+	public BoardData getData() {
+		return history.getData();
+	}
 
     /**
      * Goes to the previous coordinate, thread safe
