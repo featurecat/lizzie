@@ -22,7 +22,8 @@ public class LizzieFrame extends JFrame {
             "right arrow = redo",
             "space = toggle pondering",
             "right click = undo",
-            "mouse wheel scroll = undo/redo"};
+            "mouse wheel scroll = undo/redo",
+			"key 'P' = pass"};
     private static BoardRenderer boardRenderer = new BoardRenderer();
 
     private final BufferStrategy bs;
