@@ -6,6 +6,7 @@ public class BoardData {
     public Stone lastMoveColor;
     public boolean blackToPlay;
     public Zobrist zobrist;
+    public boolean isPass;
 
     public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist) {
         this.stones = stones;
@@ -13,5 +14,6 @@ public class BoardData {
         this.lastMoveColor = lastMoveColor;
         this.blackToPlay = blackToPlay;
         this.zobrist = zobrist;
+        this.isPass = false;
     }
 }
