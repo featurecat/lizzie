@@ -69,9 +69,7 @@ public class Board {
     /**
      * The pass. Thread safe
      *
-     * @param x     x coordinate
-     * @param y     y coordinate
-     * @param color the type of stone to place
+     * @param color the type of pass
      */
     private void pass(Stone color) {
         synchronized (this) {
@@ -85,8 +83,8 @@ public class Board {
                 Lizzie.leelaz.ponder();
                 return;
             }
-			
-			Stone[] stones = history.getStones().clone();
+            
+            Stone[] stones = history.getStones().clone();
 			Zobrist zobrist = history.getZobrist();
 			
             // build the new game state
@@ -104,8 +102,6 @@ public class Board {
     /**
      * overloaded method for pass(), chooses color in an alternating pattern
      *
-     * @param x x coordinate
-     * @param y y coordinate
      */
     public void pass() {
         pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
