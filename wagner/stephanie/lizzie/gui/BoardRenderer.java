@@ -126,12 +126,10 @@ public class BoardRenderer {
 
                 }
             }
-
-            // mark the last coordinate
-            BoardData data = Lizzie.board.getData();
 			
-            if (data.lastMove != null) {
-				int[] lastMove = data.lastMove;
+			// mark the last coordinate
+			int[] lastMove = Lizzie.board.getLastMove();
+			if (lastMove != null) {
                 int circleRadius = squareSize / 4;
 
                 int stoneX = x + scaledMargin + squareSize * lastMove[0] - circleRadius;
