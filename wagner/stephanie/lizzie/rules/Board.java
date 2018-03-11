@@ -87,7 +87,7 @@ public class Board {
             }
 
             // build the new game state
-            BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist);
+            BoardData newState = new BoardData(stones, new int[]{0, 0}, color, !history.isBlacksTurn(), zobrist);
             
             newState.isPass = true;
 
