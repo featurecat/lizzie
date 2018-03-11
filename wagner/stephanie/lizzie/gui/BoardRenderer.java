@@ -2,6 +2,7 @@ package wagner.stephanie.lizzie.gui;
 
 import wagner.stephanie.lizzie.analysis.MoveData;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.BoardData;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Stone;
 
