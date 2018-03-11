@@ -303,8 +303,8 @@ public class Board {
             }
         }
     }
-	
-	public BoardData getData() {
+    
+    public BoardData getData() {
 		return history.getData();
 	}
 
