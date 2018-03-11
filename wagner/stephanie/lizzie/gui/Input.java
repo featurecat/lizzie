@@ -51,7 +51,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener {
         } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             Lizzie.leelaz.togglePonder();
         } else if (e.getKeyCode() == KeyEvent.VK_P) {
-            Lizzie.board.pass()
+            Lizzie.board.pass();
         }
     }
 
