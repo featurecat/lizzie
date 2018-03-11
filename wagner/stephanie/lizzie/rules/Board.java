@@ -65,7 +65,47 @@ public class Board {
     public static boolean isValid(int x, int y) {
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
     }
+    
+    /**
+     * The pass. Thread safe
+     *
+     * @param x     x coordinate
+     * @param y     y coordinate
+     * @param color the type of stone to place
+     */
+    private void pass(Stone color) {
+        synchronized (this) {
 
+            // check to see if this coordinate is being replayed in history
+            BoardData next = history.getNext();
+            if (next != null && next.isPass) {
+                // this is the next coordinate in history. Just increment history so that we don't erase the redo's
+                history.next();
+                Lizzie.leelaz.playMove(color, "pass");
+                Lizzie.leelaz.ponder();
+                return;
+            }
+
+            // build the new game state
+            BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist);
+            
+            newState.isPass = true;
+
+            // update history with this coordinate
+            history.add(newState);
+        }
+    }
+    
+    /**
+     * overloaded method for pass(), chooses color in an alternating pattern
+     *
+     * @param x x coordinate
+     * @param y y coordinate
+     */
+    public void pass() {
+        pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+    }
+    
     /**
      * Places a stone onto the board representation. Thread safe
      *
