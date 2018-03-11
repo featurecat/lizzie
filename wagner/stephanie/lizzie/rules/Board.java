@@ -286,8 +286,15 @@ public class Board {
         synchronized (this) {
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
-                Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
-                Lizzie.leelaz.ponder();
+                if (history.getData().isPass) {
+                    Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
+                    Lizzie.leelaz.ponder();
+                }
+                else
+                {
+                    Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
+                    Lizzie.leelaz.ponder();
+                }
             }
         }
     }
