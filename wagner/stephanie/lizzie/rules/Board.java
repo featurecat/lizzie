@@ -65,7 +65,48 @@ public class Board {
     public static boolean isValid(int x, int y) {
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
     }
+    
+    /**
+     * The pass. Thread safe
+     *
+     * @param color the type of pass
+     */
+    private void pass(Stone color) {
+        synchronized (this) {
 
+            // check to see if this coordinate is being replayed in history
+            BoardData next = history.getNext();
+            if (next != null && next.lastMove == null) {
+                // this is the next coordinate in history. Just increment history so that we don't erase the redo's
+                history.next();
+                Lizzie.leelaz.playMove(color, "pass");
+                Lizzie.leelaz.ponder();
+                return;
+            }
+            
+            Stone[] stones = history.getStones().clone();
+			Zobrist zobrist = history.getZobrist();
+			
+            // build the new game state
+            BoardData newState = new BoardData(stones, null, color, !history.isBlacksTurn(), zobrist);
+			
+			// update leelaz with board position
+            Lizzie.leelaz.playMove(color, "pass");
+            Lizzie.leelaz.ponder();
+			
+            // update history with this coordinate
+            history.add(newState);
+        }
+    }
+    
+    /**
+     * overloaded method for pass(), chooses color in an alternating pattern
+     *
+     */
+    public void pass() {
+        pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+    }
+    
     /**
      * Places a stone onto the board representation. Thread safe
      *
@@ -246,11 +287,22 @@ public class Board {
         synchronized (this) {
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
-                Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
-                Lizzie.leelaz.ponder();
+                if (history.getData().lastMove == null) {
+                    Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
+                    Lizzie.leelaz.ponder();
+                }
+                else
+                {
+                    Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
+                    Lizzie.leelaz.ponder();
+                }
             }
         }
     }
+    
+    public BoardData getData() {
+		return history.getData();
+	}
 
     /**
      * Goes to the previous coordinate, thread safe

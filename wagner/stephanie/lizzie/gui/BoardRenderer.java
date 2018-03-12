@@ -2,6 +2,7 @@ package wagner.stephanie.lizzie.gui;
 
 import wagner.stephanie.lizzie.analysis.MoveData;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.BoardData;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Stone;
 
@@ -125,10 +126,10 @@ public class BoardRenderer {
 
                 }
             }
-
-            // mark the last coordinate
-            int[] lastMove = Lizzie.board.getLastMove();
-            if (lastMove != null) {
+			
+			// mark the last coordinate
+			int[] lastMove = Lizzie.board.getLastMove();
+			if (lastMove != null) {
                 int circleRadius = squareSize / 4;
 
                 int stoneX = x + scaledMargin + squareSize * lastMove[0] - circleRadius;
