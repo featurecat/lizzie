@@ -122,6 +122,9 @@ public class BoardRenderer {
                             break;
                         default:
                     }
+                    
+                    // Show move number if enable
+                    
                     int[] lastMove = Lizzie.board.getLastMove();
 
                     if (Lizzie.frame.showMoveNumber && Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)] > 0) {
@@ -144,6 +147,8 @@ public class BoardRenderer {
 			// mark the last coordinate
 			int[] lastMove = Lizzie.board.getLastMove();
 			if (lastMove != null) {
+                // If show move number is enable
+                // Last move color is different
                 if (Lizzie.frame.showMoveNumber) {
                     int stoneX = x + scaledMargin + squareSize * lastMove[0] - stoneRadius;
                     int stoneY = y + scaledMargin + squareSize * lastMove[1] - stoneRadius;
