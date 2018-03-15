@@ -23,10 +23,13 @@ public class LizzieFrame extends JFrame {
             "space = toggle pondering",
             "right click = undo",
             "mouse wheel scroll = undo/redo",
-			"key 'P' = pass"};
+            "key 'P' = pass",
+            "key 'S' = Show/hide move number"};
     private static BoardRenderer boardRenderer = new BoardRenderer();
 
     private final BufferStrategy bs;
+
+    public boolean showMoveNumber = false;
 
     /**
      * Creates a window and refreshes the game state at FPS.
@@ -73,6 +76,13 @@ public class LizzieFrame extends JFrame {
             a = 2 * mod - a;
         return a;
     }
+
+    // Toggle show/hide move number
+    public void toggleShowMoveNumver() {
+        this.showMoveNumber = !this.showMoveNumber;
+    }
+
+
 
     /**
      * Draws the game board and interface
