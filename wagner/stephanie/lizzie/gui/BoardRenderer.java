@@ -128,7 +128,7 @@ public class BoardRenderer {
                     int[] lastMove = Lizzie.board.getLastMove();
 
                     if (Lizzie.frame.showMoveNumber && Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)] > 0) {
-                        if (!(i == lastMove[0] && j == lastMove[1])) {
+                        if (!(lastMove != null && i == lastMove[0] && j == lastMove[1])) {
                             g.setColor(Lizzie.board.getStones()[Board.getIndex(i, j)].equals(Stone.BLACK) ? Color.WHITE : Color.BLACK);
                             String moveNumberString = String.valueOf(Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)]);
                             int fontSize = (int) (stoneRadius * 1.5);
