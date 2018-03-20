@@ -127,7 +127,7 @@ public class BoardRenderer {
                     
                     int[] lastMove = Lizzie.board.getLastMove();
 
-                    if (Lizzie.frame.showMoveNumber && Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)] > 0) {
+                    if (Lizzie.config.showMoveNumber && Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)] > 0) {
                         if (!(lastMove != null && i == lastMove[0] && j == lastMove[1])) {
                             g.setColor(Lizzie.board.getStones()[Board.getIndex(i, j)].equals(Stone.BLACK) ? Color.WHITE : Color.BLACK);
                             String moveNumberString = String.valueOf(Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)]);
@@ -149,7 +149,7 @@ public class BoardRenderer {
 			if (lastMove != null) {
                 // If show move number is enable
                 // Last move color is different
-                if (Lizzie.frame.showMoveNumber) {
+                if (Lizzie.config.showMoveNumber) {
                     int stoneX = x + scaledMargin + squareSize * lastMove[0] - stoneRadius;
                     int stoneY = y + scaledMargin + squareSize * lastMove[1] - stoneRadius;
                     g.setColor(Lizzie.board.getData().lastMoveColor.equals(Stone.BLACK)?Color.RED:Color.BLUE);

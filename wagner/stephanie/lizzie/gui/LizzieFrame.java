@@ -1,5 +1,9 @@
 package wagner.stephanie.lizzie.gui;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Time;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.Lizzie;
 
@@ -11,6 +15,7 @@ import java.awt.image.BufferStrategy;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import wagner.stephanie.lizzie.rules.SGFParser;
 
 
 /**
@@ -24,12 +29,10 @@ public class LizzieFrame extends JFrame {
             "right click = undo",
             "mouse wheel scroll = undo/redo",
             "key 'P' = pass",
-            "key 'S' = Show/hide move number"};
+            "key 'M' = Show/hide move number"};
     private static BoardRenderer boardRenderer = new BoardRenderer();
 
     private final BufferStrategy bs;
-
-    public boolean showMoveNumber = false;
 
     /**
      * Creates a window and refreshes the game state at FPS.
@@ -61,12 +64,66 @@ public class LizzieFrame extends JFrame {
         this.addMouseWheelListener(input);
 
         // shut down leelaz, then shut down the program when the window is closed
+        // And save the SGF file
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                int ret = JOptionPane.showConfirmDialog(null, "Do you want save the SGF file?", "Warning", JOptionPane.OK_CANCEL_OPTION);
+                if (ret == JOptionPane.OK_OPTION) {
+                    saveSgf();
+                }
+            }
+        });
         this.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
                 Lizzie.leelaz.shutdown();
                 System.exit(0);
             }
         });
+    }
+
+    public void saveSgf() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(filter);
+        chooser.setMultiSelectionEnabled(false);
+        int result = chooser.showSaveDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            if (file.exists()) {
+                int ret = JOptionPane.showConfirmDialog(null, "The SGF file is exists, do you want replace it?", "Warning", JOptionPane.OK_CANCEL_OPTION);
+                if (ret == JOptionPane.CANCEL_OPTION) {
+                    return;
+                }
+            }
+            if (!file.getPath().endsWith(".sgf")) {  
+                file = new File(file.getPath()+".sgf");  
+            }  
+            try {
+                SGFParser.save(file.getPath());
+            } catch (IOException err) {
+                JOptionPane.showConfirmDialog(null, "Failed to save the SGF file.", "Error", JOptionPane.ERROR);
+            }
+        }
+    }
+
+    public void openSgf() {
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(filter);
+        chooser.setMultiSelectionEnabled(false);
+        int result = chooser.showOpenDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            if (!file.getPath().endsWith(".sgf")) {  
+                file = new File(file.getPath()+".sgf");  
+            }  
+            try {
+                System.out.println(file.getPath());
+                SGFParser.load(file.getPath());
+            } catch (IOException err) {
+                JOptionPane.showConfirmDialog(null, "Failed to open the SGF file.", "Error", JOptionPane.ERROR);
+            }
+        }
     }
 
     // instead of the usual mod pattern (0 1 2 0 1 2...), it bounces back and forth: (0 1 2 1 0 1 2 1...)
@@ -76,12 +133,6 @@ public class LizzieFrame extends JFrame {
             a = 2 * mod - a;
         return a;
     }
-
-    // Toggle show/hide move number
-    public void toggleShowMoveNumver() {
-        this.showMoveNumber = !this.showMoveNumber;
-    }
-
 
 
     /**
