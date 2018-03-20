@@ -122,23 +122,56 @@ public class BoardRenderer {
                             break;
                         default:
                     }
+                    
+                    // Show move number if enable
+                    
+                    int[] lastMove = Lizzie.board.getLastMove();
 
-
+                    if (Lizzie.config.showMoveNumber && Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)] > 0) {
+                        if (!(lastMove != null && i == lastMove[0] && j == lastMove[1])) {
+                            g.setColor(Lizzie.board.getStones()[Board.getIndex(i, j)].equals(Stone.BLACK) ? Color.WHITE : Color.BLACK);
+                            String moveNumberString = String.valueOf(Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)]);
+                            int fontSize = (int) (stoneRadius * 1.5);
+                            Font font;
+                            do {
+                                font = new Font("Sans Serif", Font.PLAIN, fontSize--);
+                                g.setFont(font);
+                            } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
+                            g.drawString(moveNumberString,
+                                stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
+                        }
+                    }
                 }
             }
 			
 			// mark the last coordinate
 			int[] lastMove = Lizzie.board.getLastMove();
 			if (lastMove != null) {
-                int circleRadius = squareSize / 4;
+                // If show move number is enable
+                // Last move color is different
+                if (Lizzie.config.showMoveNumber) {
+                    int stoneX = x + scaledMargin + squareSize * lastMove[0] - stoneRadius;
+                    int stoneY = y + scaledMargin + squareSize * lastMove[1] - stoneRadius;
+                    g.setColor(Lizzie.board.getData().lastMoveColor.equals(Stone.BLACK)?Color.RED:Color.BLUE);
+                    String moveNumberString = String.valueOf(Lizzie.board.getMoveNumberList()[Board.getIndex(lastMove[0], lastMove[1])]);
+                    int fontSize = (int) (stoneRadius * 1.5);
+                    Font font;
+                    do {
+                        font = new Font("Sans Serif", Font.PLAIN, fontSize--);
+                        g.setFont(font);
+                    } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
+                    g.drawString(moveNumberString,
+                        stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
 
-                int stoneX = x + scaledMargin + squareSize * lastMove[0] - circleRadius;
-                int stoneY = y + scaledMargin + squareSize * lastMove[1] - circleRadius;
-
-                // set color to the opposite color of whatever is on the board
-                g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.WHITE ?
-                        Color.BLACK : Color.WHITE);
-                g.drawOval(stoneX, stoneY, circleRadius * 2 + 1, circleRadius * 2 + 1);
+                } else {
+                    int circleRadius = squareSize / 4;
+                    int stoneX = x + scaledMargin + squareSize * lastMove[0] - circleRadius;
+                    int stoneY = y + scaledMargin + squareSize * lastMove[1] - circleRadius;
+                    
+                    // set color to the opposite color of whatever is on the board
+                    g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.WHITE ? Color.BLACK : Color.WHITE);
+                    g.drawOval(stoneX, stoneY, circleRadius * 2 + 1, circleRadius * 2 + 1);
+                }
             }
         }
 
