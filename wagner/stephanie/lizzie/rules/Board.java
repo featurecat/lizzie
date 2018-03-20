@@ -71,7 +71,7 @@ public class Board {
      *
      * @param color the type of pass
      */
-    private void pass(Stone color) {
+    public void pass(Stone color) {
         synchronized (this) {
 
             // check to see if this move is being replayed in history
@@ -116,7 +116,7 @@ public class Board {
      * @param y     y coordinate
      * @param color the type of stone to place
      */
-    private void place(int x, int y, Stone color) {
+    public void place(int x, int y, Stone color) {
         synchronized (this) {
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
@@ -304,7 +304,7 @@ public class Board {
     /**
      * Goes to the next coordinate, thread safe
      */
-    public void nextMove() {
+    public boolean nextMove() {
         synchronized (this) {
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
@@ -317,23 +317,31 @@ public class Board {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
                     Lizzie.leelaz.ponder();
                 }
+                return true;
             }
+            return false;
         }
     }
     
     public BoardData getData() {
 		return history.getData();
-	}
+    }
+    
+    public BoardHistoryList getHistory() {
+        return history;
+    }
 
     /**
      * Goes to the previous coordinate, thread safe
      */
-    public void previousMove() {
+    public boolean previousMove() {
         synchronized (this) {
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
                 Lizzie.leelaz.ponder();
+                return true;
             }
+            return false;
         }
     }
 }
