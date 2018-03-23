@@ -1,5 +1,9 @@
 package wagner.stephanie.lizzie.gui;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.BoardData;
@@ -65,6 +69,14 @@ public class BoardRenderer {
         int scaledMargin; // the pixel boardWidth of the margins
         int availableWidth; // the pixel boardWidth of the game board without margins
 
+        JSONObject config = null;
+
+        try {
+            config = Lizzie.config.config.getJSONObject("ui");
+        } catch(JSONException e) {
+            config = new JSONObject();
+        }
+
         // calculate a good set of boardWidth, scaledMargin, and availableWidth to use
         int[] calculatedPixelMargins = calculatePixelMargins();
         boardWidth = calculatedPixelMargins[0];
@@ -72,7 +84,12 @@ public class BoardRenderer {
         availableWidth = calculatedPixelMargins[2];
 
         // draw the wooden background
-        g.setColor(Color.ORANGE.darker());
+        try {
+            JSONArray board_color = config.getJSONArray("board-color");
+            g.setColor(new Color(board_color.getInt(0), board_color.getInt(1), board_color.getInt(2)));
+        } catch (JSONException e) {
+            g.setColor(Color.ORANGE.darker()); // 178, 140, 0
+        }
         g.fillRect(x, y, boardWidth, boardWidth);
 
         // draw the lines
@@ -98,9 +115,46 @@ public class BoardRenderer {
             }
         }
 
+        // Get best moves for foucs and winrate show
+        List<MoveData> bestMoves = Lizzie.leelaz.getBestMoves();
+
+        // Get foucs
+
+        Branch branch;
+
+        int branch_alpha = 0;
+
+        try {
+            branch_alpha = config.getInt("branch-stone-alpha");
+        } catch (JSONException e) {
+            branch_alpha = 160;
+        }
+
+        branch = null;
+
+        for (int i = 0; i < bestMoves.size(); i++) {
+            MoveData move = bestMoves.get(i);
+            int[] coord = Board.convertNameToCoordinates(move.coordinate);
+            if (Lizzie.frame.currentCoord == null) {
+                break;
+            }
+            if (coord[0] == Lizzie.frame.currentCoord[0] && coord[1] == Lizzie.frame.currentCoord[1]) {
+                branch = new Branch(Lizzie.board, move.variation);
+                break;
+            }
+        }
+
         // draw the stones
         int stoneRadius = squareSize / 2 - 1;
         if (Lizzie.board != null) {
+
+            int[] moveNumberList;
+            if (branch != null) {
+                moveNumberList = branch.data.moveNumberList;
+            } else {
+                moveNumberList = Lizzie.board.getMoveNumberList();
+            }
+
             for (int i = 0; i < Board.BOARD_SIZE; i++) {
                 for (int j = 0; j < Board.BOARD_SIZE; j++) {
                     // TODO for some reason these are always off center?!
@@ -109,6 +163,23 @@ public class BoardRenderer {
 
                     switch (Lizzie.board.getStones()[Board.getIndex(i, j)]) {
                         case EMPTY:
+                            // For foucs
+                            if (branch == null) {
+                                break;
+                            }
+                            switch (branch.data.stones[Board.getIndex(i, j)]) {
+                            case BLACK:
+                                g.setColor(new Color(0 , 0, 0, branch_alpha));
+                                g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
+                                break;
+                            case WHITE:
+                                g.setColor(new Color(255, 255, 255, branch_alpha));
+                                g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
+                                g.setColor(new Color(0 , 0, 0, branch_alpha));
+                                g.drawOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
+                                break;
+                            default:
+                            }
                             break;
                         case BLACK:
                             g.setColor(Color.BLACK);
@@ -122,15 +193,29 @@ public class BoardRenderer {
                             break;
                         default:
                     }
-                    
+
+
                     // Show move number if enable
+                    // TODO the move number is not center
                     
                     int[] lastMove = Lizzie.board.getLastMove();
 
-                    if (Lizzie.config.showMoveNumber && Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)] > 0) {
+                    Stone currentColor = Stone.EMPTY;
+
+                    if (branch == null) {
+                        currentColor = Lizzie.board.getStones()[Board.getIndex(i, j)];
+                    } else {
+                        currentColor = branch.data.stones[Board.getIndex(i, j)];
+                    }
+
+                    if (Lizzie.config.showMoveNumber && moveNumberList[Board.getIndex(i, j)] > 0) {
                         if (!(lastMove != null && i == lastMove[0] && j == lastMove[1])) {
-                            g.setColor(Lizzie.board.getStones()[Board.getIndex(i, j)].equals(Stone.BLACK) ? Color.WHITE : Color.BLACK);
-                            String moveNumberString = String.valueOf(Lizzie.board.getMoveNumberList()[Board.getIndex(i, j)]);
+                            Color color = currentColor.equals(Stone.BLACK) ? Color.WHITE : Color.BLACK;
+                            if (Lizzie.board.getStones()[Board.getIndex(i, j)] == Stone.EMPTY) {
+                                color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 200);
+                            }
+                            g.setColor(color);
+                            String moveNumberString = String.valueOf(moveNumberList[Board.getIndex(i, j)]);
                             int fontSize = (int) (stoneRadius * 1.5);
                             Font font;
                             do {
@@ -145,15 +230,29 @@ public class BoardRenderer {
             }
 			
 			// mark the last coordinate
-			int[] lastMove = Lizzie.board.getLastMove();
+            int[] lastMove = (branch == null?Lizzie.board.getLastMove() : branch.data.lastMove);
+            
 			if (lastMove != null) {
                 // If show move number is enable
                 // Last move color is different
                 if (Lizzie.config.showMoveNumber) {
                     int stoneX = x + scaledMargin + squareSize * lastMove[0] - stoneRadius;
                     int stoneY = y + scaledMargin + squareSize * lastMove[1] - stoneRadius;
-                    g.setColor(Lizzie.board.getData().lastMoveColor.equals(Stone.BLACK)?Color.RED:Color.BLUE);
-                    String moveNumberString = String.valueOf(Lizzie.board.getMoveNumberList()[Board.getIndex(lastMove[0], lastMove[1])]);
+
+                    Stone currentColor = Stone.EMPTY;
+
+                    if (branch == null) {
+                        currentColor = Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])];
+                    } else {
+                        currentColor = branch.data.stones[Board.getIndex(lastMove[0], lastMove[1])];
+                    }
+
+                    Color color = currentColor.equals(Stone.BLACK)?Color.RED:Color.BLUE;
+                    if (Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.EMPTY) {
+                        color = new Color(color.getRed(), color.getGreen(), color.getBlue(), branch_alpha);
+                    }
+                    g.setColor(color);
+                    String moveNumberString = String.valueOf(moveNumberList[Board.getIndex(lastMove[0], lastMove[1])]);
                     int fontSize = (int) (stoneRadius * 1.5);
                     Font font;
                     do {
@@ -177,8 +276,7 @@ public class BoardRenderer {
 
         // draw Leelaz suggestions
         // TODO clean up this MESS
-        List<MoveData> bestMoves = Lizzie.leelaz.getBestMoves();
-        if (!bestMoves.isEmpty()) {
+        if (!bestMoves.isEmpty() && branch == null) {
             final double MIN_ACCEPTABLE_PLAYOUTS = 0.0;
 
             int maxPlayouts = 0;

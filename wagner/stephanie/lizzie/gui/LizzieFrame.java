@@ -1,5 +1,6 @@
 package wagner.stephanie.lizzie.gui;
 
+import java.awt.event.MouseMotionAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Time;
@@ -29,10 +30,14 @@ public class LizzieFrame extends JFrame {
             "right click = undo",
             "mouse wheel scroll = undo/redo",
             "key 'P' = pass",
-            "key 'M' = Show/hide move number"};
+            "key 'M' = Show/hide move number",
+            "key 'O' = Open a SGF file",
+            "key 'S' = Save the SGF file"};
     private static BoardRenderer boardRenderer = new BoardRenderer();
 
     private final BufferStrategy bs;
+
+    public int[] currentCoord;
 
     /**
      * Creates a window and refreshes the game state at FPS.
@@ -62,6 +67,7 @@ public class LizzieFrame extends JFrame {
         this.addMouseListener(input);
         this.addKeyListener(input);
         this.addMouseWheelListener(input);
+        this.addMouseMotionListener(input);
 
         // shut down leelaz, then shut down the program when the window is closed
         // And save the SGF file
@@ -198,5 +204,9 @@ public class LizzieFrame extends JFrame {
         if (boardCoordinates != null) {
             Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
         }
+    }
+
+    public void onMouseMoved(int x, int y) {
+        currentCoord = boardRenderer.convertScreenToCoordinates(x, y);
     }
 }

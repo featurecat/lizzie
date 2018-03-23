@@ -8,7 +8,7 @@ import javax.swing.plaf.basic.BasicSliderUI;
 import java.awt.event.*;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
-public class Input implements MouseListener, KeyListener, MouseWheelListener {
+public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -38,6 +38,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener {
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
+        
+        Lizzie.frame.onMouseMoved(x, y);
     }
 
     @Override
