@@ -91,6 +91,14 @@ public class BoardHistoryList {
         return head.getData().zobrist.clone();
     }
 
+    public int getMoveNumber() {
+        return head.getData().moveNumber;
+    }
+
+    public int[] getMoveNumberList() {
+        return head.getData().moveNumberList;
+    }
+
     /**
      * @param data the board position to check against superko
      * @return whether or not the given position violates the superko rule at the head's state

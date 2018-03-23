@@ -1,5 +1,9 @@
 package wagner.stephanie.lizzie.analysis;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Stone;
 
 import java.io.BufferedInputStream;
@@ -35,7 +39,7 @@ public class Leelaz {
      *
      * @throws IOException
      */
-    public Leelaz() throws IOException {
+    public Leelaz() throws IOException, JSONException {
         isReadingPonderOutput = false;
         bestMoves = new ArrayList<>();
         bestMovesTemp = new ArrayList<>();
@@ -43,13 +47,30 @@ public class Leelaz {
         isPondering = false;
         startPonderTime = System.currentTimeMillis();
 
+        JSONObject config = Lizzie.config.config.getJSONObject("leelaz");
+
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
 //        commands.add("./leelaz"); // linux, macosx
         commands.add("leelaz.exe"); // windows
         commands.add("-g");
-        commands.add("-t2");
-        commands.add("-wnetwork");
+        commands.add("-t" + config.getInt("threads"));
+        commands.add("-w" + config.getString("weights"));
+
+        if (config.getBoolean("noise")) {
+            commands.add("-n");
+        }
+
+        try {
+            JSONArray gpu = config.getJSONArray("gpu");
+
+        for (int i = 0; i < gpu.length(); i++) {
+            commands.add("--gpu");
+            commands.add(String.valueOf(gpu.getInt(i)));
+        }
+        } catch (Exception e) {
+            // Nothing
+        }
 
         // run leelaz.exe
         ProcessBuilder processBuilder = new ProcessBuilder(commands);

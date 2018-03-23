@@ -16,7 +16,7 @@ public class Board {
         boolean blackToPlay = true;
         int[] lastMove = null;
 
-        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist()));
+        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE]));
     }
 
     /**
@@ -71,13 +71,13 @@ public class Board {
      *
      * @param color the type of pass
      */
-    private void pass(Stone color) {
+    public void pass(Stone color) {
         synchronized (this) {
 
-            // check to see if this coordinate is being replayed in history
+            // check to see if this move is being replayed in history
             BoardData next = history.getNext();
             if (next != null && next.lastMove == null) {
-                // this is the next coordinate in history. Just increment history so that we don't erase the redo's
+                // this is the next move in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, "pass");
                 Lizzie.leelaz.ponder();
@@ -85,16 +85,18 @@ public class Board {
             }
             
             Stone[] stones = history.getStones().clone();
-			Zobrist zobrist = history.getZobrist();
+            Zobrist zobrist = history.getZobrist();
+            int moveNumber = history.getMoveNumber() + 1;
+            int[] moveNumberList = history.getMoveNumberList().clone();
 			
             // build the new game state
-            BoardData newState = new BoardData(stones, null, color, !history.isBlacksTurn(), zobrist);
+            BoardData newState = new BoardData(stones, null, color, !history.isBlacksTurn(), zobrist, moveNumber, moveNumberList);
 			
-			// update leelaz with board position
+			// update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
             Lizzie.leelaz.ponder();
 			
-            // update history with this coordinate
+            // update history with pass
             history.add(newState);
         }
     }
@@ -114,14 +116,14 @@ public class Board {
      * @param y     y coordinate
      * @param color the type of stone to place
      */
-    private void place(int x, int y, Stone color) {
+    public void place(int x, int y, Stone color) {
         synchronized (this) {
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
 
             // check to see if this coordinate is being replayed in history
             BoardData next = history.getNext();
-            if (next != null && next.lastMove[0] == x && next.lastMove[1] == y) {
+            if (next != null && next.lastMove != null && next.lastMove[0] == x && next.lastMove[1] == y) {
                 // this is the next coordinate in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
@@ -133,6 +135,10 @@ public class Board {
             Stone[] stones = history.getStones().clone();
             Zobrist zobrist = history.getZobrist();
             int[] lastMove = new int[]{x, y}; // keep track of the last played stone
+            int moveNumber = history.getMoveNumber() + 1;
+            int[] moveNumberList = history.getMoveNumberList().clone();
+
+            moveNumberList[Board.getIndex(x, y)] = moveNumber;
 
             // set the stone at (x, y) to color
             stones[getIndex(x, y)] = color;
@@ -147,8 +153,14 @@ public class Board {
             // check to see if the player made a suicidal coordinate
             boolean isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
 
+            for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
+                if (stones[i].equals(Stone.EMPTY)) {
+                    moveNumberList[i] = 0;
+                }
+            }
+
             // build the new game state
-            BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist);
+            BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist, moveNumber, moveNumberList);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
@@ -281,9 +293,18 @@ public class Board {
     }
 
     /**
+     * get current board move number
+     *
+     * @return the int array corresponding to the current board move number
+     */
+    public int[] getMoveNumberList() {
+        return history.getMoveNumberList();
+    }
+
+    /**
      * Goes to the next coordinate, thread safe
      */
-    public void nextMove() {
+    public boolean nextMove() {
         synchronized (this) {
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
@@ -296,23 +317,31 @@ public class Board {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
                     Lizzie.leelaz.ponder();
                 }
+                return true;
             }
+            return false;
         }
     }
     
     public BoardData getData() {
 		return history.getData();
-	}
+    }
+    
+    public BoardHistoryList getHistory() {
+        return history;
+    }
 
     /**
      * Goes to the previous coordinate, thread safe
      */
-    public void previousMove() {
+    public boolean previousMove() {
         synchronized (this) {
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
                 Lizzie.leelaz.ponder();
+                return true;
             }
+            return false;
         }
     }
 }

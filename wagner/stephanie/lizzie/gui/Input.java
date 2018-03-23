@@ -1,11 +1,14 @@
 package wagner.stephanie.lizzie.gui;
 
+import java.io.IOException;
+import javax.swing.JOptionPane;
 import wagner.stephanie.lizzie.Lizzie;
 
 import javax.swing.plaf.basic.BasicSliderUI;
 import java.awt.event.*;
+import wagner.stephanie.lizzie.rules.SGFParser;
 
-public class Input implements MouseListener, KeyListener, MouseWheelListener {
+public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -38,6 +41,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener {
     }
 
     @Override
+    public void mouseDragged(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
+        
+        Lizzie.frame.onMouseMoved(x, y);
+    }
+
+    @Override
     public void keyTyped(KeyEvent e) {
 
     }
@@ -52,6 +68,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener {
             Lizzie.leelaz.togglePonder();
         } else if (e.getKeyCode() == KeyEvent.VK_P) {
             Lizzie.board.pass();
+        } else if (e.getKeyCode() == KeyEvent.VK_M) {
+            Lizzie.config.toggleShowMoveNumber();
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+            // Don 't ask
+            // Stop the ponder when 
+            Lizzie.leelaz.ponder();
+            Lizzie.leelaz.togglePonder();
+            Lizzie.frame.saveSgf();
+        } else if (e.getKeyCode() == KeyEvent.VK_O) {
+            Lizzie.leelaz.ponder();
+            Lizzie.leelaz.togglePonder();
+            Lizzie.frame.openSgf();
         }
     }
 
