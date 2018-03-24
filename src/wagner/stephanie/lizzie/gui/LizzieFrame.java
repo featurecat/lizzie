@@ -21,21 +21,26 @@ import java.util.concurrent.TimeUnit;
  * The window used to display the game.
  */
 public class LizzieFrame extends JFrame {
-    private static final int FPS = 10; // frames per second
-    private static final String[] commands = {"left arrow = undo",
+    public static final int FPS = 30; // frames per second
+
+    private static final String[] commands = {
+            "left arrow = undo",
             "right arrow = redo",
             "space = toggle pondering",
             "right click = undo",
             "mouse wheel scroll = undo/redo",
-            "key 'P' = pass",
-            "key 'M' = Show/hide move number",
-            "key 'O' = Open a SGF file",
-            "key 'S' = Save the SGF file"};
+            "p = pass",
+            "m = show/hide move number",
+            "o = open SGF",
+            "s = save SGF",
+            "home = go to start",
+            "end = go to end",
+    };
     private static BoardRenderer boardRenderer = new BoardRenderer();
 
     private final BufferStrategy bs;
 
-    public int[] currentCoord;
+    public int[] mouseHoverCoordinate;
 
     /**
      * Creates a window and refreshes the game state at FPS.
@@ -43,7 +48,7 @@ public class LizzieFrame extends JFrame {
     public LizzieFrame() {
         super("Lizzie - Leela Zero Interface");
 
-        // on 1080p windows screens, this is a good width/height
+        // on 1080p windows screens, this is a good width/height; it doesnt matter
         setSize(657, 687);
         setLocationRelativeTo(null); // start centered
         setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
@@ -61,31 +66,24 @@ public class LizzieFrame extends JFrame {
                 1000 / FPS,
                 TimeUnit.MILLISECONDS);
 
-        Input input = new Input();
-        this.addMouseListener(input);
-        this.addKeyListener(input);
-        this.addMouseWheelListener(input);
-        this.addMouseMotionListener(input);
+//        new Thread(() -> {
+            Input input = new Input();
 
-        // shut down leelaz, then shut down the program when the window is closed
-        // And save the SGF file
-        this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                int ret = JOptionPane.showConfirmDialog(null, "Do you want save the SGF file?", "Warning", JOptionPane.OK_CANCEL_OPTION);
-                if (ret == JOptionPane.OK_OPTION) {
-                    saveSgf();
+            this.addMouseListener(input);
+            this.addKeyListener(input);
+            this.addMouseWheelListener(input);
+            this.addMouseMotionListener(input);
+
+            // when the window is closed: save the SGF file, then run shutdown()
+            this.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {
+                    Lizzie.shutdown();
                 }
-            }
-        });
-        this.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
-                Lizzie.leelaz.shutdown();
-                System.exit(0);
-            }
-        });
+            });
+//        }).start();
     }
 
-    public void saveSgf() {
+    public static void saveSgf() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(filter);
@@ -94,14 +92,14 @@ public class LizzieFrame extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
             if (file.exists()) {
-                int ret = JOptionPane.showConfirmDialog(null, "The SGF file is exists, do you want replace it?", "Warning", JOptionPane.OK_CANCEL_OPTION);
+                int ret = JOptionPane.showConfirmDialog(null, "The SGF file already exists, do you want to replace it?", "Warning", JOptionPane.OK_CANCEL_OPTION);
                 if (ret == JOptionPane.CANCEL_OPTION) {
                     return;
                 }
             }
-            if (!file.getPath().endsWith(".sgf")) {  
-                file = new File(file.getPath()+".sgf");  
-            }  
+            if (!file.getPath().endsWith(".sgf")) {
+                file = new File(file.getPath() + ".sgf");
+            }
             try {
                 SGFParser.save(file.getPath());
             } catch (IOException err) {
@@ -110,7 +108,7 @@ public class LizzieFrame extends JFrame {
         }
     }
 
-    public void openSgf() {
+    public static void openSgf() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(filter);
@@ -118,9 +116,9 @@ public class LizzieFrame extends JFrame {
         int result = chooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
-            if (!file.getPath().endsWith(".sgf")) {  
-                file = new File(file.getPath()+".sgf");  
-            }  
+            if (!file.getPath().endsWith(".sgf")) {
+                file = new File(file.getPath() + ".sgf");
+            }
             try {
                 System.out.println(file.getPath());
                 SGFParser.load(file.getPath());
@@ -129,15 +127,6 @@ public class LizzieFrame extends JFrame {
             }
         }
     }
-
-    // instead of the usual mod pattern (0 1 2 0 1 2...), it bounces back and forth: (0 1 2 1 0 1 2 1...)
-    private static long bouncingMod(long a, int mod) {
-        a = a % (2 * mod);
-        if (a >= mod)
-            a = 2 * mod - a;
-        return a;
-    }
-
 
     /**
      * Draws the game board and interface
@@ -150,7 +139,6 @@ public class LizzieFrame extends JFrame {
 
         // initialize
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int topInset = this.getInsets().top;
 
@@ -172,15 +160,15 @@ public class LizzieFrame extends JFrame {
         int commandsX = (int) (boardX + maxSize * 1.01);
         int commandsY = (int) (getHeight() * 0.2);
 
-        Color boxColor =new Color(200, 255, 200);
+        Color boxColor = new Color(200, 255, 200);
         g.setColor(boxColor);
-        g.fillRect(commandsX, commandsY, (int)(maxSize * 0.35), (int)(commands.length * font.getSize() * 1.1));
+        g.fillRect(commandsX, commandsY, (int) (maxSize * 0.35), (int) (commands.length * font.getSize() * 1.1));
         g.setColor(boxColor.darker());
-        g.drawRect(commandsX, commandsY, (int)(maxSize * 0.35), (int)(commands.length * font.getSize() * 1.1));
+        g.drawRect(commandsX, commandsY, (int) (maxSize * 0.35), (int) (commands.length * font.getSize() * 1.1));
 
         g.setColor(Color.BLACK);
         for (int i = 0; i < commands.length; i++) {
-            g.drawString(commands[i], commandsX, font.getSize() + (int)(commandsY + i * font.getSize() * 1.1));
+            g.drawString(commands[i], commandsX, font.getSize() + (int) (commandsY + i * font.getSize() * 1.1));
         }
 
 
@@ -205,6 +193,6 @@ public class LizzieFrame extends JFrame {
     }
 
     public void onMouseMoved(int x, int y) {
-        currentCoord = boardRenderer.convertScreenToCoordinates(x, y);
+        mouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
     }
 }

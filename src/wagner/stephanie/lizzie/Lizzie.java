@@ -5,6 +5,8 @@ import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 import wagner.stephanie.lizzie.analysis.Config;
+
+import javax.swing.*;
 import java.io.IOException;
 
 /**
@@ -28,5 +30,15 @@ public class Lizzie {
         board = new Board();
 
         frame = new LizzieFrame();
+    }
+
+    public static void shutdown() {
+        int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
+        if (ret == JOptionPane.OK_OPTION) {
+            LizzieFrame.saveSgf();
+        }
+
+        leelaz.shutdown();
+        System.exit(0);
     }
 }

@@ -4,7 +4,11 @@ import wagner.stephanie.lizzie.Lizzie;
 
 import java.awt.event.*;
 
+import static java.awt.event.KeyEvent.*;
+
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
+    private boolean controlIsPressed = false;
+
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -45,7 +49,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     public void mouseMoved(MouseEvent e) {
         int x = e.getX();
         int y = e.getY();
-        
+
         Lizzie.frame.onMouseMoved(x, y);
     }
 
@@ -56,41 +60,85 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            Lizzie.board.nextMove();
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            Lizzie.board.previousMove();
-        } else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            Lizzie.leelaz.togglePonder();
-        } else if (e.getKeyCode() == KeyEvent.VK_P) {
-            Lizzie.board.pass();
-        } else if (e.getKeyCode() == KeyEvent.VK_M) {
-            Lizzie.config.toggleShowMoveNumber();
-        } else if (e.getKeyCode() == KeyEvent.VK_S) {
-            // Don 't ask
-            // Stop the ponder when 
-            Lizzie.leelaz.ponder();
-            Lizzie.leelaz.togglePonder();
-            Lizzie.frame.saveSgf();
-        } else if (e.getKeyCode() == KeyEvent.VK_O) {
-            Lizzie.leelaz.ponder();
-            Lizzie.leelaz.togglePonder();
-            Lizzie.frame.openSgf();
+
+        int movesToAdvance = 1; // number of moves to advance if control is held down
+        switch (e.getKeyCode()) {
+            case VK_CONTROL:
+
+                controlIsPressed = true;
+                break;
+
+            case VK_RIGHT:
+                if (controlIsPressed)
+                    movesToAdvance = 10;
+                for (int i = 0; i < movesToAdvance; i++)
+                    Lizzie.board.nextMove();
+                break;
+
+            case VK_LEFT:
+                if (controlIsPressed)
+                    movesToAdvance = 10;
+                for (int i = 0; i < movesToAdvance; i++)
+                    Lizzie.board.previousMove();
+                break;
+
+            case VK_SPACE:
+                Lizzie.leelaz.togglePonder();
+                break;
+
+            case VK_P:
+                Lizzie.board.pass();
+                break;
+
+            case VK_M:
+                Lizzie.config.toggleShowMoveNumber();
+                break;
+
+            case VK_S:
+                // Don't ask
+                // Stop the ponder when
+                Lizzie.leelaz.ponder();
+                Lizzie.leelaz.togglePonder();
+                Lizzie.frame.saveSgf();
+                break;
+
+            case VK_O:
+                Lizzie.leelaz.ponder();
+                Lizzie.leelaz.togglePonder();
+                Lizzie.frame.openSgf();
+                break;
+
+            case VK_HOME:
+                while (Lizzie.board.previousMove()) ;
+                break;
+
+            case VK_END:
+                while (Lizzie.board.nextMove()) ;
+                break;
+
+            default:
         }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case VK_CONTROL:
+                controlIsPressed = false;
+                break;
+
+            default:
+        }
     }
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
 //        for (int i= 0; i < Math.abs(e.getWheelRotation()); i++) {
-            if (e.getWheelRotation() > 0) {
-                Lizzie.board.nextMove();
-            } else if (e.getWheelRotation() < 0) {
-                Lizzie.board.previousMove();
-            }
+        if (e.getWheelRotation() > 0) {
+            Lizzie.board.nextMove();
+        } else if (e.getWheelRotation() < 0) {
+            Lizzie.board.previousMove();
+        }
 //        }
     }
 }

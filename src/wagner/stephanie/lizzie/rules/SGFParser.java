@@ -112,7 +112,7 @@ public class SGFParser {
     public static boolean save(String filename) throws IOException {
         FileOutputStream fp = new FileOutputStream(filename);
         OutputStreamWriter writer = new OutputStreamWriter(fp);
-        StringBuilder builder = new StringBuilder(String.format("(;CA[gb2312]AP[Lizzie: %s]", Lizzie.lizzie_version));
+        StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzie_version));
         BoardHistoryList history = Lizzie.board.getHistory();
         while (history.previous() != null) ;
         BoardData data = null;

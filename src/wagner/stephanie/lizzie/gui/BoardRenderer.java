@@ -61,10 +61,10 @@ public class BoardRenderer {
     /**
      * Draw a go board
      *
-     * @param g0 graphics instance
+     * @param g graphics instance
      */
-    public void draw(Graphics g0) {
-        Graphics2D g = (Graphics2D) g0;
+    public void draw(Graphics2D g) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         int scaledMargin; // the pixel boardWidth of the margins
         int availableWidth; // the pixel boardWidth of the game board without margins
 
@@ -103,6 +103,8 @@ public class BoardRenderer {
                     x + scaledMargin + squareSize * i, y + scaledMargin + availableWidth - 1);
         }
 
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         // draw the star points
         int starPointRadius = (int) (STAR_POINT_WIDTH * boardWidth) / 2;
 
@@ -126,20 +128,20 @@ public class BoardRenderer {
         try {
             branch_alpha = config.getInt("branch-stone-alpha");
         } catch (JSONException e) {
-            branch_alpha = 160;
+            e.printStackTrace();
         }
 
         branch = null;
 
-        for (int i = 0; i < bestMoves.size(); i++) {
-            MoveData move = bestMoves.get(i);
-            int[] coord = Board.convertNameToCoordinates(move.coordinate);
-            if (Lizzie.frame.currentCoord == null) {
-                break;
-            }
-            if (coord[0] == Lizzie.frame.currentCoord[0] && coord[1] == Lizzie.frame.currentCoord[1]) {
-                branch = new Branch(Lizzie.board, move.variation);
-                break;
+        if (Lizzie.frame.mouseHoverCoordinate != null) {
+            for (int i = 0; i < bestMoves.size(); i++) {
+                MoveData move = bestMoves.get(i);
+                int[] coord = Board.convertNameToCoordinates(move.coordinate);
+
+                if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
+                    branch = new Branch(Lizzie.board, move.variation);
+                    break;
+                }
             }
         }
 
@@ -166,18 +168,19 @@ public class BoardRenderer {
                             if (branch == null) {
                                 break;
                             }
+                            int alpha = branch_alpha; // TODO change this branching algorithm?
                             switch (branch.data.stones[Board.getIndex(i, j)]) {
-                            case BLACK:
-                                g.setColor(new Color(0 , 0, 0, branch_alpha));
-                                g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
-                                break;
-                            case WHITE:
-                                g.setColor(new Color(255, 255, 255, branch_alpha));
-                                g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
-                                g.setColor(new Color(0 , 0, 0, branch_alpha));
-                                g.drawOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
-                                break;
-                            default:
+                                case BLACK:
+                                    g.setColor(new Color(0 , 0, 0, alpha));
+                                    g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
+                                    break;
+                                case WHITE:
+                                    g.setColor(new Color(255, 255, 255, branch_alpha));
+                                    g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
+                                    g.setColor(new Color(0 , 0, 0, branch_alpha));
+                                    g.drawOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
+                                    break;
+                                default:
                             }
                             break;
                         case BLACK:
@@ -196,7 +199,7 @@ public class BoardRenderer {
 
                     // Show move number if enable
                     // TODO the move number is not center
-                    
+
                     int[] lastMove = Lizzie.board.getLastMove();
 
                     Stone currentColor = Stone.EMPTY;
@@ -222,16 +225,16 @@ public class BoardRenderer {
                                 g.setFont(font);
                             } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
                             g.drawString(moveNumberString,
-                                stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
+                                    stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
                         }
                     }
                 }
             }
-			
-			// mark the last coordinate
+
+            // mark the last coordinate
             int[] lastMove = (branch == null?Lizzie.board.getLastMove() : branch.data.lastMove);
-            
-			if (lastMove != null) {
+
+            if (lastMove != null) {
                 // If show move number is enable
                 // Last move color is different
                 if (Lizzie.config.showMoveNumber) {
@@ -259,13 +262,13 @@ public class BoardRenderer {
                         g.setFont(font);
                     } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
                     g.drawString(moveNumberString,
-                        stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
+                            stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
 
                 } else {
                     int circleRadius = squareSize / 4;
                     int stoneX = x + scaledMargin + squareSize * lastMove[0] - circleRadius;
                     int stoneY = y + scaledMargin + squareSize * lastMove[1] - circleRadius;
-                    
+
                     // set color to the opposite color of whatever is on the board
                     g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.WHITE ? Color.BLACK : Color.WHITE);
                     g.drawOval(stoneX, stoneY, circleRadius * 2 + 1, circleRadius * 2 + 1);

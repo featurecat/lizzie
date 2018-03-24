@@ -64,10 +64,9 @@ public class Leelaz {
         try {
             JSONArray gpu = config.getJSONArray("gpu");
 
-        for (int i = 0; i < gpu.length(); i++) {
-            commands.add("--gpu");
-            commands.add(String.valueOf(gpu.getInt(i)));
-        }
+            for (int i = 0; i < gpu.length(); i++) {
+                commands.add("--gpu" + String.valueOf(gpu.getInt(i)));
+            }
         } catch (Exception e) {
             // Nothing
         }
@@ -113,11 +112,8 @@ public class Leelaz {
             } else {
                 if (isReadingPonderOutput) {
                     line = line.trim();
-                    System.out.println(line);
-                    boolean isLetter = Character.isLetter(line.charAt(0));
-                    System.out.println(isLetter);
                     // ignore passes, and only accept lines that start with a coordinate letter
-                    if (isLetter && !line.startsWith("pass"))
+                    if (Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
                         bestMovesTemp.add(new MoveData(line));
                 } else {
                     System.out.print(line);
