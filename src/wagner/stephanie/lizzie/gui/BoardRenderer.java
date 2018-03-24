@@ -58,7 +58,7 @@ public class BoardRenderer {
         return stones;
     }
 
-    /**
+    /** // TODO REFACTOR THIS
      * Draw a go board
      *
      * @param g graphics instance
@@ -72,7 +72,7 @@ public class BoardRenderer {
 
         try {
             config = Lizzie.config.config.getJSONObject("ui");
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             config = new JSONObject();
         }
 
@@ -171,13 +171,13 @@ public class BoardRenderer {
                             int alpha = branch_alpha; // TODO change this branching algorithm?
                             switch (branch.data.stones[Board.getIndex(i, j)]) {
                                 case BLACK:
-                                    g.setColor(new Color(0 , 0, 0, alpha));
+                                    g.setColor(new Color(0, 0, 0, alpha));
                                     g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
                                     break;
                                 case WHITE:
                                     g.setColor(new Color(255, 255, 255, branch_alpha));
                                     g.fillOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
-                                    g.setColor(new Color(0 , 0, 0, branch_alpha));
+                                    g.setColor(new Color(0, 0, 0, branch_alpha));
                                     g.drawOval(stoneX, stoneY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
                                     break;
                                 default:
@@ -221,18 +221,18 @@ public class BoardRenderer {
                             int fontSize = (int) (stoneRadius * 1.5);
                             Font font;
                             do {
-                                font = new Font("Sans Serif", Font.PLAIN, fontSize--);
+                                font = new Font("Open Sans", Font.PLAIN, fontSize--);
                                 g.setFont(font);
                             } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
                             g.drawString(moveNumberString,
-                                    stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
+                                    stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + fontSize / 3);
                         }
                     }
                 }
             }
 
             // mark the last coordinate
-            int[] lastMove = (branch == null?Lizzie.board.getLastMove() : branch.data.lastMove);
+            int[] lastMove = (branch == null ? Lizzie.board.getLastMove() : branch.data.lastMove);
 
             if (lastMove != null) {
                 // If show move number is enable
@@ -249,7 +249,7 @@ public class BoardRenderer {
                         currentColor = branch.data.stones[Board.getIndex(lastMove[0], lastMove[1])];
                     }
 
-                    Color color = currentColor.equals(Stone.BLACK)?Color.RED:Color.BLUE;
+                    Color color = currentColor.equals(Stone.BLACK) ? Color.RED : Color.BLUE;
                     if (Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.EMPTY) {
                         color = new Color(color.getRed(), color.getGreen(), color.getBlue(), branch_alpha);
                     }
@@ -258,11 +258,11 @@ public class BoardRenderer {
                     int fontSize = (int) (stoneRadius * 1.5);
                     Font font;
                     do {
-                        font = new Font("Sans Serif", Font.PLAIN, fontSize--);
+                        font = new Font("Open Sans", Font.PLAIN, fontSize--);
                         g.setFont(font);
                     } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
                     g.drawString(moveNumberString,
-                            stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + (int) (fontSize / 2.0));
+                            stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + fontSize / 3);
 
                 } else {
                     int circleRadius = squareSize / 4;
@@ -327,14 +327,14 @@ public class BoardRenderer {
 
                 if (alpha > 64) {
                     g.setColor(Color.BLACK);
-                    Font font = new Font("Sans Serif", Font.BOLD, (int) (stoneRadius * 0.85));
+                    Font font = new Font("Open Sans Semibold", Font.PLAIN, (int) (stoneRadius * 0.85));
                     g.setFont(font);
                     String winrateString = String.format("%.0f", move.winrate) + "%";
                     g.drawString(winrateString, suggestionX + stoneRadius - g.getFontMetrics(font).stringWidth(winrateString) / 2, suggestionY + stoneRadius);
                     String playouts;
                     int fontSize = (int) (stoneRadius * 0.8);
                     do {
-                        font = new Font("Sans Serif", Font.PLAIN, fontSize--);
+                        font = new Font("Open Sans", Font.PLAIN, fontSize--);
                         g.setFont(font);
                         playouts = "" + move.playouts;
                     } while (g.getFontMetrics(font).stringWidth(playouts) > stoneRadius * 1.7);

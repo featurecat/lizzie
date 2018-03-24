@@ -35,6 +35,7 @@ public class LizzieFrame extends JFrame {
             "s = save SGF",
             "home = go to start",
             "end = go to end",
+            "ctrl = undo/redo 10 moves",
     };
     private static BoardRenderer boardRenderer = new BoardRenderer();
 
@@ -48,7 +49,19 @@ public class LizzieFrame extends JFrame {
     public LizzieFrame() {
         super("Lizzie - Leela Zero Interface");
 
-        // on 1080p windows screens, this is a good width/height; it doesnt matter
+        // load fonts
+        try {
+            GraphicsEnvironment ge =
+                    GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./OpenSans-Regular.ttf")));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./OpenSans-Semibold.ttf")));
+            for (String s : ge.getAvailableFontFamilyNames())
+                System.out.println(s);
+        } catch (IOException|FontFormatException e) {
+            e.printStackTrace();
+        }
+
+        // on 1080p screens in Windows, this is a good width/height; removing a default size causes problems in Linux
         setSize(657, 687);
         setLocationRelativeTo(null); // start centered
         setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
