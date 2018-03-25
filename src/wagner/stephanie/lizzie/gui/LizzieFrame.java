@@ -37,7 +37,7 @@ public class LizzieFrame extends JFrame {
             "end = go to end",
             "ctrl = undo/redo 10 moves",
     };
-    private static BoardRenderer boardRenderer = new BoardRenderer();
+    private static BoardRenderer boardRenderer;
 
     private final BufferStrategy bs;
 
@@ -49,19 +49,9 @@ public class LizzieFrame extends JFrame {
     public LizzieFrame() {
         super("Lizzie - Leela Zero Interface");
 
-        // load fonts
-        try {
-            GraphicsEnvironment ge =
-                    GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./OpenSans-Regular.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./OpenSans-Semibold.ttf")));
-            for (String s : ge.getAvailableFontFamilyNames())
-                System.out.println(s);
-        } catch (IOException|FontFormatException e) {
-            e.printStackTrace();
-        }
+        boardRenderer = new BoardRenderer();
 
-        // on 1080p screens in Windows, this is a good width/height; removing a default size causes problems in Linux
+        // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
         setSize(657, 687);
         setLocationRelativeTo(null); // start centered
         setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
@@ -79,21 +69,20 @@ public class LizzieFrame extends JFrame {
                 1000 / FPS,
                 TimeUnit.MILLISECONDS);
 
-//        new Thread(() -> {
-            Input input = new Input();
+        Input input = new Input();
 
-            this.addMouseListener(input);
-            this.addKeyListener(input);
-            this.addMouseWheelListener(input);
-            this.addMouseMotionListener(input);
+        this.addMouseListener(input);
+        this.addKeyListener(input);
+        this.addMouseWheelListener(input);
+        this.addMouseMotionListener(input);
 
-            // when the window is closed: save the SGF file, then run shutdown()
-            this.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {
-                    Lizzie.shutdown();
-                }
-            });
-//        }).start();
+        // when the window is closed: save the SGF file, then run shutdown()
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                Lizzie.shutdown();
+            }
+        });
+
     }
 
     public static void saveSgf() {
@@ -164,7 +153,7 @@ public class LizzieFrame extends JFrame {
         int boardX = (getWidth() - maxSize) / 2;
         int boardY = topInset + (getHeight() - topInset - maxSize) / 2;
         boardRenderer.setLocation(boardX, boardY);
-        boardRenderer.setBoardWidth(maxSize);
+        boardRenderer.setBoardLength(maxSize);
         boardRenderer.draw(g);
 
         // draw the commands, right of the board.
