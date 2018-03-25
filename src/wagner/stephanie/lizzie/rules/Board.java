@@ -37,6 +37,7 @@ public class Board {
      * @return an array containing x, followed by y
      */
     public static int[] convertNameToCoordinates(String namedCoordinate) {
+        namedCoordinate = namedCoordinate.trim();
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
         int x = alphabet.indexOf(namedCoordinate.charAt(0));
         int y = Integer.parseInt(namedCoordinate.substring(1)) - 1;
@@ -185,7 +186,7 @@ public class Board {
     }
 
     /**
-     * overloaded method for place. To be used by the LeelaZ engine. Color is then assumed to be alternating, anyway.
+     * overloaded method for place. To be used by the LeelaZ engine. Color is then assumed to be alternating
      *
      * @param namedCoordinate the coordinate to place a stone,
      */

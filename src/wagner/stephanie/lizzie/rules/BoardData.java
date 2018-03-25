@@ -15,6 +15,7 @@ public class BoardData {
         this.lastMove = lastMove;
         this.moveNumberList = moveNumberList;
         this.blackToPlay = blackToPlay;
+
         this.lastMoveColor = lastMoveColor;
         this.stones = stones;
         this.zobrist = zobrist;

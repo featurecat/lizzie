@@ -43,7 +43,7 @@ public class Config {
     }
 
     private void createNewConfig(File file) throws IOException, JSONException {
-        JSONObject config = new JSONObject();
+        config = new JSONObject();
 
         // About engine parameter
         JSONObject leelaz = new JSONObject();
@@ -72,4 +72,6 @@ public class Config {
         writer.close();
         fp.close();
     }
+
+
 }
