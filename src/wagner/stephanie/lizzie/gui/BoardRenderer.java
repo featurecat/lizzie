@@ -67,6 +67,9 @@ public class BoardRenderer {
         return new int[]{boardLength, scaledMargin, availableLength};
     }
 
+    /**
+     * Draws a stone centered at (centerX, centerY)
+     */
     private void drawStone(Graphics2D g, int centerX, int centerY, Stone color, int squareLength) {
         int stoneRadius = squareLength / 2 - 1;
 
@@ -95,7 +98,6 @@ public class BoardRenderer {
                 drawCircle(g, centerX, centerY, stoneRadius);
                 break;
 
-
             default:
         }
     }
@@ -114,6 +116,11 @@ public class BoardRenderer {
         g.drawOval(centerX - radius, centerY - radius, 2 * radius + 1, 2 * radius + 1);
     }
 
+    /**
+     * Draws a string centered at (x, y) of font $fontString$, whose contents are $string$.
+     * The maximum/default fontsize will be $maximumFontHeight$, and the length of the drawn string will be at most maximumFontWidth.
+     * The resulting actual size depends on the length of $string$.
+     */
     private void drawString(Graphics2D g, int x, int y, String fontString, String string, int maximumFontHeight, int maximumFontWidth) {
         Font font;
         maximumFontHeight++;
