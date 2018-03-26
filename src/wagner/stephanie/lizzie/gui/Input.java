@@ -22,7 +22,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (e.getButton() == MouseEvent.BUTTON1) // left mouse click
             Lizzie.frame.onClicked(x, y);
         else if (e.getButton() == MouseEvent.BUTTON3) // right mouse click
-            Lizzie.board.previousMove(); // interpret as undo
+            undo();
     }
 
     @Override
@@ -58,6 +58,24 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     }
 
+    private void undo() {
+        int movesToAdvance = 1;
+        if (controlIsPressed)
+            movesToAdvance = 10;
+
+        for (int i = 0; i < movesToAdvance; i++)
+            Lizzie.board.previousMove();
+    }
+
+    private void redo() {
+        int movesToAdvance = 1;
+        if (controlIsPressed)
+            movesToAdvance = 10;
+
+        for (int i = 0; i < movesToAdvance; i++)
+            Lizzie.board.nextMove();
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -69,17 +87,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_RIGHT:
-                if (controlIsPressed)
-                    movesToAdvance = 10;
-                for (int i = 0; i < movesToAdvance; i++)
-                    Lizzie.board.nextMove();
+                redo();
                 break;
 
             case VK_LEFT:
-                if (controlIsPressed)
-                    movesToAdvance = 10;
-                for (int i = 0; i < movesToAdvance; i++)
-                    Lizzie.board.previousMove();
+                undo();
                 break;
 
             case VK_SPACE:
@@ -133,12 +145,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-//        for (int i= 0; i < Math.abs(e.getWheelRotation()); i++) {
         if (e.getWheelRotation() > 0) {
-            Lizzie.board.nextMove();
+            redo();
         } else if (e.getWheelRotation() < 0) {
-            Lizzie.board.previousMove();
+            undo();
         }
-//        }
     }
 }
