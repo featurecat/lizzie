@@ -1,9 +1,7 @@
 package wagner.stephanie.lizzie.gui;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import wagner.stephanie.benchmark.Stopwatch;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
@@ -12,10 +10,13 @@ import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
 
 import java.awt.*;
+import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoardRenderer {
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
@@ -25,6 +26,10 @@ public class BoardRenderer {
     private int boardLength;
 
     private JSONObject uiConfig;
+
+    private int scaledMargin, availableLength, squareLength, stoneRadius;
+    private Branch branch;
+    private List<MoveData> bestMoves;
 
     static {
         // load fonts
@@ -71,8 +76,6 @@ public class BoardRenderer {
      * Draws a stone centered at (centerX, centerY)
      */
     private void drawStone(Graphics2D g, int centerX, int centerY, Stone color, int squareLength) {
-        int stoneRadius = squareLength / 2 - 1;
-
         switch (color) {
             case BLACK:
                 g.setColor(Color.BLACK);
@@ -120,25 +123,63 @@ public class BoardRenderer {
      * Draws a string centered at (x, y) of font $fontString$, whose contents are $string$.
      * The maximum/default fontsize will be $maximumFontHeight$, and the length of the drawn string will be at most maximumFontWidth.
      * The resulting actual size depends on the length of $string$.
+     * aboveOrBelow is a param that lets you set:
+     * aboveOrBelow = -1 -> y is the top of the string
+     * aboveOrBelow = 0  -> y is the vertical center of the string
+     * aboveOrBelow = 1  -> y is the bottom of the string
      */
-    private void drawString(Graphics2D g, int x, int y, String fontString, String string, int maximumFontHeight, int maximumFontWidth) {
-        Font font;
-        maximumFontHeight++;
-        do {
-            font = new Font(fontString, Font.PLAIN, maximumFontHeight--);
-            g.setFont(font);
-        } while (g.getFontMetrics(font).stringWidth(string) > maximumFontWidth);
-        g.drawString(string, x - g.getFontMetrics(font).stringWidth(string) / 2, y + font.getSize() / 3);
+    private void drawString(Graphics2D g, int x, int y, String fontString, int style, String string, float maximumFontHeight, double maximumFontWidth, int aboveOrBelow) {
+
+        Font font = makeFont(fontString, style);
+
+        // set maximum size of font
+        font = font.deriveFont((float)(font.getSize2D() * maximumFontWidth / g.getFontMetrics(font).stringWidth(string)));
+        font = font.deriveFont(Math.min(maximumFontHeight, font.getSize()));
+        g.setFont(font);
+
+        FontMetrics metrics = g.getFontMetrics(font);
+
+        int height = metrics.getAscent() - metrics.getDescent();
+        int verticalOffset;
+        switch (aboveOrBelow) {
+            case -1:
+                verticalOffset = height / 2;
+                break;
+
+            case 1:
+                verticalOffset = -height / 2;
+                break;
+
+            default:
+                verticalOffset = 0;
+        }
+        // bounding box for debugging
+        // g.drawRect(x-(int)maximumFontWidth/2, y - height/2 + verticalOffset, (int)maximumFontWidth, height+verticalOffset );
+        g.drawString(string, x - metrics.stringWidth(string) / 2, y + height / 2 + verticalOffset);
+    }
+
+
+
+    private void drawString(Graphics2D g, int x, int y, String fontString, String string, float maximumFontHeight, double maximumFontWidth) {
+        drawString(g, x, y, fontString, Font.PLAIN, string, maximumFontHeight, maximumFontWidth, 0);
+    }
+
+    /**
+     * @return a font with kerning enabled
+     */
+    private Font makeFont(String fontString, int style) {
+        Font font = new Font(fontString, style, 100);
+        Map<TextAttribute, Object> atts = new HashMap<>();
+        atts.put(TextAttribute.KERNING, TextAttribute.KERNING_ON);
+        return font.deriveFont(atts);
     }
 
     private BufferedImage cachedBackgroundImage = null;
 
-    // TODO pull scaledMargin, availableLength, squareLength out into class fields
-
     /**
-     * Draw the green background and go board with lines. We should cache the image for a performance boost
+     * Draw the green background and go board with lines. We cache the image for a performance boost.
      */
-    private void drawBackground(Graphics2D g0, int scaledMargin, int availableLength, int squareLength) {
+    private void drawBackground(Graphics2D g0) {
         // draw the cached background image if frame size changes
         if (cachedBackgroundImage == null || cachedBackgroundImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight()) {
@@ -188,9 +229,9 @@ public class BoardRenderer {
     private Zobrist cachedZhash = new Zobrist(); // defaults to an empty board
 
     /**
-     * draw the stones. we should cache the image for a performance boost
+     * Draw the stones. We cache the image for a performance boost.
      */
-    private void drawStones(Graphics2D g0, int scaledMargin, int availableLength, int squareLength) {
+    private void drawStones(Graphics2D g0) {
         // draw a new image if frame size changes or board state changes
         if (cachedStonesImage == null || cachedStonesImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedStonesImage.getHeight() != Lizzie.frame.getHeight() ||
@@ -220,7 +261,23 @@ public class BoardRenderer {
     /**
      * Draw the 'ghost stones' which show a variation Leelaz is thinking about
      */
-    private void drawBranch(Graphics2D g, int scaledMargin, int availableLength, int squareLength, Branch branch) {
+    private void drawBranch(Graphics2D g) {
+        // calculate best moves and branch
+        bestMoves = Lizzie.leelaz.getBestMoves();
+        branch = null;
+
+        if (Lizzie.frame.mouseHoverCoordinate != null) {
+            for (int i = 0; i < bestMoves.size(); i++) {
+                MoveData move = bestMoves.get(i);
+                int[] coord = Board.convertNameToCoordinates(move.coordinate);
+
+                if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
+                    branch = new Branch(Lizzie.board, move.variation);
+                    break;
+                }
+            }
+        }
+
         if (branch == null)
             return;
 
@@ -241,19 +298,19 @@ public class BoardRenderer {
     /**
      * Draw move numbers and/or mark the last played move
      */
-    private void drawMoveNumbers(Graphics2D g, int scaledMargin, int availableLength, int squareLength, Branch branch) {
+    private void drawMoveNumbers(Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int[] lastMove = branch == null ? Lizzie.board.getLastMove() : branch.data.lastMove;
-        if (!Lizzie.config.showMoveNumber && lastMove != null) {
+        if (!Lizzie.config.showMoveNumber && lastMove != null && branch == null) {
             // mark the last coordinate
-            int lastMoveMarkerRadius = squareLength / 4;
+            int lastMoveMarkerRadius = stoneRadius / 2;
             int stoneX = x + scaledMargin + squareLength * lastMove[0];
             int stoneY = y + scaledMargin + squareLength * lastMove[1];
 
             // set color to the opposite color of whatever is on the board
-            Stone[] stones = branch == null ? Lizzie.board.getStones() : branch.data.stones;
-            g.setColor(stones[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ? Color.BLACK : Color.WHITE);
+            g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ?
+                    Color.BLACK : Color.WHITE);
             drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
 
             return;
@@ -269,15 +326,14 @@ public class BoardRenderer {
                 Stone stoneAtThisPoint = branch == null ? Lizzie.board.getStones()[Board.getIndex(i, j)] :
                         branch.data.stones[Board.getIndex(i, j)];
 
-                if (moveNumberList[Board.getIndex(i, j)] != 0) {
+                if (moveNumberList[Board.getIndex(i, j)] > (branch == null ? 0 : 1)) {
                     if (lastMove != null && i == lastMove[0] && j == lastMove[1])
-                        g.setColor(stoneAtThisPoint.isBlack() ? Color.RED : Color.BLUE);
+                        g.setColor(Color.RED.brighter());//stoneAtThisPoint.isBlack() ? Color.RED.brighter() : Color.BLUE.brighter());
                     else
                         g.setColor(stoneAtThisPoint.isBlack() ? Color.WHITE : Color.BLACK);
 
                     String moveNumberString = moveNumberList[Board.getIndex(i, j)] + "";
-                    drawString(g, stoneX, stoneY, "Open Sans", moveNumberString, (int) (squareLength * 0.75),
-                            (int) (squareLength * 0.85));
+                    drawString(g, stoneX, stoneY, "Open Sans", moveNumberString, (float) (stoneRadius * 1.4), (int) (stoneRadius * 1.4));
                 }
             }
         }
@@ -286,131 +342,123 @@ public class BoardRenderer {
     /**
      * Draw all of Leelaz's suggestions as colored stones with winrate/playout statistics overlayed
      */
-    private void drawLeelazSuggestions(Graphics2D g, int scaledMargin, int availableLength, int squareLength, List<MoveData> bestMoves, Branch branch) {
-        int stoneRadius = squareLength / 2 - 1;
+    private void drawLeelazSuggestions(Graphics2D g) {
+        final int MIN_ALPHA = 32;
+        final int MIN_ALPHA_TO_DISPLAY_TEXT = 64;
+        final int MAX_ALPHA = 240;
+        final double HUE_SCALING_FACTOR = 3.0;
+        final double ALPHA_SCALING_FACTOR = 5.0;
 
-        // TODO clean up this MESS
-        if (!bestMoves.isEmpty() && branch == null) {
-            final double MIN_ACCEPTABLE_PLAYOUTS = 0.0;
+        if (!bestMoves.isEmpty()) {
 
             int maxPlayouts = 0;
             for (MoveData move : bestMoves) {
-                if (move.playouts < MIN_ACCEPTABLE_PLAYOUTS)
-                    continue;
                 if (move.playouts > maxPlayouts)
                     maxPlayouts = move.playouts;
             }
 
-            final int MIN_ALPHA = 32;
-            final int MAX_ALPHA = 240;
-
             for (int i = 0; i < bestMoves.size(); i++) {
                 MoveData move = bestMoves.get(i);
-                double percentPlayouts = (Math.max(0, (double) move.playouts) / Math.max(1, maxPlayouts));
-                if (percentPlayouts < MIN_ACCEPTABLE_PLAYOUTS) {
+                if (move.playouts == 0) // this actually happens
                     continue;
-                }
-                int[] coordinates = Board.convertNameToCoordinates(move.coordinate);
-                int suggestionX = x + scaledMargin + squareLength * coordinates[0] - stoneRadius;
-                int suggestionY = y + scaledMargin + squareLength * coordinates[1] - stoneRadius;
 
-                // -0.32 = Greenest, 0 = Reddest
-                float hue = (float) (-0.32 * Math.max(0, Math.log(percentPlayouts) / 3 + 1));
+                double percentPlayouts = (double) move.playouts / maxPlayouts;
+
+                int[] coordinates = Board.convertNameToCoordinates(move.coordinate);
+                int suggestionX = x + scaledMargin + squareLength * coordinates[0];
+                int suggestionY = y + scaledMargin + squareLength * coordinates[1];
+
+
+                // -0.32 = Greenest hue, 0 = Reddest hue
+                float hue = (float) (-0.32 * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
                 float saturation = 0.75f; //saturation
                 float brightness = 0.85f; //brightness
-                int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) / 5 + 1));
+                int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
+                        ALPHA_SCALING_FACTOR + 1));
 
                 Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
                 Color color = new Color(hsbColor.getRed(), hsbColor.getBlue(), hsbColor.getGreen(), alpha);
 
-                g.setColor(color);
-                g.fillOval(suggestionX, suggestionY, stoneRadius * 2 + 1, stoneRadius * 2 + 1);
-                int strokeWidth = 0;
-                // highlight the top recommended move
-                if (i == 0) {
-                    strokeWidth = 2;
-                    g.setColor(Color.RED);
-                    g.setStroke(new BasicStroke(strokeWidth));
-                } else {
-                    g.setColor(color.darker());
+                if (branch == null) {
+                    g.setColor(color);
+                    fillCircle(g, suggestionX, suggestionY, stoneRadius - 1);
+
                 }
-                g.drawOval(suggestionX + strokeWidth / 2, suggestionY + strokeWidth / 2, stoneRadius * 2 + 1 - strokeWidth, stoneRadius * 2 + 1 - strokeWidth);
-                g.setStroke(new BasicStroke(1));
 
-                if (alpha > 64) {
+                if (branch == null || (i == 0 && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
+                    // highlight LeelaZero's top recommended move
+                    int strokeWidth = 1;
+                    if (i == 0) { // this is the best move
+                        strokeWidth = 2;
+                        g.setColor(Color.RED);
+                        g.setStroke(new BasicStroke(strokeWidth));
+                    } else {
+                        g.setColor(color.darker());
+                    }
+                    drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
+                    g.setStroke(new BasicStroke(1));
+                }
+
+
+                if (branch == null && alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
+                    double roundedWinrate = Math.round(move.winrate * 10) / 10.0;
                     g.setColor(Color.BLACK);
-                    Font font = new Font("Open Sans Semibold", Font.PLAIN, (int) (stoneRadius * 0.85));
-                    g.setFont(font);
-                    String winrateString = String.format("%.0f", move.winrate) + "%";
-                    g.drawString(winrateString, suggestionX + stoneRadius - g.getFontMetrics(font).stringWidth(winrateString) / 2, suggestionY + stoneRadius);
-                    String playouts;
-                    int fontSize = (int) (stoneRadius * 0.8);
-                    do {
-                        font = new Font("Open Sans", Font.PLAIN, fontSize--);
-                        g.setFont(font);
-                        playouts = "" + move.playouts;
-                    } while (g.getFontMetrics(font).stringWidth(playouts) > stoneRadius * 1.7);
+                    if (branch != null && Lizzie.board.getData().blackToPlay)
+                        g.setColor(Color.WHITE);
 
-                    g.drawString("" + move.playouts, suggestionX + stoneRadius - g.getFontMetrics(font).stringWidth(playouts) / 2, suggestionY + stoneRadius + font.getSize());
+                    drawString(g, suggestionX, suggestionY, "Open Sans Semibold", Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
+                    drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, "Open Sans", getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                 }
             }
         }
     }
 
     /**
+     * @return a shorter string version of playouts. e.g. 345 -> 345, 1265 -> 1k, 133523 -> 134k, 1234567 -> 1.2m
+     */
+    private String getPlayoutsString(int playouts) {
+        if (playouts > 1_000_000) {
+            double playoutsDouble = (double) playouts / 100_000; // 1234567 -> 12.34567
+            return Math.round(playoutsDouble) / 10.0 + "m";
+        } else if (playouts > 1_000) {
+            double playoutsDouble = (double) playouts / 100; // 1265 -> 12.65
+            return Math.round(playoutsDouble) / 10.0 + "k";
+        } else {
+            return String.valueOf(playouts);
+        }
+    }
+
+    /**
      * Draw a go board
-     *
-     * @param g graphics instance
      */
     public void draw(Graphics2D g) {
         if (Lizzie.frame == null || Lizzie.board == null)
             return;
 
-        Stopwatch watch = new Stopwatch();
-        // Get best moves for foucs and winrate show (TODO: what is foucs?)
-        List<MoveData> bestMoves = Lizzie.leelaz.getBestMoves();
-        Branch branch = null;
+        setupSizeParameters();
 
-        if (Lizzie.frame.mouseHoverCoordinate != null) {
-            for (int i = 0; i < bestMoves.size(); i++) {
-                MoveData move = bestMoves.get(i);
-                int[] coord = Board.convertNameToCoordinates(move.coordinate);
+        // cached drawing methods
+        drawBackground(g);
+        drawStones(g);
 
-                if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
-                    branch = new Branch(Lizzie.board, move.variation);
-                    break;
-                }
-            }
-        }
+        // non-cached drawing methods
+        drawBranch(g);
+        drawMoveNumbers(g);
+        drawLeelazSuggestions(g);
+    }
 
-        int scaledMargin; // the pixel length of the margins
-        int availableLength; // the pixel length of the game board without margins
-        int squareLength; // the length of each square
 
-        // calculate a good set of boardLength, scaledMargin, and availableLength to use
+    /**
+     * Calculate good values for boardLength, scaledMargin, availableLength, and squareLength
+     */
+    private void setupSizeParameters() {
         int[] calculatedPixelMargins = calculatePixelMargins();
         boardLength = calculatedPixelMargins[0];
         scaledMargin = calculatedPixelMargins[1];
         availableLength = calculatedPixelMargins[2];
 
         squareLength = calculateSquareLength(availableLength);
-
-        watch.lap("initial");
-        // cached drawing methods
-        drawBackground(g, scaledMargin, availableLength, squareLength);
-        watch.lap("background");
-        drawStones(g, scaledMargin, availableLength, squareLength);
-        watch.lap("stones");
-
-        // non-cached drawing methods
-        drawBranch(g, scaledMargin, availableLength, squareLength, branch);
-        watch.lap("branch");
-        drawMoveNumbers(g, scaledMargin, availableLength, squareLength, branch);
-        watch.lap("move numbers");
-
-        drawLeelazSuggestions(g, scaledMargin, availableLength, squareLength, bestMoves, branch);
-        watch.lap("leelaz suggestions");
-        watch.print();
+        stoneRadius = squareLength / 2 - 1;
     }
 
     private int[] calculatePixelMargins() {
@@ -473,40 +521,7 @@ public class BoardRenderer {
      * @param availableLength the pixel board length of the game board without margins
      * @return the board length of each intersection square
      */
-    public int calculateSquareLength(int availableLength) {
+    private int calculateSquareLength(int availableLength) {
         return availableLength / (Board.BOARD_SIZE - 1);
     }
 }
-
-/*
-
-        // If show move number is enable
-        // Last move color is different
-        if (lastMove != null) {
-            int stoneX = x + scaledMargin + squareLength * lastMove[0] - stoneRadius;
-            int stoneY = y + scaledMargin + squareLength * lastMove[1] - stoneRadius;
-
-            Stone currentColor = Stone.EMPTY;
-
-            if (branch == null) {
-                currentColor = Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])];
-            } else {
-                currentColor = branch.data.stones[Board.getIndex(lastMove[0], lastMove[1])];
-            }
-
-            Color color = currentColor.equals(Stone.BLACK) ? Color.RED : Color.BLUE;
-            if (Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])] == Stone.EMPTY) {
-                color = new Color(color.getRed(), color.getGreen(), color.getBlue(), branchAlpha);
-            }
-            g.setColor(color);
-            String moveNumberString = String.valueOf(moveNumberList[Board.getIndex(lastMove[0], lastMove[1])]);
-            int fontSize = (int) (stoneRadius * 1.5);
-            Font font;
-            do {
-                font = new Font("Open Sans", Font.PLAIN, fontSize--);
-                g.setFont(font);
-            } while (g.getFontMetrics(font).stringWidth(moveNumberString) > stoneRadius * 1.7);
-            g.drawString(moveNumberString,
-                    stoneX + stoneRadius - g.getFontMetrics(font).stringWidth(moveNumberString) / 2, stoneY + stoneRadius + fontSize / 3);
-        }
- */

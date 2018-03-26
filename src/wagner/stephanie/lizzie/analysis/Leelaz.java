@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class Leelaz {
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-    private static final long MAX_PONDER_TIME_MILLIS = 10 * MINUTE; // 10 minutes TODO configurable
+    private static final long MAX_PONDER_TIME_MILLIS = 10 * MINUTE; // 10 minutes TODO make this configurable
 
     private Process process;
 
@@ -61,11 +61,12 @@ public class Leelaz {
             commands.add("-n");
         }
 
-        try {
+        try { // TODO fix gpu command
             JSONArray gpu = config.getJSONArray("gpu");
 
             for (int i = 0; i < gpu.length(); i++) {
-                commands.add("--gpu" + String.valueOf(gpu.getInt(i)));
+                commands.add("--gpu");
+                commands.add(String.valueOf(gpu.getInt(i)));
             }
         } catch (Exception e) {
             // Nothing
