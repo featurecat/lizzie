@@ -4,7 +4,6 @@ import org.json.JSONException;
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
-import wagner.stephanie.lizzie.analysis.Config;
 
 import javax.swing.*;
 import java.io.IOException;

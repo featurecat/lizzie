@@ -1,4 +1,4 @@
-package wagner.stephanie.lizzie.analysis;
+package wagner.stephanie.lizzie;
 
 import org.json.*;
 
@@ -11,7 +11,7 @@ public class Config {
     public JSONObject config;
 
     public Config() throws IOException {
-        File file = new File("lizzie.config");
+        File file = new File("lizzie.properties");
         if (!file.canRead()) {
             System.err.println("Creating config file");
             try {
