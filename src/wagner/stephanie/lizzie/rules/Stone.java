@@ -64,4 +64,17 @@ public enum Stone {
     public boolean isWhite() {
         return this != EMPTY && !this.isBlack();
     }
+
+    public Stone unGhosted() {
+        switch (this) {
+            case BLACK:
+            case BLACK_GHOST:
+                return BLACK;
+            case WHITE:
+            case WHITE_GHOST:
+                return WHITE;
+            default:
+                return EMPTY;
+        }
+    }
 }

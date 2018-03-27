@@ -161,7 +161,7 @@ public class LizzieFrame extends JFrame {
             int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
             maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
 
-            drawCommandString(g, maxSize);
+            drawCommandString(g);
 
             int boardX = (getWidth() - maxSize) / 2;
             int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
@@ -235,9 +235,11 @@ public class LizzieFrame extends JFrame {
 
     private boolean userAlreadyKnowsAboutCommandString = false;
 
-    private void drawCommandString(Graphics2D g, int maxSize) {
+    private void drawCommandString(Graphics2D g) {
         if (userAlreadyKnowsAboutCommandString)
             return;
+
+        int maxSize = (int) (Math.min(getWidth(), getHeight()) * 0.98);
 
         Font font = new Font("Open Sans", Font.PLAIN, (int) (maxSize * 0.03));
         String commandString = "hold x = view controls";
