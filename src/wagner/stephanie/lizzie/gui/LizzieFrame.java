@@ -127,6 +127,7 @@ public class LizzieFrame extends JFrame {
     }
 
     BufferedImage cachedImage;
+
     /**
      * Draws the game board and interface
      *
@@ -181,17 +182,17 @@ public class LizzieFrame extends JFrame {
      * Display the controls
      */
     void drawControls() {
-        Graphics2D g = (Graphics2D)cachedImage.getGraphics();
+        Graphics2D g = (Graphics2D) cachedImage.getGraphics();
         int maxSize = Math.min(getWidth(), getHeight());
         Font font = new Font("Open Sans", Font.PLAIN, (int) (maxSize * 0.04));
         g.setFont(font);
-        int lineHeight = (int)(font.getSize() * 1.15);
+        int lineHeight = (int) (font.getSize() * 1.15);
 
-        int boxWidth = (int)(maxSize* 0.85);
+        int boxWidth = (int) (maxSize * 0.85);
         int boxHeight = (int) (commands.length * lineHeight);
 
-        int commandsX = (int) (getWidth()/2 - boxWidth/2);
-        int commandsY = (int) (getHeight()/2 - boxHeight/2);
+        int commandsX = (int) (getWidth() / 2 - boxWidth / 2);
+        int commandsY = (int) (getHeight() / 2 - boxHeight / 2);
 
 
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
@@ -202,13 +203,13 @@ public class LizzieFrame extends JFrame {
         g.setColor(new Color(0, 0, 0, 130));
         g.fillRect(commandsX, commandsY, boxWidth, boxHeight);
         int strokeRadius = 2;
-        g.setStroke(new BasicStroke(2*strokeRadius));
+        g.setStroke(new BasicStroke(2 * strokeRadius));
         g.setColor(new Color(0, 0, 0, 60));
-        g.drawRect(commandsX+strokeRadius, commandsY+strokeRadius, boxWidth-2*strokeRadius, boxHeight-2*strokeRadius);
+        g.drawRect(commandsX + strokeRadius, commandsY + strokeRadius, boxWidth - 2 * strokeRadius, boxHeight - 2 * strokeRadius);
 
-        int verticalLineX = (int)(commandsX + boxWidth * 0.3);
+        int verticalLineX = (int) (commandsX + boxWidth * 0.3);
         g.setColor(new Color(0, 0, 0, 60));
-        g.drawLine(verticalLineX, commandsY+2*strokeRadius, verticalLineX, commandsY+boxHeight-2*strokeRadius);
+        g.drawLine(verticalLineX, commandsY + 2 * strokeRadius, verticalLineX, commandsY + boxHeight - 2 * strokeRadius);
 
 
         g.setStroke(new BasicStroke(1));
@@ -218,8 +219,8 @@ public class LizzieFrame extends JFrame {
         g.setColor(Color.WHITE);
         for (int i = 0; i < commands.length; i++) {
             String[] split = commands[i].split("\\|");
-            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius*4, font.getSize() + (int) (commandsY + i * lineHeight));
-            g.drawString(split[1], verticalLineX + strokeRadius*4, font.getSize() + (int) (commandsY + i * lineHeight));
+            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
+            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
         }
     }
 
@@ -239,7 +240,14 @@ public class LizzieFrame extends JFrame {
     }
 
     public void onMouseMoved(int x, int y) {
-        mouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
+
+        int[] newMouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
+        if (mouseHoverCoordinate!= null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
+            mouseHoverCoordinate = newMouseHoverCoordinate;
+            repaint();
+        } else {
+            mouseHoverCoordinate = newMouseHoverCoordinate;
+        }
     }
 
     public void toggleCoordinates() {

@@ -17,9 +17,8 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 public class BoardRenderer {
     // TODO add toggleable board coordinates displayed on the top/bottom/right/left
@@ -363,7 +362,7 @@ public class BoardRenderer {
      */
     private void drawStones(Graphics2D g0) {
         // draw a new image if frame size changes or board state changes
-        if (cachedStonesImage == null || cachedStonesImage.getWidth() != Lizzie.frame.getWidth() ||
+        if (cachedStonesImage==null || cachedStonesImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedStonesImage.getHeight() != Lizzie.frame.getHeight() ||
                 !cachedZhash.equals(Lizzie.board.getData().zobrist)) {
 
