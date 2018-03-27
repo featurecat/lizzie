@@ -9,8 +9,10 @@ import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.TextAttribute;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BoardRenderer {
+    // TODO add toggleable board coordinates displayed on the top/bottom/right/left
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
     private static final double STARPOINT_DIAMETER = 0.015;
 
@@ -72,33 +75,122 @@ public class BoardRenderer {
         return new int[]{boardLength, scaledMargin, availableLength};
     }
 
+    private void drawShadow(Graphics2D g, int centerX, int centerY, boolean isGhost) {
+        if (!uiConfig.getBoolean("shadows-enabled"))
+            return;
+
+        final int shadowSize = (int) (stoneRadius * 0.3);
+        final int fartherShadowSize = (int) (stoneRadius * 0.17);
+
+
+        final Paint TOP_GRADIENT_PAINT;
+        final Paint LOWER_RIGHT_GRADIENT_PAINT;
+
+        if (isGhost) {
+            TOP_GRADIENT_PAINT = new RadialGradientPaint(new Point2D.Float(centerX, centerY),
+                    stoneRadius + shadowSize, new float[]{0.3f, 1.0f}, new Color[]{
+                    new Color(50, 50, 50, 100), new Color(0, 0, 0, 0)
+            });
+
+            LOWER_RIGHT_GRADIENT_PAINT = new RadialGradientPaint(new Point2D.Float(centerX + shadowSize * 2 / 3, centerY + shadowSize * 2 / 3),
+                    stoneRadius + fartherShadowSize, new float[]{0.6f, 1.0f}, new Color[]{
+                    new Color(0, 0, 0, 180), new Color(0, 0, 0, 0)
+            });
+        } else {
+            TOP_GRADIENT_PAINT = new RadialGradientPaint(new Point2D.Float(centerX, centerY),
+                    stoneRadius + shadowSize, new float[]{0.3f, 1.0f}, new Color[]{
+                    new Color(50, 50, 50, 150), new Color(0, 0, 0, 0)
+            });
+            LOWER_RIGHT_GRADIENT_PAINT = new RadialGradientPaint(new Point2D.Float(centerX + shadowSize, centerY + shadowSize),
+                    stoneRadius + fartherShadowSize, new float[]{0.6f, 1.0f}, new Color[]{
+                    new Color(0, 0, 0, 140), new Color(0, 0, 0, 0)
+            });
+        }
+
+        final Paint originalPaint = g.getPaint();
+
+        g.setPaint(TOP_GRADIENT_PAINT);
+        fillCircle(g, centerX, centerY, stoneRadius + shadowSize);
+        g.setPaint(LOWER_RIGHT_GRADIENT_PAINT);
+        fillCircle(g, centerX + shadowSize, centerY + shadowSize, stoneRadius + fartherShadowSize);
+        g.setPaint(originalPaint);
+    }
+
     /**
      * Draws a stone centered at (centerX, centerY)
      */
     private void drawStone(Graphics2D g, int centerX, int centerY, Stone color, int squareLength) {
+        // Max quality
+        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+                RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                RenderingHints.VALUE_ANTIALIAS_ON);
+
         switch (color) {
             case BLACK:
-                g.setColor(Color.BLACK);
-                fillCircle(g, centerX, centerY, stoneRadius);
+                if (uiConfig.getBoolean("fancy-stones")) {
+                    drawShadow(g, centerX, centerY, false);
+                    try {
+                        g.drawImage(ImageIO.read(new File("assets/black0.png")), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    drawShadow(g, centerX, centerY, true);
+                    g.setColor(Color.BLACK);
+                    fillCircle(g, centerX, centerY, stoneRadius);
+                }
                 break;
 
             case WHITE:
-                g.setColor(Color.WHITE);
-                fillCircle(g, centerX, centerY, stoneRadius);
-                g.setColor(Color.BLACK);
-                drawCircle(g, centerX, centerY, stoneRadius);
+                if (uiConfig.getBoolean("fancy-stones")) {
+                    drawShadow(g, centerX, centerY, false);
+                    try {
+                        g.drawImage(ImageIO.read(new File("assets/white0.png")), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    drawShadow(g, centerX, centerY, true);
+                    g.setColor(Color.WHITE);
+                    fillCircle(g, centerX, centerY, stoneRadius);
+                    g.setColor(Color.BLACK);
+                    drawCircle(g, centerX, centerY, stoneRadius);
+                }
                 break;
 
             case BLACK_GHOST:
-                g.setColor(new Color(0, 0, 0, uiConfig.getInt("branch-stone-alpha")));
-                fillCircle(g, centerX, centerY, stoneRadius);
+                if (uiConfig.getBoolean("fancy-stones")) {
+                    drawShadow(g, centerX, centerY, true);
+                    try {
+                        g.drawImage(ImageIO.read(new File("assets/black0.png")), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    drawShadow(g, centerX, centerY, true);
+                    g.setColor(new Color(0, 0, 0));//, uiConfig.getInt("branch-stone-alpha")));
+                    fillCircle(g, centerX, centerY, stoneRadius);
+                }
                 break;
 
             case WHITE_GHOST:
-                g.setColor(new Color(255, 255, 255, uiConfig.getInt("branch-stone-alpha")));
-                fillCircle(g, centerX, centerY, stoneRadius);
-                g.setColor(new Color(0, 0, 0, uiConfig.getInt("branch-stone-alpha")));
-                drawCircle(g, centerX, centerY, stoneRadius);
+                if (uiConfig.getBoolean("fancy-stones")) {
+                    drawShadow(g, centerX, centerY, true);
+                    try {
+                        g.drawImage(ImageIO.read(new File("assets/white0.png")), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    drawShadow(g, centerX, centerY, true);
+                    g.setColor(new Color(255, 255, 255));//, uiConfig.getInt("branch-stone-alpha")));
+                    fillCircle(g, centerX, centerY, stoneRadius);
+                    g.setColor(new Color(0, 0, 0));//, uiConfig.getInt("branch-stone-alpha")));
+                    drawCircle(g, centerX, centerY, stoneRadius);
+                }
                 break;
 
             default:
@@ -133,7 +225,7 @@ public class BoardRenderer {
         Font font = makeFont(fontString, style);
 
         // set maximum size of font
-        font = font.deriveFont((float)(font.getSize2D() * maximumFontWidth / g.getFontMetrics(font).stringWidth(string)));
+        font = font.deriveFont((float) (font.getSize2D() * maximumFontWidth / g.getFontMetrics(font).stringWidth(string)));
         font = font.deriveFont(Math.min(maximumFontHeight, font.getSize()));
         g.setFont(font);
 
@@ -157,7 +249,6 @@ public class BoardRenderer {
         // g.drawRect(x-(int)maximumFontWidth/2, y - height/2 + verticalOffset, (int)maximumFontWidth, height+verticalOffset );
         g.drawString(string, x - metrics.stringWidth(string) / 2, y + height / 2 + verticalOffset);
     }
-
 
 
     private void drawString(Graphics2D g, int x, int y, String fontString, String string, float maximumFontHeight, double maximumFontWidth) {
@@ -188,11 +279,9 @@ public class BoardRenderer {
                     BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = cachedBackgroundImage.createGraphics();
 
+
             // draw the wooden background
-            JSONArray boardColor = uiConfig.getJSONArray("board-color");
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-            g.setColor(new Color(boardColor.getInt(0), boardColor.getInt(1), boardColor.getInt(2)));
-            g.fillRect(x, y, boardLength, boardLength);
+            drawWoodenBoard(g);
 
             // draw the lines
             g.setColor(Color.BLACK);
@@ -222,6 +311,30 @@ public class BoardRenderer {
 
         g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g0.drawImage(cachedBackgroundImage, 0, 0, null);
+    }
+
+    private void drawWoodenBoard(Graphics2D g) {
+        if (uiConfig.getBoolean("fancy-board")) {
+            // fancy version
+            try {
+                int shadowRadius = (int) (boardLength * MARGIN / 6);
+                g.drawImage(ImageIO.read(new File("assets/boardtest1.png")), x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
+                g.setStroke(new BasicStroke(shadowRadius * 2));
+                // draw border
+                g.setColor(new Color(0, 0, 0, 50));
+                g.drawRect(x - shadowRadius, y - shadowRadius, boardLength + 2 * shadowRadius, boardLength + 2 * shadowRadius);
+                g.setStroke(new BasicStroke(1));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        } else {
+            // simple version
+            JSONArray boardColor = uiConfig.getJSONArray("board-color");
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            g.setColor(new Color(boardColor.getInt(0), boardColor.getInt(1), boardColor.getInt(2)));
+            g.fillRect(x, y, boardLength, boardLength);
+        }
     }
 
 
@@ -326,7 +439,8 @@ public class BoardRenderer {
                 Stone stoneAtThisPoint = branch == null ? Lizzie.board.getStones()[Board.getIndex(i, j)] :
                         branch.data.stones[Board.getIndex(i, j)];
 
-                if (moveNumberList[Board.getIndex(i, j)] > (branch == null ? 0 : 1)) {
+                // don't write the move number if either: the move number is 0, or there will already be playout information written
+                if (moveNumberList[Board.getIndex(i, j)] > 0 && !(branch != null && Lizzie.frame.mouseHoverCoordinate != null && i == Lizzie.frame.mouseHoverCoordinate[0] && j == Lizzie.frame.mouseHoverCoordinate[1])) {
                     if (lastMove != null && i == lastMove[0] && j == lastMove[1])
                         g.setColor(Color.RED.brighter());//stoneAtThisPoint.isBlack() ? Color.RED.brighter() : Color.BLUE.brighter());
                     else
@@ -357,70 +471,92 @@ public class BoardRenderer {
                     maxPlayouts = move.playouts;
             }
 
-            for (int i = 0; i < bestMoves.size(); i++) {
-                MoveData move = bestMoves.get(i);
-                if (move.playouts == 0) // this actually happens
-                    continue;
+            for (int i = 0; i < Board.BOARD_SIZE; i++) {
+                for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                    MoveData move=null;
 
-                double percentPlayouts = (double) move.playouts / maxPlayouts;
-
-                int[] coordinates = Board.convertNameToCoordinates(move.coordinate);
-                int suggestionX = x + scaledMargin + squareLength * coordinates[0];
-                int suggestionY = y + scaledMargin + squareLength * coordinates[1];
-
-
-                // -0.32 = Greenest hue, 0 = Reddest hue
-                float hue = (float) (-0.32 * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
-                float saturation = 0.75f; //saturation
-                float brightness = 0.85f; //brightness
-                int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
-                        ALPHA_SCALING_FACTOR + 1));
-
-                Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
-                Color color = new Color(hsbColor.getRed(), hsbColor.getBlue(), hsbColor.getGreen(), alpha);
-
-                if (branch == null) {
-                    g.setColor(color);
-                    fillCircle(g, suggestionX, suggestionY, stoneRadius - 1);
-
-                }
-
-                if (branch == null || (i == 0 && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
-                    // highlight LeelaZero's top recommended move
-                    int strokeWidth = 1;
-                    if (i == 0) { // this is the best move
-                        strokeWidth = 2;
-                        g.setColor(Color.RED);
-                        g.setStroke(new BasicStroke(strokeWidth));
-                    } else {
-                        g.setColor(color.darker());
+                    // this is inefficient...BUT it looks better with shadows
+                    for (MoveData m : bestMoves) {
+                        int[] coord = Board.convertNameToCoordinates(m.coordinate);
+                        if (coord[0] == i && coord[1] == j) {
+                            move = m;
+                            break;
+                        }
                     }
-                    drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
-                    g.setStroke(new BasicStroke(1));
-                }
+
+                    if (move==null)
+                        continue;
+
+                    boolean isBestMove = bestMoves.get(0) == move;
+
+                    if (move.playouts == 0) // this actually can happen
+                        continue;
+
+                    double percentPlayouts = (double) move.playouts / maxPlayouts;
+
+                    int[] coordinates = Board.convertNameToCoordinates(move.coordinate);
+                    int suggestionX = x + scaledMargin + squareLength * coordinates[0];
+                    int suggestionY = y + scaledMargin + squareLength * coordinates[1];
 
 
-                if (branch == null && alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
-                    double roundedWinrate = Math.round(move.winrate * 10) / 10.0;
-                    g.setColor(Color.BLACK);
-                    if (branch != null && Lizzie.board.getData().blackToPlay)
-                        g.setColor(Color.WHITE);
+                    // -0.32 = Greenest hue, 0 = Reddest hue
+                    float hue = (float) (-0.32 * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
+                    float saturation = 0.75f; //saturation
+                    float brightness = 0.85f; //brightness
+                    int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
+                            ALPHA_SCALING_FACTOR + 1));
+                    if (uiConfig.getBoolean("shadows-enabled"))
+                        alpha = 255;
 
-                    drawString(g, suggestionX, suggestionY, "Open Sans Semibold", Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
-                    drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, "Open Sans", getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
+                    Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
+                    Color color = new Color(hsbColor.getRed(), hsbColor.getBlue(), hsbColor.getGreen(), alpha);
+
+                    if (branch == null) {
+                        drawShadow(g, suggestionX, suggestionY, true);
+                        g.setColor(color);
+                        fillCircle(g, suggestionX, suggestionY, stoneRadius);
+                    }
+
+                    if (branch == null || (isBestMove && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
+                        // highlight LeelaZero's top recommended move
+                        int strokeWidth = 1;
+                        if (isBestMove) { // this is the best move
+                            strokeWidth = 2;
+                            g.setColor(Color.RED);
+                            g.setStroke(new BasicStroke(strokeWidth));
+                        } else {
+                            g.setColor(color.darker());
+                        }
+                        drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
+                        g.setStroke(new BasicStroke(1));
+                    }
+
+
+                    if (branch == null && alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
+                        double roundedWinrate = Math.round(move.winrate * 10) / 10.0;
+                        g.setColor(Color.BLACK);
+                        if (branch != null && Lizzie.board.getData().blackToPlay)
+                            g.setColor(Color.WHITE);
+
+                        drawString(g, suggestionX, suggestionY, "Open Sans Semibold", Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
+                        drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, "Open Sans", getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
+                    }
                 }
             }
         }
     }
 
     /**
-     * @return a shorter string version of playouts. e.g. 345 -> 345, 1265 -> 1k, 133523 -> 134k, 1234567 -> 1.2m
+     * @return a shorter, rounded string version of playouts. e.g. 345 -> 345, 1265 -> 1.3k, 44556 -> 45k, 133523 -> 134k, 1234567 -> 1.2m
      */
     private String getPlayoutsString(int playouts) {
-        if (playouts > 1_000_000) {
+        if (playouts >= 1_000_000) {
             double playoutsDouble = (double) playouts / 100_000; // 1234567 -> 12.34567
             return Math.round(playoutsDouble) / 10.0 + "m";
-        } else if (playouts > 1_000) {
+        } else if (playouts >= 10_000) {
+            double playoutsDouble = (double) playouts / 1_000; // 13265 -> 13.265
+            return Math.round(playoutsDouble) + "k";
+        } else if (playouts >= 1_000) {
             double playoutsDouble = (double) playouts / 100; // 1265 -> 12.65
             return Math.round(playoutsDouble) / 10.0 + "k";
         } else {

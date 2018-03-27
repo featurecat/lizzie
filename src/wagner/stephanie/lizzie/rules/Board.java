@@ -81,7 +81,6 @@ public class Board {
                 // this is the next move in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, "pass");
-                Lizzie.leelaz.ponder();
                 return;
             }
 
@@ -95,7 +94,6 @@ public class Board {
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
-            Lizzie.leelaz.ponder();
 
             // update history with pass
             history.add(newState);
@@ -127,7 +125,6 @@ public class Board {
                 // this is the next coordinate in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
-                Lizzie.leelaz.ponder();
                 return;
             }
 
@@ -168,7 +165,6 @@ public class Board {
 
             // update leelaz with board position
             Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
-            Lizzie.leelaz.ponder();
 
             // update history with this coordinate
             history.add(newState);
@@ -310,10 +306,8 @@ public class Board {
                 // update leelaz board position, before updating to next node
                 if (history.getData().lastMove == null) {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
-                    Lizzie.leelaz.ponder();
                 } else {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
-                    Lizzie.leelaz.ponder();
                 }
                 return true;
             }
@@ -336,7 +330,6 @@ public class Board {
         synchronized (this) {
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
-                Lizzie.leelaz.ponder();
                 return true;
             }
             return false;

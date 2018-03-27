@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class Leelaz {
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-    private static final long MAX_PONDER_TIME_MILLIS = 10 * MINUTE; // 10 minutes TODO make this configurable
+    private long maxPonderTimeMillis;
 
     private Process process;
 
@@ -49,6 +49,8 @@ public class Leelaz {
 
         JSONObject config = Lizzie.config.config.getJSONObject("leelaz");
 
+        maxPonderTimeMillis = MINUTE * config.getInt("max-thinking-time-minutes");
+
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
         commands.add("./leelaz"); // linux, macosx
@@ -61,7 +63,7 @@ public class Leelaz {
             commands.add("-n");
         }
 
-        try { // TODO fix gpu command
+        try {
             JSONArray gpu = config.getJSONArray("gpu");
 
             for (int i = 0; i < gpu.length(); i++) {
@@ -100,7 +102,7 @@ public class Leelaz {
     private void parseLine(String line) {
         synchronized (this) {
             if (line.startsWith("~begin")) {
-                if (System.currentTimeMillis() - startPonderTime > MAX_PONDER_TIME_MILLIS) {
+                if (System.currentTimeMillis() - startPonderTime > maxPonderTimeMillis) {
                     // we have pondered for enough time. pause pondering
                     togglePonder();
                 }
@@ -182,6 +184,9 @@ public class Leelaz {
 
             sendCommand("play " + colorString + " " + move);
             bestMoves = new ArrayList<>();
+
+            if (isPondering)
+                ponder();
         }
     }
 
@@ -189,13 +194,15 @@ public class Leelaz {
         synchronized (this) {
             sendCommand("undo");
             bestMoves = new ArrayList<>();
+            if (isPondering)
+                ponder();
         }
     }
 
     /**
      * this initializes leelaz's pondering mode at its current position
      */
-    public void ponder() {
+    private void ponder() {
         isPondering = true;
         startPonderTime = System.currentTimeMillis();
         sendCommand("time_left b 0 0");
@@ -221,5 +228,9 @@ public class Leelaz {
         synchronized (this) {
             return bestMoves;
         }
+    }
+
+    public boolean isPondering() {
+        return isPondering;
     }
 }

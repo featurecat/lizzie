@@ -13,7 +13,7 @@ public class Config {
     public Config() throws IOException {
         File file = new File("lizzie.json");
         if (!file.canRead()) {
-            System.err.println("Config file not exists, try to create");
+            System.err.println("Creating config file");
             try {
                 createNewConfig(file);
             } catch (JSONException e) {
@@ -49,8 +49,9 @@ public class Config {
         JSONObject leelaz = new JSONObject();
         leelaz.put("weights", "network");
         leelaz.put("threads", 2);
-        leelaz.put("gpu", new JSONArray("[0]"));
+        leelaz.put("gpu", new JSONArray("[]"));
         leelaz.put("noise", false);
+        leelaz.put("max-thinking-time-minutes", 2);
 
         config.put("leelaz", leelaz);
 
@@ -59,6 +60,9 @@ public class Config {
 
         ui.put("board-color", new JSONArray("[178, 140, 0]"));
         ui.put("branch-stone-alpha", 160);
+        ui.put("shadows-enabled", true);
+        ui.put("fancy-stones", true);
+        ui.put("fancy-board", true);
 
         config.put("ui", ui);
 
@@ -67,7 +71,8 @@ public class Config {
         FileOutputStream fp = new FileOutputStream(file);
         OutputStreamWriter writer = new OutputStreamWriter(fp);
 
-        writer.write(config.toString());
+
+        writer.write(config.toString(2));
 
         writer.close();
         fp.close();

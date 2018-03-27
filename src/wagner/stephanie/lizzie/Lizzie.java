@@ -25,7 +25,7 @@ public class Lizzie {
     public static void main(String[] args) throws IOException, JSONException {
         config = new Config();
         leelaz = new Leelaz();
-        leelaz.ponder();
+        leelaz.togglePonder();
 
         board = new Board();
 
