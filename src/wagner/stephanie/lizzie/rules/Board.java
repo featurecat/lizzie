@@ -168,6 +168,8 @@ public class Board {
 
             // update history with this coordinate
             history.add(newState);
+
+            Lizzie.frame.repaint();
         }
     }
 
@@ -309,6 +311,7 @@ public class Board {
                 } else {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
                 }
+                Lizzie.frame.repaint();
                 return true;
             }
             return false;
@@ -330,6 +333,7 @@ public class Board {
         synchronized (this) {
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
+                Lizzie.frame.repaint();
                 return true;
             }
             return false;

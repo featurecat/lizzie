@@ -112,6 +112,7 @@ public class Leelaz {
             } else if (line.startsWith("~end")) {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
+                Lizzie.frame.repaint();
             } else {
                 if (isReadingPonderOutput) {
                     line = line.trim();

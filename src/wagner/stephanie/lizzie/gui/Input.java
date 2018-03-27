@@ -138,6 +138,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     Lizzie.frame.drawControls();
                 }
                 Lizzie.frame.showControls = true;
+                Lizzie.frame.repaint();
                 break;
 
             case VK_C:
@@ -160,6 +161,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 if (wasPonderingWhenControlsShown)
                     Lizzie.leelaz.togglePonder();
                 Lizzie.frame.showControls = false;
+                Lizzie.frame.repaint();
                 break;
 
             default:

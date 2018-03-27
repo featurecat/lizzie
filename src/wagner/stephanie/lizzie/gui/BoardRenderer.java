@@ -2,6 +2,7 @@ package wagner.stephanie.lizzie.gui;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import wagner.stephanie.benchmark.Stopwatch;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
@@ -120,9 +121,8 @@ public class BoardRenderer {
      * Draws a stone centered at (centerX, centerY)
      */
     private void drawStone(Graphics2D g, int centerX, int centerY, Stone color, int squareLength) {
-        // Max quality
-        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
-                RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+//        g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
+//                RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
                 RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
@@ -281,7 +281,6 @@ public class BoardRenderer {
                     BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = cachedBackgroundImage.createGraphics();
 
-
             // draw the wooden background
             drawWoodenBoard(g);
 
@@ -322,10 +321,9 @@ public class BoardRenderer {
                     drawString(g, x+scaledMargin/2, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
                     drawString(g, x-scaledMargin/2+ +boardLength, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
                 }
-
-
             }
             cachedBackgroundImageCoordinatesEnabled = Lizzie.frame.showCoordinates;
+            g.dispose();
         }
 
         g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -337,7 +335,7 @@ public class BoardRenderer {
             // fancy version
             try {
                 int shadowRadius = (int) (boardLength * MARGIN / 6);
-                g.drawImage(ImageIO.read(new File("assets/boardtest1.png")), x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
+                g.drawImage(ImageIO.read(new File("assets/board.png")), x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
                 g.setStroke(new BasicStroke(shadowRadius * 2));
                 // draw border
                 g.setColor(new Color(0, 0, 0, 50));
@@ -384,6 +382,7 @@ public class BoardRenderer {
             }
 
             cachedZhash = Lizzie.board.getData().zobrist;
+            g.dispose();
         }
 
         g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -592,14 +591,22 @@ public class BoardRenderer {
 
         setupSizeParameters();
 
+        Stopwatch timer = new Stopwatch();
         // cached drawing methods
         drawBackground(g);
+        timer.lap("background");
         drawStones(g);
+        timer.lap("stones");
 
         // non-cached drawing methods
         drawBranch(g);
+        timer.lap("branch");
         drawMoveNumbers(g);
+        timer.lap("movenumbers");
         drawLeelazSuggestions(g);
+        timer.lap("leelaz");
+
+        timer.print();
     }
 
 
@@ -625,6 +632,7 @@ public class BoardRenderer {
      *
      * @param x x coordinate
      * @param y y coordinate
+     *
      */
     public void setLocation(int x, int y) {
         this.x = x;

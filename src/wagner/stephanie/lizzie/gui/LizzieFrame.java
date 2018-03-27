@@ -24,8 +24,6 @@ import java.util.concurrent.TimeUnit;
  * The window used to display the game.
  */
 public class LizzieFrame extends JFrame {
-    public static final int FPS = 30; // frames per second
-
     private static final String[] commands = {
             "left arrow|undo",
             "right arrow|redo",
@@ -50,7 +48,7 @@ public class LizzieFrame extends JFrame {
     public boolean showCoordinates = false;
 
     /**
-     * Creates a window and refreshes the game state at FPS.
+     * Creates a window
      */
     public LizzieFrame() {
         super("Lizzie - Leela Zero Interface");
@@ -66,14 +64,6 @@ public class LizzieFrame extends JFrame {
 
         createBufferStrategy(2);
         bs = getBufferStrategy();
-
-        // set fps
-        final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleAtFixedRate(
-                this::repaint,
-                0,
-                1000 / FPS,
-                TimeUnit.MILLISECONDS);
 
         Input input = new Input();
 
