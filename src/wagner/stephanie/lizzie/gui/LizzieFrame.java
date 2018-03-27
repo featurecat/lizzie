@@ -32,6 +32,7 @@ public class LizzieFrame extends JFrame {
             "space|toggle pondering",
             "right click|undo",
             "scrollwheel|undo/redo",
+            "c|toggle coordinates",
             "p|pass",
             "m|show/hide move number",
             "o|open SGF",
@@ -46,6 +47,7 @@ public class LizzieFrame extends JFrame {
 
     public int[] mouseHoverCoordinate;
     public boolean showControls = false;
+    public boolean showCoordinates = false;
 
     /**
      * Creates a window and refreshes the game state at FPS.
@@ -248,5 +250,9 @@ public class LizzieFrame extends JFrame {
 
     public void onMouseMoved(int x, int y) {
         mouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
+    }
+
+    public void toggleCoordinates() {
+        showCoordinates = !showCoordinates;
     }
 }

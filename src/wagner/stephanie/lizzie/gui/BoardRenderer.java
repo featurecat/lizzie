@@ -266,6 +266,7 @@ public class BoardRenderer {
     }
 
     private BufferedImage cachedBackgroundImage = null;
+    private boolean cachedBackgroundImageCoordinatesEnabled = false;
 
     /**
      * Draw the green background and go board with lines. We cache the image for a performance boost.
@@ -273,7 +274,8 @@ public class BoardRenderer {
     private void drawBackground(Graphics2D g0) {
         // draw the cached background image if frame size changes
         if (cachedBackgroundImage == null || cachedBackgroundImage.getWidth() != Lizzie.frame.getWidth() ||
-                cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight()) {
+                cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight() ||
+                cachedBackgroundImageCoordinatesEnabled != Lizzie.frame.showCoordinates) {
 
             cachedBackgroundImage = new BufferedImage(Lizzie.frame.getWidth(), Lizzie.frame.getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
@@ -307,6 +309,23 @@ public class BoardRenderer {
                     fillCircle(g, centerX, centerY, starPointRadius);
                 }
             }
+
+            // draw coordinates if enabled
+            if (Lizzie.frame.showCoordinates) {
+                g.setColor(Color.BLACK);
+                String alphabet = "ABCDEFGHJKLMNOPQRST";
+                for (int i = 0; i < Board.BOARD_SIZE; i++) {
+                    drawString(g, x+scaledMargin+squareLength*i, y+scaledMargin/2, "Open Sans", ""+alphabet.charAt(i), stoneRadius*4/5, stoneRadius);
+                    drawString(g, x+scaledMargin+squareLength*i, y-scaledMargin/2+boardLength, "Open Sans", ""+alphabet.charAt(i), stoneRadius*4/5, stoneRadius);
+                }
+                for (int i = 0; i < Board.BOARD_SIZE; i++) {
+                    drawString(g, x+scaledMargin/2, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
+                    drawString(g, x-scaledMargin/2+ +boardLength, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
+                }
+
+
+            }
+            cachedBackgroundImageCoordinatesEnabled = Lizzie.frame.showCoordinates;
         }
 
         g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -475,7 +494,7 @@ public class BoardRenderer {
                 for (int j = 0; j < Board.BOARD_SIZE; j++) {
                     MoveData move=null;
 
-                    // this is inefficient...BUT it looks better with shadows
+                    // this is inefficient but it looks better with shadows
                     for (MoveData m : bestMoves) {
                         int[] coord = Board.convertNameToCoordinates(m.coordinate);
                         if (coord[0] == i && coord[1] == j) {
