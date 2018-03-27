@@ -250,7 +250,7 @@ public class LizzieFrame extends JFrame {
 
         int showCommandsHeight = (int) (font.getSize()*1.1);
         int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4*strokeRadius;
-        int showCommandsX = 0;
+        int showCommandsX = this.getInsets().left;
         int showCommandsY = getHeight() - showCommandsHeight - this.getInsets().bottom;
         g.setColor(new Color(0, 0, 0, 130));
         g.fillRect(showCommandsX, showCommandsY, showCommandsWidth, showCommandsHeight);
