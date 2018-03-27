@@ -153,7 +153,10 @@ public class LizzieFrame extends JFrame {
             int topInset = this.getInsets().top;
 
             try {
-                g.drawImage(ImageIO.read(new File("assets/background.jpg")), 0, 0, getWidth(), getHeight(), null);
+                BufferedImage background = ImageIO.read(new File("assets/background.jpg"));
+                int drawWidth = Math.max(background.getWidth(), getWidth());
+                int drawHeight = Math.max(background.getHeight(), getHeight());
+                g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -248,7 +251,7 @@ public class LizzieFrame extends JFrame {
         int showCommandsHeight = (int) (font.getSize()*1.1);
         int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4*strokeRadius;
         int showCommandsX = 0;
-        int showCommandsY = getHeight() - showCommandsHeight;
+        int showCommandsY = getHeight() - showCommandsHeight - this.getInsets().bottom;
         g.setColor(new Color(0, 0, 0, 130));
         g.fillRect(showCommandsX, showCommandsY, showCommandsWidth, showCommandsHeight);
         g.setStroke(new BasicStroke(2 * strokeRadius));
