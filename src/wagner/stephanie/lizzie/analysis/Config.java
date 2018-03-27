@@ -11,7 +11,7 @@ public class Config {
     public JSONObject config;
 
     public Config() throws IOException {
-        File file = new File("lizzie.json");
+        File file = new File("lizzie.config");
         if (!file.canRead()) {
             System.err.println("Creating config file");
             try {
@@ -63,6 +63,7 @@ public class Config {
         ui.put("shadows-enabled", true);
         ui.put("fancy-stones", true);
         ui.put("fancy-board", true);
+        ui.put("shadow-size", 100);
 
         config.put("ui", ui);
 

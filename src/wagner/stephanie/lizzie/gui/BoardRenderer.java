@@ -79,8 +79,8 @@ public class BoardRenderer {
         if (!uiConfig.getBoolean("shadows-enabled"))
             return;
 
-        final int shadowSize = (int) (stoneRadius * 0.3);
-        final int fartherShadowSize = (int) (stoneRadius * 0.17);
+        final int shadowSize = (int) (stoneRadius * 0.3 * uiConfig.getInt("shadow-size") / 100);
+        final int fartherShadowSize = (int) (stoneRadius * 0.17* uiConfig.getInt("shadow-size") / 100);
 
 
         final Paint TOP_GRADIENT_PAINT;
