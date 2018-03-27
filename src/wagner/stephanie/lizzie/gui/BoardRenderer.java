@@ -2,7 +2,6 @@ package wagner.stephanie.lizzie.gui;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import wagner.stephanie.benchmark.Stopwatch;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
@@ -17,11 +16,11 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BoardRenderer {
-    // TODO add toggleable board coordinates displayed on the top/bottom/right/left
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
     private static final double STARPOINT_DIAMETER = 0.015;
 
@@ -34,16 +33,7 @@ public class BoardRenderer {
     private Branch branch;
     private List<MoveData> bestMoves;
 
-    static {
-        // load fonts
-        try {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./OpenSans-Regular.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("./OpenSans-Semibold.ttf")));
-        } catch (IOException | FontFormatException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     public BoardRenderer() {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
@@ -590,22 +580,22 @@ public class BoardRenderer {
 
         setupSizeParameters();
 
-        Stopwatch timer = new Stopwatch();
+//        Stopwatch timer = new Stopwatch();
         // cached drawing methods
         drawBackground(g);
-        timer.lap("background");
+//        timer.lap("background");
         drawStones(g);
-        timer.lap("stones");
+//        timer.lap("stones");
 
         // non-cached drawing methods
         drawBranch(g);
-        timer.lap("branch");
+//        timer.lap("branch");
         drawMoveNumbers(g);
-        timer.lap("movenumbers");
+//        timer.lap("movenumbers");
         drawLeelazSuggestions(g);
-        timer.lap("leelaz");
+//        timer.lap("leelaz");
 
-        timer.print();
+//        timer.print();
     }
 
 

@@ -15,9 +15,6 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -46,6 +43,17 @@ public class LizzieFrame extends JFrame {
     public int[] mouseHoverCoordinate;
     public boolean showControls = false;
     public boolean showCoordinates = false;
+
+    static {
+        // load fonts
+        try {
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, LizzieFrame.class.getResourceAsStream("/fonts/OpenSans-Regular.ttf")));
+            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, LizzieFrame.class.getResourceAsStream("/fonts/OpenSans-Semibold.ttf")));
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Creates a window
@@ -150,18 +158,17 @@ public class LizzieFrame extends JFrame {
                 e.printStackTrace();
             }
 
-            // simple graphics
-//        g.setColor(Color.GREEN.darker().darker());
-//        g.fillRect(0, 0, getWidth(), getHeight());
-
             int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
             maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
+
+            drawCommandString(g, maxSize);
 
             int boardX = (getWidth() - maxSize) / 2;
             int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
             boardRenderer.setLocation(boardX, boardY);
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
+
 
             // cleanup
             g.dispose();
@@ -182,6 +189,8 @@ public class LizzieFrame extends JFrame {
      * Display the controls
      */
     void drawControls() {
+        userAlreadyKnowsAboutCommandString = true;
+
         Graphics2D g = (Graphics2D) cachedImage.getGraphics();
         int maxSize = Math.min(getWidth(), getHeight());
         Font font = new Font("Open Sans", Font.PLAIN, (int) (maxSize * 0.04));
@@ -199,7 +208,6 @@ public class LizzieFrame extends JFrame {
         filter.filter(cachedImage.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
         g.drawImage(result, commandsX, commandsY, null);
 
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(new Color(0, 0, 0, 130));
         g.fillRect(commandsX, commandsY, boxWidth, boxHeight);
         int strokeRadius = 2;
@@ -214,6 +222,7 @@ public class LizzieFrame extends JFrame {
 
         g.setStroke(new BasicStroke(1));
 
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         FontMetrics metrics = g.getFontMetrics(font);
 
         g.setColor(Color.WHITE);
@@ -222,6 +231,33 @@ public class LizzieFrame extends JFrame {
             g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
             g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
         }
+    }
+
+    private boolean userAlreadyKnowsAboutCommandString = false;
+
+    private void drawCommandString(Graphics2D g, int maxSize) {
+        if (userAlreadyKnowsAboutCommandString)
+            return;
+
+        Font font = new Font("Open Sans", Font.PLAIN, (int) (maxSize * 0.03));
+        String commandString = "hold x = view controls";
+        int strokeRadius = 2;
+
+        int showCommandsHeight = (int) (font.getSize()*1.1);
+        int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4*strokeRadius;
+        int showCommandsX = 0;
+        int showCommandsY = getHeight() - showCommandsHeight;
+        g.setColor(new Color(0, 0, 0, 130));
+        g.fillRect(showCommandsX, showCommandsY, showCommandsWidth, showCommandsHeight);
+        g.setStroke(new BasicStroke(2 * strokeRadius));
+        g.setColor(new Color(0, 0, 0, 60));
+        g.drawRect(showCommandsX + strokeRadius, showCommandsY + strokeRadius, showCommandsWidth - 2 * strokeRadius, showCommandsHeight - 2 * strokeRadius);
+        g.setStroke(new BasicStroke(1));
+
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(Color.WHITE);
+        g.setFont(font);
+        g.drawString(commandString, showCommandsX+2*strokeRadius, showCommandsY + font.getSize());
     }
 
     /**
@@ -242,7 +278,7 @@ public class LizzieFrame extends JFrame {
     public void onMouseMoved(int x, int y) {
 
         int[] newMouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
-        if (mouseHoverCoordinate!= null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
+        if (mouseHoverCoordinate != null && newMouseHoverCoordinate != null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
             mouseHoverCoordinate = newMouseHoverCoordinate;
             repaint();
         } else {
