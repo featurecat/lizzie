@@ -210,6 +210,9 @@ public class Board {
         if (namedCoordinate.contains("pass")) {
             pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
             return;
+        } else if (namedCoordinate.contains("resign")) {
+            pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+            return;
         }
 
         int[] coordinates = convertNameToCoordinates(namedCoordinate);
