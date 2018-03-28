@@ -124,7 +124,13 @@ public class Board {
             if (next != null && next.lastMove != null && next.lastMove[0] == x && next.lastMove[1] == y) {
                 // this is the next coordinate in history. Just increment history so that we don't erase the redo's
                 history.next();
-                Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+                // should be opposite from the bottom case
+                if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != getData().blackToPlay) {
+                    Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+                    Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "W" : "B"));
+                } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
+                    Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+                }
                 return;
             }
 
@@ -164,7 +170,12 @@ public class Board {
                 return;
 
             // update leelaz with board position
-            Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+            if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == getData().blackToPlay) {
+                Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+                Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "W" : "B"));
+            } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
+                Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+            }
 
             // update history with this coordinate
             history.add(newState);
@@ -189,6 +200,11 @@ public class Board {
      * @param namedCoordinate the coordinate to place a stone,
      */
     public void place(String namedCoordinate) {
+        if (namedCoordinate.contains("pass")) {
+            pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+            return;
+        }
+        
         int[] coordinates = convertNameToCoordinates(namedCoordinate);
 
         place(coordinates[0], coordinates[1]);

@@ -20,7 +20,8 @@ import java.util.List;
  */
 public class Leelaz {
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-    private long maxPonderTimeMillis;
+//    private static final long SECOND = 1000;
+    private long maxAnalyzeTimeMillis;//, maxThinkingTimeMillis;
 
     private Process process;
 
@@ -33,6 +34,9 @@ public class Leelaz {
 
     private boolean isPondering;
     private long startPonderTime;
+
+    // genmove
+    public boolean isThinking = false;
 
     /**
      * Initializes the leelaz process and starts reading output
@@ -49,15 +53,17 @@ public class Leelaz {
 
         JSONObject config = Lizzie.config.config.getJSONObject("leelaz");
 
-        maxPonderTimeMillis = MINUTE * config.getInt("max-thinking-time-minutes");
+        maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
+//        maxThinkingTimeMillis = SECOND * config.getInt("max-game-thinking-time-seconds");
+
 
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
-        commands.add("./leelaz"); // linux, macosx
-//        commands.add("leelaz.exe"); // windows
+        commands.add("./leelaz"); // windows, linux, mac all understand this
         commands.add("-g");
         commands.add("-t" + config.getInt("threads"));
         commands.add("-w" + config.getString("weights"));
+        commands.add("-b0");
 
         if (config.getBoolean("noise")) {
             commands.add("-n");
@@ -102,7 +108,7 @@ public class Leelaz {
     private void parseLine(String line) {
         synchronized (this) {
             if (line.startsWith("~begin")) {
-                if (System.currentTimeMillis() - startPonderTime > maxPonderTimeMillis) {
+                if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
                     // we have pondered for enough time. pause pondering
                     togglePonder();
                 }
@@ -112,15 +118,25 @@ public class Leelaz {
             } else if (line.startsWith("~end")) {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
+
                 Lizzie.frame.repaint();
             } else {
+
                 if (isReadingPonderOutput) {
-                    line = line.trim();
+                    line=line.trim();
                     // ignore passes, and only accept lines that start with a coordinate letter
                     if (Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
                         bestMovesTemp.add(new MoveData(line));
                 } else {
                     System.out.print(line);
+
+                    line = line.trim();
+                    if (Lizzie.frame != null && line.startsWith("=")&&line.length() > 2 && isThinking) {
+                        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                            Lizzie.board.place(line.substring(2));
+                        }
+                        isThinking=false;
+                    }
                 }
             }
         }
@@ -157,6 +173,9 @@ public class Leelaz {
      * @param command a GTP command containing no newline characters
      */
     public void sendCommand(String command) {
+        System.out.println(command);
+        if (command.startsWith("genmove"))
+            isThinking = true;
         try {
             outputStream.write((command + "\n").getBytes());
             outputStream.flush();
@@ -186,7 +205,7 @@ public class Leelaz {
             sendCommand("play " + colorString + " " + move);
             bestMoves = new ArrayList<>();
 
-            if (isPondering)
+            if (isPondering && !Lizzie.frame.isPlayingAgainstLeelaz)
                 ponder();
         }
     }

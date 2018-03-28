@@ -70,7 +70,8 @@ public class BoardRenderer {
 
         drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        drawLeelazSuggestions(g);
+        if (!Lizzie.frame.isPlayingAgainstLeelaz)
+            drawLeelazSuggestions(g);
 //        timer.lap("leelaz");
 
 //        timer.print();
@@ -187,12 +188,17 @@ public class BoardRenderer {
      * Draw the 'ghost stones' which show a variation Leelaz is thinking about
      */
     private void drawBranch() {
+        branchStonesImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
+        branchStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
+        branch=null;
+
+        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+            return;
+        }
         // calculate best moves and branch
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
-        branchStonesImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
-        branchStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
 
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();

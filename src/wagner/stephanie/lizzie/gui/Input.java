@@ -59,6 +59,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     }
 
     private void undo() {
+        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+            Lizzie.frame.isPlayingAgainstLeelaz = false;
+        }
         int movesToAdvance = 1;
         if (controlIsPressed)
             movesToAdvance = 10;
@@ -68,6 +71,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     }
 
     private void redo() {
+        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+            Lizzie.frame.isPlayingAgainstLeelaz = false;
+        }
         int movesToAdvance = 1;
         if (controlIsPressed)
             movesToAdvance = 10;
@@ -95,6 +101,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_SPACE:
+                if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                    Lizzie.frame.isPlayingAgainstLeelaz = false;
+                    Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
+                }
                 Lizzie.leelaz.togglePonder();
                 break;
 
@@ -145,11 +155,20 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.frame.toggleCoordinates();
                 break;
 
+            case VK_ENTER:
+                if (!Lizzie.leelaz.isThinking) {
+                    Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
+                    Lizzie.frame.playerIsBlack = !Lizzie.board.getData().blackToPlay;
+                    Lizzie.frame.isPlayingAgainstLeelaz = true;
+                    Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "B" : "W"));
+                }
+                break;
+
             default:
         }
     }
 
-    boolean wasPonderingWhenControlsShown = false;
+    private boolean wasPonderingWhenControlsShown = false;
     @Override
     public void keyReleased(KeyEvent e) {
         switch (e.getKeyCode()) {

@@ -22,9 +22,10 @@ import java.io.IOException;
  */
 public class LizzieFrame extends JFrame {
     private static final String[] commands = {
+            "enter|play against Leela Zero",
+            "space|toggle pondering",
             "left arrow|undo",
             "right arrow|redo",
-            "space|toggle pondering",
             "right click|undo",
             "scrollwheel|undo/redo",
             "c|toggle coordinates",
@@ -43,6 +44,8 @@ public class LizzieFrame extends JFrame {
     public int[] mouseHoverCoordinate;
     public boolean showControls = false;
     public boolean showCoordinates = false;
+    public boolean isPlayingAgainstLeelaz = false;
+    public boolean playerIsBlack = true;
 
     static {
         // load fonts
@@ -276,7 +279,8 @@ public class LizzieFrame extends JFrame {
         int[] boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
 
         if (boardCoordinates != null) {
-            Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+            if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
+                Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
         }
     }
 
