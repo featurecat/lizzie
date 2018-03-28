@@ -50,7 +50,6 @@ public class Config {
         leelaz.put("weights", "network");
         leelaz.put("threads", 2);
         leelaz.put("gpu", new JSONArray("[]"));
-        leelaz.put("noise", false);
         leelaz.put("max-analyze-time-minutes", 2);
         leelaz.put("max-game-thinking-time-seconds", 2);
 

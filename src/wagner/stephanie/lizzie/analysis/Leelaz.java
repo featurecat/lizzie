@@ -65,9 +65,9 @@ public class Leelaz {
         commands.add("-w" + config.getString("weights"));
         commands.add("-b0");
 
-        if (config.getBoolean("noise")) {
-            commands.add("-n");
-        }
+//        if (config.getBoolean("noise")) {
+//            commands.add("-n");
+//        }
 
         try {
             JSONArray gpu = config.getJSONArray("gpu");
