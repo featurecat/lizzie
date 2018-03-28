@@ -253,16 +253,23 @@ public class BoardRenderer {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int[] lastMove = branch == null ? Lizzie.board.getLastMove() : branch.data.lastMove;
-        if (!Lizzie.config.showMoveNumber && lastMove != null && branch == null) {
-            // mark the last coordinate
-            int lastMoveMarkerRadius = stoneRadius / 2;
-            int stoneX = x + scaledMargin + squareLength * lastMove[0];
-            int stoneY = y + scaledMargin + squareLength * lastMove[1];
+        if (!Lizzie.config.showMoveNumber){
+            if (lastMove != null && branch == null) {
+                // mark the last coordinate
+                int lastMoveMarkerRadius = stoneRadius / 2;
+                int stoneX = x + scaledMargin + squareLength * lastMove[0];
+                int stoneY = y + scaledMargin + squareLength * lastMove[1];
 
-            // set color to the opposite color of whatever is on the board
-            g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ?
-                    Color.BLACK : Color.WHITE);
-            drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
+                // set color to the opposite color of whatever is on the board
+                g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ?
+                        Color.BLACK : Color.WHITE);
+                drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
+            } else if (lastMove == null && Lizzie.board.getData().moveNumber != 0) {
+                g.setColor(Lizzie.board.getData().blackToPlay ? new Color(255, 255, 255,150) : new Color(0,0,0,150));
+                g.fillOval(x+boardLength/2-4*stoneRadius, y+boardLength/2 - 4*stoneRadius, stoneRadius*8, stoneRadius*8);
+                g.setColor(Lizzie.board.getData().blackToPlay ? new Color(0,0,0,255) : new Color(255, 255, 255,255));
+                drawString(g,x+boardLength/2, y+boardLength/2, "Open Sans", "pass", stoneRadius*4, stoneRadius*6);
+            }
 
             return;
         }

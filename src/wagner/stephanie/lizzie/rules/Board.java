@@ -81,6 +81,8 @@ public class Board {
                 // this is the next move in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, "pass");
+                if (Lizzie.frame.isPlayingAgainstLeelaz)
+                    Lizzie.leelaz.sendCommand("genmove " + (history.isBlacksTurn()? "B" : "W"));
 
                 return;
             }
@@ -95,9 +97,13 @@ public class Board {
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
+            if (Lizzie.frame.isPlayingAgainstLeelaz)
+                Lizzie.leelaz.sendCommand("genmove " + (history.isBlacksTurn()? "W" : "B"));
 
             // update history with pass
             history.add(newState);
+
+            Lizzie.frame.repaint();
         }
     }
 
