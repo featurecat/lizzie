@@ -253,8 +253,8 @@ public class BoardRenderer {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         int[] lastMove = branch == null ? Lizzie.board.getLastMove() : branch.data.lastMove;
-        if (!Lizzie.config.showMoveNumber){
-            if (lastMove != null && branch == null) {
+        if (!Lizzie.config.showMoveNumber && branch == null){
+            if (lastMove != null) {
                 // mark the last coordinate
                 int lastMoveMarkerRadius = stoneRadius / 2;
                 int stoneX = x + scaledMargin + squareLength * lastMove[0];
