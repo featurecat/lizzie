@@ -81,6 +81,7 @@ public class Board {
                 // this is the next move in history. Just increment history so that we don't erase the redo's
                 history.next();
                 Lizzie.leelaz.playMove(color, "pass");
+
                 return;
             }
 
@@ -204,7 +205,7 @@ public class Board {
             pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
             return;
         }
-        
+
         int[] coordinates = convertNameToCoordinates(namedCoordinate);
 
         place(coordinates[0], coordinates[1]);

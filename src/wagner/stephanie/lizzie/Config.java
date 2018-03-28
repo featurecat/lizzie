@@ -60,7 +60,6 @@ public class Config {
         JSONObject ui = new JSONObject();
 
         ui.put("board-color", new JSONArray("[178, 140, 0]"));
-        ui.put("branch-stone-alpha", 160);
         ui.put("shadows-enabled", true);
         ui.put("fancy-stones", true);
         ui.put("fancy-board", true);
