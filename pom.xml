@@ -8,6 +8,7 @@
     <artifactId>lizzie</artifactId>
     <version>1.3</version>
     <build>
+        <sourceDirectory>src/</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -15,6 +16,11 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <archive>
+                        <manifest>
+                            <mainClass>wagner.stephanie.lizzie.Lizzie</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
@@ -27,8 +33,5 @@
             <artifactId>json</artifactId>
             <version>20180130</version>
         </dependency>
-
-    </dependencies>
-
-    
+    </dependencies>    
 </project>
