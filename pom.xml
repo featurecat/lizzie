@@ -22,14 +22,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
                 <configuration>
                     <archive>
                         <manifest>
                             <mainClass>wagner.stephanie.lizzie.Lizzie</mainClass>
-                            <addClassPath>true</addClassPath>
-                            <classpathPrefix>lib/</classpathPrefix>
                         </manifest>
+                        <manifestEntries>
+                            <Class-Path>lib/json-20180130.jar</Class-Path>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
