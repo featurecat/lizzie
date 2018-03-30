@@ -37,7 +37,7 @@ public class SGFParser {
             return false;
         }
         boolean isTag = false, isInTag = false, isMultiGo = false;
-        if (value.charAt(value.length - 2) == ')') {
+        if (value.charAt(value.length() - 2) == ')') {
             isMultiGo = true;
         }
         int subTreeDepth = 0;
