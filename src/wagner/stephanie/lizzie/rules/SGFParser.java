@@ -36,7 +36,8 @@ public class SGFParser {
         } else if (value.charAt(value.length() - 1) != ')') {
             return false;
         }
-        boolean isTag = false, isInTag = false, inSubTree = false, inTree = false;
+        boolean isTag = false, isInTag = false;
+        int subTreeDepth = 0;
         String tag = null;
         char last = '(';
         StringBuilder tagBuffer = new StringBuilder();
@@ -44,25 +45,25 @@ public class SGFParser {
         char[] charList = value.toCharArray();
         for (char c : charList) {
             if (c == '(') {
-                if (!inTree) {
-                    inTree = true;
-                } else {
-                    inSubTree = true;
-                }
+                subTreeDepth += 1;
                 continue;
             }
-            if (inSubTree && !isInTag && c == ')') {
-                inSubTree = false;
+            if (c == ')') {
+                subTreeDepth -= 1;
+                continue;
+            }
+            // Skip subtree/branch
+            if (subTreeDepth > 1) {
                 continue;
             }
             if (c == ';') {
                 isTag = true;
+                tagBuffer = new StringBuilder();
                 continue;
             }
             if (c == '[') {
                 isTag = false;
                 tag = tagBuffer.toString();
-                tagBuffer = new StringBuilder();
                 isInTag = true;
                 continue;
             }
@@ -91,12 +92,9 @@ public class SGFParser {
                 }
                 continue;
             }
-            // TODO is there a bug here? this is handled in a previous branch.
-            if (last == ']' && c != '(') {
+            if (last == ']' && c != '(' && c != '[') {
                 isTag = true;
-            }
-            if (inSubTree) {
-                continue;
+                tagBuffer = new StringBuilder();
             }
             if (isTag) {
                 tagBuffer.append(c);
