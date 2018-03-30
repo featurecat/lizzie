@@ -36,7 +36,10 @@ public class SGFParser {
         } else if (value.charAt(value.length() - 1) != ')') {
             return false;
         }
-        boolean isTag = false, isInTag = false;
+        boolean isTag = false, isInTag = false, isMultiGo = false;
+        if (value.charAt(value.length - 2) == ')') {
+            isMultiGo = true;
+        }
         int subTreeDepth = 0;
         String tag = null;
         char last = '(';
@@ -51,11 +54,14 @@ public class SGFParser {
             }
             if (c == ')') {
                 subTreeDepth -= 1;
+                if (isMultiGo) {
+                    break;
+                }
                 last = c;
                 continue;
             }
             // Skip subtree/branch
-            if (subTreeDepth > 1) {
+            if (subTreeDepth > 1 && !isMultiGo) {
                 last = c;
                 continue;
             }
