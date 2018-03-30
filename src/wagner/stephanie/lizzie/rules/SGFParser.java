@@ -46,25 +46,30 @@ public class SGFParser {
         for (char c : charList) {
             if (c == '(') {
                 subTreeDepth += 1;
+                last = c;
                 continue;
             }
             if (c == ')') {
                 subTreeDepth -= 1;
+                last = c;
                 continue;
             }
             // Skip subtree/branch
             if (subTreeDepth > 1) {
+                last = c;
                 continue;
             }
             if (c == ';') {
                 isTag = true;
                 tagBuffer = new StringBuilder();
+                last = c;
                 continue;
             }
             if (c == '[') {
                 isTag = false;
                 tag = tagBuffer.toString();
                 isInTag = true;
+                last = c;
                 continue;
             }
             if (c == ']') {
@@ -90,6 +95,7 @@ public class SGFParser {
                         Lizzie.board.place(x, y, Stone.WHITE);
                     }
                 }
+                last = c;
                 continue;
             }
             if (last == ']' && c != '(' && c != '[') {
@@ -98,10 +104,13 @@ public class SGFParser {
             }
             if (isTag) {
                 tagBuffer.append(c);
+                last = c;
                 continue;
             }
             if (isInTag) {
                 tagContentBuffer.append(c);
+                last = c;
+                continue;
             }
         }
         return true;
