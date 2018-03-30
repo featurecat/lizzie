@@ -86,7 +86,7 @@ public class SGFParser {
                     return false;
                 } else if (tag.equals("B")) {
                     if (tagContent.isEmpty() || tagContent.equals("tt")) {
-                        Lizzie.board.pass(Stone.WHITE);
+                        Lizzie.board.pass(Stone.BLACK);
                     } else {
                         int x = tagContent.charAt(0) - 'a';
                         int y = tagContent.charAt(1) - 'a';
