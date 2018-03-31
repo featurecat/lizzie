@@ -3,12 +3,23 @@ package wagner.stephanie.lizzie.plugin;
 
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
-import org.w3c.dom.events.MouseEvent;
 
 public interface IPlugin {
-    public void init(Class lizzieClass) throws IOException;
+    public void onInit(Class lizzieClass) throws IOException;
+
+    public void onMousePressed(MouseEvent e);
+
+    public void onMouseReleased(MouseEvent e);
+
+    public void onMouseMoved(MouseEvent e);
+
     public void onKeyPressed(KeyEvent e);
-    public void onketReleased(KeyEvent e);
-    public void onDraw(Graphics2D g0);
+
+    public void onKeyReleased(KeyEvent e);
+
+    public void onDraw(Graphics2D g);
+
+    public void onShutdown() throws IOException;
 }
