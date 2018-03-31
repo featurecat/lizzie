@@ -7,7 +7,8 @@ import java.io.*;
 public class SGFParser {
     public static boolean load(String filename) throws IOException {
         // Clear the board
-        while (Lizzie.board.previousMove()) ;
+        while (Lizzie.board.previousMove())
+            ;
 
         File file = new File(filename);
         if (!file.exists() || !file.canRead()) {
@@ -29,6 +30,15 @@ public class SGFParser {
         return parse(value);
     }
 
+    public static int[] convertSgfPosToCoord(String pos) {
+        if (pos.equals("tt") || pos.isEmpty())
+            return null;
+        int[] ret = new int[2];
+        ret[0] = (int) pos.charAt(0) - 'a';
+        ret[1] = (int) pos.charAt(1) - 'a';
+        return ret;
+    }
+
     private static boolean parse(String value) {
         value = value.trim();
         if (value.charAt(0) != '(') {
@@ -36,76 +46,84 @@ public class SGFParser {
         } else if (value.charAt(value.length() - 1) != ')') {
             return false;
         }
-        boolean isTag = false, isInTag = false, inSubTree = false, inTree = false;
+        int subTreeDepth = 0;
+        boolean inTag = false, isMultiGo = false;
         String tag = null;
-        char last = '(';
-        StringBuilder tagBuffer = new StringBuilder();
-        StringBuilder tagContentBuffer = new StringBuilder();
-        char[] charList = value.toCharArray();
-        for (char c : charList) {
-            if (c == '(') {
-                if (!inTree) {
-                    inTree = true;
-                } else {
-                    inSubTree = true;
+        StringBuilder tagBuilder = new StringBuilder();
+        StringBuilder tagContentBuilder = new StringBuilder();
+        // MultiGo 's branch: (Main Branch (Main Branch) (Branch) )
+        // Other 's branch: (Main Branch (Branch) Main Branch)
+        if (value.charAt(value.length() - 2) == ')') {
+            isMultiGo = true;
+        }
+
+        for (byte b : value.getBytes()) {
+            // Check unicode charactors (UTF-8)
+            char c = (char) b;
+            if (((int)b & 0x80) != 0) {
+                continue;
+            }
+            switch (c) {
+            case '(':
+                subTreeDepth += 1;
+                break;
+            case ')':
+                subTreeDepth -= 1;
+                if (isMultiGo) {
+                    return true;
                 }
-                continue;
-            }
-            if (inSubTree && !isInTag && c == ')') {
-                inSubTree = false;
-                continue;
-            }
-            if (c == ';') {
-                isTag = true;
-                continue;
-            }
-            if (c == '[') {
-                isTag = false;
-                tag = tagBuffer.toString();
-                tagBuffer = new StringBuilder();
-                isInTag = true;
-                continue;
-            }
-            if (c == ']') {
-                isInTag = false;
-                String tagContent = tagContentBuffer.toString();
-                tagContentBuffer = new StringBuilder();
-                if (tag == null) {
-                    return false;
-                } else if (tag.equals("B")) {
-                    if (tagContent.isEmpty() || tagContent.equals("tt")) {
-                        Lizzie.board.pass(Stone.WHITE);
+                break;
+            case '[':
+                if (subTreeDepth > 1 && !isMultiGo) {
+                    break;
+                }
+                inTag = true;
+                String tagTemp = tagBuilder.toString();
+                if (!tagTemp.isEmpty()) {
+                    tag = tagTemp;
+                }
+                tagContentBuilder = new StringBuilder();
+                break;
+            case ']':
+                if (subTreeDepth > 1 && !isMultiGo) {
+                    break;
+                }
+                inTag = false;
+                tagBuilder = new StringBuilder();
+                String tagContent = tagContentBuilder.toString();
+                // We got tag, we can parse this tag now.
+                if (tag.equals("B")) {
+                    int[] move = convertSgfPosToCoord(tagContent);
+                    if (move == null) {
+                        Lizzie.board.pass(Stone.BLACK);
                     } else {
-                        int x = tagContent.charAt(0) - 'a';
-                        int y = tagContent.charAt(1) - 'a';
-                        Lizzie.board.place(x, y, Stone.BLACK);
+                        Lizzie.board.place(move[0], move[1], Stone.BLACK);
                     }
                 } else if (tag.equals("W")) {
-                    if (tagContent.isEmpty() || tagContent.equals("tt")) {
+                    int[] move = convertSgfPosToCoord(tagContent);
+                    if (move == null) {
                         Lizzie.board.pass(Stone.WHITE);
                     } else {
-                        int x = tagContent.charAt(0) - 'a';
-                        int y = tagContent.charAt(1) - 'a';
-                        Lizzie.board.place(x, y, Stone.WHITE);
+                        Lizzie.board.place(move[0], move[1], Stone.WHITE);
                     }
                 }
-                continue;
-            }
-            // TODO is there a bug here? this is handled in a previous branch.
-            if (last == ']' && c != '(') {
-                isTag = true;
-            }
-            if (inSubTree) {
-                continue;
-            }
-            if (isTag) {
-                tagBuffer.append(c);
-                continue;
-            }
-            if (isInTag) {
-                tagContentBuffer.append(c);
+                break;
+            case ';':
+                break;
+            default:
+                if (subTreeDepth > 1 && !isMultiGo) {
+                    break;
+                }
+                if (inTag) {
+                    tagContentBuilder.append(c);
+                } else {
+                    if (c != '\n' && c != '\t' && c != ' ') {
+                        tagBuilder.append(c);
+                    }
+                }
             }
         }
+
         return true;
     }
 
