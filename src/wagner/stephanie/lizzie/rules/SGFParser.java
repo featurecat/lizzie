@@ -7,7 +7,8 @@ import java.io.*;
 public class SGFParser {
     public static boolean load(String filename) throws IOException {
         // Clear the board
-        while (Lizzie.board.previousMove()) ;
+        while (Lizzie.board.previousMove())
+            ;
 
         File file = new File(filename);
         if (!file.exists() || !file.canRead()) {
@@ -29,6 +30,15 @@ public class SGFParser {
         return parse(value);
     }
 
+    public static int[] convertSgfPosToCoord(String pos) {
+        if (pos.equals("tt") || pos.isEmpty())
+            return null;
+        int[] ret = new int[2];
+        ret[0] = (int) pos.charAt(0) - 'a';
+        ret[1] = (int) pos.charAt(1) - 'a';
+        return ret;
+    }
+
     private static boolean parse(String value) {
         value = value.trim();
         if (value.charAt(0) != '(') {
@@ -37,15 +47,16 @@ public class SGFParser {
             return false;
         }
         boolean isTag = false, isInTag = false, isMultiGo = false;
-        if (value.charAt(value.length() - 2) == ')') {
-            isMultiGo = true;
-        }
         int subTreeDepth = 0;
         String tag = null;
         char last = '(';
         StringBuilder tagBuffer = new StringBuilder();
         StringBuilder tagContentBuffer = new StringBuilder();
         char[] charList = value.toCharArray();
+        if (value.charAt(value.length() - 2) == ')') {
+            isMultiGo = true;
+        }
+
         for (char c : charList) {
             if (c == '(') {
                 subTreeDepth += 1;
@@ -65,56 +76,55 @@ public class SGFParser {
                 last = c;
                 continue;
             }
-            if (c == ';') {
+            if (c == ']') {
+                String tagContent = tagContentBuffer.toString();
+                if (tag != null) {
+                    System.out.println(tag);
+                    if (tag.equals("B")) {
+                        int[] move = convertSgfPosToCoord(tagContent);
+                        if (move == null) {
+                            Lizzie.board.pass(Stone.BLACK);
+                        } else {
+                            Lizzie.board.place(move[0], move[1], Stone.BLACK);
+                        }
+                    } else if (tag.equals("W")) {
+                        int[] move = convertSgfPosToCoord(tagContent);
+                        if (move == null) {
+                            Lizzie.board.pass(Stone.WHITE);
+                        } else {
+                            Lizzie.board.place(move[0], move[1], Stone.WHITE);
+                        }
+                    }
+                }
+                isInTag = false;
                 isTag = true;
                 tagBuffer = new StringBuilder();
                 last = c;
                 continue;
             }
+
             if (c == '[') {
+                tagContentBuffer = new StringBuilder();
+                String tagTemp = tagBuffer.toString();
+                if (!(tagTemp.trim()).isEmpty()) {
+                    tag = new String(tagTemp.trim());
+                }
                 isTag = false;
-                tag = tagBuffer.toString();
                 isInTag = true;
                 last = c;
                 continue;
             }
-            if (c == ']') {
-                isInTag = false;
-                String tagContent = tagContentBuffer.toString();
-                tagContentBuffer = new StringBuilder();
-                if (tag == null) {
-                    return false;
-                } else if (tag.equals("B")) {
-                    if (tagContent.isEmpty() || tagContent.equals("tt")) {
-                        Lizzie.board.pass(Stone.BLACK);
-                    } else {
-                        int x = tagContent.charAt(0) - 'a';
-                        int y = tagContent.charAt(1) - 'a';
-                        Lizzie.board.place(x, y, Stone.BLACK);
-                    }
-                } else if (tag.equals("W")) {
-                    if (tagContent.isEmpty() || tagContent.equals("tt")) {
-                        Lizzie.board.pass(Stone.WHITE);
-                    } else {
-                        int x = tagContent.charAt(0) - 'a';
-                        int y = tagContent.charAt(1) - 'a';
-                        Lizzie.board.place(x, y, Stone.WHITE);
-                    }
-                }
-                last = c;
-                continue;
-            }
-            if (last == ']' && c != '(' && c != '[') {
+            if (c == ';' && !isInTag) {
                 isTag = true;
-                tagBuffer = new StringBuilder();
-            }
-            if (isTag) {
-                tagBuffer.append(c);
                 last = c;
                 continue;
             }
             if (isInTag) {
                 tagContentBuffer.append(c);
+                last = c;
+                continue;
+            } else {
+                tagBuffer.append(c);
                 last = c;
                 continue;
             }
@@ -127,7 +137,8 @@ public class SGFParser {
         OutputStreamWriter writer = new OutputStreamWriter(fp);
         StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
         BoardHistoryList history = Lizzie.board.getHistory();
-        while (history.previous() != null) ;
+        while (history.previous() != null)
+            ;
         BoardData data = null;
         while ((data = history.next()) != null) {
             StringBuilder tag = new StringBuilder(";");
