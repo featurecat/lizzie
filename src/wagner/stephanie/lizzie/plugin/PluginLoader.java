@@ -61,6 +61,7 @@ public final class PluginLoader {
             PluginLoader plug = (PluginLoader) o;
             return name.equals(plug.name) && version.equals(plug.version);
         }
+        return false;
     }
 
     @Override
