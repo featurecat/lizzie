@@ -93,7 +93,7 @@ public class Board {
             int[] moveNumberList = history.getMoveNumberList().clone();
 
             // build the new game state
-            BoardData newState = new BoardData(stones, null, color, !history.isBlacksTurn(), zobrist, moveNumber, moveNumberList);
+            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList);
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
@@ -170,7 +170,7 @@ public class Board {
             }
 
             // build the new game state
-            BoardData newState = new BoardData(stones, lastMove, color, !history.isBlacksTurn(), zobrist, moveNumber, moveNumberList);
+            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
