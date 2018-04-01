@@ -22,7 +22,7 @@ public class PluginManager {
         assert path.isDirectory();
 
         for (String pluginDirectory : path.list()) {
-            File pluginDir = new File(pluginDirectory);
+            File pluginDir = new File(path, pluginDirectory);
             if (!pluginDir.isDirectory()) {
                 continue;
             }
