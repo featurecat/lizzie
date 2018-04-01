@@ -79,6 +79,14 @@ public class BoardHistoryList {
         return head.getData().lastMove;
     }
 
+    public int[] getNextMove() {
+        BoardData next = getNext();
+        if (next == null)
+            return null;
+        else
+            return next.lastMove;
+    }
+
     public Stone getLastMoveColor() {
         return head.getData().lastMoveColor;
     }

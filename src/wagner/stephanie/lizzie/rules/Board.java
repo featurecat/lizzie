@@ -317,6 +317,15 @@ public class Board {
     }
 
     /**
+     * get the move played in this position
+     *
+     * @return the next move, if any
+     */
+    public int[] getNextMove() {
+        return history.getNextMove();
+    }
+
+    /**
      * get current board move number
      *
      * @return the int array corresponding to the current board move number
