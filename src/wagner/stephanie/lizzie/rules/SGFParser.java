@@ -117,7 +117,7 @@ public class SGFParser {
                 if (inTag) {
                     tagContentBuilder.append(c);
                 } else {
-                    if (c != '\n' && c != '\t' && c != ' ') {
+                    if (c != '\n' && c != '\r' && c != '\t' && c != ' ') {
                         tagBuilder.append(c);
                     }
                 }
