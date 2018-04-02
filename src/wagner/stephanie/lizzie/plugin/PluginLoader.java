@@ -47,8 +47,8 @@ public final class PluginLoader {
         plugin.onKeyReleased(e);
     }
 
-    public void onDraw(Graphics2D g) {
-        plugin.onDraw(g);
+    public boolean onDraw(Graphics2D g) {
+        return plugin.onDraw(g);
     }
 
     public void onShutdown() throws IOException {

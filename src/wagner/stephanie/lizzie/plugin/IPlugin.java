@@ -19,7 +19,7 @@ public interface IPlugin {
 
     public void onKeyReleased(KeyEvent e);
 
-    public void onDraw(Graphics2D g);
+    public boolean onDraw(Graphics2D g);
 
     public void onShutdown() throws IOException;
 }

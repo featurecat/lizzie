@@ -1,6 +1,8 @@
 package wagner.stephanie.lizzie.plugin;
 
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,15 +46,53 @@ public class PluginManager {
         }
     }
 
+    public void onMousePressed(MouseEvent e) {
+        for (PluginLoader plugin : plugins) {
+            plugin.onMousePressed(e);
+        }
+    }
+
+    public void onMouseReleased(MouseEvent e) {
+        for (PluginLoader plugin : plugins) {
+            plugin.onMousePressed(e);
+        }
+    }
+
+    public void onMouseMoved(MouseEvent e) {
+        for (PluginLoader plugin : plugins) {
+            plugin.onMousePressed(e);
+        }
+    }
+
+    public void onKeyPressed(KeyEvent e) {
+        for (PluginLoader plugin : plugins) {
+            plugin.onKeyPressed(e);
+        }
+    }
+
+    public void onKeyReleased(KeyEvent e) {
+        for (PluginLoader plugin : plugins) {
+            plugin.onKeyReleased(e);
+        }
+    }
+
+    public void onShutdown() throws IOException {
+        for (PluginLoader plugin : plugins) {
+            plugin.onShutdown();
+        }
+    }
+
     public static void onDraw(Graphics2D g0) {
         int width = Lizzie.frame.getWidth();
         int height = Lizzie.frame.getHeight();
         BufferedImage cachedImageParent = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = cachedImageParent.createGraphics();
         for (PluginLoader plugin : plugins) {
-            BufferedImage cachedImage = new BufferedImage(Lizzie.frame.getWidth(), Lizzie.frame.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            plugin.onDraw(cachedImage.createGraphics());
-            
+            BufferedImage cachedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            if (plugin.onDraw(cachedImage.createGraphics())) {
+                g.drawImage(cachedImage, 0, 0, null);
+            }
         }
+        g0.drawImage(cachedImageParent, 0, 0, null);
     }
 }
