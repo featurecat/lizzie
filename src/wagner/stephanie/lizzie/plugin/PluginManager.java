@@ -27,6 +27,9 @@ public class PluginManager {
         assert path.isDirectory();
 
         for (File jarFile : path.listFiles()) {
+            if (jarFile.isDirectory()) {
+                continue;
+            }
             try {
                 plugins.add(new PluginLoader(jarFile.getAbsolutePath()));
             } catch (Exception e) {
