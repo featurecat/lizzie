@@ -9,8 +9,6 @@ import java.io.IOException;
 
 import java.net.URL;
 import java.net.URLClassLoader;
-import org.json.JSONObject;
-import org.json.JSONException;
 import wagner.stephanie.lizzie.Lizzie;
 
 
@@ -21,7 +19,7 @@ public final class PluginLoader {
     public String version;
     public String className;
 
-    public PluginLoader(String uri) throws ClassNotFoundException, InstantiationException, IllegalAccessException, JSONException, IOException {
+    public PluginLoader(String uri) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         File jarFile = new File(uri);
         URLClassLoader loader = new URLClassLoader(new URL[]{ jarFile.toURI().toURL() });
         pluginClass = loader.loadClass("Plugin");
