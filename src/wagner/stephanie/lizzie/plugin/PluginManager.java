@@ -28,7 +28,7 @@ public class PluginManager {
 
         for (File jarFile : path.listFiles()) {
             try {
-                plugins.add(new PluginLoader(jarFile.getPath()));
+                plugins.add(new PluginLoader(jarFile.getAbsolutePath()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
