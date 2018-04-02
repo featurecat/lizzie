@@ -7,8 +7,7 @@ import java.io.*;
 public class SGFParser {
     public static boolean load(String filename) throws IOException {
         // Clear the board
-        while (Lizzie.board.previousMove())
-            ;
+        Lizzie.board.clear();
 
         File file = new File(filename);
         if (!file.exists() || !file.canRead()) {

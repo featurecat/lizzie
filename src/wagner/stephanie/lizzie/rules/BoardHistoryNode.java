@@ -1,11 +1,12 @@
 package wagner.stephanie.lizzie.rules;
+import java.util.ArrayList;
 
 /**
  * Node structure for a special doubly linked list
  */
 public class BoardHistoryNode {
     private BoardHistoryNode previous;
-    private BoardHistoryNode next;
+    private ArrayList<BoardHistoryNode> nexts;
 
     private BoardData data;
 
@@ -14,8 +15,15 @@ public class BoardHistoryNode {
      */
     public BoardHistoryNode(BoardData data) {
         previous = null;
-        next = null;
+        nexts = new ArrayList<BoardHistoryNode>();
         this.data = data;
+    }
+
+    /**
+     * Remove all subsequent nodes.
+     */
+    public void clear() {
+        nexts.clear();
     }
 
     /**
@@ -25,7 +33,31 @@ public class BoardHistoryNode {
      * @return the node that was just set
      */
     public BoardHistoryNode add(BoardHistoryNode node) {
-        next = node;
+        nexts.clear();
+        nexts.add(node);
+        node.previous = this;
+
+        return node;
+    }
+
+    /**
+     * If we already have a next node with the same BoardData, move to it,
+     * otherwise add it and move to it.
+     *
+     * @param node the node following this one
+     * @return the node that was just set
+     */
+    public BoardHistoryNode addOrGoto(BoardData data) {
+        for (int i = 0; i < nexts.size(); i++) {
+            System.out.printf("Trying next %d/%d\n", i, nexts.size());
+            if (nexts.get(i).data.zobrist.equals(data.zobrist)) {
+                System.out.println("Found it");
+                return nexts.get(i);
+            }
+        }
+        System.out.println("Had to add a node");
+        BoardHistoryNode node = new BoardHistoryNode(data);
+        nexts.add(node);
         node.previous = this;
 
         return node;
@@ -43,6 +75,10 @@ public class BoardHistoryNode {
     }
 
     public BoardHistoryNode next() {
-        return next;
+        if (nexts.size() == 0) {
+            return null;
+        } else {
+            return nexts.get(0);
+        }
     }
 }
