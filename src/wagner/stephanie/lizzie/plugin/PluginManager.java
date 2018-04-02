@@ -46,39 +46,43 @@ public class PluginManager {
         }
     }
 
-    public void onMousePressed(MouseEvent e) {
+    public static void onMousePressed(MouseEvent e) {
         for (PluginLoader plugin : plugins) {
             plugin.onMousePressed(e);
         }
     }
 
-    public void onMouseReleased(MouseEvent e) {
+    public static void onMouseReleased(MouseEvent e) {
         for (PluginLoader plugin : plugins) {
             plugin.onMousePressed(e);
         }
     }
 
-    public void onMouseMoved(MouseEvent e) {
+    public static void onMouseMoved(MouseEvent e) {
         for (PluginLoader plugin : plugins) {
             plugin.onMousePressed(e);
         }
     }
 
-    public void onKeyPressed(KeyEvent e) {
+    public static void onKeyPressed(KeyEvent e) {
         for (PluginLoader plugin : plugins) {
             plugin.onKeyPressed(e);
         }
     }
 
-    public void onKeyReleased(KeyEvent e) {
+    public static void onKeyReleased(KeyEvent e) {
         for (PluginLoader plugin : plugins) {
             plugin.onKeyReleased(e);
         }
     }
 
-    public void onShutdown() throws IOException {
+    public static void onShutdown(){
+        
         for (PluginLoader plugin : plugins) {
-            plugin.onShutdown();
+            try {plugin.onShutdown();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }   
         }
     }
 
