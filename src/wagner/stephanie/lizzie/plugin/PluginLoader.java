@@ -4,8 +4,11 @@ package wagner.stephanie.lizzie.plugin;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 
+import java.net.URL;
+import java.net.URLClassLoader;
 import org.json.JSONObject;
 import org.json.JSONException;
 import wagner.stephanie.lizzie.Lizzie;
@@ -18,13 +21,14 @@ public final class PluginLoader {
     public String version;
     public String className;
 
-    public PluginLoader(JSONObject config) throws ClassNotFoundException, InstantiationException, IllegalAccessException, JSONException, IOException {
-        this.name = config.getString("name");
-        this.version = config.getString("version");
-        this.className = config.getString("class-name");
-        pluginClass = Class.forName(this.className);
+    public PluginLoader(String uri) throws ClassNotFoundException, InstantiationException, IllegalAccessException, JSONException, IOException {
+        File jarFile = new File(uri);
+        URLClassLoader loader = new URLClassLoader(new URL[]{ jarFile.toURI().toURL() });
+        pluginClass = loader.loadClass("Plugin");
         plugin = (IPlugin) pluginClass.newInstance();
         plugin.onInit(Lizzie.class);
+        name = plugin.getName();
+        version = plugin.getVersion();
     }
 
     public void onMousePressed(MouseEvent e) {
@@ -66,6 +70,6 @@ public final class PluginLoader {
 
     @Override
     public int hashCode() {
-        return (className + " " + version).hashCode();
+        return (name + " " + version).hashCode();
     }
 }

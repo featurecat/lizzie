@@ -22,4 +22,7 @@ public interface IPlugin {
     public boolean onDraw(Graphics2D g);
 
     public void onShutdown() throws IOException;
+
+    public String getName();
+    public String getVersion();
 }

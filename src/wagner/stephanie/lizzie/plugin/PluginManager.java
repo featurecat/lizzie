@@ -26,20 +26,9 @@ public class PluginManager {
         File path = new File("./plugin/");
         assert path.isDirectory();
 
-        for (String pluginDirectory : path.list()) {
-            File pluginDir = new File(path, pluginDirectory);
-            if (!pluginDir.isDirectory()) {
-                continue;
-            }
-            File pluginInfo = new File(pluginDir, "info.json");
-            if (!pluginInfo.exists()) {
-                continue;
-            }
-            FileInputStream stream = new FileInputStream(pluginInfo);
-            JSONObject config = new JSONObject(new JSONTokener(stream));
-            stream.close();
+        for (File jarFile : path.listFiles()) {
             try {
-                plugins.add(new PluginLoader(config));
+                plugins.add(new PluginLoader(jarFile.getPath()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
