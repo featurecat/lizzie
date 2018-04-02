@@ -28,7 +28,7 @@
                             <mainClass>wagner.stephanie.lizzie.Lizzie</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Class-Path>lib/json-20180130.jar</Class-Path>
+                            <Class-Path>lib/json-20180130.jar plugin/</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>

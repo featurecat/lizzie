@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BoardRenderer {
-    private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
+    private static final double MARGIN = 0.05; // percentage of the boardLength to offset before drawing black lines
     private static final double STARPOINT_DIAMETER = 0.015;
 
     private int x, y;
@@ -72,6 +73,8 @@ public class BoardRenderer {
 //        timer.lap("movenumbers");
         if (!Lizzie.frame.isPlayingAgainstLeelaz)
             drawLeelazSuggestions(g);
+
+        PluginManager.onDraw(g);
 //        timer.lap("leelaz");
 
 //        timer.print();

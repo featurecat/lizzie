@@ -2,6 +2,7 @@ package wagner.stephanie.lizzie;
 
 import org.json.JSONException;
 import wagner.stephanie.lizzie.analysis.Leelaz;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 
@@ -26,12 +27,15 @@ public class Lizzie {
         leelaz = new Leelaz();
         leelaz.togglePonder();
 
+        PluginManager.loadPlugins();
+
         board = new Board();
 
         frame = new LizzieFrame();
     }
 
     public static void shutdown() {
+        PluginManager.onShutdown();
         int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
         if (ret == JOptionPane.OK_OPTION) {
             LizzieFrame.saveSgf();
