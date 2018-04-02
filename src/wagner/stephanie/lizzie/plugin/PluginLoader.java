@@ -21,6 +21,7 @@ public final class PluginLoader extends URLClassLoader{
 
     public PluginLoader(String uri) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         super(new URL[]{});
+        System.out.println(uri);
         addURL(new File(uri).toURI().toURL());
         pluginClass = loadClass("plugin.Plugin");
         plugin = (IPlugin) pluginClass.newInstance();
