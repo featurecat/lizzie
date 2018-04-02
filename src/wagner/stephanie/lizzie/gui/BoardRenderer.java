@@ -388,6 +388,18 @@ public class BoardRenderer {
                     }
                 }
             }
+
+            int[] nextMove = Lizzie.board.getNextMove();
+            if (nextMove != null) {
+                if (Lizzie.board.getData().blackToPlay) {
+                    g.setColor(Color.BLACK);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                int moveX = x + scaledMargin + squareLength * nextMove[0];
+                int moveY = y + scaledMargin + squareLength * nextMove[1];
+                drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
+            }
         }
     }
 
