@@ -12,7 +12,7 @@ import java.net.URLClassLoader;
 import wagner.stephanie.lizzie.Lizzie;
 
 
-public final class PluginLoader {
+public final class PluginLoader extends URLClassLoader{
     public Class pluginClass;
     public IPlugin plugin;
     public String name;
@@ -20,9 +20,9 @@ public final class PluginLoader {
     public String className;
 
     public PluginLoader(String uri) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
-        File jarFile = new File(uri);
-        URLClassLoader loader = new URLClassLoader(new URL[]{ jarFile.toURI().toURL() });
-        pluginClass = loader.loadClass("Plugin");
+        super(new URL[]{});
+        addURL(new File(uri).toURI().toURL());
+        pluginClass = loadClass("Plugin");
         plugin = (IPlugin) pluginClass.newInstance();
         plugin.onInit(Lizzie.class);
         name = plugin.getName();
