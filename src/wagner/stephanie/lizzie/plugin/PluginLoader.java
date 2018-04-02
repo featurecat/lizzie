@@ -22,7 +22,7 @@ public final class PluginLoader extends URLClassLoader{
     public PluginLoader(String uri) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
         super(new URL[]{});
         addURL(new File(uri).toURI().toURL());
-        pluginClass = loadClass("Plugin");
+        pluginClass = loadClass("plugin.Plugin");
         plugin = (IPlugin) pluginClass.newInstance();
         plugin.onInit(Lizzie.class);
         name = plugin.getName();
