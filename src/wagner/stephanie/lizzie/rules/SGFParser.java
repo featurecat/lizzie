@@ -65,12 +65,16 @@ public class SGFParser {
             }
             switch (c) {
             case '(':
-                subTreeDepth += 1;
+                if (!inTag) {
+                    subTreeDepth += 1;
+                }
                 break;
             case ')':
-                subTreeDepth -= 1;
-                if (isMultiGo) {
-                    return true;
+                if (!inTag) {
+                    subTreeDepth -= 1;
+                    if (isMultiGo) {
+                        return true;
+                    }
                 }
                 break;
             case '[':
