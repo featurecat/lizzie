@@ -6,7 +6,7 @@
 
     <groupId>groupId</groupId>
     <artifactId>lizzie</artifactId>
-    <version>0.4 pre-1</version>
+    <version>0.4 pre-2</version>
 
     <build>
         <sourceDirectory>src/</sourceDirectory>
