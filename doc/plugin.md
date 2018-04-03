@@ -81,7 +81,7 @@ Let's edit Plugin.java to have a message box pop up when we press 'H'.
 ```java
     public void onKeyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_H) {
-            JOptionPane.showConfirmDialog(null, "Hello World!")
+            JOptionPane.showConfirmDialog(null, "Hello World!");
         }
     }
 ```
