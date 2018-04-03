@@ -49,13 +49,10 @@ public class BoardHistoryNode {
      */
     public BoardHistoryNode addOrGoto(BoardData data) {
         for (int i = 0; i < nexts.size(); i++) {
-            System.out.printf("Trying next %d/%d\n", i, nexts.size());
             if (nexts.get(i).data.zobrist.equals(data.zobrist)) {
-                System.out.println("Found it");
                 return nexts.get(i);
             }
         }
-        System.out.println("Had to add a node");
         BoardHistoryNode node = new BoardHistoryNode(data);
         nexts.add(node);
         node.previous = this;
