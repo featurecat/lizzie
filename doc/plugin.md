@@ -11,7 +11,7 @@ The Jar file for a plugin should look like this:
 
 ### Start first step
 
-Create a "helloWorld" folder and create a "plugin" folder in it, and create a new "Plugin.java" file in the "plugin" folder.
+Create a "HelloWorld" directory and create a "plugin" directory in it, and create a new "Plugin.java" file in the "plugin" directory.
 
 And write the following
 
@@ -85,3 +85,26 @@ Let's edit Plugin.java to have a message box pop up when we press 'H'.
         }
     }
 ```
+
+And add the import statement at the beginning of the file
+
+```java
+import java.swing.JOptionPane;
+```
+
+Copy lizzie.jar to "HelloWorld" directory, and execute the command:
+
+```
+javac -classpath lizzie.jar ./plugin/Plugin.java
+jar -cvf HelloWorld.jar ./plugin/Plugin.class
+```
+
+Copy the generated "HelloWorld.jar" to the "plugin" directory under the Lizzie directory.
+
+Start the lizzie and press 'H'!
+
+### More
+
+The plugin can freely call Lizzie's own classes and interfaces, so it can do a lot of functions.
+
+In the future, plugins may be able to enable and disable certain functions, so it is possible to do very complete functions with plug-ins.
