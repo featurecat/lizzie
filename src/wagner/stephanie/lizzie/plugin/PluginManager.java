@@ -85,10 +85,13 @@ public class PluginManager {
         Graphics2D g = cachedImageParent.createGraphics();
         for (PluginLoader plugin : plugins) {
             BufferedImage cachedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-            if (plugin.onDraw(cachedImage.createGraphics())) {
+            Graphics2D graphics = cachedImage.createGraphics();
+            if (plugin.onDraw(graphics)) {
                 g.drawImage(cachedImage, 0, 0, null);
             }
+            graphics.dispose();
         }
         g0.drawImage(cachedImageParent, 0, 0, null);
+        g.dispose();
     }
 }
