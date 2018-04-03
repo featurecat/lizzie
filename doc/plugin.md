@@ -89,7 +89,7 @@ Let's edit Plugin.java to have a message box pop up when we press 'H'.
 And add the import statement at the beginning of the file
 
 ```java
-import java.swing.JOptionPane;
+import javax.swing.JOptionPane;
 ```
 
 Copy lizzie.jar to "HelloWorld" directory, and execute the command:
