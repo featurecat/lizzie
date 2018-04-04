@@ -33,6 +33,7 @@ public class LizzieFrame extends JFrame {
             "m|show/hide move number",
             "o|open SGF",
             "s|save SGF",
+            "v|toggle variation display",
             "home|go to start",
             "end|go to end",
             "ctrl|undo/redo 10 moves",

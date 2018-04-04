@@ -129,6 +129,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.frame.openSgf();
                 break;
 
+            case VK_V:
+                Lizzie.config.toggleShowVariation();
+                break;
+
             case VK_HOME:
                 while (Lizzie.board.previousMove()) ;
                 break;
