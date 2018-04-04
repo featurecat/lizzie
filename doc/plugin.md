@@ -83,7 +83,7 @@ In the future, plugins may be able to enable and disable certain functions, so i
 Basic callback function
 
 ``` public abstract String getName() ``` Should be override, return plug-in 's name.
-``` public abstract String getVersion()  ``` Should be override, return plug-in 's versoin.
+``` public abstract String getVersion()  ``` Should be override, return plug-in 's version.
 
 ``` public void onInit() throws IOException ``` Called when the plugin is loaded, the plugin is loaded after loading the configuration file.
 
