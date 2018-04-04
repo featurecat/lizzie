@@ -7,13 +7,13 @@ import java.io.*;
 public class Config {
 
     public boolean showMoveNumber = false;
-
-    public JSONObject config;
     
     // For plug-ins
     public boolean showBranch = true;
 
     public boolean showBestMoves = true;
+    
+    public JSONObject config;
     
     public Config() throws IOException {
         File file = new File("lizzie.properties");
