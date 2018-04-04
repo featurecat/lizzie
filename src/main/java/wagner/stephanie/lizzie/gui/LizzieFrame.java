@@ -93,6 +93,11 @@ public class LizzieFrame extends JFrame {
 
     }
 
+    public void setPlayers(String whitePlayer, String blackPlayer) {
+        setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
+                               whitePlayer, blackPlayer));
+    }
+
     public static void saveSgf() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JFileChooser chooser = new JFileChooser();
