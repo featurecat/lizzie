@@ -127,6 +127,9 @@ public class SGFParser {
             }
         }
 
+        // Rewind to game start
+        while (Lizzie.board.previousMove());
+
         return true;
     }
 
