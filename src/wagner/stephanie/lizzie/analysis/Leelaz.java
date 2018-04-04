@@ -119,7 +119,7 @@ public class Leelaz {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
 
-                Lizzie.frame.repaint();
+                if (Lizzie.frame != null) Lizzie.frame.repaint();
             } else {
 
                 if (isReadingPonderOutput) {
