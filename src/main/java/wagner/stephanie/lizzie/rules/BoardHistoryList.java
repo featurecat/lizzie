@@ -1,9 +1,12 @@
 package wagner.stephanie.lizzie.rules;
 
+import wagner.stephanie.lizzie.analysis.GameInfo;
+
 /**
  * Linked list data structure to store board history
  */
 public class BoardHistoryList {
+    private GameInfo gameInfo;
     private BoardHistoryNode head;
 
     /**
@@ -13,6 +16,11 @@ public class BoardHistoryList {
      */
     public BoardHistoryList(BoardData data) {
         head = new BoardHistoryNode(data);
+        gameInfo = new GameInfo();
+    }
+
+    public GameInfo getGameInfo() {
+        return gameInfo;
     }
 
     /**
@@ -49,6 +57,10 @@ public class BoardHistoryList {
         return head.getData();
     }
 
+    public void toStart() {
+        while (previous() != null);
+    }
+
     /**
      * moves the pointer to the right, returns the data stored there
      *
@@ -80,6 +92,11 @@ public class BoardHistoryList {
      */
     public BoardData getData() {
         return head.getData();
+    }
+
+    public void setStone(int[] coordinates, Stone stone) {
+        int index = Board.getIndex(coordinates[0], coordinates[1]);
+        head.getData().stones[index] = stone;
     }
 
     public Stone[] getStones() {
