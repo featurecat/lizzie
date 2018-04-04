@@ -18,9 +18,6 @@ And write the following
 ```java
 package plugin;
 
-import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 import wagner.stephanie.lizzie.plugin.IPlugin;
@@ -32,42 +29,12 @@ public class Plugin implements IPlugin {
     public static String name = "Hello World";
     public static String version = "0.0.0";
 
-    public void onInit(Class lizzieClass) throws IOException {
-
-    }
-
-    public void onMousePressed(MouseEvent e) {
-
-    }
-
-    public void onMouseReleased(MouseEvent e) {
-        
-    }
-
-    public void onMouseMoved(MouseEvent e) {
-
-    }
-
-    public void onKeyPressed(KeyEvent e) {
-
-    }
-
-    public void onKeyReleased(KeyEvent e) {
-
-    }
-
-    public boolean onDraw(Graphics2D g) {
-
-        return false;
-    }
-
-    public void onShutdown() throws IOException {
-
-    }
-
+    @Override
     public String getName() {
         return name;
     }
+
+    @Override
     public String getVersion() {
         return version;
     }
@@ -79,6 +46,7 @@ This is the most basic framework of a plugin where ``` name ``` and ``` version 
 Let's edit Plugin.java to have a message box pop up when we press 'H'.
 
 ```java
+    @Override
     public void onKeyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_H) {
             JOptionPane.showConfirmDialog(null, "Hello World!")
@@ -89,7 +57,8 @@ Let's edit Plugin.java to have a message box pop up when we press 'H'.
 And add the import statement at the beginning of the file
 
 ```java
-import java.swing.JOptionPane;
+import java.swt.KeyEvent;
+import javax.swing.JOptionPane;
 ```
 
 Copy lizzie.jar to "HelloWorld" directory, and execute the command:

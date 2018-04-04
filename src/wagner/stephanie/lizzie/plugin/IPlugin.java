@@ -4,25 +4,54 @@ package wagner.stephanie.lizzie.plugin;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
-public interface IPlugin {
-    public void onInit(Class lizzieClass) throws IOException;
+public abstract class IPlugin {
 
-    public void onMousePressed(MouseEvent e);
+    public static IPlugin load(String uri) throws Exception {
+        URLClassLoader loader = new URLClassLoader(new URL[] {new File(uri).toURI().toURL()});
+        return (IPlugin) loader.loadClass("plugin.Plugin").newInstance();
+    }
 
-    public void onMouseReleased(MouseEvent e);
+    public void onInit(Class lizzieClass) throws IOException {
 
-    public void onMouseMoved(MouseEvent e);
+    }
 
-    public void onKeyPressed(KeyEvent e);
+    public void onMousePressed(MouseEvent e) {
 
-    public void onKeyReleased(KeyEvent e);
+    }
 
-    public boolean onDraw(Graphics2D g);
+    public void onMouseReleased(MouseEvent e) {
 
-    public void onShutdown() throws IOException;
+    }
 
-    public String getName();
-    public String getVersion();
+    public void onMouseMoved(MouseEvent e) {
+
+    }
+
+    public void onKeyPressed(KeyEvent e) {
+
+    }
+
+    public void onKeyReleased(KeyEvent e) {
+
+    }
+
+    public boolean onDraw(Graphics2D g) {
+        return false;
+    }
+
+    public void onShutdown() throws IOException {
+
+    }
+
+    public void onSgfLoaded() {
+
+    }
+
+    public abstract String getName();
+    public abstract String getVersion();
 }

@@ -27,7 +27,8 @@ public class SGFParser {
         }
         reader.close();
         fp.close();
-        return parse(value);
+        boolean ret = parse(value);
+        return ret;
     }
 
     public static int[] convertSgfPosToCoord(String pos) {
