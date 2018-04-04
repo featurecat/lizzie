@@ -130,29 +130,42 @@ public class SGFParser {
     public static boolean save(String filename) throws IOException {
         FileOutputStream fp = new FileOutputStream(filename);
         OutputStreamWriter writer = new OutputStreamWriter(fp);
-        StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
-        BoardHistoryList history = Lizzie.board.getHistory();
-        while (history.previous() != null) ;
-        BoardData data = null;
-        while ((data = history.next()) != null) {
-            StringBuilder tag = new StringBuilder(";");
-            if (data.lastMoveColor.equals(Stone.BLACK)) {
-                tag.append("B");
-            } else if (data.lastMoveColor.equals(Stone.WHITE)) {
-                tag.append("W");
-            } else {
-                return false;
+
+        try
+        {
+            // add SGF header
+            StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
+
+            // move to the first move
+            BoardHistoryList history = Lizzie.board.getHistory();
+            while (history.previous() != null);
+
+            // replay moves, and convert them to tags.
+            // *  format: ";B[xy]" or ";W[xy]"
+            // *  with 'xy' = coordinates ; or 'tt' for pass.
+            BoardData data;
+            while ((data = history.next()) != null) {
+
+                String stone;
+                if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+                else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+                else continue;
+
+                char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+                char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+
+                builder.append(String.format(";%s[%c%c]", stone, x, y));
             }
-            char x = (char) data.lastMove[0], y = (char) data.lastMove[1];
-            x += 'a';
-            y += 'a';
-            tag.append(String.format("[%c%c]", x, y));
-            builder.append(tag);
+
+            // close file
+            builder.append(')');
+            writer.append(builder.toString());
         }
-        builder.append(')');
-        writer.append(builder.toString());
-        writer.close();
-        fp.close();
+        finally
+        {
+            writer.close();
+            fp.close();
+        }
         return true;
     }
 }
