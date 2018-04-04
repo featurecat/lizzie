@@ -7,7 +7,6 @@ import java.io.*;
 public class Config {
 
     public boolean showMoveNumber = false;
-    public boolean showVariation = true;
 
     public JSONObject config;
     

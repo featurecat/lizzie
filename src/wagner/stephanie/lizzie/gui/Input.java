@@ -133,7 +133,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_V:
-                Lizzie.config.toggleShowVariation();
+                Lizzie.config.toggleShowBranch();
                 break;
 
             case VK_HOME:
