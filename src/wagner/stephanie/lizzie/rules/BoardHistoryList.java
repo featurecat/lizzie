@@ -16,12 +16,23 @@ public class BoardHistoryList {
     }
 
     /**
+     * Clear history.
+     */
+    public void clear() {
+        head.clear();
+    }
+
+    /**
      * Add new data after head. Overwrites any data that may have been stored after head.
      *
      * @param data the data to add
      */
     public void add(BoardData data) {
         head = head.add(new BoardHistoryNode(data));
+    }
+
+    public void addOrGoto(BoardData data) {
+        head = head.addOrGoto(data);
     }
 
     /**
@@ -77,6 +88,14 @@ public class BoardHistoryList {
 
     public int[] getLastMove() {
         return head.getData().lastMove;
+    }
+
+    public int[] getNextMove() {
+        BoardData next = getNext();
+        if (next == null)
+            return null;
+        else
+            return next.lastMove;
     }
 
     public Stone getLastMoveColor() {
