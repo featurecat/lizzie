@@ -78,6 +78,16 @@ The plugin can freely call Lizzie's own classes and interfaces, so it can do a l
 
 In the future, plugins may be able to enable and disable certain functions, so it is possible to do very complete functions with plug-ins.
 
+### Methods for plug-ins
+
+``` public boolean showBranch ```
+
+``` public boolean showBestMoves ```
+
+``` public void toggleShowBranch() ```
+
+``` public void toggleShowBestMoves() ```
+
 ### Callback functions
 
 Basic callback function
