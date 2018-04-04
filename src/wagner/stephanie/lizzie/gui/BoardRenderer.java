@@ -199,6 +199,9 @@ public class BoardRenderer {
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
+        // We can't early-out until now, since we need bestMoves for later
+        if (!Lizzie.config.showVariation)
+            return;
 
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
