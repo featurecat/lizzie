@@ -3,6 +3,7 @@ package wagner.stephanie.lizzie.rules;
 import wagner.stephanie.lizzie.Lizzie;
 
 import java.io.*;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 
 public class SGFParser {
     public static boolean load(String filename) throws IOException {
@@ -28,6 +29,7 @@ public class SGFParser {
         reader.close();
         fp.close();
         boolean ret = parse(value);
+        PluginManager.onSgfLoaded();
         return ret;
     }
 

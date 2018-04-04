@@ -77,3 +77,27 @@ Start the lizzie and press 'H'!
 The plugin can freely call Lizzie's own classes and interfaces, so it can do a lot of functions.
 
 In the future, plugins may be able to enable and disable certain functions, so it is possible to do very complete functions with plug-ins.
+
+### Callback functions
+
+Basic callback function
+
+``` public abstract String getName() ``` Should be override, return plug-in 's name.
+``` public abstract String getVersion()  ``` Should be override, return plug-in 's versoin.
+
+``` public void onInit() throws IOException ``` Called when the plugin is loaded, the plugin is loaded after loading the configuration file.
+
+``` public void onMousePressed(MouseEvent e) ```
+``` public void onMouseReleased(MouseEvent e) ```
+``` public void onMouseMoved(MouseEvent e) ```
+``` public void onKeyPressed(KeyEvent e) ```
+``` public void onKeyReleased(KeyEvent e) ``` Like its name, it is called in the corresponding event.
+
+``` public boolean onDraw(Graphics2D g) ``` Called when drawing, the return value represents whether to submit the drawing result.
+
+``` public void onShutdown() throws IOException ``` Called when the program is shut down.
+
+
+Special callback function
+
+``` public void onSgfLoaded() ```

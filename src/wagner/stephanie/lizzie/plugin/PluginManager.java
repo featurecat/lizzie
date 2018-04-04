@@ -78,7 +78,7 @@ public class PluginManager {
         }
     }
 
-    public void onSgfLoaded() {
+    public static void onSgfLoaded() {
         for (IPlugin plugin : plugins) {
             plugin.onSgfLoaded();
         }

@@ -11,12 +11,15 @@ import java.net.URLClassLoader;
 
 public abstract class IPlugin {
 
-    public static IPlugin load(String uri) throws Exception {
+    public static final IPlugin load(String uri) throws Exception {
         URLClassLoader loader = new URLClassLoader(new URL[] {new File(uri).toURI().toURL()});
-        return (IPlugin) loader.loadClass("plugin.Plugin").newInstance();
+        IPlugin plugin = (IPlugin) loader.loadClass("plugin.Plugin").newInstance();
+        plugin.onInit();
+
+        return plugin;
     }
 
-    public void onInit(Class lizzieClass) throws IOException {
+    public void onInit() throws IOException {
 
     }
 
