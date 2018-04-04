@@ -119,13 +119,13 @@ public class Leelaz {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
 
-                Lizzie.frame.repaint();
+                if (Lizzie.frame != null) Lizzie.frame.repaint();
             } else {
 
                 if (isReadingPonderOutput) {
                     line=line.trim();
                     // ignore passes, and only accept lines that start with a coordinate letter
-                    if (Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
+                    if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
                         bestMovesTemp.add(new MoveData(line));
                 } else {
                     System.out.print(line);

@@ -7,6 +7,7 @@ import java.io.*;
 public class Config {
 
     public boolean showMoveNumber = false;
+    public boolean showVariation = true;
 
     public JSONObject config;
     
@@ -46,7 +47,6 @@ public class Config {
     public void toggleShowMoveNumber() {
         this.showMoveNumber = !this.showMoveNumber;
     }
-
     public void toggleShowBranch() {
         this.showBranch = !this.showBranch;
     }
