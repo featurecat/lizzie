@@ -63,7 +63,9 @@ public class BoardRenderer {
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
-        drawBranch();
+        if (Lizzie.config.showBranch) {
+            drawBranch();
+        }
 //        timer.lap("branch");
 
         renderImages(g);
@@ -71,7 +73,7 @@ public class BoardRenderer {
 
         drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz)
+        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
 
         PluginManager.onDraw(g);
@@ -244,9 +246,13 @@ public class BoardRenderer {
     private void renderImages(Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g.drawImage(cachedStonesShadowImage, x, y, null);
-        g.drawImage(branchStonesShadowImage, x, y, null);
+        if (Lizzie.config.showBranch) {
+            g.drawImage(branchStonesShadowImage, x, y, null);
+        }
         g.drawImage(cachedStonesImage, x, y, null);
-        g.drawImage(branchStonesImage, x, y, null);
+        if (Lizzie.config.showBranch) {
+            g.drawImage(branchStonesImage, x, y, null);
+        }
     }
 
     /**

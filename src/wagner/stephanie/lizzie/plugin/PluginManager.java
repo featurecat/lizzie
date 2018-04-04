@@ -14,15 +14,15 @@ import org.json.JSONTokener;
 import wagner.stephanie.lizzie.Lizzie;
 
 public class PluginManager {
-    public static HashSet<PluginLoader> plugins;
+    public static HashSet<IPlugin> plugins;
 
     public static void loadPlugins() throws IOException {
         if (plugins != null) {
-            for (PluginLoader plugin : plugins) {
+            for (IPlugin plugin : plugins) {
                 plugin.onShutdown();
             }
         }
-        plugins = new HashSet<PluginLoader>();
+        plugins = new HashSet<IPlugin>();
         File path = new File("./plugin/");
         assert path.isDirectory();
 
@@ -31,7 +31,7 @@ public class PluginManager {
                 continue;
             }
             try {
-                plugins.add(new PluginLoader(jarFile.getAbsolutePath()));
+                plugins.add(IPlugin.load(jarFile.getPath()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -39,42 +39,48 @@ public class PluginManager {
     }
 
     public static void onMousePressed(MouseEvent e) {
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             plugin.onMousePressed(e);
         }
     }
 
     public static void onMouseReleased(MouseEvent e) {
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             plugin.onMousePressed(e);
         }
     }
 
     public static void onMouseMoved(MouseEvent e) {
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             plugin.onMousePressed(e);
         }
     }
 
     public static void onKeyPressed(KeyEvent e) {
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             plugin.onKeyPressed(e);
         }
     }
 
     public static void onKeyReleased(KeyEvent e) {
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             plugin.onKeyReleased(e);
         }
     }
 
     public static void onShutdown(){
         
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             try {plugin.onShutdown();
             } catch(IOException e) {
                 e.printStackTrace();
             }   
+        }
+    }
+
+    public static void onSgfLoaded() {
+        for (IPlugin plugin : plugins) {
+            plugin.onSgfLoaded();
         }
     }
 
@@ -83,7 +89,7 @@ public class PluginManager {
         int height = Lizzie.frame.getHeight();
         BufferedImage cachedImageParent = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = cachedImageParent.createGraphics();
-        for (PluginLoader plugin : plugins) {
+        for (IPlugin plugin : plugins) {
             BufferedImage cachedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
             Graphics2D graphics = cachedImage.createGraphics();
             if (plugin.onDraw(graphics)) {
