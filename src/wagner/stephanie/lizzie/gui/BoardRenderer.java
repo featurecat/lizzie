@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BoardRenderer {
-    private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
+    private static final double MARGIN = 0.05; // percentage of the boardLength to offset before drawing black lines
     private static final double STARPOINT_DIAMETER = 0.015;
 
     private int x, y;
@@ -62,7 +63,9 @@ public class BoardRenderer {
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
-        drawBranch();
+        if (Lizzie.config.showBranch) {
+            drawBranch();
+        }
 //        timer.lap("branch");
 
         renderImages(g);
@@ -70,8 +73,10 @@ public class BoardRenderer {
 
         drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz)
+        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
+
+        PluginManager.onDraw(g);
 //        timer.lap("leelaz");
 
 //        timer.print();
@@ -199,10 +204,6 @@ public class BoardRenderer {
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
-        // We can't early-out until now, since we need bestMoves for later
-        if (!Lizzie.config.showVariation)
-            return;
-
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
 
@@ -244,9 +245,13 @@ public class BoardRenderer {
     private void renderImages(Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g.drawImage(cachedStonesShadowImage, x, y, null);
-        g.drawImage(branchStonesShadowImage, x, y, null);
+        if (Lizzie.config.showBranch) {
+            g.drawImage(branchStonesShadowImage, x, y, null);
+        }
         g.drawImage(cachedStonesImage, x, y, null);
-        g.drawImage(branchStonesImage, x, y, null);
+        if (Lizzie.config.showBranch) {
+            g.drawImage(branchStonesImage, x, y, null);
+        }
     }
 
     /**
