@@ -220,6 +220,14 @@ public class Board {
         place(coordinates[0], coordinates[1]);
     }
 
+    public void flatten() {
+        Stone[] stones = history.getStones().clone();
+        boolean blackToPlay = true;
+        int[] lastMove = null;
+
+        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE]));
+    }
+
     /**
      * Removes a chain if it has no liberties
      *

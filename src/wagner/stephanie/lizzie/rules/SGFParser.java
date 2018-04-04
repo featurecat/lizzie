@@ -112,7 +112,23 @@ public class SGFParser {
                     } else {
                         Lizzie.board.place(move[0], move[1], Stone.WHITE);
                     }
-                }
+                } else if (tag.equals("AB")) {
+                    int[] move = convertSgfPosToCoord(tagContent);
+                    if (move == null) {
+                        Lizzie.board.pass(Stone.BLACK);
+                    } else {
+                        Lizzie.board.place(move[0], move[1], Stone.BLACK);
+                    }
+                    Lizzie.board.flatten();
+                } else if (tag.equals("AW")) {
+                    int[] move = convertSgfPosToCoord(tagContent);
+                    if (move == null) {
+                        Lizzie.board.pass(Stone.WHITE);
+                    } else {
+                        Lizzie.board.place(move[0], move[1], Stone.WHITE);
+                    }
+                    Lizzie.board.flatten();
+                } 
                 break;
             case ';':
                 break;
