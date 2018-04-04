@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie.rules;
 
+import java.util.ArrayList;
+import java.util.List;
 import wagner.stephanie.lizzie.Lizzie;
 
 import java.io.*;
@@ -39,6 +41,16 @@ public class SGFParser {
         ret[0] = (int) pos.charAt(0) - 'a';
         ret[1] = (int) pos.charAt(1) - 'a';
         return ret;
+    }
+
+    public static String convertCoordToSgfPos(int[] pos) {
+        if (pos == null) {
+            return "";
+        }
+        char x = (char) pos[0], y = (char) pos[1];
+        x += 'a';
+        y += 'a';
+        return String.format("[%c%c]", x, y);
     }
 
     private static boolean parse(String value) {
@@ -159,6 +171,36 @@ public class SGFParser {
         BoardHistoryList history = Lizzie.board.getHistory();
         while (history.previous() != null) ;
         BoardData data = null;
+
+        // Handicap
+        data = history.getData();
+        ArrayList<int[]> abList = new ArrayList<int[]>();
+        ArrayList<int[]> awList = new ArrayList<int[]>();
+
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                if (data.stones[Board.getIndex(i, j)] == Stone.BLACK) {
+                    abList.add(new int[] {i, j});
+                } else if (data.stones[Board.getIndex(i, j)] == Stone.WHITE) {
+                    awList.add(new int[] {i, j});
+                }
+            }
+        }
+
+        if (!abList.isEmpty()) {
+            builder.append(";AB");
+            for (int i = 0; i < abList.size(); i++) {
+                builder.append(String.format("[%s]", convertCoordToSgfPos(abList.get(i))));
+            }
+        }
+
+        if (!awList.isEmpty()) {
+            builder.append(";AW");
+            for (int i = 0; i < abList.size(); i++) {
+                builder.append(String.format("[%s]", convertCoordToSgfPos(awList.get(i))));
+            }
+        }
+
         while ((data = history.next()) != null) {
             StringBuilder tag = new StringBuilder(";");
             if (data.lastMoveColor.equals(Stone.BLACK)) {
@@ -168,10 +210,7 @@ public class SGFParser {
             } else {
                 return false;
             }
-            char x = (char) data.lastMove[0], y = (char) data.lastMove[1];
-            x += 'a';
-            y += 'a';
-            tag.append(String.format("[%c%c]", x, y));
+            tag.append(String.format("[%s]", convertCoordToSgfPos(data.lastMove)));
             builder.append(tag);
         }
         builder.append(')');
