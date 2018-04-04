@@ -7,8 +7,7 @@ import java.io.*;
 public class SGFParser {
     public static boolean load(String filename) throws IOException {
         // Clear the board
-        while (Lizzie.board.previousMove())
-            ;
+        while (Lizzie.board.previousMove());
 
         File file = new File(filename);
         if (!file.exists() || !file.canRead()) {
@@ -138,7 +137,7 @@ public class SGFParser {
 
             // move to the first move
             BoardHistoryList history = Lizzie.board.getHistory();
-            while (history.previous() != null);
+            history.toStart();
 
             // replay moves, and convert them to tags.
             // *  format: ";B[xy]" or ";W[xy]"

@@ -38,6 +38,10 @@ public class BoardHistoryList {
         return head.getData();
     }
 
+    public void toStart() {
+        while (previous() != null);
+    }
+
     /**
      * moves the pointer to the right, returns the data stored there
      *
