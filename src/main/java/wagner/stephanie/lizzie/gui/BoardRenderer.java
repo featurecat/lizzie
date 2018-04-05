@@ -235,9 +235,7 @@ public class BoardRenderer {
                 int stoneX = scaledMargin + squareLength * i;
                 int stoneY = scaledMargin + squareLength * j;
 
-                // check if board is empty to prevent overwriting stones if there are under-the-stones situations
-                if (Lizzie.board.getStones()[Board.getIndex(i, j)] == Stone.EMPTY)
-                    drawStone(g, gShadow, stoneX, stoneY, branch.data.stones[Board.getIndex(i, j)].unGhosted());
+                drawStone(g, gShadow, stoneX, stoneY, branch.data.stones[Board.getIndex(i, j)].unGhosted());
             }
         }
 
