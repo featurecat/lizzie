@@ -76,6 +76,8 @@ public class BoardRenderer {
         if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
 
+        drawNextMoves(g);
+
         PluginManager.onDraw(g);
 //        timer.lap("leelaz");
 
@@ -401,24 +403,29 @@ public class BoardRenderer {
                 }
             }
 
-            List<BoardHistoryNode> nexts = Lizzie.board.getHistory().getNexts();
             
-            for (int i = 0; i < nexts.size(); i++) {
-                int[] nextMove = nexts.get(i).getData().lastMove;
-                if (Lizzie.board.getData().blackToPlay) {
-                    g.setColor(Color.BLACK);
-                } else {
-                    g.setColor(Color.WHITE);
-                }
-                int moveX = x + scaledMargin + squareLength * nextMove[0];
-                int moveY = y + scaledMargin + squareLength * nextMove[1];
-                if (i == 0) {
-                    g.setStroke(new BasicStroke(3.0f));
-                }
-                drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
-                if (i == 0) {
-                    g.setStroke(new BasicStroke(1.0f));
-                }
+        }
+    }
+
+    private void drawNextMoves(Graphics2D g) {
+
+        List<BoardHistoryNode> nexts = Lizzie.board.getHistory().getNexts();
+            
+        for (int i = 0; i < nexts.size(); i++) {
+            int[] nextMove = nexts.get(i).getData().lastMove;
+            if (Lizzie.board.getData().blackToPlay) {
+                g.setColor(Color.BLACK);
+            } else {
+                g.setColor(Color.WHITE);
+            }
+            int moveX = x + scaledMargin + squareLength * nextMove[0];
+            int moveY = y + scaledMargin + squareLength * nextMove[1];
+            if (i == 0) {
+                g.setStroke(new BasicStroke(3.0f));
+            }
+            drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
+            if (i == 0) {
+                g.setStroke(new BasicStroke(1.0f));
             }
         }
     }
