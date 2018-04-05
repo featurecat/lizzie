@@ -7,6 +7,7 @@ import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
 import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
 
@@ -400,8 +401,10 @@ public class BoardRenderer {
                 }
             }
 
-            int[] nextMove = Lizzie.board.getNextMove();
-            if (nextMove != null) {
+            List<BoardHistoryNode> nexts = Lizzie.board.getHistory().getNexts();
+            
+            for (int i = 0; i < nexts.size(); i++) {
+                int[] nextMove = nexts.get(i).getData().lastMove;
                 if (Lizzie.board.getData().blackToPlay) {
                     g.setColor(Color.BLACK);
                 } else {
@@ -409,7 +412,13 @@ public class BoardRenderer {
                 }
                 int moveX = x + scaledMargin + squareLength * nextMove[0];
                 int moveY = y + scaledMargin + squareLength * nextMove[1];
+                if (i == 0) {
+                    g.setStroke(new BasicStroke(3.0f));
+                }
                 drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
+                if (i == 0) {
+                    g.setStroke(new BasicStroke(1.0f));
+                }
             }
         }
     }

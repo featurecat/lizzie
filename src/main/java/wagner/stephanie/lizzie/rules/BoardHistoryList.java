@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie.rules;
 
+import java.util.List;
+
 /**
  * Linked list data structure to store board history
  */
@@ -73,6 +75,13 @@ public class BoardHistoryList {
             return null;
         else
             return head.next().getData();
+    }
+
+    /**
+     * @return nexts for display
+     */
+    public List<BoardHistoryNode> getNexts() {
+        return head.getNexts();
     }
 
     /**
