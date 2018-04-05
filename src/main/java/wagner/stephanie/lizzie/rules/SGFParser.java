@@ -1,5 +1,6 @@
 package wagner.stephanie.lizzie.rules;
 
+import java.util.ArrayList;
 import wagner.stephanie.lizzie.Lizzie;
 
 import java.io.*;
@@ -20,12 +21,13 @@ public class SGFParser {
         while (reader.ready()) {
             builder.append((char) reader.read());
         }
+        reader.close();
+        fp.close();
+
         String value = builder.toString();
         if (value.isEmpty()) {
             return false;
         }
-        reader.close();
-        fp.close();
         return parse(value);
     }
 
@@ -36,6 +38,15 @@ public class SGFParser {
         ret[0] = (int) pos.charAt(0) - 'a';
         ret[1] = (int) pos.charAt(1) - 'a';
         return ret;
+    }
+
+    public static String convertCoordToSgfPos(int[] pos) {
+        if (pos == null) {
+            return "";
+        }
+        char x = (char) (pos[0] + 'a');
+        char y = (char) (pos[1] + 'a');
+        return String.format("%c%c", x, y);
     }
 
     private static boolean parse(String value) {
@@ -112,6 +123,22 @@ public class SGFParser {
                     } else {
                         Lizzie.board.place(move[0], move[1], Stone.WHITE);
                     }
+                } else if (tag.equals("AB")) {
+                    int[] move = convertSgfPosToCoord(tagContent);
+                    if (move == null) {
+                        Lizzie.board.pass(Stone.BLACK);
+                    } else {
+                        Lizzie.board.place(move[0], move[1], Stone.BLACK);
+                    }
+                    Lizzie.board.flatten();
+                } else if (tag.equals("AW")) {
+                    int[] move = convertSgfPosToCoord(tagContent);
+                    if (move == null) {
+                        Lizzie.board.pass(Stone.WHITE);
+                    } else {
+                        Lizzie.board.place(move[0], move[1], Stone.WHITE);
+                    }
+                    Lizzie.board.flatten();
                 } else if (tag.equals("PW")) {
                     whitePlayer = tagContent;
                 } else if (tag.equals("PB")) {
@@ -145,42 +172,70 @@ public class SGFParser {
     public static boolean save(String filename) throws IOException {
         FileOutputStream fp = new FileOutputStream(filename);
         OutputStreamWriter writer = new OutputStreamWriter(fp);
+        // add SGF header
+        StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
 
-        try
-        {
-            // add SGF header
-            StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
+        BoardHistoryList history = Lizzie.board.getHistory();
+        while (history.previous() != null);
+        BoardData data;
 
-            // move to the first move
-            BoardHistoryList history = Lizzie.board.getHistory();
-            while (history.previous() != null);
+        data = history.getData();
 
-            // replay moves, and convert them to tags.
-            // *  format: ";B[xy]" or ";W[xy]"
-            // *  with 'xy' = coordinates ; or 'tt' for pass.
-            BoardData data;
-            while ((data = history.next()) != null) {
+        // For handicap
+        ArrayList<int[]> abList = new ArrayList<int[]>();
+        ArrayList<int[]> awList = new ArrayList<int[]>();
 
-                String stone;
-                if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
-                else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
-                else continue;
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                switch (data.stones[Board.getIndex(i, j)]) {
+                case BLACK:
+                    abList.add(new int[]{i, j});
+                    break;
+                case WHITE:
+                    awList.add(new int[]{i, j});
+                    break;
+                default:
+                    break;
+                }
+            }
+        }
 
-                char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-                char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+        if (!abList.isEmpty()) {
+            builder.append(";AB");
+            for (int i = 0; i < abList.size(); i++) {
+                builder.append(String.format("[%s]", convertCoordToSgfPos(abList.get(i))));
+            }
+        }
 
-                builder.append(String.format(";%s[%c%c]", stone, x, y));
+        if (!awList.isEmpty()) {
+            builder.append(";AW");
+            for (int i = 0; i < awList.size(); i++) {
+                builder.append(String.format("[%s]", convertCoordToSgfPos(awList.get(i))));
+            }
+        }
+
+        while ((data = history.next()) != null) {
+            StringBuilder tag = new StringBuilder();
+            tag.append(";");
+            switch (data.lastMoveColor) {
+            case BLACK:
+                tag.append("B");
+                break;
+            case WHITE:
+                tag.append("W");
+                break;
+            default:
+                break;
             }
 
-            // close file
-            builder.append(')');
-            writer.append(builder.toString());
+            tag.append(String.format("[%s]", convertCoordToSgfPos(data.lastMove)));
         }
-        finally
-        {
-            writer.close();
-            fp.close();
-        }
+
+        // close file
+        builder.append(')');
+        writer.append(builder.toString());
+        writer.close();
+        fp.close();
         return true;
     }
 }

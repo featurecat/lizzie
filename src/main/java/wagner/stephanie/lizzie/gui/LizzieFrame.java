@@ -210,10 +210,10 @@ public class LizzieFrame extends JFrame {
         int lineHeight = (int) (font.getSize() * 1.15);
 
         int boxWidth = (int) (maxSize * 0.85);
-        int boxHeight = (int) (commands.length * lineHeight);
+        int boxHeight = (commands.length * lineHeight);
 
-        int commandsX = (int) (getWidth() / 2 - boxWidth / 2);
-        int commandsY = (int) (getHeight() / 2 - boxHeight / 2);
+        int commandsX = (getWidth() / 2 - boxWidth / 2);
+        int commandsY = (getHeight() / 2 - boxHeight / 2);
 
 
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
@@ -240,8 +240,8 @@ public class LizzieFrame extends JFrame {
         g.setColor(Color.WHITE);
         for (int i = 0; i < commands.length; i++) {
             String[] split = commands[i].split("\\|");
-            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
-            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
+            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
+            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
         }
     }
 
