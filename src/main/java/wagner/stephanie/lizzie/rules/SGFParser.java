@@ -67,6 +67,9 @@ public class SGFParser {
             isMultiGo = true;
         }
 
+        String whitePlayer = "";
+        String blackPlayer = "";
+
         for (byte b : value.getBytes()) {
             // Check unicode charactors (UTF-8)
             char c = (char) b;
@@ -136,6 +139,10 @@ public class SGFParser {
                         Lizzie.board.place(move[0], move[1], Stone.WHITE);
                     }
                     Lizzie.board.flatten();
+                } else if (tag.equals("PW")) {
+                    whitePlayer = tagContent;
+                } else if (tag.equals("PB")) {
+                    blackPlayer = tagContent;
                 }
                 break;
             case ';':
@@ -153,6 +160,8 @@ public class SGFParser {
                 }
             }
         }
+
+        Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
 
         // Rewind to game start
         while (Lizzie.board.previousMove());
