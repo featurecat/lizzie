@@ -16,6 +16,8 @@ public abstract class IPlugin {
         IPlugin plugin = (IPlugin) loader.loadClass("plugin.Plugin").newInstance();
         plugin.onInit();
 
+        loader.close();
+
         return plugin;
     }
 
