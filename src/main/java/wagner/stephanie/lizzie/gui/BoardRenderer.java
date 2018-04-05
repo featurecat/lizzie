@@ -63,9 +63,8 @@ public class BoardRenderer {
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
-        if (Lizzie.config.showBranch) {
-            drawBranch();
-        }
+        drawBranch();
+        
 //        timer.lap("branch");
 
         renderImages(g);
@@ -73,7 +72,7 @@ public class BoardRenderer {
 
         drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz)
+        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
 
         PluginManager.onDraw(g);
@@ -204,7 +203,7 @@ public class BoardRenderer {
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
-        if (!Lizzie.config.showBestMoves) {
+        if (!Lizzie.config.showBranch) {
             return;
         }
 
