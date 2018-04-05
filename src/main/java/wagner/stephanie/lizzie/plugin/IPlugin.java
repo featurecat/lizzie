@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public abstract class IPlugin {
+public interface IPlugin {
 
-    public static final IPlugin load(String uri) throws Exception {
+    public static IPlugin load(String uri) throws Exception {
         URLClassLoader loader = new URLClassLoader(new URL[] {new File(uri).toURI().toURL()});
         IPlugin plugin = (IPlugin) loader.loadClass("plugin.Plugin").newInstance();
         plugin.onInit();
@@ -21,42 +21,42 @@ public abstract class IPlugin {
         return plugin;
     }
 
-    public void onInit() throws IOException {
+    public default void onInit() throws IOException {
 
     }
 
-    public void onMousePressed(MouseEvent e) {
+    public default void onMousePressed(MouseEvent e) {
 
     }
 
-    public void onMouseReleased(MouseEvent e) {
+    public default void onMouseReleased(MouseEvent e) {
 
     }
 
-    public void onMouseMoved(MouseEvent e) {
+    public default void onMouseMoved(MouseEvent e) {
 
     }
 
-    public void onKeyPressed(KeyEvent e) {
+    public default void onKeyPressed(KeyEvent e) {
 
     }
 
-    public void onKeyReleased(KeyEvent e) {
+    public default void onKeyReleased(KeyEvent e) {
 
     }
 
-    public boolean onDraw(Graphics2D g) {
+    public default boolean onDraw(Graphics2D g) {
         return false;
     }
 
-    public void onShutdown() throws IOException {
+    public default void onShutdown() throws IOException {
 
     }
 
-    public void onSgfLoaded() {
+    public default void onSgfLoaded() {
 
     }
 
-    public abstract String getName();
-    public abstract String getVersion();
+    public String getName();
+    public String getVersion();
 }
