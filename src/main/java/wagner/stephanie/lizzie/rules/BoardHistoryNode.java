@@ -74,7 +74,8 @@ public class BoardHistoryNode {
             }
         }
         BoardHistoryNode node = new BoardHistoryNode(data);
-        nexts.add(node);
+        // Add to foremost
+        nexts.add(0, node);
         node.previous = this;
 
         return node;
