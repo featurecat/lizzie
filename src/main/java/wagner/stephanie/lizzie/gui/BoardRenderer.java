@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BoardRenderer {
-    private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
+    private static final double MARGIN = 0.06; // percentage of the boardLength to offset before drawing black lines
     private static final double STARPOINT_DIAMETER = 0.015;
 
     private int x, y;
