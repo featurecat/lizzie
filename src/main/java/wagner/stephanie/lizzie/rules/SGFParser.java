@@ -22,11 +22,11 @@ public class SGFParser {
             builder.append((char) reader.read());
         }
         String value = builder.toString();
+        reader.close();
+        fp.close();
         if (value.isEmpty()) {
             return false;
         }
-        reader.close();
-        fp.close();
         boolean ret = parse(value);
         PluginManager.onSgfLoaded();
         return ret;

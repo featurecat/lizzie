@@ -53,6 +53,7 @@ public class Zobrist {
             case WHITE:
                 zhash ^= whiteZobrist[Board.getIndex(x, y)];
                 break;
+            default:
         }
     }
 

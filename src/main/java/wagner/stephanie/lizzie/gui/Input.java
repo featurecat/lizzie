@@ -88,7 +88,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     @Override
     public void keyPressed(KeyEvent e) {
         PluginManager.onKeyPressed(e);
-        int movesToAdvance = 1; // number of moves to advance if control is held down
         switch (e.getKeyCode()) {
             case VK_CONTROL:
 
