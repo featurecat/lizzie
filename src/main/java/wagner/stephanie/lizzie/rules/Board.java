@@ -101,7 +101,7 @@ public class Board {
                 Lizzie.leelaz.sendCommand("genmove " + (history.isBlacksTurn()? "W" : "B"));
 
             // update history with pass
-            history.add(newState);
+            history.addOrGoto(newState);
 
             Lizzie.frame.repaint();
         }
@@ -185,7 +185,7 @@ public class Board {
             }
 
             // update history with this coordinate
-            history.add(newState);
+            history.addOrGoto(newState);
 
             Lizzie.frame.repaint();
         }
@@ -317,6 +317,15 @@ public class Board {
     }
 
     /**
+     * get the move played in this position
+     *
+     * @return the next move, if any
+     */
+    public int[] getNextMove() {
+        return history.getNextMove();
+    }
+
+    /**
      * get current board move number
      *
      * @return the int array corresponding to the current board move number
@@ -350,6 +359,14 @@ public class Board {
 
     public BoardHistoryList getHistory() {
         return history;
+    }
+
+    /**
+     * Clears all history and starts over.
+     */
+    public void clear() {
+        while (previousMove());
+        history.clear();
     }
 
     /**

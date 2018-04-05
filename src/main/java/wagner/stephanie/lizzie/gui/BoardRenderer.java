@@ -199,6 +199,9 @@ public class BoardRenderer {
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
+        // We can't early-out until now, since we need bestMoves for later
+        if (!Lizzie.config.showVariation)
+            return;
 
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
@@ -387,6 +390,18 @@ public class BoardRenderer {
                         drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, "Open Sans", getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                     }
                 }
+            }
+
+            int[] nextMove = Lizzie.board.getNextMove();
+            if (nextMove != null) {
+                if (Lizzie.board.getData().blackToPlay) {
+                    g.setColor(Color.BLACK);
+                } else {
+                    g.setColor(Color.WHITE);
+                }
+                int moveX = x + scaledMargin + squareLength * nextMove[0];
+                int moveY = y + scaledMargin + squareLength * nextMove[1];
+                drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
             }
         }
     }
