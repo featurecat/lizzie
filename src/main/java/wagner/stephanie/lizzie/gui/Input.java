@@ -172,6 +172,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             default:
         }
+        Lizzie.frame.repaint();
     }
 
     private boolean wasPonderingWhenControlsShown = false;
