@@ -73,7 +73,7 @@ public class BoardRenderer {
 
         drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
+        if (!Lizzie.frame.isPlayingAgainstLeelaz)
             drawLeelazSuggestions(g);
 
         PluginManager.onDraw(g);
@@ -203,6 +203,10 @@ public class BoardRenderer {
         // calculate best moves and branch
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
+
+        if (!Lizzie.config.showBestMoves) {
+            return;
+        }
 
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
