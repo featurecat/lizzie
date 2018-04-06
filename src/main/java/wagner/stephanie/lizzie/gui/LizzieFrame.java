@@ -28,6 +28,7 @@ import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.SGFParser;
+import wagner.stephanie.lizzie.theme.DefaultTheme;
 
 
 /**
@@ -175,7 +176,10 @@ public class LizzieFrame extends JFrame {
             int topInset = this.getInsets().top;
 
             try {
-                BufferedImage background = ImageIO.read(new File("assets/background.jpg"));
+                BufferedImage background = boardRenderer.theme.getBackground();
+                if (background == null) {
+                    background = new DefaultTheme().getBackground();
+                }
                 int drawWidth = Math.max(background.getWidth(), getWidth());
                 int drawHeight = Math.max(background.getHeight(), getHeight());
                 g.drawImage(background, 0, 0, drawWidth, drawHeight, null);

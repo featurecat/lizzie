@@ -1,6 +1,7 @@
 package wagner.stephanie.lizzie.theme;
 
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -11,19 +12,23 @@ import javax.imageio.ImageIO;
  */
 public class DefaultTheme implements ITheme{
     @Override
-    public Image getBlackStone(int[] position) throws IOException {
-        return ImageIO.read(DefaultTheme.class.getResource("/assets/black0.png"));
+    public BufferedImage getBlackStone(int[] position) throws IOException {
+        BufferedImage ret = ImageIO.read(DefaultTheme.class.getResource("/assets/black0.png"));
+        return ret;
     }
     @Override
-    public Image getWhiteStone(int[] position) throws IOException {
-        return ImageIO.read(DefaultTheme.class.getResource("/assets/white0.png"));
+    public BufferedImage getWhiteStone(int[] position) throws IOException {
+        BufferedImage ret = ImageIO.read(DefaultTheme.class.getResource("/assets/white0.png"));
+        return ret;
     }
     @Override
-    public Image getBoard() throws IOException {
-        return ImageIO.read(DefaultTheme.class.getResource("/assets/board.png"));
+    public BufferedImage getBoard() throws IOException {
+        BufferedImage ret = ImageIO.read(DefaultTheme.class.getResource("/assets/board.png"));
+        return ret;
     }
     @Override
-    public Image getBackground() throws IOException {
-        return ImageIO.read(DefaultTheme.class.getResource("/assets/background.jpg"));
+    public BufferedImage getBackground() throws IOException {
+        BufferedImage ret = ImageIO.read(DefaultTheme.class.getResource("/assets/background.jpg"));
+        return ret;
     }
 }

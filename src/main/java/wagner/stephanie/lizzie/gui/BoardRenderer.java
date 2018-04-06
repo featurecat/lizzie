@@ -9,16 +9,15 @@ import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import wagner.stephanie.lizzie.theme.DefaultTheme;
 import wagner.stephanie.lizzie.theme.ITheme;
 
 public class BoardRenderer {
@@ -44,12 +43,15 @@ public class BoardRenderer {
     private BufferedImage branchStonesImage = null;
     private BufferedImage branchStonesShadowImage = null;
 
-    private ITheme theme;
+    public ITheme theme;
 
 
     public BoardRenderer() {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
         theme = ITheme.loadTheme(uiConfig.getString("theme"));
+        //if (theme == null) {
+        //    theme = new DefaultTheme();
+        //}
     }
 
     /**
@@ -414,7 +416,8 @@ public class BoardRenderer {
             // fancy version
             try {
                 int shadowRadius = (int) (boardLength * MARGIN / 6);
-                g.drawImage(theme.getBoard(), x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
+                Image boardImage = theme.getBoard();
+                g.drawImage(boardImage == null ? new DefaultTheme().getBoard() : boardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
                 g.setStroke(new BasicStroke(shadowRadius * 2));
                 // draw border
                 g.setColor(new Color(0, 0, 0, 50));
@@ -526,7 +529,11 @@ public class BoardRenderer {
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     try {
-                        g.drawImage(theme.getBlackStone(new int[] {x, y}), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                        Image stone = theme.getBlackStone(new int[] {x, y});
+                        if (stone == null) {
+                            stone = new DefaultTheme().getBlackStone(new int[] {x, y});
+                        }
+                        g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -541,7 +548,11 @@ public class BoardRenderer {
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     try {
-                        g.drawImage(theme.getWhiteStone(new int[] {x, y}), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                        Image stone = theme.getWhiteStone(new int[] {x, y});
+                        if (stone == null) {
+                            stone = new DefaultTheme().getBlackStone(new int[] {x, y});
+                        }
+                        g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -558,7 +569,11 @@ public class BoardRenderer {
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, true);
                     try {
-                        g.drawImage(theme.getBlackStone(new int[] {x, y}), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                        Image stone = theme.getBlackStone(new int[] {x, y});
+                        if (stone == null) {
+                            stone = new DefaultTheme().getBlackStone(new int[] {x, y});
+                        }
+                        g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -573,7 +588,11 @@ public class BoardRenderer {
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, true);
                     try {
-                        g.drawImage(theme.getWhiteStone(new int[] {x, y}), centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                        Image stone = theme.getWhiteStone(new int[] {x, y});
+                        if (stone == null) {
+                            stone = new DefaultTheme().getWhiteStone(new int[] {x, y});
+                        }
+                        g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
