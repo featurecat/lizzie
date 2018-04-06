@@ -20,12 +20,13 @@ public class SGFParser {
         while (reader.ready()) {
             builder.append((char) reader.read());
         }
+        reader.close();
+        fp.close();
         String value = builder.toString();
         if (value.isEmpty()) {
             return false;
         }
-        reader.close();
-        fp.close();
+        
         return parse(value);
     }
 
