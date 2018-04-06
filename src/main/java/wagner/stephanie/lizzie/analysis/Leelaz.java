@@ -253,4 +253,17 @@ public class Leelaz {
     public boolean isPondering() {
         return isPondering;
     }
+
+    /*
+     * Return the best win rate, returns negative number if no analysis is available
+     */
+    public double getBestWinrate() {
+        double maxWinrate = -100;
+
+        for (MoveData move : bestMoves) {
+            if (move.winrate > maxWinrate)
+                maxWinrate = move.winrate;
+        }
+        return maxWinrate;
+    }
 }

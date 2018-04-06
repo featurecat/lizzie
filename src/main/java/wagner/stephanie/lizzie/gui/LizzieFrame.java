@@ -3,6 +3,7 @@ package wagner.stephanie.lizzie.gui;
 import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.BoardData;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
 import javax.imageio.ImageIO;
@@ -181,6 +182,15 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
+            // Todo: Make board move over when there is no space beside the board
+            if (Lizzie.leelaz.isPondering()) {
+                // boardX equals width of space on each side
+                int statx = (int) (boardX*1.05 + maxSize);
+                int staty = boardY + maxSize/4;
+                int statw = (int)(boardX*0.8);
+                int stath = maxSize/3;
+                drawMoveStatistics(g, statx, staty, statw, stath);
+            }
 
             // cleanup
             g.dispose();
@@ -272,6 +282,66 @@ public class LizzieFrame extends JFrame {
         g.setColor(Color.WHITE);
         g.setFont(font);
         g.drawString(commandString, showCommandsX+2*strokeRadius, showCommandsY + font.getSize());
+    }
+
+    private void drawMoveStatistics(Graphics2D g, int posX, int posY, int width, int height) {
+
+        BoardData bd = Lizzie.board.getData();
+
+        double lastWR = bd.winrate;
+        double curWR = Lizzie.leelaz.getBestWinrate();
+        if (curWR < 0) {
+            curWR = 100 - lastWR;
+        }
+        double whiteWR, blackWR;
+        if (bd.blackToPlay) {
+            blackWR = curWR;
+        } else {
+            blackWR = 100 - curWR;
+        }
+        whiteWR = 100 - blackWR;
+
+        // Background rectangle
+        g.setColor(new Color(0, 0, 0, 130));
+        g.fillRect(posX, posY, width, height);
+
+        // Title
+        Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.09));
+        int strokeRadius = 2;
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(Color.WHITE);
+        g.setFont(font);
+        g.drawString("Winrate", posX+2*strokeRadius, posY + font.getSize());
+
+        // Last move
+        font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.07));
+        g.setFont(font);
+        if (lastWR < 0)
+            // In case leelaz didnt have time to calculate
+            g.drawString("Last move: ?%", posX+2*strokeRadius, posY + height - font.getSize());
+        else
+            g.drawString(String.format("Last move: %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius, posY + height - font.getSize());
+
+
+        int maxBarHeight = (int) (height*0.6);
+        int barHeightB = (int) (blackWR*maxBarHeight/100);
+        int barHeightW = (int) (whiteWR*maxBarHeight/100);
+        int barPosxB = posX + width/5;
+        int barPosxW = posX + width*3/5;
+        int barPosyB = (int)(posY*1.2 + maxBarHeight - barHeightB);
+        int barPosyW = (int)(posY*1.2 + maxBarHeight - barHeightW);
+        int barWidth = width/5;
+
+        // Draw winrate bars
+        g.fillRect(barPosxW, barPosyW, barWidth, barHeightW);
+        g.setColor(Color.BLACK);
+        g.fillRect(barPosxB, barPosyB, barWidth, barHeightB);
+
+        // Show percentage on bars
+        g.drawString(String.format("%.1f", whiteWR), barPosxW + 2*strokeRadius, barPosyW + barHeightW - 2*strokeRadius);
+        g.setColor(Color.WHITE);
+        g.drawString(String.format("%.1f", blackWR), barPosxB + 2*strokeRadius, barPosyB + barHeightB - 2*strokeRadius);
+
     }
 
     /**

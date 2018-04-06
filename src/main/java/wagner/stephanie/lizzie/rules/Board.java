@@ -16,7 +16,7 @@ public class Board {
         boolean blackToPlay = true;
         int[] lastMove = null;
 
-        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE]));
+        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50));
     }
 
     /**
@@ -93,7 +93,7 @@ public class Board {
             int[] moveNumberList = history.getMoveNumberList().clone();
 
             // build the new game state
-            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList);
+            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, 0);
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
@@ -170,7 +170,9 @@ public class Board {
             }
 
             // build the new game state
-            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList);
+            double winrate = Lizzie.leelaz.getBestWinrate();
+
+            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, winrate);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
@@ -340,6 +342,8 @@ public class Board {
     public boolean nextMove() {
         synchronized (this) {
             if (history.next() != null) {
+                // Update win rate statistics
+                history.getData().winrate = Lizzie.leelaz.getBestWinrate();
                 // update leelaz board position, before updating to next node
                 if (history.getData().lastMove == null) {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
