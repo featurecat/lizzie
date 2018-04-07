@@ -289,6 +289,7 @@ public class LizzieFrame extends JFrame {
         BoardData bd = Lizzie.board.getData();
 
         double lastWR = bd.winrate;
+        double lastBWR = lastWR;
         double curWR = Lizzie.leelaz.getBestWinrate();
         if (curWR < 0) {
             curWR = 100 - lastWR;
@@ -296,6 +297,7 @@ public class LizzieFrame extends JFrame {
         double whiteWR, blackWR;
         if (bd.blackToPlay) {
             blackWR = curWR;
+            lastBWR = 100 - lastWR;
         } else {
             blackWR = 100 - curWR;
         }
@@ -329,19 +331,22 @@ public class LizzieFrame extends JFrame {
         int barPosxB = posX + width/5;
         int barPosxW = posX + width*3/5;
         int barPosyB = (int)(posY*1.2 + maxBarHeight - barHeightB);
-        int barPosyW = (int)(posY*1.2 + maxBarHeight - barHeightW);
+        int barPosyW = (int)(posY*1.2);
         int barWidth = width/5;
+        int lastLine = (int)(posY*1.2 + maxBarHeight - lastBWR*maxBarHeight/100);
 
         // Draw winrate bars
-        g.fillRect(barPosxW, barPosyW, barWidth, barHeightW);
+        g.fillRect(barPosxB, barPosyW, barWidth, barHeightW);
         g.setColor(Color.BLACK);
         g.fillRect(barPosxB, barPosyB, barWidth, barHeightB);
 
         // Show percentage on bars
-        g.drawString(String.format("%.1f", whiteWR), barPosxW + 2*strokeRadius, barPosyW + barHeightW - 2*strokeRadius);
+        g.drawString(String.format("%.1f", whiteWR), barPosxB + 2*strokeRadius, barPosyW + 2*strokeRadius + font.getSize());
         g.setColor(Color.WHITE);
         g.drawString(String.format("%.1f", blackWR), barPosxB + 2*strokeRadius, barPosyB + barHeightB - 2*strokeRadius);
 
+        g.setColor(Color.RED);
+        g.drawLine(barPosxB , lastLine, barPosxB + barWidth, lastLine);
     }
 
     /**
