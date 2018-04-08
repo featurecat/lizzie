@@ -9,6 +9,10 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -33,6 +37,8 @@ public class LizzieFrame extends JFrame {
             "m|show/hide move number",
             "o|open SGF",
             "s|save SGF",
+            "alt-c|copy SGF to clipboard",
+            "alt-v|paste SGF from clipboard",
             "v|toggle variation display",
             "home|go to start",
             "end|go to end",
@@ -303,5 +309,40 @@ public class LizzieFrame extends JFrame {
 
     public void toggleCoordinates() {
         showCoordinates = !showCoordinates;
+    }
+
+    public void copySgf() {
+        try {
+            // Get sgf content from game
+            String sgfContent = SGFParser.saveToString();
+
+            // Save to clipboard
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable transferableString = new StringSelection(sgfContent);
+            clipboard.setContents(transferableString, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pasteSgf() {
+        try {
+            String sgfContent = null;
+            // Get string from clipboard
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable clipboardContents = clipboard.getContents(null);
+            if (clipboardContents != null) {
+                if (clipboardContents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    sgfContent = (String) clipboardContents.getTransferData(DataFlavor.stringFlavor);
+                }
+            }
+
+            // load game contents from sgf string
+            if (sgfContent != null && !sgfContent.isEmpty()) {
+                SGFParser.loadFromString(sgfContent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -29,6 +29,13 @@ public class SGFParser {
         return parse(value);
     }
 
+    public static boolean loadFromString(String sgfString) {
+        // Clear the board
+        Lizzie.board.clear();
+
+        return parse(sgfString);
+    }
+
     public static int[] convertSgfPosToCoord(String pos) {
         if (pos.equals("tt") || pos.isEmpty())
             return null;
@@ -142,45 +149,48 @@ public class SGFParser {
         return true;
     }
 
+    public static String saveToString() throws IOException {
+        try (StringWriter writer = new StringWriter()) {
+            saveToStream(writer);
+            return writer.toString();
+        }
+    }
+
     public static boolean save(String filename) throws IOException {
-        FileOutputStream fp = new FileOutputStream(filename);
-        OutputStreamWriter writer = new OutputStreamWriter(fp);
-
-        try
-        {
-            // add SGF header
-            StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
-
-            // move to the first move
-            BoardHistoryList history = Lizzie.board.getHistory();
-            while (history.previous() != null);
-
-            // replay moves, and convert them to tags.
-            // *  format: ";B[xy]" or ";W[xy]"
-            // *  with 'xy' = coordinates ; or 'tt' for pass.
-            BoardData data;
-            while ((data = history.next()) != null) {
-
-                String stone;
-                if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
-                else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
-                else continue;
-
-                char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-                char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
-
-                builder.append(String.format(";%s[%c%c]", stone, x, y));
-            }
-
-            // close file
-            builder.append(')');
-            writer.append(builder.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(filename))) {
+            saveToStream(writer);
         }
-        finally
-        {
-            writer.close();
-            fp.close();
-        }
+
         return true;
+    }
+
+    private static void saveToStream(Writer writer) throws IOException {
+        // add SGF header
+        StringBuilder builder = new StringBuilder(String.format("(;KM[7.5]AP[Lizzie: %s]", Lizzie.lizzieVersion));
+
+        // move to the first move
+        BoardHistoryList history = Lizzie.board.getHistory();
+        while (history.previous() != null) ;
+
+        // replay moves, and convert them to tags.
+        // *  format: ";B[xy]" or ";W[xy]"
+        // *  with 'xy' = coordinates ; or 'tt' for pass.
+        BoardData data;
+        while ((data = history.next()) != null) {
+
+            String stone;
+            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+            else continue;
+
+            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+
+            builder.append(String.format(";%s[%c%c]", stone, x, y));
+        }
+
+        // close file
+        builder.append(')');
+        writer.append(builder.toString());
     }
 }
