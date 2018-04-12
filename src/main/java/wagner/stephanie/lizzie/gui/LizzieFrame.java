@@ -39,6 +39,7 @@ public class LizzieFrame extends JFrame {
             "ctrl|undo/redo 10 moves",
     };
     private static BoardRenderer boardRenderer;
+    private static VariationTree variatonTree;
 
     private final BufferStrategy bs;
 
@@ -66,6 +67,7 @@ public class LizzieFrame extends JFrame {
         super("Lizzie - Leela Zero Interface");
 
         boardRenderer = new BoardRenderer();
+        variatonTree = new VariationTree();
 
         // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
         setSize(657, 687);
@@ -181,6 +183,8 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
+
+            variatonTree.draw(g, maxSize + boardX, 0, maxSize, getHeight());
 
             // cleanup
             g.dispose();
