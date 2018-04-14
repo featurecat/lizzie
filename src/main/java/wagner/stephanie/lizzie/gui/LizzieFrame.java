@@ -40,6 +40,7 @@ public class LizzieFrame extends JFrame {
             "ctrl|undo/redo 10 moves",
     };
     private static BoardRenderer boardRenderer;
+    private static WinrateGraph winrateGraph;
 
     private final BufferStrategy bs;
 
@@ -67,6 +68,7 @@ public class LizzieFrame extends JFrame {
         super("Lizzie - Leela Zero Interface");
 
         boardRenderer = new BoardRenderer();
+        winrateGraph = new WinrateGraph();
 
         // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
         setSize(657, 687);
@@ -191,6 +193,8 @@ public class LizzieFrame extends JFrame {
                 int stath = maxSize/3;
                 drawMoveStatistics(g, statx, staty, statw, stath);
             }
+            winrateGraph.draw(g, 0,maxSize/3, boardX, maxSize/3);
+
 
             // cleanup
             g.dispose();
@@ -286,16 +290,20 @@ public class LizzieFrame extends JFrame {
 
     private void drawMoveStatistics(Graphics2D g, int posX, int posY, int width, int height) {
 
-        BoardData bd = Lizzie.board.getData();
 
-        double lastWR = bd.winrate;
+        double lastWR;
+        if (Lizzie.board.getData().moveNumber == 0)
+            lastWR = 50;
+        else
+            lastWR = Lizzie.board.getHistory().getPrevious().winrate;
         double lastBWR = lastWR;
+
         double curWR = Lizzie.leelaz.getBestWinrate();
         if (curWR < 0) {
             curWR = 100 - lastWR;
         }
         double whiteWR, blackWR;
-        if (bd.blackToPlay) {
+        if (Lizzie.board.getData().blackToPlay) {
             blackWR = curWR;
             lastBWR = 100 - lastWR;
         } else {

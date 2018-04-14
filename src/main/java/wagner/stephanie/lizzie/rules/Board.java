@@ -126,6 +126,16 @@ public class Board {
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
 
+            // Update winrate
+            double wr = Lizzie.leelaz.getBestWinrate();
+
+            if (wr >= 0)
+            {
+                history.getData().winrate = wr;
+            }
+            double nextWinrate = -100;
+            if (history.getData().winrate > 0) nextWinrate = 100 - history.getData().winrate;
+
             // check to see if this coordinate is being replayed in history
             BoardData next = history.getNext();
             if (next != null && next.lastMove != null && next.lastMove[0] == x && next.lastMove[1] == y) {
@@ -169,10 +179,7 @@ public class Board {
                 }
             }
 
-            // build the new game state
-            double winrate = Lizzie.leelaz.getBestWinrate();
-
-            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, winrate);
+            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, nextWinrate);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
@@ -341,9 +348,12 @@ public class Board {
      */
     public boolean nextMove() {
         synchronized (this) {
+            // Update win rate statistics
+            double wr = Lizzie.leelaz.getBestWinrate();
+            if (wr >= 0) {
+                history.getData().winrate = wr;
+            }
             if (history.next() != null) {
-                // Update win rate statistics
-                history.getData().winrate = Lizzie.leelaz.getBestWinrate();
                 // update leelaz board position, before updating to next node
                 if (history.getData().lastMove == null) {
                     Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
@@ -378,6 +388,11 @@ public class Board {
      */
     public boolean previousMove() {
         synchronized (this) {
+            // Update win rate statistics
+            double wr  = Lizzie.leelaz.getBestWinrate();
+            if (wr >= 0) {
+                history.getData().winrate = wr;
+            }
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
                 Lizzie.frame.repaint();
