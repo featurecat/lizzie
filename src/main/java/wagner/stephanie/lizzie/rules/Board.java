@@ -236,7 +236,7 @@ public class Board {
          Stone[] stones = history.getStones();
          boolean blackToPlay = history.isBlacksTurn();
          Zobrist zobrist = history.getZobrist().clone();
-         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist, 0, new int[BOARD_SIZE * BOARD_SIZE]));
+         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist, 0, new int[BOARD_SIZE * BOARD_SIZE], 0.0));
      }
 
     /**

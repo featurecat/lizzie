@@ -20,7 +20,7 @@ public class PluginManager {
         }
         plugins = new HashSet<IPlugin>();
         File path = new File("./plugin/");
-        assert path.isDirectory();
+        path.mkdirs();
 
         for (File jarFile : path.listFiles()) {
             if (jarFile.isDirectory()) {
