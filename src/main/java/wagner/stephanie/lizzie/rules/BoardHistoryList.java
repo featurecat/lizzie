@@ -147,7 +147,9 @@ public class BoardHistoryList {
         return head.getData().moveNumberList;
     }
 
-    public BoardHistoryNode getCurrentHistoryNode() { return head; }
+    public BoardHistoryNode getCurrentHistoryNode() {
+        return head;
+    }
 
     /**
      * @param data the board position to check against superko
