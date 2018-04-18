@@ -301,7 +301,6 @@ public class LizzieFrame extends JFrame {
         int commandsX = getWidth() / 2 - boxWidth / 2;
         int commandsY = getHeight() / 2 - boxHeight / 2;
 
-
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
         filter.filter(cachedImage.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
         g.drawImage(result, commandsX, commandsY, null);

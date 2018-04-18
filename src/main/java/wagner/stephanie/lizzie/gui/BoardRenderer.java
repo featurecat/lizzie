@@ -5,7 +5,9 @@ import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Branch;
 import wagner.stephanie.lizzie.analysis.MoveData;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.rules.Zobrist;
 
@@ -70,6 +72,7 @@ public class BoardRenderer {
         drawStones();
 //        timer.lap("stones");
         drawBranch();
+        
 //        timer.lap("branch");
 
         renderImages(g);
@@ -77,8 +80,12 @@ public class BoardRenderer {
 
         drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz)
+        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
+
+        drawNextMoves(g);
+
+        PluginManager.onDraw(g);
 //        timer.lap("leelaz");
 
 //        timer.print();
@@ -206,9 +213,9 @@ public class BoardRenderer {
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
-        // We can't early-out until now, since we need bestMoves for later
-        if (!Lizzie.config.showVariation)
+        if (!Lizzie.config.showBranch) {
             return;
+        }
 
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
@@ -235,8 +242,8 @@ public class BoardRenderer {
                 int stoneX = scaledMargin + squareLength * i;
                 int stoneY = scaledMargin + squareLength * j;
 
-                // check if board is empty to prevent overwriting stones if there are under-the-stones situations
                 drawStone(g, gShadow, stoneX, stoneY, branch.data.stones[Board.getIndex(i, j)].unGhosted(), i, j);
+
             }
         }
 
@@ -250,9 +257,13 @@ public class BoardRenderer {
     private void renderImages(Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g.drawImage(cachedStonesShadowImage, x, y, null);
-        g.drawImage(branchStonesShadowImage, x, y, null);
+        if (Lizzie.config.showBranch) {
+            g.drawImage(branchStonesShadowImage, x, y, null);
+        }
         g.drawImage(cachedStonesImage, x, y, null);
-        g.drawImage(branchStonesImage, x, y, null);
+        if (Lizzie.config.showBranch) {
+            g.drawImage(branchStonesImage, x, y, null);
+        }
     }
 
     /**
@@ -398,16 +409,29 @@ public class BoardRenderer {
                 }
             }
 
-            int[] nextMove = Lizzie.board.getNextMove();
-            if (nextMove != null) {
-                if (Lizzie.board.getData().blackToPlay) {
-                    g.setColor(Color.BLACK);
-                } else {
-                    g.setColor(Color.WHITE);
-                }
-                int moveX = x + scaledMargin + squareLength * nextMove[0];
-                int moveY = y + scaledMargin + squareLength * nextMove[1];
-                drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
+            
+        }
+    }
+
+    private void drawNextMoves(Graphics2D g) {
+
+        List<BoardHistoryNode> nexts = Lizzie.board.getHistory().getNexts();
+            
+        for (int i = 0; i < nexts.size(); i++) {
+            int[] nextMove = nexts.get(i).getData().lastMove;
+            if (Lizzie.board.getData().blackToPlay) {
+                g.setColor(Color.BLACK);
+            } else {
+                g.setColor(Color.WHITE);
+            }
+            int moveX = x + scaledMargin + squareLength * nextMove[0];
+            int moveY = y + scaledMargin + squareLength * nextMove[1];
+            if (i == 0) {
+                g.setStroke(new BasicStroke(3.0f));
+            }
+            drawCircle(g, moveX, moveY, stoneRadius + 1); // slightly outside best move circle
+            if (i == 0) {
+                g.setStroke(new BasicStroke(1.0f));
             }
         }
     }

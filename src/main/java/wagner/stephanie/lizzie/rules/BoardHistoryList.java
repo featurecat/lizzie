@@ -1,5 +1,6 @@
 package wagner.stephanie.lizzie.rules;
 
+import java.util.List;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 
 /**
@@ -87,6 +88,13 @@ public class BoardHistoryList {
             return head.next().getData();
     }
 
+    /**
+     * @return nexts for display
+     */
+    public List<BoardHistoryNode> getNexts() {
+        return head.getNexts();
+    }
+  
     /**
      * Does not change the pointer position
      *

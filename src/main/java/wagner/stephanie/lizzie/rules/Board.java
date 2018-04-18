@@ -230,6 +230,16 @@ public class Board {
     }
 
     /**
+     * for handicap
+     */
+     public void flatten() {
+         Stone[] stones = history.getStones();
+         boolean blackToPlay = history.isBlacksTurn();
+         Zobrist zobrist = history.getZobrist().clone();
+         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist, 0, new int[BOARD_SIZE * BOARD_SIZE]));
+     }
+
+    /**
      * Removes a chain if it has no liberties
      *
      * @param x       x coordinate -- needn't be valid

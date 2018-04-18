@@ -9,6 +9,8 @@ public class BoardData {
     public Stone lastMoveColor;
     public Stone[] stones;
     public Zobrist zobrist;
+    
+    public boolean verify;
 
     public double winrate;
 
@@ -21,6 +23,7 @@ public class BoardData {
         this.lastMoveColor = lastMoveColor;
         this.stones = stones;
         this.zobrist = zobrist;
+        this.verify = false;
 
         this.winrate = winrate;
     }

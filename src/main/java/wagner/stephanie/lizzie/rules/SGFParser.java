@@ -1,9 +1,11 @@
 package wagner.stephanie.lizzie.rules;
 
+import java.util.ArrayList;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 
 import java.io.*;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 import java.text.SimpleDateFormat;
 
 public class SGFParser {
@@ -30,8 +32,10 @@ public class SGFParser {
         if (value.isEmpty()) {
             return false;
         }
-        
-        return parse(value);
+
+        boolean returnValue = parse(value);
+        PluginManager.onSgfLoaded();
+        return returnValue;
     }
 
     public static boolean loadFromString(String sgfString) {
@@ -121,6 +125,22 @@ public class SGFParser {
                         } else {
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
                         }
+                    } else if (tag.equals("AB")) {
+                        int[] move = convertSgfPosToCoord(tagContent);
+                        if (move == null) {
+                            Lizzie.board.pass(Stone.BLACK);
+                        } else {
+                            Lizzie.board.place(move[0], move[1], Stone.BLACK);
+                        }
+                        Lizzie.board.flatten();
+                    } else if (tag.equals("AW")) {
+                        int[] move = convertSgfPosToCoord(tagContent);
+                        if (move == null) {
+                            Lizzie.board.pass(Stone.WHITE);
+                        } else {
+                            Lizzie.board.place(move[0], move[1], Stone.WHITE);
+                        }
+                        Lizzie.board.flatten();
                     }
                     break;
                 case ';':
@@ -199,6 +219,44 @@ public class SGFParser {
         // *  format: ";B[xy]" or ";W[xy]"
         // *  with 'xy' = coordinates ; or 'tt' for pass.
         BoardData data;
+
+        // TODO: this code comes from cngoodboy's plugin PR #65. It looks like it might be useful for handling
+        //       AB/AW commands for sgfs in general -- we can extend it beyond just handicap. TODO integrate it
+//        data = history.getData();
+//
+//        // For handicap
+//        ArrayList<int[]> abList = new ArrayList<int[]>();
+//        ArrayList<int[]> awList = new ArrayList<int[]>();
+//
+//        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+//            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+//                switch (data.stones[Board.getIndex(i, j)]) {
+//                    case BLACK:
+//                        abList.add(new int[]{i, j});
+//                        break;
+//                    case WHITE:
+//                        awList.add(new int[]{i, j});
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
+//        }
+//
+//        if (!abList.isEmpty()) {
+//            builder.append(";AB");
+//            for (int i = 0; i < abList.size(); i++) {
+//                builder.append(String.format("[%s]", convertCoordToSgfPos(abList.get(i))));
+//            }
+//        }
+//
+//        if (!awList.isEmpty()) {
+//            builder.append(";AW");
+//            for (int i = 0; i < awList.size(); i++) {
+//                builder.append(String.format("[%s]", convertCoordToSgfPos(awList.get(i))));
+//            }
+//        }
+
         while ((data = history.next()) != null) {
 
             String stone;

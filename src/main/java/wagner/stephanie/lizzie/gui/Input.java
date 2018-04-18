@@ -5,6 +5,7 @@ import wagner.stephanie.lizzie.Lizzie;
 import java.awt.event.*;
 
 import static java.awt.event.KeyEvent.*;
+import wagner.stephanie.lizzie.plugin.PluginManager;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
     private boolean controlIsPressed = false;
@@ -16,6 +17,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mousePressed(MouseEvent e) {
+        PluginManager.onMousePressed(e);
         int x = e.getX();
         int y = e.getY();
 
@@ -27,7 +29,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+        PluginManager.onMouseReleased(e);
     }
 
     @Override
@@ -47,6 +49,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseMoved(MouseEvent e) {
+        PluginManager.onMouseMoved(e);
         int x = e.getX();
         int y = e.getY();
 
@@ -84,6 +87,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void keyPressed(KeyEvent e) {
+
+        PluginManager.onKeyPressed(e);
+
         // Some combo keys should be processed first
         if ((e.getKeyCode() == KeyEvent.VK_C && (e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
             // Alt + C -- Copy sgf to clipboard
@@ -96,6 +102,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         }
 
         int movesToAdvance = 1; // number of moves to advance if control is held down
+
         switch (e.getKeyCode()) {
             case VK_CONTROL:
 
@@ -141,17 +148,17 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                Lizzie.frame.saveSgf();
+                LizzieFrame.saveSgf();
                 break;
 
             case VK_O:
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                Lizzie.frame.openSgf();
+                LizzieFrame.openSgf();
                 break;
 
             case VK_V:
-                Lizzie.config.toggleShowVariation();
+                Lizzie.config.toggleShowBranch();
                 break;
 
             case VK_HOME:
@@ -191,11 +198,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             default:
         }
+        Lizzie.frame.repaint();
     }
 
     private boolean wasPonderingWhenControlsShown = false;
     @Override
     public void keyReleased(KeyEvent e) {
+        PluginManager.onKeyReleased(e);
         switch (e.getKeyCode()) {
             case VK_CONTROL:
                 controlIsPressed = false;

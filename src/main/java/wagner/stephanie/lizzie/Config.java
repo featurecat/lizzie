@@ -8,9 +8,14 @@ public class Config {
 
     public boolean showMoveNumber = false;
     public boolean showVariation = true;
+    
+    // For plug-ins
+    public boolean showBranch = true;
 
+    public boolean showBestMoves = true;
+    
     public JSONObject config;
-
+    
     public Config() throws IOException {
         File file = new File("lizzie.properties");
         if (!file.canRead()) {
@@ -42,9 +47,12 @@ public class Config {
     public void toggleShowMoveNumber() {
         this.showMoveNumber = !this.showMoveNumber;
     }
+    public void toggleShowBranch() {
+        this.showBranch = !this.showBranch;
+    }
 
-    public void toggleShowVariation() {
-        this.showVariation = !this.showVariation;
+    public void toggleShowBestMoves() {
+        this.showBestMoves = !this.showBestMoves;
     }
 
     private void createNewConfig(File file) throws IOException, JSONException {
