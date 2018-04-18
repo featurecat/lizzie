@@ -1,20 +1,30 @@
 package wagner.stephanie.lizzie.gui;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
+
 import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.rules.Board;
-import wagner.stephanie.lizzie.rules.BoardData;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -22,6 +32,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import wagner.stephanie.lizzie.theme.DefaultTheme;
 
 /**
  * The window used to display the game.
@@ -217,7 +232,10 @@ public class LizzieFrame extends JFrame {
             int topInset = this.getInsets().top;
 
             try {
-                BufferedImage background = ImageIO.read(new File("assets/background.jpg"));
+                BufferedImage background = boardRenderer.theme.getBackground();
+                if (background == null) {
+                    background = new DefaultTheme().getBackground();
+                }
                 int drawWidth = Math.max(background.getWidth(), getWidth());
                 int drawHeight = Math.max(background.getHeight(), getHeight());
                 g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
@@ -278,10 +296,10 @@ public class LizzieFrame extends JFrame {
         int lineHeight = (int) (font.getSize() * 1.15);
 
         int boxWidth = (int) (maxSize * 0.85);
-        int boxHeight = (int) (commands.length * lineHeight);
+        int boxHeight = commands.length * lineHeight;
 
-        int commandsX = (int) (getWidth() / 2 - boxWidth / 2);
-        int commandsY = (int) (getHeight() / 2 - boxHeight / 2);
+        int commandsX = getWidth() / 2 - boxWidth / 2;
+        int commandsY = getHeight() / 2 - boxHeight / 2;
 
 
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
@@ -308,8 +326,8 @@ public class LizzieFrame extends JFrame {
         g.setColor(Color.WHITE);
         for (int i = 0; i < commands.length; i++) {
             String[] split = commands[i].split("\\|");
-            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
-            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (int) (commandsY + i * lineHeight));
+            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
+            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
         }
     }
 
