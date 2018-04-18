@@ -22,6 +22,7 @@ import wagner.stephanie.lizzie.theme.ITheme;
 
 public class BoardRenderer {
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
+    private static final double MARGIN_WITH_COORDINATES = 0.06;
     private static final double STARPOINT_DIAMETER = 0.015;
 
     private int x, y;
@@ -146,8 +147,8 @@ public class BoardRenderer {
                     drawString(g, x+scaledMargin+squareLength*i, y-scaledMargin/2+boardLength, "Open Sans", ""+alphabet.charAt(i), stoneRadius*4/5, stoneRadius);
                 }
                 for (int i = 0; i < Board.BOARD_SIZE; i++) {
-                    drawString(g, x+scaledMargin/2, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
-                    drawString(g, x-scaledMargin/2+ +boardLength, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
+                    drawString(g, x+scaledMargin/2, y+scaledMargin+squareLength*i, "Open Sans", ""+(19-i), stoneRadius*4/5, stoneRadius);
+                    drawString(g, x-scaledMargin/2+ +boardLength, y+scaledMargin+squareLength*i, "Open Sans", ""+(19-i), stoneRadius*4/5, stoneRadius);
                 }
             }
             cachedBackgroundImageHasCoordinatesEnabled = Lizzie.frame.showCoordinates;
@@ -450,10 +451,11 @@ public class BoardRenderer {
         int availableLength;
 
         // decrease boardLength until the availableLength will result in square board intersections
+        double margin = Lizzie.frame.showCoordinates ? MARGIN_WITH_COORDINATES : MARGIN;
         boardLength++;
         do {
             boardLength--;
-            scaledMargin = (int) (MARGIN * boardLength);
+            scaledMargin = (int) (margin * boardLength);
             availableLength = boardLength - 2 * scaledMargin;
         }
         while (!((availableLength - 1) % (Board.BOARD_SIZE - 1) == 0));

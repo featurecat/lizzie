@@ -1,0 +1,6 @@
+out/*
+.idea/
+*.dll
+*.iml
+*.exe
+network

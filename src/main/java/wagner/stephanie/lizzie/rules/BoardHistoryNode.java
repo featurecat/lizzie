@@ -78,4 +78,12 @@ public class BoardHistoryNode {
             return nexts.get(0);
         }
     }
+
+    public ArrayList<BoardHistoryNode> allVariants() {
+        if (nexts.size() == 0) {
+            return null;
+        } else {
+            return nexts;
+        }
+    }
 }
