@@ -1,14 +1,30 @@
 package wagner.stephanie.lizzie.gui;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
+
 import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -16,13 +32,19 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import wagner.stephanie.lizzie.theme.DefaultTheme;
 
 /**
  * The window used to display the game.
  */
 public class LizzieFrame extends JFrame {
     private static final String[] commands = {
-            "enter|play against Leela Zero",
+            "n|start game against Leela Zero",
+            "enter|force Leela Zero move",
             "space|toggle pondering",
             "left arrow|undo",
             "right arrow|redo",
@@ -31,14 +53,19 @@ public class LizzieFrame extends JFrame {
             "c|toggle coordinates",
             "p|pass",
             "m|show/hide move number",
+            "i|edit game info",
             "o|open SGF",
             "s|save SGF",
+            "alt-c|copy SGF to clipboard",
+            "alt-v|paste SGF from clipboard",
             "v|toggle variation display",
             "home|go to start",
             "end|go to end",
             "ctrl|undo/redo 10 moves",
     };
     private static BoardRenderer boardRenderer;
+    private static VariationTree variatonTree;
+    private static WinrateGraph winrateGraph;
 
     private final BufferStrategy bs;
 
@@ -66,6 +93,8 @@ public class LizzieFrame extends JFrame {
         super("Lizzie - Leela Zero Interface");
 
         boardRenderer = new BoardRenderer();
+        variatonTree = new VariationTree();
+        winrateGraph = new WinrateGraph();
 
         // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
         setSize(657, 687);
@@ -93,6 +122,47 @@ public class LizzieFrame extends JFrame {
 
     }
 
+    public static void startNewGame() {
+        GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
+
+        NewGameDialog newGameDialog = new NewGameDialog();
+        newGameDialog.setGameInfo(gameInfo);
+        newGameDialog.setVisible(true);
+        boolean playerIsBlack = newGameDialog.playerIsBlack();
+        newGameDialog.dispose();
+        if (newGameDialog.isCancelled()) return;
+
+        Lizzie.board.clear();
+        Lizzie.leelaz.sendCommand("clear_board");
+        Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
+
+        Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
+        Lizzie.frame.playerIsBlack = playerIsBlack;
+        Lizzie.frame.isPlayingAgainstLeelaz = true;
+
+        boolean isHandicapGame = gameInfo.getHandicap() != 0;
+        if (isHandicapGame)
+        {
+            Lizzie.board.getHistory().getData().blackToPlay = false;
+            Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
+            if (playerIsBlack) Lizzie.leelaz.sendCommand("genmove W");
+        }
+        else if (!playerIsBlack)
+        {
+            Lizzie.leelaz.sendCommand("genmove B");
+        }
+    }
+
+    public static void editGameInfo() {
+        GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
+
+        GameInfoDialog gameInfoDialog = new GameInfoDialog();
+        gameInfoDialog.setGameInfo(gameInfo);
+        gameInfoDialog.setVisible(true);
+
+        gameInfoDialog.dispose();
+    }
+
     public void setPlayers(String whitePlayer, String blackPlayer) {
         setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
                                whitePlayer, blackPlayer));
@@ -116,7 +186,7 @@ public class LizzieFrame extends JFrame {
                 file = new File(file.getPath() + ".sgf");
             }
             try {
-                SGFParser.save(file.getPath());
+                SGFParser.save(Lizzie.board, file.getPath());
             } catch (IOException err) {
                 JOptionPane.showConfirmDialog(null, "Failed to save the SGF file.", "Error", JOptionPane.ERROR);
             }
@@ -162,7 +232,10 @@ public class LizzieFrame extends JFrame {
             int topInset = this.getInsets().top;
 
             try {
-                BufferedImage background = ImageIO.read(new File("assets/background.jpg"));
+                BufferedImage background = boardRenderer.theme.getBackground();
+                if (background == null) {
+                    background = new DefaultTheme().getBackground();
+                }
                 int drawWidth = Math.max(background.getWidth(), getWidth());
                 int drawHeight = Math.max(background.getHeight(), getHeight());
                 g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
@@ -181,6 +254,19 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
+            // Todo: Make board move over when there is no space beside the board
+            if (Lizzie.leelaz.isPondering()) {
+                // boardX equals width of space on each side
+                int statx = (int) (boardX*1.05 + maxSize);
+                int staty = boardY + maxSize/4;
+                int statw = (int)(boardX*0.8);
+                int stath = maxSize/3;
+                drawMoveStatistics(g, statx, staty, statw, stath);
+            }
+            winrateGraph.draw(g, 0,maxSize/3, boardX, maxSize/3);
+
+
+            variatonTree.draw(g, maxSize + boardX, 0, maxSize, getHeight());
 
             // cleanup
             g.dispose();
@@ -210,11 +296,10 @@ public class LizzieFrame extends JFrame {
         int lineHeight = (int) (font.getSize() * 1.15);
 
         int boxWidth = (int) (maxSize * 0.85);
-        int boxHeight = (commands.length * lineHeight);
+        int boxHeight = commands.length * lineHeight;
 
-        int commandsX = (getWidth() / 2 - boxWidth / 2);
-        int commandsY = (getHeight() / 2 - boxHeight / 2);
-
+        int commandsX = getWidth() / 2 - boxWidth / 2;
+        int commandsY = getHeight() / 2 - boxHeight / 2;
 
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
         filter.filter(cachedImage.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
@@ -257,8 +342,8 @@ public class LizzieFrame extends JFrame {
         String commandString = "hold x = view controls";
         int strokeRadius = 2;
 
-        int showCommandsHeight = (int) (font.getSize()*1.1);
-        int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4*strokeRadius;
+        int showCommandsHeight = (int) (font.getSize() * 1.1);
+        int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4 * strokeRadius;
         int showCommandsX = this.getInsets().left;
         int showCommandsY = getHeight() - showCommandsHeight - this.getInsets().bottom;
         g.setColor(new Color(0, 0, 0, 130));
@@ -271,7 +356,76 @@ public class LizzieFrame extends JFrame {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.WHITE);
         g.setFont(font);
-        g.drawString(commandString, showCommandsX+2*strokeRadius, showCommandsY + font.getSize());
+        g.drawString(commandString, showCommandsX + 2 * strokeRadius, showCommandsY + font.getSize());
+    }
+
+    private void drawMoveStatistics(Graphics2D g, int posX, int posY, int width, int height) {
+
+
+        double lastWR;
+        if (Lizzie.board.getData().moveNumber == 0)
+            lastWR = 50;
+        else
+            lastWR = Lizzie.board.getHistory().getPrevious().winrate;
+        double lastBWR = lastWR;
+
+        double curWR = Lizzie.leelaz.getBestWinrate();
+        if (curWR < 0) {
+            curWR = 100 - lastWR;
+        }
+        double whiteWR, blackWR;
+        if (Lizzie.board.getData().blackToPlay) {
+            blackWR = curWR;
+            lastBWR = 100 - lastWR;
+        } else {
+            blackWR = 100 - curWR;
+        }
+        whiteWR = 100 - blackWR;
+
+        // Background rectangle
+        g.setColor(new Color(0, 0, 0, 130));
+        g.fillRect(posX, posY, width, height);
+
+        // Title
+        Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.09));
+        int strokeRadius = 2;
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setColor(Color.WHITE);
+        g.setFont(font);
+        g.drawString("Winrate", posX+2*strokeRadius, posY + font.getSize());
+
+        // Last move
+        font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.07));
+        g.setFont(font);
+        if (lastWR < 0)
+            // In case leelaz didnt have time to calculate
+            g.drawString("Last move: ?%", posX+2*strokeRadius, posY + height - font.getSize());
+        else
+            g.drawString(String.format("Last move: %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius, posY + height - font.getSize());
+
+
+        int maxBarHeight = (int) (height*0.6);
+        int barHeightB = (int) (blackWR*maxBarHeight/100);
+        int barHeightW = (int) (whiteWR*maxBarHeight/100);
+        int barPosxB = posX + width/5;
+        int barPosxW = posX + width*3/5;
+        int barPosyB = (int)(posY*1.2 + maxBarHeight - barHeightB);
+        int barPosyW = (int)(posY*1.2);
+        int barWidth = width/5;
+        int lastLine = (int)(posY*1.2 + maxBarHeight - lastBWR*maxBarHeight/100);
+
+        // Draw winrate bars
+        g.fillRect(barPosxB, barPosyW, barWidth, barHeightW);
+        g.setColor(Color.BLACK);
+        g.fillRect(barPosxB, barPosyB, barWidth, barHeightB);
+
+        // Show percentage on bars
+        g.drawString(String.format("%.1f", whiteWR), barPosxB + 2*strokeRadius, barPosyW + 2*strokeRadius + font.getSize());
+        g.setColor(Color.WHITE);
+        g.drawString(String.format("%.1f", blackWR), barPosxB + 2*strokeRadius, barPosyB + barHeightB - 2*strokeRadius);
+
+        g.setColor(Color.RED);
+        g.drawLine(barPosxB , lastLine, barPosxB + barWidth, lastLine);
     }
 
     /**
@@ -303,5 +457,40 @@ public class LizzieFrame extends JFrame {
 
     public void toggleCoordinates() {
         showCoordinates = !showCoordinates;
+    }
+
+    public void copySgf() {
+        try {
+            // Get sgf content from game
+            String sgfContent = SGFParser.saveToString();
+
+            // Save to clipboard
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable transferableString = new StringSelection(sgfContent);
+            clipboard.setContents(transferableString, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void pasteSgf() {
+        try {
+            String sgfContent = null;
+            // Get string from clipboard
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            Transferable clipboardContents = clipboard.getContents(null);
+            if (clipboardContents != null) {
+                if (clipboardContents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    sgfContent = (String) clipboardContents.getTransferData(DataFlavor.stringFlavor);
+                }
+            }
+
+            // load game contents from sgf string
+            if (sgfContent != null && !sgfContent.isEmpty()) {
+                SGFParser.loadFromString(sgfContent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

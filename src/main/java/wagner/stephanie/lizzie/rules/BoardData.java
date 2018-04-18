@@ -12,7 +12,9 @@ public class BoardData {
     
     public boolean verify;
 
-    public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist, int moveNumber, int[] moveNumberList) {
+    public double winrate;
+
+    public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist, int moveNumber, int[] moveNumberList, double winrate) {
         this.moveNumber = moveNumber;
         this.lastMove = lastMove;
         this.moveNumberList = moveNumberList;
@@ -22,5 +24,7 @@ public class BoardData {
         this.stones = stones;
         this.zobrist = zobrist;
         this.verify = false;
+
+        this.winrate = winrate;
     }
 }

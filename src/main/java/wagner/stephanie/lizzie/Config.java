@@ -7,6 +7,7 @@ import java.io.*;
 public class Config {
 
     public boolean showMoveNumber = false;
+    public boolean showVariation = true;
     
     // For plug-ins
     public boolean showBranch = true;
@@ -71,6 +72,7 @@ public class Config {
         JSONObject ui = new JSONObject();
 
         ui.put("board-color", new JSONArray("[178, 140, 0]"));
+        ui.put("theme", "wagner.stephanie.lizzie.theme.DefaultTheme");
         ui.put("shadows-enabled", true);
         ui.put("fancy-stones", true);
         ui.put("fancy-board", true);
