@@ -141,8 +141,8 @@ public class BoardRenderer {
                     drawString(g, x+scaledMargin+squareLength*i, y-scaledMargin/2+boardLength, "Open Sans", ""+alphabet.charAt(i), stoneRadius*4/5, stoneRadius);
                 }
                 for (int i = 0; i < Board.BOARD_SIZE; i++) {
-                    drawString(g, x+scaledMargin/2, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
-                    drawString(g, x-scaledMargin/2+ +boardLength, y+scaledMargin+squareLength*i, "Open Sans", ""+(i+1), stoneRadius*4/5, stoneRadius);
+                    drawString(g, x+scaledMargin/2, y+scaledMargin+squareLength*i, "Open Sans", ""+(19-i), stoneRadius*4/5, stoneRadius);
+                    drawString(g, x-scaledMargin/2+ +boardLength, y+scaledMargin+squareLength*i, "Open Sans", ""+(19-i), stoneRadius*4/5, stoneRadius);
                 }
             }
             cachedBackgroundImageHasCoordinatesEnabled = Lizzie.frame.showCoordinates;
