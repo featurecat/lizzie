@@ -1,5 +1,6 @@
 package wagner.stephanie.lizzie.analysis;
 
+import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.BoardData;
 import wagner.stephanie.lizzie.rules.Stone;
@@ -20,7 +21,8 @@ public class Branch {
         Stone[] stones = board.getStones().clone();
         Zobrist zobrist = board.getData().zobrist == null ? null : board.getData().zobrist.clone();
 
-        this.data = new BoardData(stones, lastMove, lastMoveColor, blackToPlay, zobrist, moveNumber, moveNumberList);
+        // Dont care about winrate for branch
+        this.data = new BoardData(stones, lastMove, lastMoveColor, blackToPlay, zobrist, moveNumber, moveNumberList ,0.0);
 
         for (int i = 0; i < variation.size(); i++) {
             int[] coord = Board.convertNameToCoordinates(variation.get(i));

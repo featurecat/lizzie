@@ -88,6 +88,18 @@ public class BoardHistoryList {
     }
 
     /**
+     * Does not change the pointer position
+     *
+     * @return the data stored at the previous index. null if not present
+     */
+    public BoardData getPrevious() {
+        if (head.previous() == null)
+            return null;
+        else
+            return head.previous().getData();
+    }
+
+    /**
      * @return the data of the current node
      */
     public BoardData getData() {
@@ -134,6 +146,8 @@ public class BoardHistoryList {
     public int[] getMoveNumberList() {
         return head.getData().moveNumberList;
     }
+
+    public BoardHistoryNode getCurrentHistoryNode() { return head; }
 
     /**
      * @param data the board position to check against superko
