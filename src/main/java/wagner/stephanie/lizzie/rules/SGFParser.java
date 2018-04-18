@@ -33,6 +33,13 @@ public class SGFParser {
         return parse(value);
     }
 
+    public static boolean loadFromString(String sgfString) {
+        // Clear the board
+        Lizzie.board.clear();
+
+        return parse(sgfString);
+    }
+
     public static int[] convertSgfPosToCoord(String pos) {
         if (pos.equals("tt") || pos.isEmpty())
             return null;
@@ -63,7 +70,7 @@ public class SGFParser {
         for (byte b : value.getBytes()) {
             // Check unicode charactors (UTF-8)
             char c = (char) b;
-            if (((int)b & 0x80) != 0) {
+            if (((int) b & 0x80) != 0) {
                 continue;
             }
             switch (c) {
@@ -132,81 +139,80 @@ public class SGFParser {
         }
 
         // Rewind to game start
-        while (Lizzie.board.previousMove());
+        while (Lizzie.board.previousMove()) ;
 
         return true;
     }
 
-    public static boolean save(Board board, String filename) throws IOException {
-        FileOutputStream fp = new FileOutputStream(filename);
-        OutputStreamWriter writer = new OutputStreamWriter(fp);
+    public static String saveToString() throws IOException {
+        try (StringWriter writer = new StringWriter()) {
+            saveToStream(Lizzie.board, writer);
+            return writer.toString();
+        }
+    }
 
-        try
-        {
-            // collect game info
-            BoardHistoryList history = board.getHistory();
-            GameInfo gameInfo = history.getGameInfo();
-            String playerBlack = gameInfo.getPlayerBlack();
-            String playerWhite = gameInfo.getPlayerWhite();
-            Double komi = gameInfo.getKomi();
-            Integer handicap = gameInfo.getHandicap();
-            String date = SGF_DATE_FORMAT.format(gameInfo.getDate());
+    public static void save(Board board, String filename) throws IOException {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(filename))) {
+            saveToStream(board, writer);
+        }
+    }
 
-            // add SGF header
-            StringBuilder builder = new StringBuilder("(;");
-            if (handicap != 0) builder.append(String.format("HA[%s]", handicap));
-            builder.append(String.format("KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
-                    komi, playerWhite, playerBlack, date, Lizzie.lizzieVersion));
+    private static void saveToStream(Board board, Writer writer) throws IOException {
+        // collect game info
+        BoardHistoryList history = board.getHistory();
+        GameInfo gameInfo = history.getGameInfo();
+        String playerBlack = gameInfo.getPlayerBlack();
+        String playerWhite = gameInfo.getPlayerWhite();
+        Double komi = gameInfo.getKomi();
+        Integer handicap = gameInfo.getHandicap();
+        String date = SGF_DATE_FORMAT.format(gameInfo.getDate());
 
-            // move to the first move
-            history.toStart();
+        // add SGF header
+        StringBuilder builder = new StringBuilder("(;");
+        if (handicap != 0) builder.append(String.format("HA[%s]", handicap));
+        builder.append(String.format("KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
+                komi, playerWhite, playerBlack, date, Lizzie.lizzieVersion));
 
-            // add handicap stones to SGF
-            if (handicap != 0)
-            {
-                builder.append("AB");
-                Stone[] stones = history.getStones();
-                for (int i = 0; i < stones.length; i++) {
-                    Stone stone = stones[i];
-                    if (stone.isBlack())
-                    {
-                        // i = x * Board.BOARD_SIZE + y;
-                        int corY = i % Board.BOARD_SIZE;
-                        int corX = (i - corY) / Board.BOARD_SIZE;
+        // move to the first move
+        history.toStart();
 
-                        char x = (char)(corX + 'a');
-                        char y = (char)(corY + 'a');
-                        builder.append(String.format("[%c%c]", x, y));
-                    }
+        // add handicap stones to SGF
+        if (handicap != 0) {
+            builder.append("AB");
+            Stone[] stones = history.getStones();
+            for (int i = 0; i < stones.length; i++) {
+                Stone stone = stones[i];
+                if (stone.isBlack()) {
+                    // i = x * Board.BOARD_SIZE + y;
+                    int corY = i % Board.BOARD_SIZE;
+                    int corX = (i - corY) / Board.BOARD_SIZE;
+
+                    char x = (char) (corX + 'a');
+                    char y = (char) (corY + 'a');
+                    builder.append(String.format("[%c%c]", x, y));
                 }
             }
-
-            // replay moves, and convert them to tags.
-            // *  format: ";B[xy]" or ";W[xy]"
-            // *  with 'xy' = coordinates ; or 'tt' for pass.
-            BoardData data;
-            while ((data = history.next()) != null) {
-
-                String stone;
-                if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
-                else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
-                else continue;
-
-                char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-                char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
-
-                builder.append(String.format(";%s[%c%c]", stone, x, y));
-            }
-
-            // close file
-            builder.append(')');
-            writer.append(builder.toString());
         }
-        finally
-        {
-            writer.close();
-            fp.close();
+
+        // replay moves, and convert them to tags.
+        // *  format: ";B[xy]" or ";W[xy]"
+        // *  with 'xy' = coordinates ; or 'tt' for pass.
+        BoardData data;
+        while ((data = history.next()) != null) {
+
+            String stone;
+            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+            else continue;
+
+            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+
+            builder.append(String.format(";%s[%c%c]", stone, x, y));
         }
-        return true;
+
+        // close file
+        builder.append(')');
+        writer.append(builder.toString());
     }
 }

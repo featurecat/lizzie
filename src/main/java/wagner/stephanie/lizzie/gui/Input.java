@@ -84,6 +84,16 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void keyPressed(KeyEvent e) {
+        // Some combo keys should be processed first
+        if ((e.getKeyCode() == KeyEvent.VK_C && (e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+            // Alt + C -- Copy sgf to clipboard
+            Lizzie.frame.copySgf();
+            return;
+        } else if ((e.getKeyCode() == KeyEvent.VK_V && (e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
+            // Alt + V -- Paste sgf from clipboard
+            Lizzie.frame.pasteSgf();
+            return;
+        }
 
         int movesToAdvance = 1; // number of moves to advance if control is held down
         switch (e.getKeyCode()) {
