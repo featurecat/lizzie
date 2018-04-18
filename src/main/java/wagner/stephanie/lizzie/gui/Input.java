@@ -99,7 +99,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_LEFT:
                 undo();
                 break;
-
+            case VK_N:
+                // stop the ponder
+                if (Lizzie.leelaz.isPondering())
+                    Lizzie.leelaz.togglePonder();
+                Lizzie.frame.startNewGame();
+                break;
             case VK_SPACE:
                 if (Lizzie.frame.isPlayingAgainstLeelaz) {
                     Lizzie.frame.isPlayingAgainstLeelaz = false;
@@ -116,6 +121,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.config.toggleShowMoveNumber();
                 break;
 
+            case VK_I:
+                // stop the ponder
+                if (Lizzie.leelaz.isPondering())
+                    Lizzie.leelaz.togglePonder();
+                Lizzie.frame.editGameInfo();
+                break;
             case VK_S:
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())

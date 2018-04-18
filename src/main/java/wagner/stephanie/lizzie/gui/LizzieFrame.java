@@ -2,6 +2,7 @@ package wagner.stephanie.lizzie.gui;
 
 import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.BoardData;
 import wagner.stephanie.lizzie.rules.SGFParser;
@@ -23,7 +24,8 @@ import java.io.IOException;
  */
 public class LizzieFrame extends JFrame {
     private static final String[] commands = {
-            "enter|play against Leela Zero",
+            "n|start game against Leela Zero",
+            "enter|force Leela Zero move",
             "space|toggle pondering",
             "left arrow|undo",
             "right arrow|redo",
@@ -32,6 +34,7 @@ public class LizzieFrame extends JFrame {
             "c|toggle coordinates",
             "p|pass",
             "m|show/hide move number",
+            "i|edit game info",
             "o|open SGF",
             "s|save SGF",
             "v|toggle variation display",
@@ -96,6 +99,45 @@ public class LizzieFrame extends JFrame {
 
     }
 
+    public static void startNewGame() {
+        GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
+
+        NewGameDialog newGameDialog = new NewGameDialog();
+        newGameDialog.setGameInfo(gameInfo);
+        newGameDialog.setVisible(true);
+        boolean playerIsBlack = newGameDialog.playerIsBlack();
+        newGameDialog.dispose();
+        if (newGameDialog.isCancelled()) return;
+
+        Lizzie.board.clear();
+        Lizzie.leelaz.sendCommand("clear_board");
+        Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
+
+        Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
+        Lizzie.frame.playerIsBlack = playerIsBlack;
+        Lizzie.frame.isPlayingAgainstLeelaz = true;
+
+        boolean isHandicapGame = gameInfo.getHandicap() != 0;
+        if (isHandicapGame)
+        {
+            Lizzie.board.getHistory().getData().blackToPlay = false;
+            Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
+            if (playerIsBlack) Lizzie.leelaz.sendCommand("genmove W");
+        }
+        else if (!playerIsBlack)
+        {
+            Lizzie.leelaz.sendCommand("genmove B");
+        }
+    }
+
+    public static void editGameInfo() {
+        GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
+
+        GameInfoDialog gameInfoDialog = new GameInfoDialog();
+        gameInfoDialog.setGameInfo(gameInfo);
+        gameInfoDialog.setVisible(true);
+
+        gameInfoDialog.dispose();
     public void setPlayers(String whitePlayer, String blackPlayer) {
         setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
                                whitePlayer, blackPlayer));
@@ -119,7 +161,7 @@ public class LizzieFrame extends JFrame {
                 file = new File(file.getPath() + ".sgf");
             }
             try {
-                SGFParser.save(file.getPath());
+                SGFParser.save(Lizzie.board, file.getPath());
             } catch (IOException err) {
                 JOptionPane.showConfirmDialog(null, "Failed to save the SGF file.", "Error", JOptionPane.ERROR);
             }
@@ -271,8 +313,8 @@ public class LizzieFrame extends JFrame {
         String commandString = "hold x = view controls";
         int strokeRadius = 2;
 
-        int showCommandsHeight = (int) (font.getSize()*1.1);
-        int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4*strokeRadius;
+        int showCommandsHeight = (int) (font.getSize() * 1.1);
+        int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4 * strokeRadius;
         int showCommandsX = this.getInsets().left;
         int showCommandsY = getHeight() - showCommandsHeight - this.getInsets().bottom;
         g.setColor(new Color(0, 0, 0, 130));
@@ -285,7 +327,7 @@ public class LizzieFrame extends JFrame {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.WHITE);
         g.setFont(font);
-        g.drawString(commandString, showCommandsX+2*strokeRadius, showCommandsY + font.getSize());
+        g.drawString(commandString, showCommandsX + 2 * strokeRadius, showCommandsY + font.getSize());
     }
 
     private void drawMoveStatistics(Graphics2D g, int posX, int posY, int width, int height) {

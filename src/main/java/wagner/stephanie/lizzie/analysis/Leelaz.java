@@ -35,6 +35,9 @@ public class Leelaz {
     private boolean isPondering;
     private long startPonderTime;
 
+    // fixed_handicap
+    public boolean isSettingHandicap = false;
+
     // genmove
     public boolean isThinking = false;
 
@@ -123,7 +126,7 @@ public class Leelaz {
             } else {
 
                 if (isReadingPonderOutput) {
-                    line=line.trim();
+                    line = line.trim();
                     // ignore passes, and only accept lines that start with a coordinate letter
                     if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
                         bestMovesTemp.add(new MoveData(line));
@@ -131,11 +134,26 @@ public class Leelaz {
                     System.out.print(line);
 
                     line = line.trim();
-                    if (Lizzie.frame != null && line.startsWith("=")&&line.length() > 2 && isThinking) {
-                        if (Lizzie.frame.isPlayingAgainstLeelaz) {
-                            Lizzie.board.place(line.substring(2));
+                    if (Lizzie.frame != null && line.startsWith("=")&&line.length() > 2) {
+
+                        if (isSettingHandicap)
+                        {
+                            line = line.substring(2);
+                            String[] stones = line.split(" ");
+                            for (String stone : stones)
+                            {
+                                int[] coordinates = Lizzie.board.convertNameToCoordinates(stone);
+                                Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
+                            }
+                            isSettingHandicap = false;
                         }
-                        isThinking=false;
+                        else if (isThinking)
+                        {
+                            if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                                Lizzie.board.place(line.substring(2));
+                            }
+                            isThinking=false;
+                        }
                     }
                 }
             }
@@ -174,6 +192,8 @@ public class Leelaz {
      */
     public void sendCommand(String command) {
         System.out.println(command);
+        if (command.startsWith("fixed_handicap"))
+            isSettingHandicap = true;
         if (command.startsWith("genmove"))
             isThinking = true;
         try {
