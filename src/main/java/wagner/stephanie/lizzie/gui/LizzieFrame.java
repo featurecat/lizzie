@@ -138,6 +138,8 @@ public class LizzieFrame extends JFrame {
         gameInfoDialog.setVisible(true);
 
         gameInfoDialog.dispose();
+    }
+
     public void setPlayers(String whitePlayer, String blackPlayer) {
         setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
                                whitePlayer, blackPlayer));
