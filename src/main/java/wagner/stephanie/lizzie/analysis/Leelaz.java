@@ -35,6 +35,9 @@ public class Leelaz {
     private boolean isPondering;
     private long startPonderTime;
 
+    // True while we're waiting for old ponder output to get flushed
+    private boolean isWaitingToStartPonder = false;
+
     // fixed_handicap
     public boolean isSettingHandicap = false;
 
@@ -110,7 +113,7 @@ public class Leelaz {
      */
     private void parseLine(String line) {
         synchronized (this) {
-            if (line.startsWith("~begin")) {
+            if (line.startsWith("~begin") && !isWaitingToStartPonder) {
                 if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
                     // we have pondered for enough time. pause pondering
                     togglePonder();
@@ -118,14 +121,14 @@ public class Leelaz {
 
                 isReadingPonderOutput = true;
                 bestMovesTemp = new ArrayList<>();
-            } else if (line.startsWith("~end")) {
+            } else if (line.startsWith("~end") && !isWaitingToStartPonder) {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
 
                 if (Lizzie.frame != null) Lizzie.frame.repaint();
             } else {
 
-                if (isReadingPonderOutput) {
+                if (isReadingPonderOutput && !isWaitingToStartPonder) {
                     line = line.trim();
                     // ignore passes, and only accept lines that start with a coordinate letter
                     if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
@@ -134,7 +137,13 @@ public class Leelaz {
                     System.out.print(line);
 
                     line = line.trim();
-                    if (Lizzie.frame != null && line.startsWith("=")&&line.length() > 2) {
+                    if (Lizzie.frame != null && line.startsWith("=") && line.length() > 2) {
+
+                        if (isWaitingToStartPonder) {
+                            // Now we can tell it to actually start pondering
+                            sendCommand("time_left b 0 0");
+                            isWaitingToStartPonder = false;
+                        }
 
                         if (isSettingHandicap)
                         {
@@ -244,8 +253,9 @@ public class Leelaz {
      */
     private void ponder() {
         isPondering = true;
+        isWaitingToStartPonder = true;
         startPonderTime = System.currentTimeMillis();
-        sendCommand("time_left b 0 0");
+        sendCommand("name");    // until it responds to this, incoming ponder results are obsolete
     }
 
     public void togglePonder() {
