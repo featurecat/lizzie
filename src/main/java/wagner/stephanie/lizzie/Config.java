@@ -8,6 +8,7 @@ public class Config {
 
     public boolean showMoveNumber = false;
     public boolean showVariation = true;
+    public boolean showWinrate = true;
     
     // For plug-ins
     public boolean showBranch = true;
@@ -49,6 +50,9 @@ public class Config {
     }
     public void toggleShowBranch() {
         this.showBranch = !this.showBranch;
+    }
+    public void toggleShowWinrate() {
+        this.showWinrate = !this.showWinrate;
     }
 
     public void toggleShowBestMoves() {

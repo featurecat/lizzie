@@ -183,6 +183,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.frame.repaint();
                 break;
 
+            case VK_W:
+                Lizzie.config.toggleShowWinrate();
+                break;
+
             case VK_C:
                 Lizzie.frame.toggleCoordinates();
                 break;
