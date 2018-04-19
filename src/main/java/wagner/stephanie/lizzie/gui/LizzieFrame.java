@@ -258,16 +258,15 @@ public class LizzieFrame extends JFrame {
             boardRenderer.draw(g);
 
             // Todo: Make board move over when there is no space beside the board
-            if (Lizzie.leelaz.isPondering()) {
+            if (Lizzie.config.showWinrate) {
                 // boardX equals width of space on each side
-                int statx = (int) (boardX*1.05 + maxSize);
-                int staty = boardY + maxSize/4;
+                int statx = (int) (boardX*0.05);
+                int staty = boardY + maxSize/8;
                 int statw = (int)(boardX*0.8);
-                int stath = maxSize/3;
+                int stath = maxSize/10;
                 drawMoveStatistics(g, statx, staty, statw, stath);
+                winrateGraph.draw(g, statx,staty+ stath, statw, maxSize/3);
             }
-            winrateGraph.draw(g, 0,maxSize/3, boardX, maxSize/3);
-
 
             variatonTree.draw(g, maxSize + boardX, 0, maxSize, getHeight());
 
@@ -390,45 +389,50 @@ public class LizzieFrame extends JFrame {
         g.fillRect(posX, posY, width, height);
 
         // Title
-        Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.09));
+        Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.2));
         int strokeRadius = 2;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.WHITE);
         g.setFont(font);
-        g.drawString("Winrate", posX+2*strokeRadius, posY + font.getSize());
 
         // Last move
-        font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.07));
-        g.setFont(font);
         if (lastWR < 0)
             // In case leelaz didnt have time to calculate
-            g.drawString("Last move: ?%", posX+2*strokeRadius, posY + height - font.getSize());
+            g.drawString("Last move: ?%", posX+2*strokeRadius, posY + height- 2*strokeRadius);
         else
-            g.drawString(String.format("Last move: %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius, posY + height - font.getSize());
+            g.drawString(String.format("Last move: %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius,
+                    posY + height - 2*strokeRadius);// - font.getSize());
 
 
-        int maxBarHeight = (int) (height*0.6);
-        int barHeightB = (int) (blackWR*maxBarHeight/100);
-        int barHeightW = (int) (whiteWR*maxBarHeight/100);
-        int barPosxB = posX + width/5;
-        int barPosxW = posX + width*3/5;
-        int barPosyB = (int)(posY*1.2 + maxBarHeight - barHeightB);
-        int barPosyW = (int)(posY*1.2);
-        int barWidth = width/5;
-        int lastLine = (int)(posY*1.2 + maxBarHeight - lastBWR*maxBarHeight/100);
+        int maxBarwidth = (int) (width);
+        int barWidthB = (int) (blackWR*maxBarwidth/100);
+        int barWidthW = (int) (whiteWR*maxBarwidth/100);
+        int barPosY = posY + height/3;
+        int barPosxB = (int)(posX);
+        int barPosxW = barPosxB + barWidthB;
+        int barHeight = height/3;
 
         // Draw winrate bars
-        g.fillRect(barPosxB, barPosyW, barWidth, barHeightW);
+        g.fillRect(barPosxW, barPosY, barWidthW, barHeight);
         g.setColor(Color.BLACK);
-        g.fillRect(barPosxB, barPosyB, barWidth, barHeightB);
+        g.fillRect(barPosxB, barPosY, barWidthB, barHeight);
 
-        // Show percentage on bars
-        g.drawString(String.format("%.1f", whiteWR), barPosxB + 2*strokeRadius, barPosyW + 2*strokeRadius + font.getSize());
+        // Show percentage above bars
         g.setColor(Color.WHITE);
-        g.drawString(String.format("%.1f", blackWR), barPosxB + 2*strokeRadius, barPosyB + barHeightB - 2*strokeRadius);
+        g.drawString(String.format("%.1f", blackWR), barPosxB + 2*strokeRadius, posY + barHeight - 2*strokeRadius);
+        String winString = String.format("%.1f", whiteWR);
+        int sw = g.getFontMetrics().stringWidth(winString);
+        g.drawString(winString, barPosxB + maxBarwidth - sw - 2*strokeRadius, posY + barHeight - 2*strokeRadius);
 
-        g.setColor(Color.RED);
-        g.drawLine(barPosxB , lastLine, barPosxB + barWidth, lastLine);
+        g.setColor(Color.GRAY);
+        Stroke oldstroke = g.getStroke();
+        Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0,
+                                         new float[]{4}, 0);
+        g.setStroke(dashed);
+
+        int middleX = barPosxB + (int)(maxBarwidth/2);
+        g.drawLine(middleX , barPosY, middleX, barPosY + barHeight);
+        g.setStroke(oldstroke);
     }
 
     /**
