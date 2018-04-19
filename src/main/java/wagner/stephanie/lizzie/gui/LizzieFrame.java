@@ -18,6 +18,7 @@ import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
@@ -31,10 +32,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import java.util.ResourceBundle;
 
 import wagner.stephanie.lizzie.theme.DefaultTheme;
 
@@ -42,26 +40,28 @@ import wagner.stephanie.lizzie.theme.DefaultTheme;
  * The window used to display the game.
  */
 public class LizzieFrame extends JFrame {
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
+
     private static final String[] commands = {
-            "n|start game against Leela Zero",
-            "enter|force Leela Zero move",
-            "space|toggle pondering",
-            "left arrow|undo",
-            "right arrow|redo",
-            "right click|undo",
-            "scrollwheel|undo/redo",
-            "c|toggle coordinates",
-            "p|pass",
-            "m|show/hide move number",
-            "i|edit game info",
-            "o|open SGF",
-            "s|save SGF",
-            "alt-c|copy SGF to clipboard",
-            "alt-v|paste SGF from clipboard",
-            "v|toggle variation display",
-            "home|go to start",
-            "end|go to end",
-            "ctrl|undo/redo 10 moves",
+            resourceBundle.getString("LizzieFrame.commands.keyN"),
+            resourceBundle.getString("LizzieFrame.commands.keyEnter"),
+            resourceBundle.getString("LizzieFrame.commands.keySpace"),
+            resourceBundle.getString("LizzieFrame.commands.keyLeftArrow"),
+            resourceBundle.getString("LizzieFrame.commands.keyRightArrow"),
+            resourceBundle.getString("LizzieFrame.commands.rightClick"),
+            resourceBundle.getString("LizzieFrame.commands.mouseWheelScroll"),
+            resourceBundle.getString("LizzieFrame.commands.keyC"),
+            resourceBundle.getString("LizzieFrame.commands.keyP"),
+            resourceBundle.getString("LizzieFrame.commands.keyM"),
+            resourceBundle.getString("LizzieFrame.commands.keyI"),
+            resourceBundle.getString("LizzieFrame.commands.keyO"),
+            resourceBundle.getString("LizzieFrame.commands.keyS"),
+            resourceBundle.getString("LizzieFrame.commands.keyAltC"),
+            resourceBundle.getString("LizzieFrame.commands.keyAltV"),
+            resourceBundle.getString("LizzieFrame.commands.keyV"),
+            resourceBundle.getString("LizzieFrame.commands.keyHome"),
+            resourceBundle.getString("LizzieFrame.commands.keyEnd"),
+            resourceBundle.getString("LizzieFrame.commands.keyControl"),
     };
     private static BoardRenderer boardRenderer;
     private static VariationTree variatonTree;
@@ -74,6 +74,9 @@ public class LizzieFrame extends JFrame {
     public boolean showCoordinates = false;
     public boolean isPlayingAgainstLeelaz = false;
     public boolean playerIsBlack = true;
+
+    // Get the font name in current system locale
+    private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
     static {
         // load fonts
@@ -177,7 +180,7 @@ public class LizzieFrame extends JFrame {
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
             if (file.exists()) {
-                int ret = JOptionPane.showConfirmDialog(null, "The SGF file already exists, do you want to replace it?", "Warning", JOptionPane.OK_CANCEL_OPTION);
+                int ret = JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.sgfExists"), "Warning", JOptionPane.OK_CANCEL_OPTION);
                 if (ret == JOptionPane.CANCEL_OPTION) {
                     return;
                 }
@@ -188,7 +191,7 @@ public class LizzieFrame extends JFrame {
             try {
                 SGFParser.save(Lizzie.board, file.getPath());
             } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, "Failed to save the SGF file.", "Error", JOptionPane.ERROR);
+                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToSaveSgf"), "Error", JOptionPane.ERROR);
             }
         }
     }
@@ -208,7 +211,7 @@ public class LizzieFrame extends JFrame {
                 System.out.println(file.getPath());
                 SGFParser.load(file.getPath());
             } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, "Failed to open the SGF file.", "Error", JOptionPane.ERROR);
+                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
             }
         }
     }
@@ -291,7 +294,7 @@ public class LizzieFrame extends JFrame {
 
         Graphics2D g = (Graphics2D) cachedImage.getGraphics();
         int maxSize = Math.min(getWidth(), getHeight());
-        Font font = new Font("Open Sans", Font.PLAIN, (int) (maxSize * 0.04));
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.04));
         g.setFont(font);
         int lineHeight = (int) (font.getSize() * 1.15);
 
@@ -338,8 +341,8 @@ public class LizzieFrame extends JFrame {
 
         int maxSize = (int) (Math.min(getWidth(), getHeight()) * 0.98);
 
-        Font font = new Font("Open Sans", Font.PLAIN, (int) (maxSize * 0.03));
-        String commandString = "hold x = view controls";
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.03));
+        String commandString = resourceBundle.getString("LizzieFrame.prompt.showControlsHint");
         int strokeRadius = 2;
 
         int showCommandsHeight = (int) (font.getSize() * 1.1);
