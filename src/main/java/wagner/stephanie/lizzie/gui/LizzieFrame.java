@@ -59,6 +59,7 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyAltC"),
             resourceBundle.getString("LizzieFrame.commands.keyAltV"),
             resourceBundle.getString("LizzieFrame.commands.keyV"),
+            resourceBundle.getString("LizzieFrame.commands.keyW"),
             resourceBundle.getString("LizzieFrame.commands.keyHome"),
             resourceBundle.getString("LizzieFrame.commands.keyEnd"),
             resourceBundle.getString("LizzieFrame.commands.keyControl"),
@@ -398,9 +399,9 @@ public class LizzieFrame extends JFrame {
         // Last move
         if (lastWR < 0)
             // In case leelaz didnt have time to calculate
-            g.drawString("Last move: ?%", posX+2*strokeRadius, posY + height- 2*strokeRadius);
+            g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + ": ?%", posX+2*strokeRadius, posY + height- 2*strokeRadius);
         else
-            g.drawString(String.format("Last move: %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius,
+            g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + String.format(": %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius,
                     posY + height - 2*strokeRadius);// - font.getSize());
 
 
