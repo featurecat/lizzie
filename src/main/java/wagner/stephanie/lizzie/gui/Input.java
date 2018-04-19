@@ -90,23 +90,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
         PluginManager.onKeyPressed(e);
 
-        // Some combo keys should be processed first
-        if ((e.getKeyCode() == KeyEvent.VK_C && (e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
-            // Alt + C -- Copy sgf to clipboard
-            Lizzie.frame.copySgf();
-            return;
-        } else if ((e.getKeyCode() == KeyEvent.VK_V && (e.getModifiers() & KeyEvent.ALT_MASK) != 0)) {
-            // Alt + V -- Paste sgf from clipboard
-            Lizzie.frame.pasteSgf();
-            return;
-        }
-
         int movesToAdvance = 1; // number of moves to advance if control is held down
 
         switch (e.getKeyCode()) {
             case VK_CONTROL:
 
                 controlIsPressed = true;
+                break;
+
+            case VK_META:
+                if (System.getProperty("os.name", "").toUpperCase().startsWith("MAC")) {
+                    controlIsPressed = true;
+                }
                 break;
 
             case VK_RIGHT:
@@ -158,7 +153,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_V:
-                Lizzie.config.toggleShowBranch();
+                if (controlIsPressed) {
+                    Lizzie.frame.pasteSgf();
+                } else {
+                    Lizzie.config.toggleShowBranch();
+                }
                 break;
 
             case VK_HOME:
@@ -188,7 +187,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_C:
-                Lizzie.frame.toggleCoordinates();
+                if (controlIsPressed) {
+                    Lizzie.frame.copySgf();
+                } else {
+                    Lizzie.frame.toggleCoordinates();
+                }
                 break;
 
             case VK_ENTER:
@@ -213,6 +216,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_CONTROL:
                 controlIsPressed = false;
                 break;
+
+            case VK_META:
+                if (System.getProperty("os.name", "").toUpperCase().startsWith("MAC")) {
+                    controlIsPressed = false;
+                }
 
             case VK_X:
                 if (wasPonderingWhenControlsShown)
