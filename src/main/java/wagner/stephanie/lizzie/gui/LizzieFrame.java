@@ -430,9 +430,22 @@ public class LizzieFrame extends JFrame {
         g.setColor(new Color(0, 0, 0, 130));
         g.fillRect(posX, posY, width, height);
 
+        // border. does not include bottom edge
+        int strokeRadius = 3;
+        g.setStroke(new BasicStroke(2 * strokeRadius));
+        g.drawLine(posX+strokeRadius, posY+strokeRadius, posX-strokeRadius+width, posY+strokeRadius);
+        g.drawLine(posX+strokeRadius, posY+3*strokeRadius, posX+strokeRadius, posY-strokeRadius+height);
+        g.drawLine(posX-strokeRadius+width, posY+3*strokeRadius, posX-strokeRadius+width, posY-strokeRadius+height);
+
+        // resize the box now so it's inside the border
+        posX += 2*strokeRadius;
+        posY += 2*strokeRadius;
+        width -= 4*strokeRadius;
+        height -= 4*strokeRadius;
+
         // Title
         Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.2));
-        int strokeRadius = 2;
+        strokeRadius = 2;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.WHITE);
         g.setFont(font);

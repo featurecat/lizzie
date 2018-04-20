@@ -47,7 +47,7 @@ public class VariationTree {
 
     public void drawTree(Graphics2D g, int posx, int posy, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber, boolean isMain)
     {
-        if (isMain) g.setColor(Color.black);
+        if (isMain) g.setColor(Color.white);
         else g.setColor(Color.gray);
 
         // Finds depth on leftmost variation of this tree
@@ -88,7 +88,7 @@ public class VariationTree {
         // Draw all the nodes and lines in this lane (not variations)
         Color curcolor = g.getColor();
         if (startNode == curMove) {
-            g.setColor(Color.red);
+            g.setColor(Color.green.brighter().brighter());
         }
         if (startNode.previous() != null) {
             g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
@@ -102,7 +102,7 @@ public class VariationTree {
             posy += YSPACING;
             cur = cur.next();
             if (cur == curMove)  {
-                g.setColor(Color.red);
+                g.setColor(Color.green.brighter().brighter());
             }
             g.fillOval(curposx , posy, DOT_DIAM, DOT_DIAM);
             g.setColor(curcolor);
@@ -130,6 +130,13 @@ public class VariationTree {
         // Draw background
         g.setColor(new Color(0, 0, 0, 60));
         g.fillRect(posx, posy, width, height);
+
+        // draw edge of panel
+        int strokeRadius = 2;
+        g.setStroke(new BasicStroke(2 * strokeRadius));
+        g.drawLine(posx+strokeRadius, posy+strokeRadius, posx+strokeRadius, posy-strokeRadius+height);
+        g.setStroke(new BasicStroke(1));
+
 
         int middleY = posy + height/2;
         int xoffset = 30;

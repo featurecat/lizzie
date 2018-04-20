@@ -1,32 +1,30 @@
 package wagner.stephanie.lizzie.gui;
 
-import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
 public class WinrateGraph {
 
-    private int DOT_RADIUS = 4;
-    private GaussianFilter filter = new GaussianFilter(15);
+    private int DOT_RADIUS = 6;
 
     public void draw(Graphics2D g, int posx, int posy, int width, int height)
     {
         BoardHistoryNode curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
         BoardHistoryNode node = curMove;
 
+        // draw background rectangle
         final Paint gradient = new GradientPaint(new Point2D.Float(posx, posy), new Color(0, 0, 0, 150), new Point2D.Float(posx, posy+height), new Color(255, 255, 255, 150));
         final Paint borderGradient = new GradientPaint(new Point2D.Float(posx, posy), new Color(0, 0, 0, 150), new Point2D.Float(posx, posy+height), new Color(255, 255, 255, 150));
 
         Paint original = g.getPaint();
         g.setPaint(gradient);
 
-        // Background rectangle
         g.fillRect(posx, posy, width, height);
 
+        // draw border
         int strokeRadius = 3;
         g.setStroke(new BasicStroke(2 * strokeRadius));
         g.setPaint(borderGradient);
@@ -40,12 +38,15 @@ public class WinrateGraph {
         width -= 4*strokeRadius;
         height -= 4*strokeRadius;
 
-        g.setStroke(new BasicStroke(1));
-
         // draw lines marking 50% 60% 70% etc.
+        Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0,
+                new float[]{4}, 0);
+        g.setStroke(dashed);
+
         g.setColor(Color.white);
         g.drawLine(posx, posy + height/2, posx + width, posy + height/2);
 
+        g.setStroke(new BasicStroke(1));
 
         // Go to bottom to find number of moves in main line
         while (node.next() != null) node = node.next();
