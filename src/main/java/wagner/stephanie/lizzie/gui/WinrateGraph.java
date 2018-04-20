@@ -50,9 +50,9 @@ public class WinrateGraph {
 
         // Go to bottom to find number of moves in main line
         while (node.next() != null) node = node.next();
-        int numMoves = node.getData().moveNumber;
+        int numMoves = node.getData().moveNumber-1;
 
-        if (numMoves < 2) return;
+        if (numMoves < 1) return;
 
         node = curMove;
         // Go to first move (second node) to start plotting
@@ -62,9 +62,10 @@ public class WinrateGraph {
         // Plot
         width = (int)(width*0.95); // Leave some space after last move
         double lastWr = 50;
-        int movenum = 1;
+        int movenum = 0;
         g.setColor(Color.green);
         g.setStroke(new BasicStroke(3));
+        boolean isFirst = true;
         while (node != null)
         {
             double wr = node.getData().winrate;
@@ -87,9 +88,9 @@ public class WinrateGraph {
                 wr = lastWr;
             }
 
-
-
-            g.drawLine(posx + ((movenum - 1)*width/numMoves), posy + height - (int)(lastWr*height/100), posx + (movenum*width/numMoves), posy + height - (int)(wr*height/100));
+            if (!isFirst)
+                g.drawLine(posx + ((movenum - 1)*width/numMoves), posy + height - (int)(lastWr*height/100), posx + (movenum*width/numMoves), posy + height - (int)(wr*height/100));
+            isFirst = false;
             if (node == curMove)
                 g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS, posy + height - (int)(wr*height/100) - DOT_RADIUS, DOT_RADIUS*2, DOT_RADIUS*2);
             node = node.next();
