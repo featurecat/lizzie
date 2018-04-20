@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie.rules;
 
+import wagner.stephanie.lizzie.Lizzie;
+
 public class BoardData {
     public int moveNumber;
     public int[] lastMove;

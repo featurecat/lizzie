@@ -131,8 +131,11 @@ public class Leelaz {
                 if (isReadingPonderOutput && !isWaitingToStartPonder) {
                     line = line.trim();
                     // ignore passes, and only accept lines that start with a coordinate letter
-                    if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass"))
-                        bestMovesTemp.add(new MoveData(line));
+                    if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
+                        if (!(Lizzie.frame != null && Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
+                            bestMovesTemp.add(new MoveData(line));
+                        }
+                    }
                 } else {
                     System.out.print(line);
 
@@ -228,7 +231,7 @@ public class Leelaz {
                     colorString = "W";
                     break;
                 default:
-                    throw new IllegalArgumentException("The stone color must be BLACK or WHITE, but was " + color.toString());
+                    throw new IllegalArgumentException("The stone color must be B or W, but was " + color.toString());
             }
 
             sendCommand("play " + colorString + " " + move);

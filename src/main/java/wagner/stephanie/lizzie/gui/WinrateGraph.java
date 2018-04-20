@@ -83,6 +83,11 @@ public class WinrateGraph {
             {
                 wr = 100 - wr;
             }
+            if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == !node.getData().blackToPlay) {
+                wr = lastWr;
+            }
+
+
 
             g.drawLine(posx + ((movenum - 1)*width/numMoves), posy + height - (int)(lastWr*height/100), posx + (movenum*width/numMoves), posy + height - (int)(wr*height/100));
             if (node == curMove)

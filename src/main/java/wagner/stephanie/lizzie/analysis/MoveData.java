@@ -18,6 +18,7 @@ public class MoveData {
      * @param line line of ponder output
      */
     public MoveData(String line) {
+        System.out.println(line);
         String[] data = line.trim().split(" +");
 
         coordinate = data[0];

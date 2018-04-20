@@ -411,19 +411,21 @@ public class LizzieFrame extends JFrame {
             lastWR = 50;
         else
             lastWR = Lizzie.board.getHistory().getPrevious().winrate;
-        double lastBWR = lastWR;
 
         double curWR = Lizzie.leelaz.getBestWinrate();
+        if (isPlayingAgainstLeelaz && playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay)
+            curWR = -100;
+
         if (curWR < 0) {
             curWR = 100 - lastWR;
         }
         double whiteWR, blackWR;
         if (Lizzie.board.getData().blackToPlay) {
             blackWR = curWR;
-            lastBWR = 100 - lastWR;
         } else {
             blackWR = 100 - curWR;
         }
+
         whiteWR = 100 - blackWR;
 
         // Background rectangle
@@ -433,15 +435,15 @@ public class LizzieFrame extends JFrame {
         // border. does not include bottom edge
         int strokeRadius = 3;
         g.setStroke(new BasicStroke(2 * strokeRadius));
-        g.drawLine(posX+strokeRadius, posY+strokeRadius, posX-strokeRadius+width, posY+strokeRadius);
-        g.drawLine(posX+strokeRadius, posY+3*strokeRadius, posX+strokeRadius, posY-strokeRadius+height);
-        g.drawLine(posX-strokeRadius+width, posY+3*strokeRadius, posX-strokeRadius+width, posY-strokeRadius+height);
+        g.drawLine(posX + strokeRadius, posY + strokeRadius, posX - strokeRadius + width, posY + strokeRadius);
+        g.drawLine(posX + strokeRadius, posY + 3 * strokeRadius, posX + strokeRadius, posY - strokeRadius + height);
+        g.drawLine(posX - strokeRadius + width, posY + 3 * strokeRadius, posX - strokeRadius + width, posY - strokeRadius + height);
 
         // resize the box now so it's inside the border
-        posX += 2*strokeRadius;
-        posY += 2*strokeRadius;
-        width -= 4*strokeRadius;
-        height -= 4*strokeRadius;
+        posX += 2 * strokeRadius;
+        posY += 2 * strokeRadius;
+        width -= 4 * strokeRadius;
+        height -= 4 * strokeRadius;
 
         // Title
         Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.2));
