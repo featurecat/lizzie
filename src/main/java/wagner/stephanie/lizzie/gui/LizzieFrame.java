@@ -12,13 +12,11 @@ import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 
 import com.jhlabs.image.GaussianFilter;
-import wagner.stephanie.benchmark.Stopwatch;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -35,8 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.ResourceBundle;
-
-import wagner.stephanie.lizzie.theme.DefaultTheme;
 
 /**
  * The window used to display the game.
@@ -211,7 +207,10 @@ public class LizzieFrame extends JFrame {
         }
     }
 
-    BufferedImage cachedImage;
+    private BufferedImage cachedImage = null;
+
+    private BufferedImage cachedBackground = null;
+    private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
 
     /**
      * Draws the game board and interface
@@ -222,18 +221,19 @@ public class LizzieFrame extends JFrame {
         if (bs == null)
             return;
 
+        Graphics2D backgroundG;
+        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight())
+            backgroundG = createBackground();
+        else
+            backgroundG = null;
+
         if (!showControls) {
             // initialize
+
             cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = (Graphics2D) cachedImage.getGraphics();
 
             int topInset = this.getInsets().top;
-
-            BufferedImage background = boardRenderer.theme.getBackground();
-            int drawWidth = Math.max(background.getWidth(), getWidth());
-            int drawHeight = Math.max(background.getHeight(), getHeight());
-
-            g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
 
             int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
             maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
@@ -246,20 +246,27 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
-
+            int panelMargin = (int) (maxSize * 0.05);
             // Todo: Make board move over when there is no space beside the board
             if (Lizzie.config.showWinrate) {
                 // boardX equals width of space on each side
-                int statx = (int) (boardRenderer.getLocation().x * 0.05);
+                int statx = (int) (boardRenderer.getLocation().x * 0);
                 int staty = boardY + maxSize / 8;
-                int statw = (int) (boardRenderer.getLocation().x * 0.8);
+                int statw = boardRenderer.getLocation().x - statx - panelMargin;
                 int stath = maxSize / 10;
+
+                drawWinrateGraphContainer(backgroundG, statx, staty, statw, stath);
                 drawMoveStatistics(g, statx, staty, statw, stath);
-                winrateGraph.draw(g, statx, staty + stath, statw, maxSize / 3);
+                winrateGraph.draw(g, statx, staty + stath, statw, statw);
             }
 
+            int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
+            int vy = 0;
+            int vw = getWidth() - vx;
+            int vh = getHeight();
 
-            variatonTree.draw(g, boardRenderer.getLocation().x + boardRenderer.getActualBoardLength(), 0, getWidth() - boardRenderer.getLocation().x - boardRenderer.getActualBoardLength() + 1, getHeight());
+            drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
+            variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
 
             // cleanup
             g.dispose();
@@ -267,6 +274,7 @@ public class LizzieFrame extends JFrame {
 
         // draw the image
         Graphics2D bsGraphics = (Graphics2D) bs.getDrawGraphics();
+        bsGraphics.drawImage(cachedBackground, 0, 0, null);
         bsGraphics.drawImage(cachedImage, 0, 0, null);
 
         // cleanup
@@ -274,7 +282,42 @@ public class LizzieFrame extends JFrame {
         bs.show();
     }
 
-    private GaussianFilter filter = new GaussianFilter(15);
+    private Graphics2D createBackground() {
+        cachedBackground = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+        cachedBackgroundWidth = cachedBackground.getWidth();
+        cachedBackgroundHeight = cachedBackground.getHeight();
+
+        Graphics2D g = cachedBackground.createGraphics();
+
+        BufferedImage background = boardRenderer.theme.getBackground();
+        int drawWidth = Math.max(background.getWidth(), getWidth());
+        int drawHeight = Math.max(background.getHeight(), getHeight());
+
+        g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
+
+        return g;
+    }
+
+    private void drawVariationTreeContainer(Graphics2D g, int vx, int vy, int vw, int vh) {
+        if (g == null || vw <= 0 || vh <= 0)
+            return;
+
+        BufferedImage result = new BufferedImage(vw, vh, BufferedImage.TYPE_INT_ARGB);
+        filter20.filter(cachedBackground.getSubimage(vx, vy, result.getWidth(), result.getHeight()), result);
+        g.drawImage(result, vx, vy, null);
+    }
+
+    private void drawWinrateGraphContainer(Graphics g, int statx, int staty, int statw, int stath) {
+        if (g == null || statw <= 0 || stath <= 0)
+            return;
+
+        BufferedImage result = new BufferedImage(statw, stath + statw, BufferedImage.TYPE_INT_ARGB);
+        filter20.filter(cachedBackground.getSubimage(statx, staty, result.getWidth(), result.getHeight()), result);
+        g.drawImage(result, statx, staty, null);
+    }
+
+    private GaussianFilter filter20 = new GaussianFilter(20);
+    private GaussianFilter filter10 = new GaussianFilter(10);
 
     /**
      * Display the controls
@@ -282,7 +325,13 @@ public class LizzieFrame extends JFrame {
     void drawControls() {
         userAlreadyKnowsAboutCommandString = true;
 
-        Graphics2D g = (Graphics2D) cachedImage.getGraphics();
+        cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+
+        // redraw background
+        createBackground();
+
+        Graphics2D g = cachedImage.createGraphics();
+
         int maxSize = Math.min(getWidth(), getHeight());
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.04));
         g.setFont(font);
@@ -297,7 +346,7 @@ public class LizzieFrame extends JFrame {
         int commandsY = getHeight() / 2 - boxHeight / 2;
 
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
-        filter.filter(cachedImage.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
+        filter10.filter(cachedBackground.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
         g.drawImage(result, commandsX, commandsY, null);
 
         g.setColor(new Color(0, 0, 0, 130));
@@ -315,7 +364,6 @@ public class LizzieFrame extends JFrame {
         g.setStroke(new BasicStroke(1));
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
 
         g.setColor(Color.WHITE);
         for (int i = 0; i < commands.length; i++) {
@@ -355,7 +403,8 @@ public class LizzieFrame extends JFrame {
     }
 
     private void drawMoveStatistics(Graphics2D g, int posX, int posY, int width, int height) {
-
+        if (width < 0 || height < 0)
+            return; // we don't have enough space
 
         double lastWR;
         if (Lizzie.board.getData().moveNumber == 0)

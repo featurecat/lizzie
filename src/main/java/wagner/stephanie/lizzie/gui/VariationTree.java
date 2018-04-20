@@ -124,8 +124,11 @@ public class VariationTree {
     }
 
     public void draw(Graphics2D g, int posx, int posy, int width, int height) {
-        // Draw white background for now
-        g.setColor(new Color(255, 255, 255, 130));
+        if (width <= 0 || height <= 0)
+            return; // we don't have enough space
+
+        // Draw background
+        g.setColor(new Color(0, 0, 0, 60));
         g.fillRect(posx, posy, width, height);
 
         int middleY = posy + height/2;
