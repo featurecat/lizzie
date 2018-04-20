@@ -211,6 +211,7 @@ public class LizzieFrame extends JFrame {
 
     private BufferedImage cachedBackground = null;
     private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
+    private boolean cachedBackgroundShowControls = false;
 
     /**
      * Draws the game board and interface
@@ -222,7 +223,7 @@ public class LizzieFrame extends JFrame {
             return;
 
         Graphics2D backgroundG;
-        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight())
+        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls)
             backgroundG = createBackground();
         else
             backgroundG = null;
@@ -286,6 +287,7 @@ public class LizzieFrame extends JFrame {
         cachedBackground = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
         cachedBackgroundWidth = cachedBackground.getWidth();
         cachedBackgroundHeight = cachedBackground.getHeight();
+        cachedBackgroundShowControls = showControls;
 
         Graphics2D g = cachedBackground.createGraphics();
 
