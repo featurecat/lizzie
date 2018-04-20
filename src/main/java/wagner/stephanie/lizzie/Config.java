@@ -82,6 +82,8 @@ public class Config {
         ui.put("fancy-board", true);
         ui.put("shadow-size", 100);
 
+        ui.put("confirm-exit", false);
+
         config.put("ui", ui);
 
         file.createNewFile();

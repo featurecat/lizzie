@@ -474,8 +474,8 @@ public class LizzieFrame extends JFrame {
 
         // Show percentage above bars
         g.setColor(Color.WHITE);
-        g.drawString(String.format("%.1f", blackWR), barPosxB + 2 * strokeRadius, posY + barHeight - 2 * strokeRadius);
-        String winString = String.format("%.1f", whiteWR);
+        g.drawString(String.format("%.1f%%", blackWR), barPosxB + 2 * strokeRadius, posY + barHeight - 2 * strokeRadius);
+        String winString = String.format("%.1f%%", whiteWR);
         int sw = g.getFontMetrics().stringWidth(winString);
         g.drawString(winString, barPosxB + maxBarwidth - sw - 2 * strokeRadius, posY + barHeight - 2 * strokeRadius);
 

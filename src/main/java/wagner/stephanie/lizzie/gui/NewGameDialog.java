@@ -21,7 +21,9 @@ public class NewGameDialog extends JDialog {
     public static final DecimalFormat FORMAT_HANDICAP = new DecimalFormat("0");
     public static final JLabel PLACEHOLDER = new JLabel("");
 
-    static { FORMAT_HANDICAP.setMaximumIntegerDigits(1); }
+    static {
+        FORMAT_HANDICAP.setMaximumIntegerDigits(1);
+    }
 
     private JPanel dialogPane = new JPanel();
     private JPanel contentPanel = new JPanel();
@@ -89,12 +91,14 @@ public class NewGameDialog extends JDialog {
         contentPanel.add(new JLabel("Handicap"));
         contentPanel.add(textFieldHandicap);
 
+        textFieldKomi.setEnabled(false);
+
         dialogPane.add(contentPanel, BorderLayout.CENTER);
     }
 
     private void togglePlayerIsBlack() {
         JTextField humanTextField = playerIsBlack() ? textFieldBlack : textFieldWhite;
-        JTextField computerTextField  = playerIsBlack() ? textFieldWhite : textFieldBlack;
+        JTextField computerTextField = playerIsBlack() ? textFieldWhite : textFieldBlack;
 
         humanTextField.setEnabled(true);
         humanTextField.setText(GameInfo.DEFAULT_NAME_HUMAN_PLAYER);
@@ -107,9 +111,9 @@ public class NewGameDialog extends JDialog {
             int handicap = FORMAT_HANDICAP.parse(textFieldHandicap.getText()).intValue();
             if (handicap < 0) throw new IllegalArgumentException();
 
-            textFieldKomi.setText(FORMAT_KOMI.format( handicap == 0 ? GameInfo.DEFAULT_KOMI : 0.5d));
-        } catch (ParseException|RuntimeException e) {
-            textFieldHandicap.setText("0");
+            textFieldKomi.setText(FORMAT_KOMI.format(GameInfo.DEFAULT_KOMI));
+        } catch (ParseException | RuntimeException e) {
+            // do not correct user mistakes
         }
     }
 

@@ -22,7 +22,9 @@ public class Lizzie {
     /**
      * Launches the game window, and runs the game.
      */
-    public static void main(String[] args) throws IOException, JSONException {
+    public static void main(String[] args) throws IOException, JSONException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
         config = new Config();
         leelaz = new Leelaz();
         leelaz.togglePonder();
@@ -36,9 +38,11 @@ public class Lizzie {
 
     public static void shutdown() {
         PluginManager.onShutdown();
-        int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
-        if (ret == JOptionPane.OK_OPTION) {
-            LizzieFrame.saveSgf();
+        if (config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
+            int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
+            if (ret == JOptionPane.OK_OPTION) {
+                LizzieFrame.saveSgf();
+            }
         }
 
         leelaz.shutdown();
