@@ -46,22 +46,22 @@ public class BoardHistoryNode {
      * If we already have a next node with the same BoardData, move to it,
      * otherwise add it and move to it.
      *
-     * @param node the node following this one
+     * @param data the node following this one
      * @return the node that was just set
      */
     public BoardHistoryNode addOrGoto(BoardData data) {
         // If you play a hand and immediately return it, it is most likely that you have made a mistake. Ask whether to delete the previous node.
-        if (!nexts.isEmpty() && !nexts.get(0).data.zobrist.equals(data.zobrist)) {
-            // You may just mark this hand, so it's not necessarily wrong. Answer when the first query is wrong or it will not ask whether the move is wrong.
-            if (!nexts.get(0).data.verify) {
-                int ret = JOptionPane.showConfirmDialog(null, "Do you want undo?", "Undo", JOptionPane.OK_CANCEL_OPTION);
-                if (ret == JOptionPane.OK_OPTION) {
-                    nexts.remove(0);
-                } else {
-                    nexts.get(0).data.verify = true;
-                }
-            }
-        }
+//        if (!nexts.isEmpty() && !nexts.get(0).data.zobrist.equals(data.zobrist)) {
+//            // You may just mark this hand, so it's not necessarily wrong. Answer when the first query is wrong or it will not ask whether the move is wrong.
+//            if (!nexts.get(0).data.verify) {
+//                int ret = JOptionPane.showConfirmDialog(null, "Do you want undo?", "Undo", JOptionPane.OK_CANCEL_OPTION);
+//                if (ret == JOptionPane.OK_OPTION) {
+//                    nexts.remove(0);
+//                } else {
+//                    nexts.get(0).data.verify = true;
+//                }
+//            }
+//        }
         for (int i = 0; i < nexts.size(); i++) {
             if (nexts.get(i).data.zobrist.equals(data.zobrist)) {
                 if (i != 0) {
@@ -70,7 +70,7 @@ public class BoardHistoryNode {
                     nexts.set(i, nexts.get(0));
                     nexts.set(0, currentNext);
                 }
-                return nexts.get(i);
+                return nexts.get(0);
             }
         }
         BoardHistoryNode node = new BoardHistoryNode(data);

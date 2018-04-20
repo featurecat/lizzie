@@ -48,10 +48,10 @@ public class VariationTree {
     public void drawTree(Graphics2D g, int posx, int posy, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber, boolean isMain)
     {
         if (isMain) g.setColor(Color.white);
-        else g.setColor(Color.gray);
+        else g.setColor(Color.gray.brighter());
 
         // Finds depth on leftmost variation of this tree
-        int depth = getDepth(startNode);
+        int depth = getDepth(startNode) + 1;
         int lane = startLane;
         // Figures out how far out too the right (which lane) we have to go not to collide with other variations
         while (lane < laneUsageList.size() && laneUsageList.get(lane) <= startNode.getData().moveNumber + depth) {
