@@ -167,11 +167,6 @@ public class LizzieFrame extends JFrame {
         gameInfoDialog.dispose();
     }
 
-    public void setPlayers(String whitePlayer, String blackPlayer) {
-        setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
-                               whitePlayer, blackPlayer));
-    }
-
     public static void saveSgf() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JFileChooser chooser = new JFileChooser();
@@ -261,15 +256,15 @@ public class LizzieFrame extends JFrame {
             // Todo: Make board move over when there is no space beside the board
             if (Lizzie.config.showWinrate) {
                 // boardX equals width of space on each side
-                int statx = (int) (boardX*0.05);
+                int statx = (int) (boardRenderer.getLocation().x*0.05);
                 int staty = boardY + maxSize/8;
-                int statw = (int)(boardX*0.8);
+                int statw = (int)(boardRenderer.getLocation().x*0.8);
                 int stath = maxSize/10;
                 drawMoveStatistics(g, statx, staty, statw, stath);
                 winrateGraph.draw(g, statx,staty+ stath, statw, maxSize/3);
             }
 
-            variatonTree.draw(g, maxSize + boardX, 0, maxSize, getHeight());
+            variatonTree.draw(g, boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() - 1, 0, getWidth() - boardRenderer.getLocation().x - boardRenderer.getActualBoardLength() + 1, getHeight());
 
             // cleanup
             g.dispose();

@@ -95,6 +95,8 @@ public class BoardRenderer {
      * Calculate good values for boardLength, scaledMargin, availableLength, and squareLength
      */
     private void setupSizeParameters() {
+        int originalBoardLength = boardLength;
+
         int[] calculatedPixelMargins = calculatePixelMargins();
         boardLength = calculatedPixelMargins[0];
         scaledMargin = calculatedPixelMargins[1];
@@ -102,6 +104,9 @@ public class BoardRenderer {
 
         squareLength = calculateSquareLength(availableLength);
         stoneRadius = squareLength / 2 - 1;
+
+        // re-center board
+        setLocation(x + (originalBoardLength-boardLength)/2, y + (originalBoardLength-boardLength)/2);
     }
 
     /**
@@ -468,6 +473,7 @@ public class BoardRenderer {
      * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
      */
     private static int[] calculatePixelMargins(int boardLength) {
+        boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge of the board
         if (boardLength < Board.BOARD_SIZE - 1)
             throw new IllegalArgumentException("boardLength may not be less than " + (Board.BOARD_SIZE - 1) + ", but was " + boardLength);
 
@@ -737,6 +743,10 @@ public class BoardRenderer {
         this.y = y;
     }
 
+    public Point getLocation() {
+        return new Point(x, y);
+    }
+
     /**
      * Set the maximum boardLength to render the board
      *
@@ -744,6 +754,13 @@ public class BoardRenderer {
      */
     public void setBoardLength(int boardLength) {
         this.boardLength = boardLength;
+    }
+
+    /**
+     * @return the actual board length, including the shadows drawn at the edge of the wooden board
+     */
+    public int getActualBoardLength() {
+        return (int)(boardLength * (1 + MARGIN/3));
     }
 
     /**
@@ -759,7 +776,7 @@ public class BoardRenderer {
 
         // calculate a good set of boardLength, scaledMargin, and boardLengthWithoutMargins to use
         int[] calculatedPixelMargins = calculatePixelMargins();
-        boardLength = calculatedPixelMargins[0];
+        setBoardLength(calculatedPixelMargins[0]);
         marginLength = calculatedPixelMargins[1];
         boardLengthWithoutMargins = calculatedPixelMargins[2];
 
