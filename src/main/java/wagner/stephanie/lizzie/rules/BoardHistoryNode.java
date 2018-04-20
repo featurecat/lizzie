@@ -4,7 +4,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
- * Node structure for a special doubly linked list
+ * Node structure for the board history / sgf tree
  */
 public class BoardHistoryNode {
     private BoardHistoryNode previous;
@@ -64,18 +64,18 @@ public class BoardHistoryNode {
 //        }
         for (int i = 0; i < nexts.size(); i++) {
             if (nexts.get(i).data.zobrist.equals(data.zobrist)) {
-                if (i != 0) {
-                    // Swap selected next to foremost
-                    BoardHistoryNode currentNext = nexts.get(i);
-                    nexts.set(i, nexts.get(0));
-                    nexts.set(0, currentNext);
-                }
-                return nexts.get(0);
+//                if (i != 0) {
+//                    // Swap selected next to foremost
+//                    BoardHistoryNode currentNext = nexts.get(i);
+//                    nexts.set(i, nexts.get(0));
+//                    nexts.set(0, currentNext);
+//                }
+                return nexts.get(i);
             }
         }
         BoardHistoryNode node = new BoardHistoryNode(data);
-        // Add to foremost
-        nexts.add(0, node);
+        // Add node
+        nexts.add(node);
         node.previous = this;
 
         return node;
