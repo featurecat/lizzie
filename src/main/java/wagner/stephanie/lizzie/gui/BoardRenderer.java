@@ -245,6 +245,9 @@ public class BoardRenderer {
 
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                if (Lizzie.board.getData().stones[Board.getIndex(i,j)] != Stone.EMPTY)
+                    continue;
+
                 int stoneX = scaledMargin + squareLength * i;
                 int stoneY = scaledMargin + squareLength * j;
 
