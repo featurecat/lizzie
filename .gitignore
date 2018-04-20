@@ -4,3 +4,6 @@ out/*
 *.iml
 *.exe
 network
+leelaz
+src/main/resources/META-INF
+target

@@ -290,10 +290,17 @@ public class Leelaz {
     public double getBestWinrate() {
         double maxWinrate = -100;
 
-        for (MoveData move : bestMoves) {
-            if (move.winrate > maxWinrate)
-                maxWinrate = move.winrate;
+        if (bestMoves != null && !bestMoves.isEmpty()) {
+            // we should match the Leelaz UCTNode get_eval, which is a weighted average
+            final List<MoveData> moves = bestMoves;
+
+            // get the total number of playouts in moves
+            int totalPlayouts = moves.stream().reduce(0, (Integer result, MoveData move) -> result + move.playouts, (Integer a, Integer b) -> a+b);
+
+            // set maxWinrate to the weighted average winrate of moves
+            maxWinrate = moves.stream().reduce(0d, (Double result, MoveData move) -> result + move.winrate * move.playouts / totalPlayouts, (Double a, Double b) -> a+b);
         }
+
         return maxWinrate;
     }
 }
