@@ -12,6 +12,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 
 import com.jhlabs.image.GaussianFilter;
+import wagner.stephanie.benchmark.Stopwatch;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.rules.Board;
@@ -32,6 +33,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import wagner.stephanie.lizzie.theme.DefaultTheme;
@@ -145,14 +147,11 @@ public class LizzieFrame extends JFrame {
         Lizzie.frame.isPlayingAgainstLeelaz = true;
 
         boolean isHandicapGame = gameInfo.getHandicap() != 0;
-        if (isHandicapGame)
-        {
+        if (isHandicapGame) {
             Lizzie.board.getHistory().getData().blackToPlay = false;
             Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
             if (playerIsBlack) Lizzie.leelaz.sendCommand("genmove W");
-        }
-        else if (!playerIsBlack)
-        {
+        } else if (!playerIsBlack) {
             Lizzie.leelaz.sendCommand("genmove B");
         }
     }
@@ -230,17 +229,10 @@ public class LizzieFrame extends JFrame {
 
             int topInset = this.getInsets().top;
 
-            try {
-                BufferedImage background = boardRenderer.theme.getBackground();
-                if (background == null) {
-                    background = new DefaultTheme().getBackground();
-                }
-                int drawWidth = Math.max(background.getWidth(), getWidth());
-                int drawHeight = Math.max(background.getHeight(), getHeight());
-                g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            BufferedImage background = boardRenderer.theme.getBackground();
+            int drawWidth = Math.max(background.getWidth(), getWidth());
+            int drawHeight = Math.max(background.getHeight(), getHeight());
+            g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
 
             int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
             maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
@@ -253,18 +245,20 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
+
             // Todo: Make board move over when there is no space beside the board
             if (Lizzie.config.showWinrate) {
                 // boardX equals width of space on each side
-                int statx = (int) (boardRenderer.getLocation().x*0.05);
-                int staty = boardY + maxSize/8;
-                int statw = (int)(boardRenderer.getLocation().x*0.8);
-                int stath = maxSize/10;
+                int statx = (int) (boardRenderer.getLocation().x * 0.05);
+                int staty = boardY + maxSize / 8;
+                int statw = (int) (boardRenderer.getLocation().x * 0.8);
+                int stath = maxSize / 10;
                 drawMoveStatistics(g, statx, staty, statw, stath);
-                winrateGraph.draw(g, statx,staty+ stath, statw, maxSize/3);
+                winrateGraph.draw(g, statx, staty + stath, statw, maxSize / 3);
             }
 
-            variatonTree.draw(g, boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() - 1, 0, getWidth() - boardRenderer.getLocation().x - boardRenderer.getActualBoardLength() + 1, getHeight());
+
+            variatonTree.draw(g, boardRenderer.getLocation().x + boardRenderer.getActualBoardLength(), 0, getWidth() - boardRenderer.getLocation().x - boardRenderer.getActualBoardLength() + 1, getHeight());
 
             // cleanup
             g.dispose();
@@ -291,9 +285,11 @@ public class LizzieFrame extends JFrame {
         int maxSize = Math.min(getWidth(), getHeight());
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.04));
         g.setFont(font);
+        FontMetrics metrics = g.getFontMetrics(font);
+        int maxCommandWidth = Arrays.asList(commands).stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
         int lineHeight = (int) (font.getSize() * 1.15);
 
-        int boxWidth = (int) (maxSize * 0.85);
+        int boxWidth = (int) (maxCommandWidth * 1.4);
         int boxHeight = commands.length * lineHeight;
 
         int commandsX = getWidth() / 2 - boxWidth / 2;
@@ -318,7 +314,7 @@ public class LizzieFrame extends JFrame {
         g.setStroke(new BasicStroke(1));
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        FontMetrics metrics = g.getFontMetrics(font);
+
 
         g.setColor(Color.WHITE);
         for (int i = 0; i < commands.length; i++) {
@@ -394,19 +390,19 @@ public class LizzieFrame extends JFrame {
         // Last move
         if (lastWR < 0)
             // In case leelaz didnt have time to calculate
-            g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + ": ?%", posX+2*strokeRadius, posY + height- 2*strokeRadius);
+            g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + ": ?%", posX + 2 * strokeRadius, posY + height - 2 * strokeRadius);
         else
-            g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + String.format(": %.1f%%", 100 - lastWR - curWR), posX+2*strokeRadius,
-                    posY + height - 2*strokeRadius);// - font.getSize());
+            g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + String.format(": %.1f%%", 100 - lastWR - curWR), posX + 2 * strokeRadius,
+                    posY + height - 2 * strokeRadius);// - font.getSize());
 
 
         int maxBarwidth = (int) (width);
-        int barWidthB = (int) (blackWR*maxBarwidth/100);
-        int barWidthW = (int) (whiteWR*maxBarwidth/100);
-        int barPosY = posY + height/3;
-        int barPosxB = (int)(posX);
+        int barWidthB = (int) (blackWR * maxBarwidth / 100);
+        int barWidthW = (int) (whiteWR * maxBarwidth / 100);
+        int barPosY = posY + height / 3;
+        int barPosxB = (int) (posX);
         int barPosxW = barPosxB + barWidthB;
-        int barHeight = height/3;
+        int barHeight = height / 3;
 
         // Draw winrate bars
         g.fillRect(barPosxW, barPosY, barWidthW, barHeight);
@@ -415,19 +411,19 @@ public class LizzieFrame extends JFrame {
 
         // Show percentage above bars
         g.setColor(Color.WHITE);
-        g.drawString(String.format("%.1f", blackWR), barPosxB + 2*strokeRadius, posY + barHeight - 2*strokeRadius);
+        g.drawString(String.format("%.1f", blackWR), barPosxB + 2 * strokeRadius, posY + barHeight - 2 * strokeRadius);
         String winString = String.format("%.1f", whiteWR);
         int sw = g.getFontMetrics().stringWidth(winString);
-        g.drawString(winString, barPosxB + maxBarwidth - sw - 2*strokeRadius, posY + barHeight - 2*strokeRadius);
+        g.drawString(winString, barPosxB + maxBarwidth - sw - 2 * strokeRadius, posY + barHeight - 2 * strokeRadius);
 
         g.setColor(Color.GRAY);
         Stroke oldstroke = g.getStroke();
         Stroke dashed = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0,
-                                         new float[]{4}, 0);
+                new float[]{4}, 0);
         g.setStroke(dashed);
 
-        int middleX = barPosxB + (int)(maxBarwidth/2);
-        g.drawLine(middleX , barPosY, middleX, barPosY + barHeight);
+        int middleX = barPosxB + (int) (maxBarwidth / 2);
+        g.drawLine(middleX, barPosY, middleX, barPosY + barHeight);
         g.setStroke(oldstroke);
     }
 

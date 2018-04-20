@@ -12,14 +12,15 @@ import java.util.ArrayList;
  * ITheme
  */
 public interface ITheme {
-    public static ITheme loadTheme(String name) {
+    static ITheme loadTheme(String name) {
         ITheme ret = _loadTheme(name);
         if (ret == null) {
             return new DefaultTheme();
         }
         return ret;
     }
-    public static ITheme _loadTheme(String name) {
+
+    static ITheme _loadTheme(String name) {
         try {
             File themes = new File("theme");
             if (!themes.isDirectory()) {
@@ -42,11 +43,11 @@ public interface ITheme {
     }
 
     // Considering that the theme may implement different pieces for each coordinate, you need to pass in the coordinates.
-    public BufferedImage getBlackStone(int[] position) throws IOException;
+    BufferedImage getBlackStone(int[] position);
 
-    public BufferedImage getWhiteStone(int[] position) throws IOException;
+    BufferedImage getWhiteStone(int[] position);
 
-    public BufferedImage getBoard() throws IOException;
+    BufferedImage getBoard();
 
-    public BufferedImage getBackground() throws IOException;
+    BufferedImage getBackground();
 }
