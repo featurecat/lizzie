@@ -232,6 +232,7 @@ public class LizzieFrame extends JFrame {
             BufferedImage background = boardRenderer.theme.getBackground();
             int drawWidth = Math.max(background.getWidth(), getWidth());
             int drawHeight = Math.max(background.getHeight(), getHeight());
+
             g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
 
             int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
