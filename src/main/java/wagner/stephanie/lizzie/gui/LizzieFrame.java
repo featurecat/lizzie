@@ -301,11 +301,11 @@ public class LizzieFrame extends JFrame {
     }
 
     private void drawVariationTreeContainer(Graphics2D g, int vx, int vy, int vw, int vh) {
-        if (g == null || vw <= 0 || vh <= 0)
+        if (g == null || vw <= 0 || vh <= 0 || vw + vx >= getWidth() || vh + vy >= getHeight())
             return;
 
         BufferedImage result = new BufferedImage(vw, vh, BufferedImage.TYPE_INT_ARGB);
-        filter20.filter(cachedBackground.getSubimage(vx, vy, result.getWidth(), result.getHeight()), result);
+        filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
         g.drawImage(result, vx, vy, null);
     }
 

@@ -11,7 +11,7 @@ public class BoardData {
     public Stone lastMoveColor;
     public Stone[] stones;
     public Zobrist zobrist;
-    
+
     public boolean verify;
 
     public double winrate;
