@@ -85,6 +85,20 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             Lizzie.board.nextMove();
     }
 
+    private void nextBranch() {
+        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+            Lizzie.frame.isPlayingAgainstLeelaz = false;
+        }
+        Lizzie.board.nextBranch();
+    }
+
+    private void previousBranch() {
+        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+            Lizzie.frame.isPlayingAgainstLeelaz = false;
+        }
+        Lizzie.board.previousBranch();
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -105,12 +119,21 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_RIGHT:
-                redo();
+                nextBranch();
                 break;
 
             case VK_LEFT:
+                previousBranch();
+                break;
+
+            case VK_UP:
                 undo();
                 break;
+
+            case VK_DOWN:
+                redo();
+                break;
+
             case VK_N:
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())

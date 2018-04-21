@@ -77,6 +77,20 @@ public class BoardHistoryList {
     }
 
     /**
+     * moves the pointer to the variation number idx, returns the data stored there
+     *
+     * @return the data of next node, null if there is no variaton with index
+     */
+    public BoardData nextVariation(int idx) {
+        if (head.getVariation(idx) == null)
+            return null;
+        else
+            head = head.getVariation(idx);
+
+        return head.getData();
+    }
+
+    /**
      * Does not change the pointer position
      *
      * @return the data stored at the next index. null if not present
@@ -178,4 +192,117 @@ public class BoardHistoryList {
         // no position matched this position, so it's valid
         return false;
     }
+
+    /*
+     * Static helper methods
+     */
+
+    /**
+     * Returns the number of moves in a tree (only the left-most (trunk) variation)
+     *
+     * @return number of moves in a tree
+     */
+    static public int getDepth(BoardHistoryNode node)
+    {
+        int c = 0;
+        while (node.next() != null)
+        {
+            c++;
+            node = node.next();
+        }
+        return c;
+    }
+
+    /**
+     * Check if there is a branch that is at least depth deep (at least depth moves)
+     *
+     * @return true if it is deep enough, false otherwise
+     */
+    static public boolean hasDepth(BoardHistoryNode node, int depth) {
+        int c = 0;
+        if (depth <= 0) return true;
+        while (node.next() != null) {
+            if (node.numberOfChildren() > 1) {
+                for (int i = 0; i < node.numberOfChildren(); i++) {
+                    if (hasDepth(node.getVariation(i), depth - c - 1))
+                        return true;
+                }
+                return false;
+            } else {
+                node = node.next();
+                c++;
+                if (c >= depth) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Find top of variation (the first move that is on the main trunk)
+     *
+     * @return top of variaton, if on main trunk, return start move
+     */
+    static public BoardHistoryNode findTop(BoardHistoryNode start)
+    {
+        BoardHistoryNode top = start;
+        while (start.previous() != null)
+        {
+            if (start.previous().next() != start)
+            {
+                top = start.previous();
+            }
+            start = start.previous();
+        }
+        return top;
+    }
+
+    /**
+     * Find first move with variations in tree above node
+     *
+     * @return The child (in the current variation) of the first node with variations
+     */
+    static public BoardHistoryNode findChildOfPreviousWithVariation(BoardHistoryNode node)
+    {
+        while (node.previous() != null)
+        {
+            if (node.previous().numberOfChildren() > 1)
+            {
+                return node;
+            }
+            node = node.previous();
+        }
+        return null;
+    }
+
+    /**
+     * Given a parent node and a child node, find the index of the child node
+     *
+     * @return index of child node, -1 if child node not a child of parent
+     */
+    static public int findIndexOfNode(BoardHistoryNode parentNode, BoardHistoryNode childNode)
+    {
+        if (parentNode.next() == null) return -1;
+        for (int i = 0; i < parentNode.numberOfChildren(); i++)
+        {
+            if (parentNode.getVariation(i) == childNode) return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Check if node is part of the main trunk (rightmost branch)
+     *
+     * @return true if node is part of main trunk, false otherwise
+     */
+    static public boolean isMainTrunk(BoardHistoryNode node)
+    {
+        while (node.previous() != null) {
+            if (node.previous().next() != node) {
+                return false;
+            }
+            node = node.previous();
+        }
+        return true;
+    }
+
 }

@@ -377,6 +377,213 @@ public class Board {
         }
     }
 
+    /**
+     * Goes to the next variation, thread safe
+     */
+    public boolean nextVariation(int idx) {
+        synchronized (this) {
+            // Don't update winrate here as this is usually called when jumping between variations
+            if (history.nextVariation(idx) != null) {
+                // update leelaz board position, before updating to next node
+                if (history.getData().lastMove == null) {
+                    Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
+                } else {
+                    Lizzie.leelaz.playMove(history.getLastMoveColor(), convertCoordinatesToName(history.getLastMove()[0], history.getLastMove()[1]));
+                }
+                Lizzie.frame.repaint();
+                return true;
+            }
+            return false;
+        }
+    }
+
+    /*
+     * Moves to next variation (variation to the right) if possible
+     * To move to another variation, the variation must have a move with the same move number as the current move in it.
+     * Note: Will only look within variations that start at the same move on the main trunk/branch, and if on trunk
+     * only in the ones closest
+     */
+    public boolean nextBranch() {
+        synchronized (this) {
+            BoardHistoryNode curNode = history.getCurrentHistoryNode();
+            int curMoveNum = curNode.getData().moveNumber;
+            // First check if there is a branch to move to, if not, stay in same place
+            // Requirement: variaton need to have a move number same as current
+            if (BoardHistoryList.isMainTrunk(curNode)) {
+                // Check if there is a variation tree to the right that is deep enough
+                BoardHistoryNode startVarNode = BoardHistoryList.findChildOfPreviousWithVariation(curNode);
+                if (startVarNode == null) return false;
+                startVarNode = startVarNode.previous();
+                boolean isDeepEnough = false;
+                for (int i = 1; i < startVarNode.numberOfChildren(); i++)
+                {
+                    if (BoardHistoryList.hasDepth(startVarNode.getVariation(i), curMoveNum - startVarNode.getData().moveNumber - 1)) {
+                        isDeepEnough = true;
+                        break;
+                    }
+                }
+                if (!isDeepEnough) return false;
+            } else {
+                // We are in a variation, is there some variation to the right?
+                BoardHistoryNode tmpNode = curNode;
+                while (tmpNode != null) {
+                    // Try to move to the right
+                    BoardHistoryNode prevBranch = BoardHistoryList.findChildOfPreviousWithVariation(tmpNode);
+                    int idx = BoardHistoryList.findIndexOfNode(prevBranch.previous(), prevBranch);
+                    // Check if there are branches to the right, that are deep enough
+                    boolean isDeepEnough = false;
+                    for (int i = idx + 1; i < prevBranch.previous().numberOfChildren(); i++) {
+                        if (BoardHistoryList.hasDepth(prevBranch.previous().getVariation(i),
+                                curMoveNum - prevBranch.previous().getData().moveNumber - 1)) {
+                            isDeepEnough = true;
+                            break;
+                        }
+                    }
+                    if (isDeepEnough)
+                        break;
+                    // Did not find a deep enough branch, move up unless we reached main trunk
+                    if (BoardHistoryList.isMainTrunk(prevBranch.previous())) {
+                        // No right hand side branch to move too
+                        return false;
+                    }
+                    tmpNode = prevBranch.previous();
+
+                }
+            }
+
+            // At this point, we know there is somewhere to move to... Move there, one step at the time (because of Leelaz)
+            // Start moving up the tree until we reach a moves with variations that are deep enough
+            BoardHistoryNode prevNode;
+            int startIdx = 0;
+            while (curNode.previous() != null) {
+                prevNode  = curNode;
+                previousMove();
+                curNode = history.getCurrentHistoryNode();
+                startIdx = BoardHistoryList.findIndexOfNode(curNode, prevNode) + 1;
+                if (curNode.numberOfChildren() > 1 && startIdx <= curNode.numberOfChildren()) {
+                    // Find the variation that is deep enough
+                    boolean isDeepEnough = false;
+                    for (int i = startIdx; i < curNode.numberOfChildren(); i++) {
+                        if (BoardHistoryList.hasDepth(curNode.getVariation(i), curMoveNum - curNode.getData().moveNumber - 1))
+                        {
+                            isDeepEnough = true;
+                            break;
+                        }
+                    }
+                    if (isDeepEnough)
+                        break;
+                }
+            }
+            // Now move forward in new branch
+            while (curNode.getData().moveNumber < curMoveNum) {
+                if (curNode.numberOfChildren() == 1) {
+                    // One-way street, just move to next
+                    if (!nextVariation(0)) {
+                        // Not supposed to happen, fail-safe
+                        break;
+                    }
+                } else {
+                    // Has several variations, need to find the closest one that is deep enough
+                    for (int i = startIdx; i < curNode.numberOfChildren(); i++)
+                    {
+                        if (BoardHistoryList.hasDepth(curNode.getVariation(i), curMoveNum - curNode.getData().moveNumber - 1)) {
+                            nextVariation(i);
+                            break;
+                        }
+                    }
+                }
+                startIdx = 0;
+                curNode = history.getCurrentHistoryNode();
+            }
+            return true;
+        }
+    }
+
+    /*
+     * Moves to previous variation (variation to the left) if possible, or back to main trunk
+     * To move to another variation, the variation must have the same number of moves in it.
+     * If no variation with sufficient moves exist, move back to main trunk.
+     * Note: Will always move back to main trunk, even if variation has more moves than main trunk (if that
+     * is the case it will move to the last move in the trunk)
+     */
+    public boolean previousBranch() {
+        synchronized (this) {
+            BoardHistoryNode curNode = history.getCurrentHistoryNode();
+            BoardHistoryNode prevNode;
+            int curMoveNum = curNode.getData().moveNumber;
+
+            if (BoardHistoryList.isMainTrunk(curNode)) {
+                // Not possible to move further to the left, so just return
+                return false;
+            }
+            // We already know we can move back (back to main trunk if necessary), so just start moving
+            // Move backwards first
+            int depth = 0;
+            int startIdx = 0;
+            boolean foundBranch = false;
+            while (!BoardHistoryList.isMainTrunk(curNode)) {
+                prevNode = curNode;
+                // Move back
+                previousMove();
+                curNode = history.getCurrentHistoryNode();
+                depth++;
+                startIdx = BoardHistoryList.findIndexOfNode(curNode, prevNode);
+                // If current move has children, check if any of those are deep enough (starting at the one closest)
+                if (curNode.numberOfChildren() > 1 &&  startIdx != 0) {
+                    foundBranch = false;
+                    for (int i = startIdx - 1; i >= 0; i--) {
+                        if (BoardHistoryList.hasDepth(curNode.getVariation(i), depth-1)) {
+                            foundBranch = true;
+                            startIdx = i;
+                            break;
+                        }
+                    }
+                    if (foundBranch) break; // Found a variation (or main trunk) and it is deep enough
+                }
+            }
+
+            if (!foundBranch)
+            {
+                // Back at main trunk, and it is not long enough, move forward until we reach the end..
+                while (nextVariation(0)) {
+
+                };
+                return true;
+            }
+
+            // At this point, we are either back at the main trunk, or on top of variation we know is long enough
+            // Move forward
+            while (curNode.getData().moveNumber < curMoveNum && curNode.next() != null) {
+                if (curNode.numberOfChildren() == 1) {
+                    // One-way street, just move to next
+                    if (!nextVariation(0)) {
+                        // Not supposed to happen...
+                        break;
+                    }
+                } else {
+                    foundBranch = false;
+                    // Several variations to choose between, make sure we select the one closest that is deep enough (if any)
+                    for (int i = startIdx; i >= 0; i--)
+                    {
+                        if (BoardHistoryList.hasDepth(curNode.getVariation(i), curMoveNum - curNode.getData().moveNumber - 1)) {
+                            nextVariation(i);
+                            foundBranch = true;
+                            break;
+                        }
+                    }
+                    if (!foundBranch) {
+                        // Not supposed to happen, fail-safe
+                        nextVariation(0);
+                    }
+                }
+                // We have now moved one step further down
+                curNode = history.getCurrentHistoryNode();
+                startIdx = curNode.numberOfChildren() - 1;
+            }
+            return true;
+        }
+    }
+
     public BoardData getData() {
         return history.getData();
     }
