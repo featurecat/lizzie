@@ -58,6 +58,7 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyAltV"),
             resourceBundle.getString("LizzieFrame.commands.keyV"),
             resourceBundle.getString("LizzieFrame.commands.keyW"),
+            resourceBundle.getString("LizzieFrame.commands.keyG"),
             resourceBundle.getString("LizzieFrame.commands.keyHome"),
             resourceBundle.getString("LizzieFrame.commands.keyEnd"),
             resourceBundle.getString("LizzieFrame.commands.keyControl"),
@@ -343,7 +344,7 @@ public class LizzieFrame extends JFrame {
         Graphics2D g = cachedImage.createGraphics();
 
         int maxSize = Math.min(getWidth(), getHeight());
-        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.04));
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.037));
         g.setFont(font);
         FontMetrics metrics = g.getFontMetrics(font);
         int maxCommandWidth = Arrays.asList(commands).stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
