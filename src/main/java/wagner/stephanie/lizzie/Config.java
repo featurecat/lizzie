@@ -42,6 +42,8 @@ public class Config {
             }
         }
 
+        showBranch = config.getJSONObject("ui").getBoolean("show-leelaz-variation");
+
         fp.close();
     }
 
@@ -82,8 +84,8 @@ public class Config {
         ui.put("fancy-stones", true);
         ui.put("fancy-board", true);
         ui.put("shadow-size", 100);
+        ui.put("show-leelaz-variation", true);
         ui.put("win-rate-always-black", false);
-
         ui.put("confirm-exit", false);
 
         config.put("ui", ui);
