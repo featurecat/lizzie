@@ -512,7 +512,6 @@ public class LizzieFrame extends JFrame {
     }
 
     public void onMouseMoved(int x, int y) {
-
         int[] newMouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
         if (mouseHoverCoordinate != null && newMouseHoverCoordinate != null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
             mouseHoverCoordinate = newMouseHoverCoordinate;
@@ -525,6 +524,12 @@ public class LizzieFrame extends JFrame {
     public void toggleCoordinates() {
         showCoordinates = !showCoordinates;
     }
+
+    public void setPlayers(String whitePlayer, String blackPlayer) {
+        setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
+                whitePlayer, blackPlayer));
+    }
+
 
     public void copySgf() {
         try {
