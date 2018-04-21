@@ -69,6 +69,7 @@ public class Config {
         leelaz.put("gpu", new JSONArray("[]"));
         leelaz.put("max-analyze-time-minutes", 2);
         leelaz.put("max-game-thinking-time-seconds", 2);
+        leelaz.put("print-comms", false);
 
         config.put("leelaz", leelaz);
 
@@ -90,7 +91,6 @@ public class Config {
 
         FileOutputStream fp = new FileOutputStream(file);
         OutputStreamWriter writer = new OutputStreamWriter(fp);
-
 
         writer.write(config.toString(2));
 
