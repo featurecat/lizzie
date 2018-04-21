@@ -508,6 +508,7 @@ public class LizzieFrame extends JFrame {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
         }
+        repaint();
     }
 
     public void onMouseMoved(int x, int y) {

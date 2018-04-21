@@ -138,7 +138,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                Lizzie.frame.startNewGame();
+                LizzieFrame.startNewGame();
                 break;
             case VK_SPACE:
                 if (Lizzie.frame.isPlayingAgainstLeelaz) {
