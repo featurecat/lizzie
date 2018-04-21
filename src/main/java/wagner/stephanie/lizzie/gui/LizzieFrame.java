@@ -44,8 +44,8 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyN"),
             resourceBundle.getString("LizzieFrame.commands.keyEnter"),
             resourceBundle.getString("LizzieFrame.commands.keySpace"),
-            resourceBundle.getString("LizzieFrame.commands.keyLeftArrow"),
-            resourceBundle.getString("LizzieFrame.commands.keyRightArrow"),
+            resourceBundle.getString("LizzieFrame.commands.keyUpArrow"),
+            resourceBundle.getString("LizzieFrame.commands.keyDownArrow"),
             resourceBundle.getString("LizzieFrame.commands.rightClick"),
             resourceBundle.getString("LizzieFrame.commands.mouseWheelScroll"),
             resourceBundle.getString("LizzieFrame.commands.keyC"),
@@ -212,6 +212,7 @@ public class LizzieFrame extends JFrame {
     private BufferedImage cachedBackground = null;
     private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
     private boolean cachedBackgroundShowControls = false;
+    private boolean cachedShowWinrate = true;
 
     /**
      * Draws the game board and interface
@@ -223,7 +224,7 @@ public class LizzieFrame extends JFrame {
             return;
 
         Graphics2D backgroundG;
-        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls)
+        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls || cachedShowWinrate != Lizzie.config.showWinrate)
             backgroundG = createBackground();
         else
             backgroundG = null;
@@ -288,6 +289,7 @@ public class LizzieFrame extends JFrame {
         cachedBackgroundWidth = cachedBackground.getWidth();
         cachedBackgroundHeight = cachedBackground.getHeight();
         cachedBackgroundShowControls = showControls;
+        cachedShowWinrate = Lizzie.config.showWinrate;
 
         Graphics2D g = cachedBackground.createGraphics();
 
@@ -301,7 +303,9 @@ public class LizzieFrame extends JFrame {
     }
 
     private void drawVariationTreeContainer(Graphics2D g, int vx, int vy, int vw, int vh) {
-        if (g == null || vw <= 0 || vh <= 0 || vw + vx >= getWidth() || vh + vy >= getHeight())
+        vw = cachedBackground.getWidth() - vx;
+
+        if (g == null || vw <= 0 || vh <= 0)
             return;
 
         BufferedImage result = new BufferedImage(vw, vh, BufferedImage.TYPE_INT_ARGB);
