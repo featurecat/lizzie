@@ -209,6 +209,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.config.toggleShowWinrate();
                 break;
 
+            case VK_G:
+                Lizzie.config.toggleShowVariationGraph();
+                break;
+
             case VK_C:
                 if (controlIsPressed) {
                     Lizzie.frame.copySgf();

@@ -213,6 +213,7 @@ public class LizzieFrame extends JFrame {
     private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
     private boolean cachedBackgroundShowControls = false;
     private boolean cachedShowWinrate = true;
+    private boolean cachedShowVariationGraph = true;
 
     /**
      * Draws the game board and interface
@@ -224,7 +225,7 @@ public class LizzieFrame extends JFrame {
             return;
 
         Graphics2D backgroundG;
-        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls || cachedShowWinrate != Lizzie.config.showWinrate)
+        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls || cachedShowWinrate != Lizzie.config.showWinrate || cachedShowVariationGraph != Lizzie.config.showVariationGraph)
             backgroundG = createBackground();
         else
             backgroundG = null;
@@ -262,13 +263,15 @@ public class LizzieFrame extends JFrame {
                 winrateGraph.draw(g, statx, staty + stath, statw, statw);
             }
 
-            int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
-            int vy = 0;
-            int vw = getWidth() - vx;
-            int vh = getHeight();
+            if (Lizzie.config.showVariationGraph) {
+                int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
+                int vy = 0;
+                int vw = getWidth() - vx;
+                int vh = getHeight();
 
-            drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
-            variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
+                drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
+                variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
+            }
 
             // cleanup
             g.dispose();
@@ -290,6 +293,7 @@ public class LizzieFrame extends JFrame {
         cachedBackgroundHeight = cachedBackground.getHeight();
         cachedBackgroundShowControls = showControls;
         cachedShowWinrate = Lizzie.config.showWinrate;
+        cachedShowVariationGraph = Lizzie.config.showVariationGraph;
 
         Graphics2D g = cachedBackground.createGraphics();
 
