@@ -408,6 +408,9 @@ public class BoardRenderer {
 
                     if (branch == null && alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
                         double roundedWinrate = Math.round(move.winrate * 10) / 10.0;
+                        if (uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay) {
+                           roundedWinrate = 100.0 - roundedWinrate;
+                        }
                         g.setColor(Color.BLACK);
                         if (branch != null && Lizzie.board.getData().blackToPlay)
                             g.setColor(Color.WHITE);

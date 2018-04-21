@@ -82,6 +82,7 @@ public class Config {
         ui.put("fancy-stones", true);
         ui.put("fancy-board", true);
         ui.put("shadow-size", 100);
+        ui.put("win-rate-always-black", false);
 
         ui.put("confirm-exit", false);
 
