@@ -1,6 +1,7 @@
 package wagner.stephanie.lizzie.gui;
 
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.rules.BoardHistoryList;
 import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 
 import java.awt.*;
@@ -20,38 +21,14 @@ public class VariationTree {
         laneUsageList = new ArrayList<Integer>();
     }
 
-    private int getDepth(BoardHistoryNode node)
-    {
-        int c = 0;
-        while (node.next() != null)
-        {
-            c++;
-            node = node.next();
-        }
-        return c;
-    }
-
-    public BoardHistoryNode findTop(BoardHistoryNode start)
-    {
-        BoardHistoryNode top = start;
-        while (start.previous() != null)
-        {
-            if (start.previous().next() != start)
-            {
-                top = start.previous();
-            }
-            start = start.previous();
-        }
-        return top;
-    }
-
     public void drawTree(Graphics2D g, int posx, int posy, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber, boolean isMain)
     {
         if (isMain) g.setColor(Color.white);
         else g.setColor(Color.gray.brighter());
 
+
         // Finds depth on leftmost variation of this tree
-        int depth = getDepth(startNode) + 1;
+        int depth = BoardHistoryList.getDepth(startNode) + 1;
         int lane = startLane;
         // Figures out how far out too the right (which lane) we have to go not to collide with other variations
         while (lane < laneUsageList.size() && laneUsageList.get(lane) <= startNode.getData().moveNumber + depth) {
@@ -114,10 +91,10 @@ public class VariationTree {
             cur = cur.previous();
             int curwidth = lane;
             // Draw each variation, uses recursion
-            for (int i = 1; i < cur.allVariants().size(); i++) {
+            for (int i = 1; i < cur.numberOfChildren(); i++) {
                 curwidth++;
                 // Recursion, depth of recursion will normally not be very deep (one recursion level for every variation that has a variation (sort of))
-                drawTree(g, posx, posy, curwidth, maxposy, cur.allVariants().get(i), i,false);
+                drawTree(g, posx, posy, curwidth, maxposy, cur.getVariation(i), i,false);
             }
             posy -= YSPACING;
         }
@@ -145,7 +122,7 @@ public class VariationTree {
         curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
 
         // Is current move a variation? If so, find top of variation
-        BoardHistoryNode top = findTop(curMove);
+        BoardHistoryNode top = BoardHistoryList.findTop(curMove);
         int curposy = middleY - YSPACING*(curMove.getData().moveNumber - top.getData().moveNumber);
         // Go to very top of tree (visible in assigned area)
         BoardHistoryNode node = top;

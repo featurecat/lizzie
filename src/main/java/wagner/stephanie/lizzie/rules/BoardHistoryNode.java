@@ -107,11 +107,19 @@ public class BoardHistoryNode {
         }
     }
 
-    public ArrayList<BoardHistoryNode> allVariants() {
-        if (nexts.size() == 0) {
+    public int numberOfChildren() {
+        if (nexts == null) {
+            return 0;
+        } else {
+            return nexts.size();
+        }
+    }
+
+    public BoardHistoryNode getVariation(int idx) {
+        if (nexts.size() <= idx) {
             return null;
         } else {
-            return nexts;
+            return nexts.get(idx);
         }
     }
 }

@@ -178,4 +178,19 @@ public class BoardHistoryList {
         // no position matched this position, so it's valid
         return false;
     }
+
+    /*
+     * Static helper methods
+     */
+    static public int getDepth(BoardHistoryNode node)
+    {
+        int c = 0;
+        while (node.next() != null)
+        {
+            c++;
+            node = node.next();
+        }
+        return c;
+    }
+
 }
