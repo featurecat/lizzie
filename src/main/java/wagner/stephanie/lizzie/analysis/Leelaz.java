@@ -28,6 +28,8 @@ public class Leelaz {
     private BufferedInputStream inputStream;
     private BufferedOutputStream outputStream;
 
+    private boolean printCommunication;
+
     private boolean isReadingPonderOutput;
     private List<MoveData> bestMoves;
     private List<MoveData> bestMovesTemp;
@@ -59,9 +61,9 @@ public class Leelaz {
 
         JSONObject config = Lizzie.config.config.getJSONObject("leelaz");
 
+        printCommunication = config.getBoolean("print-comms");
         maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
 //        maxThinkingTimeMillis = SECOND * config.getInt("max-game-thinking-time-seconds");
-
 
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
@@ -137,7 +139,9 @@ public class Leelaz {
                         }
                     }
                 } else {
-                    System.out.print(line);
+                    if (printCommunication) {
+                        System.out.print(line);
+                    }
 
                     line = line.trim();
                     if (Lizzie.frame != null && line.startsWith("=") && line.length() > 2) {
@@ -203,7 +207,9 @@ public class Leelaz {
      * @param command a GTP command containing no newline characters
      */
     public void sendCommand(String command) {
-        System.out.println(command);
+        if (printCommunication) {
+            System.out.printf("> %s\n", command);
+        }
         if (command.startsWith("fixed_handicap"))
             isSettingHandicap = true;
         if (command.startsWith("genmove"))
