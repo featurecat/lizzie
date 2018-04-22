@@ -80,7 +80,7 @@ public class Config {
                 }
             }
         }
-        return true;
+        return modified;
     }
 
     public void toggleShowMoveNumber() {
