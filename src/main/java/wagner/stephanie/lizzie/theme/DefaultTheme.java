@@ -34,7 +34,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getWhiteStone(int[] position) {
         if (whiteStoneCached == null) {
             try {
-                whiteStoneCached = ImageIO.read(getClass().getResourceAsStream("assets/white0.png"));
+                whiteStoneCached = ImageIO.read(getClass().getResourceAsStream("/assets/white0.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -46,7 +46,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getBoard() {
         if (boardCached == null) {
             try {
-                boardCached = ImageIO.read(getClass().getResourceAsStream("assets/board.png"));
+                boardCached = ImageIO.read(getClass().getResourceAsStream("/assets/board.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -58,7 +58,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getBackground() {
         if (backgroundCached == null) {
             try {
-                backgroundCached = ImageIO.read(getClass().getResourceAsStream("assets/background.jpg"));
+                backgroundCached = ImageIO.read(getClass().getResourceAsStream("/assets/background.jpg"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
