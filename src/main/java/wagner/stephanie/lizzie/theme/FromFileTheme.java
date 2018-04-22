@@ -3,15 +3,16 @@ package wagner.stephanie.lizzie.theme;
 import wagner.stephanie.benchmark.Stopwatch;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
 
 /**
- * DefaultTheme
+ * CunstomTheme
  */
-public class DefaultTheme implements ITheme {
+public class FromFileTheme implements ITheme {
     BufferedImage blackStoneCached = null;
     BufferedImage whiteStoneCached = null;
     BufferedImage boardCached = null;
@@ -21,7 +22,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getBlackStone(int[] position) {
         if (blackStoneCached == null) {
             try {
-                blackStoneCached = ImageIO.read(getClass().getResourceAsStream("/assets/black0.png"));
+                blackStoneCached = ImageIO.read(new File("assets/black0.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -33,7 +34,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getWhiteStone(int[] position) {
         if (whiteStoneCached == null) {
             try {
-                whiteStoneCached = ImageIO.read(getClass().getResourceAsStream("/assets/white0.png"));
+                whiteStoneCached = ImageIO.read(new File("assets/white0.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -45,7 +46,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getBoard() {
         if (boardCached == null) {
             try {
-                boardCached = ImageIO.read(getClass().getResourceAsStream("/assets/board.png"));
+                boardCached = ImageIO.read(new File("assets/board.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -57,7 +58,7 @@ public class DefaultTheme implements ITheme {
     public BufferedImage getBackground() {
         if (backgroundCached == null) {
             try {
-                backgroundCached = ImageIO.read(getClass().getResourceAsStream("/assets/background.jpg"));
+                backgroundCached = ImageIO.read(new File("assets/background.jpg"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
