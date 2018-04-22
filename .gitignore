@@ -8,3 +8,7 @@ network
 leelaz
 src/main/resources/META-INF
 target
+.project
+.settings/
+.vscode/
+.classpath
