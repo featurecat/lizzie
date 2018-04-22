@@ -212,7 +212,7 @@ public class BoardRenderer {
         branchStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
         branch = null;
 
-        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+        if (Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.leelaz == null) {
             return;
         }
         // calculate best moves and branch
@@ -331,6 +331,9 @@ public class BoardRenderer {
      * Draw all of Leelaz's suggestions as colored stones with winrate/playout statistics overlayed
      */
     private void drawLeelazSuggestions(Graphics2D g) {
+        if (Lizzie.leelaz == null)
+            return;
+
         final int MIN_ALPHA = 32;
         final int MIN_ALPHA_TO_DISPLAY_TEXT = 64;
         final int MAX_ALPHA = 240;

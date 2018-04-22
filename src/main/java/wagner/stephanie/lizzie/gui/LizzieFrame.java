@@ -250,28 +250,30 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
-            int panelMargin = (int) (maxSize * 0.05);
-            // Todo: Make board move over when there is no space beside the board
-            if (Lizzie.config.showWinrate) {
-                // boardX equals width of space on each side
-                int statx = (int) (boardRenderer.getLocation().x * 0);
-                int staty = boardY + maxSize / 8;
-                int statw = boardRenderer.getLocation().x - statx - panelMargin;
-                int stath = maxSize / 10;
+            if (Lizzie.leelaz != null) {
+                int panelMargin = (int) (maxSize * 0.05);
+                // Todo: Make board move over when there is no space beside the board
+                if (Lizzie.config.showWinrate) {
+                    // boardX equals width of space on each side
+                    int statx = (int) (boardRenderer.getLocation().x * 0);
+                    int staty = boardY + maxSize / 8;
+                    int statw = boardRenderer.getLocation().x - statx - panelMargin;
+                    int stath = maxSize / 10;
 
-                drawWinrateGraphContainer(backgroundG, statx, staty, statw, stath);
-                drawMoveStatistics(g, statx, staty, statw, stath);
-                winrateGraph.draw(g, statx, staty + stath, statw, statw);
-            }
+                    drawWinrateGraphContainer(backgroundG, statx, staty, statw, stath);
+                    drawMoveStatistics(g, statx, staty, statw, stath);
+                    winrateGraph.draw(g, statx, staty + stath, statw, statw);
+                }
 
-            if (Lizzie.config.showVariationGraph) {
-                int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
-                int vy = 0;
-                int vw = getWidth() - vx;
-                int vh = getHeight();
+                if (Lizzie.config.showVariationGraph) {
+                    int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
+                    int vy = 0;
+                    int vw = getWidth() - vx;
+                    int vh = getHeight();
 
-                drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
-                variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
+                    drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
+                    variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
+                }
             }
 
             // cleanup
