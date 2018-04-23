@@ -320,6 +320,15 @@ public class LizzieFrame extends JFrame {
         g.drawImage(result, vx, vy, null);
     }
 
+    private void drawPonderingStateContainer(Graphics g, int statx, int staty, int statw, int stath) {
+        if (g == null || statw <= 0 || stath <= 0)
+            return;
+
+        BufferedImage result = new BufferedImage(statw, stath + statw, BufferedImage.TYPE_INT_ARGB);
+        filter20.filter(cachedBackground.getSubimage(statx, staty, result.getWidth(), result.getHeight()), result);
+        g.drawImage(result, statx, staty, null);
+    }
+
     private void drawWinrateGraphContainer(Graphics g, int statx, int staty, int statw, int stath) {
         if (g == null || statw <= 0 || stath <= 0)
             return;

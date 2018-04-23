@@ -96,7 +96,7 @@ public class Leelaz {
         process = processBuilder.start();
 
         initializeStreams();
-//        new Thread(this::read).start();
+
         if (isCorrectVersion()) {
             // start a thread to continuously read Leelaz output
             new Thread(this::read).start();
@@ -141,8 +141,6 @@ public class Leelaz {
                     } else if (lineString.startsWith("~begin")) {
                         return true;
                     }
-
-                    System.out.println(lineString);
 
                     line = new StringBuilder();
                 }

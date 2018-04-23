@@ -17,7 +17,7 @@ public class Lizzie {
     public static Leelaz leelaz;
     public static Board board;
     public static Config config;
-    public static String lizzieVersion = "0.5";
+    public static String lizzieVersion = "0.4";
 
     /**
      * Launches the game window, and runs the game.
