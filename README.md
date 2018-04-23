@@ -43,7 +43,7 @@ To build the code and package it:
 
 ### Running Lizzie
 
-    $ java -jar "target/lizzie-0.4 pre-2-shaded.jar"
+    $ java -jar "target/lizzie-0.4-shaded.jar"
 
 (or whatever the current version of the shaded `jar` file is in
 `target/`).
