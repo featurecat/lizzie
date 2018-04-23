@@ -8,7 +8,7 @@ need Java 8 or higher to run this program.
 ## Running a release
 
 Just follow the instructions in the provided readme in the
-[release](https://github.com/featurecat/lizzie/releases/tag/0.3).
+[release](https://github.com/featurecat/lizzie/releases/tag/0.4).
 
 The first run will take a while because Leela Zero needs to set up the
 OpenCL tunings. Just hang tight, and wait for it to finish, then you
