@@ -251,6 +251,8 @@ public class LizzieFrame extends JFrame {
             boardRenderer.draw(g);
 
             if (Lizzie.leelaz != null) {
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") + (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")));
+
                 int panelMargin = (int) (maxSize * 0.05);
                 // Todo: Make board move over when there is no space beside the board
                 if (Lizzie.config.showWinrate) {
@@ -274,6 +276,8 @@ public class LizzieFrame extends JFrame {
                     drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
                     variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
                 }
+            } else {
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"));
             }
 
             // cleanup
@@ -320,13 +324,27 @@ public class LizzieFrame extends JFrame {
         g.drawImage(result, vx, vy, null);
     }
 
-    private void drawPonderingStateContainer(Graphics g, int statx, int staty, int statw, int stath) {
-        if (g == null || statw <= 0 || stath <= 0)
-            return;
+    private void drawPonderingState(Graphics2D g, String text) {
+        int x = this.getInsets().left;
+        int y = this.getInsets().top;
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int)(Math.max(getWidth(), getHeight()) * 0.02));
+        FontMetrics fm = g.getFontMetrics(font);
+        int stringWidth = fm.stringWidth(text);
+        int stringHeight = fm.getAscent() - fm.getDescent();
+        int width = (int)(stringWidth*1);
+        int height = (int)(stringHeight * 1.2);
 
-        BufferedImage result = new BufferedImage(statw, stath + statw, BufferedImage.TYPE_INT_ARGB);
-        filter20.filter(cachedBackground.getSubimage(statx, staty, result.getWidth(), result.getHeight()), result);
-        g.drawImage(result, statx, staty, null);
+        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        filter20.filter(cachedBackground.getSubimage(x, y, result.getWidth(), result.getHeight()), result);
+        g.drawImage(result, x, y, null);
+
+        g.setColor(new Color(0,0,0,130));
+        g.fillRect(x, y, width, height);
+        g.drawRect(x, y, width, height);
+
+        g.setColor(Color.white);
+        g.setFont(font);
+        g.drawString(text, x + (width - stringWidth)/2, y + stringHeight + (height - stringHeight)/2);
     }
 
     private void drawWinrateGraphContainer(Graphics g, int statx, int staty, int statw, int stath) {
