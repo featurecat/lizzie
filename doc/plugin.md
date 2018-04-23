@@ -80,6 +80,8 @@ In the future, plugins may be able to enable and disable certain functions, so i
 
 ### Methods for plug-ins
 
+In ``` Lizzie.config ```:
+
 ``` public boolean showBranch ```
 
 ``` public boolean showBestMoves ```
