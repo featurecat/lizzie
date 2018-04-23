@@ -1,4 +1,4 @@
-# lizzie - Leela Zero Interface
+# Lizzie - Leela Zero Interface
 ![screenshot](/screen.png?raw=true)
 
 Lizzie is a graphical interface allowing the user to analyze games in
