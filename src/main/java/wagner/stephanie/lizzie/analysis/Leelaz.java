@@ -30,6 +30,7 @@ public class Leelaz {
     private BufferedOutputStream outputStream;
 
     private boolean printCommunication;
+    private boolean isValidVersion = false;
 
     private boolean isReadingPonderOutput;
     private List<MoveData> bestMoves;
@@ -133,12 +134,14 @@ public class Leelaz {
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                sendCommand("name");
+                                if (!isValidVersion)
+                                    sendCommand("name");
                             }).start();
                         } else {
                             return false;
                         }
                     } else if (lineString.startsWith("~begin")) {
+                        isValidVersion = true;
                         return true;
                     }
 
