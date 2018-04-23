@@ -29,8 +29,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
@@ -67,6 +66,9 @@ public class LizzieFrame extends JFrame {
     private static VariationTree variatonTree;
     private static WinrateGraph winrateGraph;
 
+    public static Font OpenSansRegularBase;
+    public static Font OpenSansSemiboldBase;
+
     private final BufferStrategy bs;
 
     public int[] mouseHoverCoordinate;
@@ -81,9 +83,8 @@ public class LizzieFrame extends JFrame {
     static {
         // load fonts
         try {
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, LizzieFrame.class.getResourceAsStream("/fonts/OpenSans-Regular.ttf")));
-            ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, LizzieFrame.class.getResourceAsStream("/fonts/OpenSans-Semibold.ttf")));
+            OpenSansRegularBase = Font.createFont(Font.TRUETYPE_FONT, Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/OpenSans-Regular.ttf"));
+            OpenSansSemiboldBase = Font.createFont(Font.TRUETYPE_FONT, Thread.currentThread().getContextClassLoader().getResourceAsStream("fonts/OpenSans-Semibold.ttf"));
         } catch (IOException | FontFormatException e) {
             e.printStackTrace();
         }
@@ -486,7 +487,7 @@ public class LizzieFrame extends JFrame {
         height -= 4 * strokeRadius;
 
         // Title
-        Font font = new Font("Open Sans", Font.PLAIN, (int) (Math.min(width, height) * 0.2));
+        Font font = OpenSansRegularBase.deriveFont(Font.PLAIN, (int) (Math.min(width, height) * 0.2));
         strokeRadius = 2;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.WHITE);

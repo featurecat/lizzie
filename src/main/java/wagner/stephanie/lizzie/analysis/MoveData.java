@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie.analysis;
 
+import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +19,7 @@ public class MoveData {
      * Parses a leelaz ponder output line
      * @param line line of ponder output
      */
-    public MoveData(String line) {
+    public MoveData(String line) throws ArrayIndexOutOfBoundsException {
         String[] data = line.trim().split(" +");
 
         coordinate = data[0];

@@ -1,5 +1,6 @@
 package wagner.stephanie.lizzie.analysis;
 
+import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -195,7 +196,11 @@ public class Leelaz {
                     // ignore passes, and only accept lines that start with a coordinate letter
                     if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
                         if (!(Lizzie.frame != null && Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
-                            bestMovesTemp.add(new MoveData(line));
+                            try {
+                                bestMovesTemp.add(new MoveData(line));
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                // this is very rare but is possible. ignore
+                            }
                         }
                     }
                 } else {
