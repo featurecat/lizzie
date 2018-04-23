@@ -15,6 +15,7 @@ public class Config {
     public boolean showBranch = true;
 
     public boolean showBestMoves = true;
+    public boolean showNextMoves = true;
     
     public JSONObject config;
     
@@ -56,6 +57,7 @@ public class Config {
         showWinrate = uiConfig.getBoolean("show-winrate");
         showVariationGraph = uiConfig.getBoolean("show-variation-graph");
         showBestMoves = uiConfig.getBoolean("show-best-moves");
+        showNextMoves = uiConfig.getBoolean("show-next-moves");
     }
 
     // Modifies config by adding in values from default_config that are missing.
@@ -98,6 +100,9 @@ public class Config {
     public void toggleShowBestMoves() {
         this.showBestMoves = !this.showBestMoves;
     }
+    public void toggleShowNextMoves() {
+        this.showNextMoves = !this.showNextMoves;
+    }
 
     private JSONObject createDefaultConfig() {
         JSONObject config = new JSONObject();
@@ -127,6 +132,7 @@ public class Config {
         ui.put("show-winrate", true);
         ui.put("show-variation-graph", true);
         ui.put("show-best-moves", true);
+        ui.put("show-next-moves", true);
         ui.put("win-rate-always-black", false);
         ui.put("confirm-exit", false);
 

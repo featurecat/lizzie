@@ -156,6 +156,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.config.toggleShowMoveNumber();
                 break;
 
+            case VK_F:
+                Lizzie.config.toggleShowNextMoves();
+                break;
+
             case VK_I:
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())
