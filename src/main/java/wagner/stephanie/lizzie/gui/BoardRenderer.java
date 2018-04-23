@@ -84,7 +84,9 @@ public class BoardRenderer {
         if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
 
-        drawNextMoves(g);
+        if (Lizzie.config.showNextMoves) {
+            drawNextMoves(g);
+        }
 
         PluginManager.onDraw(g);
 //        timer.lap("leelaz");
