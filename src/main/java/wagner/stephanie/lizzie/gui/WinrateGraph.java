@@ -1,6 +1,7 @@
 package wagner.stephanie.lizzie.gui;
 
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 
 import java.awt.*;
@@ -67,7 +68,8 @@ public class WinrateGraph {
             double wr = node.getData().winrate;
             if (node == curMove)
             {
-                double bwr = Lizzie.leelaz.getBestWinrate();
+                Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+                double bwr = stats.maxWinrate;
                 if (bwr >= 0) {
                     wr = bwr;
                 }

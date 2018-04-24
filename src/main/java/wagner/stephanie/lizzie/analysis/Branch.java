@@ -22,7 +22,8 @@ public class Branch {
         Zobrist zobrist = board.getData().zobrist == null ? null : board.getData().zobrist.clone();
 
         // Dont care about winrate for branch
-        this.data = new BoardData(stones, lastMove, lastMoveColor, blackToPlay, zobrist, moveNumber, moveNumberList ,0.0);
+        this.data = new BoardData(stones, lastMove, lastMoveColor, blackToPlay,
+                                  zobrist, moveNumber, moveNumberList, 0.0, 0);
 
         for (int i = 0; i < variation.size(); i++) {
             int[] coord = Board.convertNameToCoordinates(variation.get(i));

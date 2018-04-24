@@ -1,5 +1,6 @@
 package wagner.stephanie.lizzie.rules;
 
+import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.Lizzie;
 
 public class Board {
@@ -16,7 +17,8 @@ public class Board {
         boolean blackToPlay = true;
         int[] lastMove = null;
 
-        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50));
+        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay,
+                                                     new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50, 0));
     }
 
     /**
@@ -93,7 +95,8 @@ public class Board {
             int[] moveNumberList = history.getMoveNumberList().clone();
 
             // build the new game state
-            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, 0);
+            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE),
+                                               zobrist, moveNumber, moveNumberList, 0, 0);
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
@@ -127,14 +130,15 @@ public class Board {
                 return;
 
             // Update winrate
-            double wr = Lizzie.leelaz.getBestWinrate();
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
 
-            if (wr >= 0)
+            if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().playouts)
             {
-                history.getData().winrate = wr;
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
             }
             double nextWinrate = -100;
-            if (history.getData().winrate > 0) nextWinrate = 100 - history.getData().winrate;
+            if (history.getData().winrate >= 0) nextWinrate = 100 - history.getData().winrate;
 
             // check to see if this coordinate is being replayed in history
             BoardData next = history.getNext();
@@ -179,7 +183,8 @@ public class Board {
                 }
             }
 
-            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, nextWinrate);
+            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE),
+                                               zobrist, moveNumber, moveNumberList, nextWinrate, 0);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
@@ -236,7 +241,8 @@ public class Board {
          Stone[] stones = history.getStones();
          boolean blackToPlay = history.isBlacksTurn();
          Zobrist zobrist = history.getZobrist().clone();
-         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist, 0, new int[BOARD_SIZE * BOARD_SIZE], 0.0));
+         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist,
+                                                      0, new int[BOARD_SIZE * BOARD_SIZE], 0.0, 0));
      }
 
     /**
@@ -359,7 +365,8 @@ public class Board {
     public boolean nextMove() {
         synchronized (this) {
             // Update win rate statistics
-            double wr = Lizzie.leelaz.getBestWinrate();
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+            double wr = stats.maxWinrate;
             if (wr >= 0) {
                 history.getData().winrate = wr;
             }
@@ -606,7 +613,8 @@ public class Board {
     public boolean previousMove() {
         synchronized (this) {
             // Update win rate statistics
-            double wr  = Lizzie.leelaz.getBestWinrate();
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+            double wr = stats.maxWinrate;
             if (wr >= 0) {
                 history.getData().winrate = wr;
             }

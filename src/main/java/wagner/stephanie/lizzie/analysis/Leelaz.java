@@ -357,23 +357,39 @@ public class Leelaz {
         return isPondering;
     }
 
+    public class WinrateStats {
+        public double maxWinrate;
+        public int totalPlayouts;
+
+        public WinrateStats(double maxWinrate, int totalPlayouts) {
+            this.maxWinrate = maxWinrate;
+            this.totalPlayouts = totalPlayouts;
+        }
+    }
+
     /*
-     * Return the best win rate, returns negative number if no analysis is available
+     * Return the best win rate and total number of playouts.
+     * If no analysis available, win rate is negative and playouts is 0.
      */
-    public double getBestWinrate() {
-        double maxWinrate = -100;
+    public WinrateStats getWinrateStats() {
+        WinrateStats stats = new WinrateStats(-100, 0);
 
         if (bestMoves != null && !bestMoves.isEmpty()) {
             // we should match the Leelaz UCTNode get_eval, which is a weighted average
             final List<MoveData> moves = bestMoves;
 
             // get the total number of playouts in moves
-            int totalPlayouts = moves.stream().reduce(0, (Integer result, MoveData move) -> result + move.playouts, (Integer a, Integer b) -> a + b);
+            stats.totalPlayouts = moves.stream().reduce(0,
+                                                        (Integer result, MoveData move) -> result + move.playouts,
+                                                        (Integer a, Integer b) -> a + b);
 
             // set maxWinrate to the weighted average winrate of moves
-            maxWinrate = moves.stream().reduce(0d, (Double result, MoveData move) -> result + move.winrate * move.playouts / totalPlayouts, (Double a, Double b) -> a + b);
+            stats.maxWinrate = moves.stream().reduce(0d,
+                                                     (Double result, MoveData move) ->
+                                                         result + move.winrate * move.playouts / stats.totalPlayouts,
+                                                     (Double a, Double b) -> a + b);
         }
 
-        return maxWinrate;
+        return stats;
     }
 }
