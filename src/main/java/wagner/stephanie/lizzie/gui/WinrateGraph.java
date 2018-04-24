@@ -58,47 +58,54 @@ public class WinrateGraph {
         // Plot
         width = (int)(width*0.95); // Leave some space after last move
         double lastWr = 50;
+        boolean lastNodeOk = false;
         int movenum = numMoves;
         g.setColor(Color.green);
         g.setStroke(new BasicStroke(3));
-        boolean isFirst = true;
 
         while (node.previous() != null)
         {
             double wr = node.getData().winrate;
+            int playouts = node.getData().playouts;
             if (node == curMove)
             {
                 Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
                 double bwr = stats.maxWinrate;
-                if (bwr >= 0) {
+                if (bwr >= 0 && stats.totalPlayouts > playouts) {
                     wr = bwr;
+                    playouts = stats.totalPlayouts;
                 }
             }
-            if (wr < 0)
-            {
-                wr = 100 - lastWr;
-            }
-            else if (!node.getData().blackToPlay)
-            {
-                wr = 100 - wr;
-            }
-            if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == !node.getData().blackToPlay) {
-                wr = lastWr;
-            }
+            System.out.printf("movenum %d playouts %d winrate %f\n", movenum, playouts, wr);
+            if (playouts > 0) {
+               if (wr < 0)
+               {
+                  wr = 100 - lastWr;
+               }
+               else if (!node.getData().blackToPlay)
+               {
+                  wr = 100 - wr;
+               }
+               if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == !node.getData().blackToPlay) {
+                  wr = lastWr;
+               }
 
-            if (!isFirst)
-                g.drawLine(posx + ((movenum + 1)*width/numMoves),
-                           posy + height - (int)(lastWr*height/100),
-                           posx + (movenum*width/numMoves),
-                           posy + height - (int)(wr*height/100));
-            isFirst = false;
-            if (node == curMove)
-                g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
-                           posy + height - (int)(wr*height/100) - DOT_RADIUS,
-                           DOT_RADIUS*2,
-                           DOT_RADIUS*2);
+               if (lastNodeOk)
+                  g.drawLine(posx + ((movenum + 1)*width/numMoves),
+                             posy + height - (int)(lastWr*height/100),
+                             posx + (movenum*width/numMoves),
+                             posy + height - (int)(wr*height/100));
+               if (node == curMove)
+                  g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
+                             posy + height - (int)(wr*height/100) - DOT_RADIUS,
+                             DOT_RADIUS*2,
+                             DOT_RADIUS*2);
+               lastWr = wr;
+               lastNodeOk = true;
+            } else {
+               lastNodeOk = false;
+            }
             node = node.previous();
-            lastWr = wr;
             movenum--;
         }
 

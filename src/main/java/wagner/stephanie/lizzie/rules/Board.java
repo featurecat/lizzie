@@ -366,9 +366,9 @@ public class Board {
         synchronized (this) {
             // Update win rate statistics
             Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-            double wr = stats.maxWinrate;
-            if (wr >= 0) {
-                history.getData().winrate = wr;
+            if (stats.totalPlayouts >= history.getData().playouts) {
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
             }
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
@@ -614,9 +614,9 @@ public class Board {
         synchronized (this) {
             // Update win rate statistics
             Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-            double wr = stats.maxWinrate;
-            if (wr >= 0) {
-                history.getData().winrate = wr;
+            if (stats.totalPlayouts >= history.getData().playouts) {
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
             }
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
