@@ -99,6 +99,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         Lizzie.board.previousBranch();
     }
 
+    private void moveBranchUp() {
+        Lizzie.board.moveBranchUp();
+    }
+
+    private void moveBranchDown() {
+        Lizzie.board.moveBranchDown();
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -119,11 +127,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_RIGHT:
-                nextBranch();
+                if (e.isShiftDown()) {
+                    moveBranchDown();
+                } else {
+                    nextBranch();
+                }
                 break;
 
             case VK_LEFT:
-                previousBranch();
+                if (e.isShiftDown()) {
+                    moveBranchUp();
+                } else {
+                    previousBranch();
+                }
                 break;
 
             case VK_UP:

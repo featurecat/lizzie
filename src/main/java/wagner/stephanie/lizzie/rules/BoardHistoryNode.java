@@ -107,6 +107,14 @@ public class BoardHistoryNode {
         }
     }
 
+    public BoardHistoryNode topOfBranch() {
+        BoardHistoryNode top = this;
+        while (top.previous != null && top.previous.nexts.size() == 1) {
+            top = top.previous;
+        }
+        return top;
+    }
+
     public int numberOfChildren() {
         if (nexts == null) {
             return 0;
@@ -120,6 +128,40 @@ public class BoardHistoryNode {
             return null;
         } else {
             return nexts.get(idx);
+        }
+    }
+
+    public void moveUp() {
+        if (previous != null) {
+            previous.moveChildUp(this);
+        }
+    }
+
+    public void moveDown() {
+        if (previous != null) {
+            previous.moveChildDown(this);
+        }
+    }
+
+    public void moveChildUp(BoardHistoryNode child) {
+        for (int i = 1; i < nexts.size(); i++) {
+            if (nexts.get(i).data.zobrist.equals(child.data.zobrist)) {
+                BoardHistoryNode tmp = nexts.get(i-1);
+                nexts.set(i-1, child);
+                nexts.set(i, tmp);
+                return;
+            }
+        }
+    }
+
+    public void moveChildDown(BoardHistoryNode child) {
+        for (int i = 0; i < nexts.size() - 1; i++) {
+            if (nexts.get(i).data.zobrist.equals(child.data.zobrist)) {
+                BoardHistoryNode tmp = nexts.get(i+1);
+                nexts.set(i+1, child);
+                nexts.set(i, tmp);
+                return;
+            }
         }
     }
 }

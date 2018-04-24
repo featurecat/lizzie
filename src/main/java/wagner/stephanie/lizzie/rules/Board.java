@@ -591,6 +591,18 @@ public class Board {
         }
     }
 
+    public void moveBranchUp() {
+        synchronized (this) {
+            history.getCurrentHistoryNode().topOfBranch().moveUp();
+        }
+    }
+
+    public void moveBranchDown() {
+        synchronized (this) {
+            history.getCurrentHistoryNode().topOfBranch().moveDown();
+        }
+    }
+
     public BoardData getData() {
         return history.getData();
     }
