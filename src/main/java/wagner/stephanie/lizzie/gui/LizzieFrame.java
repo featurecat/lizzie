@@ -103,6 +103,7 @@ public class LizzieFrame extends JFrame {
 
         // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
         setSize(657, 687);
+        setMinimumSize( new Dimension(640,480) );        
         setLocationRelativeTo(null); // start centered
         setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
 
