@@ -72,9 +72,12 @@ public class Leelaz {
         List<String> commands = new ArrayList<>();
         commands.add("./leelaz"); // windows, linux, mac all understand this
         commands.add("-g");
-        commands.add("-t" + config.getInt("threads"));
-        commands.add("-w" + config.getString("weights"));
-        commands.add("-b0");
+        commands.add("-t");
+        commands.add(""+config.getInt("threads"));
+        commands.add("-w");
+        commands.add(config.getString("weights"));
+        commands.add("-b");
+        commands.add("0");
 
 //        if (config.getBoolean("noise")) {
 //            commands.add("-n");
