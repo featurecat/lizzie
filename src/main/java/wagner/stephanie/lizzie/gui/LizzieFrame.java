@@ -14,6 +14,7 @@ import java.awt.RenderingHints;
 import com.jhlabs.image.GaussianFilter;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
+import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
@@ -455,7 +456,8 @@ public class LizzieFrame extends JFrame {
         else
             lastWR = Lizzie.board.getHistory().getPrevious().winrate;
 
-        double curWR = Lizzie.leelaz.getBestWinrate();
+        Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+        double curWR = stats.maxWinrate;
         if (isPlayingAgainstLeelaz && playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay)
             curWR = -100;
 
