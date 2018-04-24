@@ -76,7 +76,6 @@ public class WinrateGraph {
                     playouts = stats.totalPlayouts;
                 }
             }
-            System.out.printf("movenum %d playouts %d winrate %f\n", movenum, playouts, wr);
             if (playouts > 0) {
                if (wr < 0)
                {
