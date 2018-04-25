@@ -29,8 +29,7 @@ the Lizzie directory tree.
 
 You will also need a file of network weights. There is one
 provided in the Lizzie release package, or you can download one from
-[http://zero.sjeng.org/](http://zero.sjeng.org/). Copy it to this
-directory and name it `network`.
+[http://zero.sjeng.org/](http://zero.sjeng.org/). Unzip the resulting .gz file (7zip is the recommended program). Save the resulting file in the Lizzie directory as "network". (with no file extension. the full name is "network", NOT network.txt).
 
 ### Building Lizzie
 
