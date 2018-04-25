@@ -17,3 +17,11 @@ public Image getWhiteStone(int[] position) throws IOException;
 
  public Image getBackground() throws IOException;
 ```
+
+If you just want to replace the image file, create the assets directory. And use ``` wagner.staphanie.lizzie.theme.FromFileTheme ``` in the theme column in the configuration file. Then the assets 
+
+directory should look like this:
+* Backgroung.jpg: Your background image.
+* Board.png: Your board image.
+* Black0.png: Your black stone image.
+* White0.png: Your white stone image.
