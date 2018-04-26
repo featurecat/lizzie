@@ -69,8 +69,12 @@ public class VariationTree {
         }
         if (startNode.previous() != null) {
             g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
+            g.setColor(Color.BLACK);
+            g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
         } else {
             g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
+            g.setColor(Color.BLACK);
+            g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
         }
         g.setColor(curcolor);
 
@@ -82,8 +86,10 @@ public class VariationTree {
                 g.setColor(Color.green.brighter().brighter());
             }
             g.fillOval(curposx , posy, DOT_DIAM, DOT_DIAM);
+            g.setColor(Color.BLACK);
+            g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
             g.setColor(curcolor);
-            g.drawLine(curposx + dotoffset, posy, curposx + dotoffset , posy - YSPACING + 2*dotoffset);
+            g.drawLine(curposx + dotoffset, posy-1, curposx + dotoffset , posy - YSPACING + 2*dotoffset+2);
         }
         // Now we have drawn all the nodes in this variation, and has reached the bottom of this variation
         // Move back up, and for each, draw any variations we find

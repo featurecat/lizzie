@@ -1,11 +1,13 @@
 package wagner.stephanie.lizzie.analysis;
 
+import jdk.nashorn.internal.runtime.arrays.ArrayIndex;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.rules.Stone;
 
+import javax.swing.*;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -20,7 +22,7 @@ import java.util.List;
  */
 public class Leelaz {
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-//    private static final long SECOND = 1000;
+    //    private static final long SECOND = 1000;
     private long maxAnalyzeTimeMillis;//, maxThinkingTimeMillis;
 
     private Process process;
@@ -29,6 +31,7 @@ public class Leelaz {
     private BufferedOutputStream outputStream;
 
     private boolean printCommunication;
+    private boolean isValidVersion = false;
 
     private boolean isReadingPonderOutput;
     private List<MoveData> bestMoves;
@@ -69,9 +72,12 @@ public class Leelaz {
         List<String> commands = new ArrayList<>();
         commands.add("./leelaz"); // windows, linux, mac all understand this
         commands.add("-g");
-        commands.add("-t" + config.getInt("threads"));
-        commands.add("-w" + config.getString("weights"));
-        commands.add("-b0");
+        commands.add("-t");
+        commands.add(""+config.getInt("threads"));
+        commands.add("-w");
+        commands.add(config.getString("weights"));
+        commands.add("-b");
+        commands.add("0");
 
 //        if (config.getBoolean("noise")) {
 //            commands.add("-n");
@@ -96,8 +102,66 @@ public class Leelaz {
 
         initializeStreams();
 
-        // start a thread to continuously read Leelaz output
-        new Thread(this::read).start();
+        if (isCorrectVersion()) {
+            // start a thread to continuously read Leelaz output
+            new Thread(this::read).start();
+        } else {
+            // warn user or exit
+            JOptionPane.showMessageDialog(Lizzie.frame, "This version of Leela Zero is incompatible with Lizzie.\nPlease follow the instructions in the readme.");
+        }
+    }
+
+    /**
+     * verify that leelaz is the lizzie-variant with ~begin etc ponder output
+     *
+     * @return true if this leelaz will work for lizzie, false otherwise
+     */
+    private boolean isCorrectVersion() {
+        final int maxTestTime = 1000; // 1 second test
+        try {
+            boolean hasSeenName = false;
+            int c;
+            StringBuilder line = new StringBuilder();
+            sendCommand("time_left B 0 0");
+
+            while ((c = inputStream.read()) != -1) {
+                line.append((char) c);
+                if ((c == '\n')) {
+                    String lineString = line.toString();
+                    if (lineString.startsWith("=")) {
+                        if (!hasSeenName) {
+                            hasSeenName = true;
+                            // break from this loop in up to maxTestTime.
+                            new Thread(() -> {
+                                try {
+                                    Thread.sleep(maxTestTime);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                if (!isValidVersion)
+                                    sendCommand("name");
+                            }).start();
+                        } else {
+                            return false;
+                        }
+                    } else if (lineString.startsWith("~begin")) {
+                        isValidVersion = true;
+                        return true;
+                    }
+
+                    line = new StringBuilder();
+                }
+            }
+            // this line will be reached when Leelaz shuts down
+            System.out.println("Leelaz process ended.");
+
+            shutdown();
+            System.exit(-1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     /**
@@ -135,7 +199,11 @@ public class Leelaz {
                     // ignore passes, and only accept lines that start with a coordinate letter
                     if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
                         if (!(Lizzie.frame != null && Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
-                            bestMovesTemp.add(new MoveData(line));
+                            try {
+                                bestMovesTemp.add(new MoveData(line));
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                // this is very rare but is possible. ignore
+                            }
                         }
                     }
                 } else {
@@ -152,23 +220,19 @@ public class Leelaz {
                             isWaitingToStartPonder = false;
                         }
 
-                        if (isSettingHandicap)
-                        {
+                        if (isSettingHandicap) {
                             line = line.substring(2);
                             String[] stones = line.split(" ");
-                            for (String stone : stones)
-                            {
+                            for (String stone : stones) {
                                 int[] coordinates = Lizzie.board.convertNameToCoordinates(stone);
                                 Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
                             }
                             isSettingHandicap = false;
-                        }
-                        else if (isThinking)
-                        {
+                        } else if (isThinking) {
                             if (Lizzie.frame.isPlayingAgainstLeelaz) {
                                 Lizzie.board.place(line.substring(2));
                             }
-                            isThinking=false;
+                            isThinking = false;
                         }
                     }
                 }
@@ -195,7 +259,7 @@ public class Leelaz {
 
             shutdown();
             System.exit(-1);
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
         }
@@ -293,23 +357,39 @@ public class Leelaz {
         return isPondering;
     }
 
+    public class WinrateStats {
+        public double maxWinrate;
+        public int totalPlayouts;
+
+        public WinrateStats(double maxWinrate, int totalPlayouts) {
+            this.maxWinrate = maxWinrate;
+            this.totalPlayouts = totalPlayouts;
+        }
+    }
+
     /*
-     * Return the best win rate, returns negative number if no analysis is available
+     * Return the best win rate and total number of playouts.
+     * If no analysis available, win rate is negative and playouts is 0.
      */
-    public double getBestWinrate() {
-        double maxWinrate = -100;
+    public WinrateStats getWinrateStats() {
+        WinrateStats stats = new WinrateStats(-100, 0);
 
         if (bestMoves != null && !bestMoves.isEmpty()) {
             // we should match the Leelaz UCTNode get_eval, which is a weighted average
             final List<MoveData> moves = bestMoves;
 
             // get the total number of playouts in moves
-            int totalPlayouts = moves.stream().reduce(0, (Integer result, MoveData move) -> result + move.playouts, (Integer a, Integer b) -> a+b);
+            stats.totalPlayouts = moves.stream().reduce(0,
+                                                        (Integer result, MoveData move) -> result + move.playouts,
+                                                        (Integer a, Integer b) -> a + b);
 
             // set maxWinrate to the weighted average winrate of moves
-            maxWinrate = moves.stream().reduce(0d, (Double result, MoveData move) -> result + move.winrate * move.playouts / totalPlayouts, (Double a, Double b) -> a+b);
+            stats.maxWinrate = moves.stream().reduce(0d,
+                                                     (Double result, MoveData move) ->
+                                                         result + move.winrate * move.playouts / stats.totalPlayouts,
+                                                     (Double a, Double b) -> a + b);
         }
 
-        return maxWinrate;
+        return stats;
     }
 }

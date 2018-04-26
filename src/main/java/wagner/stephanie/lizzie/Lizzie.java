@@ -17,7 +17,7 @@ public class Lizzie {
     public static Leelaz leelaz;
     public static Board board;
     public static Config config;
-    public static String lizzieVersion = "0.4 pre-2";
+    public static String lizzieVersion = "0.4";
 
     /**
      * Launches the game window, and runs the game.
@@ -26,8 +26,15 @@ public class Lizzie {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         config = new Config();
-        leelaz = new Leelaz();
-        leelaz.togglePonder();
+
+        new Thread( () -> {
+            try {
+                leelaz = new Leelaz();
+                leelaz.togglePonder();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
 
         PluginManager.loadPlugins();
 

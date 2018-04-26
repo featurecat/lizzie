@@ -84,7 +84,9 @@ public class BoardRenderer {
         if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
             drawLeelazSuggestions(g);
 
-        drawNextMoves(g);
+        if (Lizzie.config.showNextMoves) {
+            drawNextMoves(g);
+        }
 
         PluginManager.onDraw(g);
 //        timer.lap("leelaz");
@@ -156,12 +158,12 @@ public class BoardRenderer {
                 g.setColor(Color.BLACK);
                 String alphabet = "ABCDEFGHJKLMNOPQRST";
                 for (int i = 0; i < Board.BOARD_SIZE; i++) {
-                    drawString(g, x + scaledMargin + squareLength * i, y + scaledMargin / 2, "Open Sans", "" + alphabet.charAt(i), stoneRadius * 4 / 5, stoneRadius);
-                    drawString(g, x + scaledMargin + squareLength * i, y - scaledMargin / 2 + boardLength, "Open Sans", "" + alphabet.charAt(i), stoneRadius * 4 / 5, stoneRadius);
+                    drawString(g, x + scaledMargin + squareLength * i, y + scaledMargin / 2, LizzieFrame.OpenSansRegularBase, "" + alphabet.charAt(i), stoneRadius * 4 / 5, stoneRadius);
+                    drawString(g, x + scaledMargin + squareLength * i, y - scaledMargin / 2 + boardLength, LizzieFrame.OpenSansRegularBase, "" + alphabet.charAt(i), stoneRadius * 4 / 5, stoneRadius);
                 }
                 for (int i = 0; i < Board.BOARD_SIZE; i++) {
-                    drawString(g, x + scaledMargin / 2, y + scaledMargin + squareLength * i, "Open Sans", "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
-                    drawString(g, x - scaledMargin / 2 + +boardLength, y + scaledMargin + squareLength * i, "Open Sans", "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
+                    drawString(g, x + scaledMargin / 2, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
+                    drawString(g, x - scaledMargin / 2 + +boardLength, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
                 }
             }
             cachedBackgroundImageHasCoordinatesEnabled = Lizzie.frame.showCoordinates;
@@ -212,7 +214,7 @@ public class BoardRenderer {
         branchStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
         branch = null;
 
-        if (Lizzie.frame.isPlayingAgainstLeelaz) {
+        if (Lizzie.frame.isPlayingAgainstLeelaz || Lizzie.leelaz == null) {
             return;
         }
         // calculate best moves and branch
@@ -297,7 +299,7 @@ public class BoardRenderer {
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
                 g.fillOval(x + boardLength / 2 - 4 * stoneRadius, y + boardLength / 2 - 4 * stoneRadius, stoneRadius * 8, stoneRadius * 8);
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
-                drawString(g, x + boardLength / 2, y + boardLength / 2, "Open Sans", "pass", stoneRadius * 4, stoneRadius * 6);
+                drawString(g, x + boardLength / 2, y + boardLength / 2, LizzieFrame.OpenSansRegularBase, "pass", stoneRadius * 4, stoneRadius * 6);
             }
 
             return;
@@ -321,7 +323,7 @@ public class BoardRenderer {
                         g.setColor(stoneAtThisPoint.isBlack() ? Color.WHITE : Color.BLACK);
 
                     String moveNumberString = moveNumberList[Board.getIndex(i, j)] + "";
-                    drawString(g, stoneX, stoneY, "Open Sans", moveNumberString, (float) (stoneRadius * 1.4), (int) (stoneRadius * 1.4));
+                    drawString(g, stoneX, stoneY, LizzieFrame.OpenSansRegularBase, moveNumberString, (float) (stoneRadius * 1.4), (int) (stoneRadius * 1.4));
                 }
             }
         }
@@ -331,6 +333,9 @@ public class BoardRenderer {
      * Draw all of Leelaz's suggestions as colored stones with winrate/playout statistics overlayed
      */
     private void drawLeelazSuggestions(Graphics2D g) {
+        if (Lizzie.leelaz == null)
+            return;
+
         final int MIN_ALPHA = 32;
         final int MIN_ALPHA_TO_DISPLAY_TEXT = 64;
         final int MAX_ALPHA = 240;
@@ -415,8 +420,8 @@ public class BoardRenderer {
                         if (branch != null && Lizzie.board.getData().blackToPlay)
                             g.setColor(Color.WHITE);
 
-                        drawString(g, suggestionX, suggestionY, "Open Sans Semibold", Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
-                        drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, "Open Sans", getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
+                        drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
+                        drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, LizzieFrame.OpenSansRegularBase, getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                     }
                 }
             }
@@ -639,9 +644,9 @@ public class BoardRenderer {
      * aboveOrBelow = 0  -> y is the vertical center of the string
      * aboveOrBelow = 1  -> y is the bottom of the string
      */
-    private void drawString(Graphics2D g, int x, int y, String fontString, int style, String string, float maximumFontHeight, double maximumFontWidth, int aboveOrBelow) {
+    private void drawString(Graphics2D g, int x, int y, Font fontBase, int style, String string, float maximumFontHeight, double maximumFontWidth, int aboveOrBelow) {
 
-        Font font = makeFont(fontString, style);
+        Font font = makeFont(fontBase, style);
 
         // set maximum size of font
         font = font.deriveFont((float) (font.getSize2D() * maximumFontWidth / g.getFontMetrics(font).stringWidth(string)));
@@ -669,15 +674,15 @@ public class BoardRenderer {
         g.drawString(string, x - metrics.stringWidth(string) / 2, y + height / 2 + verticalOffset);
     }
 
-    private void drawString(Graphics2D g, int x, int y, String fontString, String string, float maximumFontHeight, double maximumFontWidth) {
-        drawString(g, x, y, fontString, Font.PLAIN, string, maximumFontHeight, maximumFontWidth, 0);
+    private void drawString(Graphics2D g, int x, int y, Font fontBase, String string, float maximumFontHeight, double maximumFontWidth) {
+        drawString(g, x, y, fontBase, Font.PLAIN, string, maximumFontHeight, maximumFontWidth, 0);
     }
 
     /**
      * @return a font with kerning enabled
      */
-    private Font makeFont(String fontString, int style) {
-        Font font = new Font(fontString, style, 100);
+    private Font makeFont(Font fontBase, int style) {
+        Font font = fontBase.deriveFont(style, 100);
         Map<TextAttribute, Object> atts = new HashMap<>();
         atts.put(TextAttribute.KERNING, TextAttribute.KERNING_ON);
         return font.deriveFont(atts);

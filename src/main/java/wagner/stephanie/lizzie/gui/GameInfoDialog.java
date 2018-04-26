@@ -129,16 +129,4 @@ public class GameInfoDialog extends JDialog {
         // close window
         setVisible(false);
     }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(() -> {
-            try {
-                GameInfoDialog window = new GameInfoDialog();
-                window.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
 }
