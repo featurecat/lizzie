@@ -2,6 +2,7 @@ package wagner.stephanie.lizzie.gui;
 
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.Leelaz;
+import wagner.stephanie.lizzie.rules.BoardHistoryList;
 import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 
 import java.awt.*;
@@ -47,11 +48,26 @@ public class WinrateGraph {
         g.setColor(Color.white);
         g.drawLine(posx, posy + height/2, posx + width, posy + height/2);
 
-        g.setStroke(new BasicStroke(1));
+        g.setColor(Color.green);
+        g.setStroke(new BasicStroke(3));
+
+        BoardHistoryNode topOfVariation = null;
+        int numMoves = 0;
+        if (!BoardHistoryList.isMainTrunk(curMove))
+        {
+            // We're in a variation, need to draw both main trunk and variation
+            // Find top of variation
+            topOfVariation = BoardHistoryList.findTop(curMove);
+            // Find depth of main trunk, need this for plot scaling
+            numMoves = BoardHistoryList.getDepth(topOfVariation) + topOfVariation.getData().moveNumber - 1;
+            g.setStroke(dashed);
+        }
 
         // Go to end of variation and work our way backwards to the root
         while (node.next() != null) node = node.next();
-        int numMoves = node.getData().moveNumber-1;
+        if (numMoves < node.getData().moveNumber-1) {
+            numMoves = node.getData().moveNumber - 1;
+        }
 
         if (numMoves < 1) return;
 
@@ -59,9 +75,7 @@ public class WinrateGraph {
         width = (int)(width*0.95); // Leave some space after last move
         double lastWr = 50;
         boolean lastNodeOk = false;
-        int movenum = numMoves;
-        g.setColor(Color.green);
-        g.setStroke(new BasicStroke(3));
+        int movenum = node.getData().moveNumber - 1;
 
         while (node.previous() != null)
         {
@@ -77,33 +91,45 @@ public class WinrateGraph {
                 }
             }
             if (playouts > 0) {
-               if (wr < 0)
-               {
-                  wr = 100 - lastWr;
-               }
-               else if (!node.getData().blackToPlay)
-               {
-                  wr = 100 - wr;
-               }
-               if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == !node.getData().blackToPlay) {
-                  wr = lastWr;
-               }
+                if (wr < 0)
+                {
+                    wr = 100 - lastWr;
+                }
+                else if (!node.getData().blackToPlay)
+                {
+                    wr = 100 - wr;
+                }
+                if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == !node.getData().blackToPlay) {
+                    wr = lastWr;
+                }
 
-               if (lastNodeOk)
-                  g.drawLine(posx + ((movenum + 1)*width/numMoves),
-                             posy + height - (int)(lastWr*height/100),
-                             posx + (movenum*width/numMoves),
-                             posy + height - (int)(wr*height/100));
-               if (node == curMove)
-                  g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
-                             posy + height - (int)(wr*height/100) - DOT_RADIUS,
-                             DOT_RADIUS*2,
-                             DOT_RADIUS*2);
-               lastWr = wr;
-               lastNodeOk = true;
+                if (lastNodeOk)
+                    g.drawLine(posx + ((movenum + 1)*width/numMoves),
+                            posy + height - (int)(lastWr*height/100),
+                            posx + (movenum*width/numMoves),
+                            posy + height - (int)(wr*height/100));
+                if (node == curMove)
+                    g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
+                            posy + height - (int)(wr*height/100) - DOT_RADIUS,
+                            DOT_RADIUS*2,
+                            DOT_RADIUS*2);
+                lastWr = wr;
+                // Check if we were in a variation and has reached the main trunk
+                if (node == topOfVariation) {
+                    // Reached top of variation, go to end of main trunk before continuing
+                    while (node.next() != null) node = node.next();
+                    movenum = node.getData().moveNumber - 1;
+                    lastWr = node.getData().winrate;
+                    if (!node.getData().blackToPlay)
+                        lastWr = 100 - lastWr;
+                    g.setStroke(new BasicStroke(3));
+                    topOfVariation = null;
+                }
+                lastNodeOk = true;
             } else {
-               lastNodeOk = false;
+                lastNodeOk = false;
             }
+
             node = node.previous();
             movenum--;
         }
