@@ -99,6 +99,16 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         Lizzie.board.previousBranch();
     }
 
+    private void moveBranchUp() {
+        Lizzie.board.moveBranchUp();
+    }
+
+    private void moveBranchDown() {
+        Lizzie.board.moveBranchDown();
+    }
+
+    private void deleteMove() { Lizzie.board.deleteMove(); }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -119,11 +129,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_RIGHT:
-                nextBranch();
+                if (e.isShiftDown()) {
+                    moveBranchDown();
+                } else {
+                    nextBranch();
+                }
                 break;
 
             case VK_LEFT:
-                previousBranch();
+                if (e.isShiftDown()) {
+                    moveBranchUp();
+                } else {
+                    previousBranch();
+                }
                 break;
 
             case VK_UP:
@@ -232,6 +250,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     Lizzie.frame.isPlayingAgainstLeelaz = true;
                     Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "B" : "W"));
                 }
+                break;
+
+            case VK_DELETE:
+            case VK_BACK_SPACE:
+                deleteMove();
                 break;
 
             default:

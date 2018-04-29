@@ -1,6 +1,9 @@
 package wagner.stephanie.lizzie.rules;
 
+import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.Lizzie;
+
+import javax.swing.*;
 
 public class Board {
     public static final int BOARD_SIZE = 19;
@@ -16,7 +19,8 @@ public class Board {
         boolean blackToPlay = true;
         int[] lastMove = null;
 
-        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay, new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50));
+        history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay,
+                                                     new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50, 0));
     }
 
     /**
@@ -93,7 +97,8 @@ public class Board {
             int[] moveNumberList = history.getMoveNumberList().clone();
 
             // build the new game state
-            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, 0);
+            BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE),
+                                               zobrist, moveNumber, moveNumberList, 0, 0);
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
@@ -127,14 +132,15 @@ public class Board {
                 return;
 
             // Update winrate
-            double wr = Lizzie.leelaz.getBestWinrate();
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
 
-            if (wr >= 0)
+            if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().playouts)
             {
-                history.getData().winrate = wr;
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
             }
             double nextWinrate = -100;
-            if (history.getData().winrate > 0) nextWinrate = 100 - history.getData().winrate;
+            if (history.getData().winrate >= 0) nextWinrate = 100 - history.getData().winrate;
 
             // check to see if this coordinate is being replayed in history
             BoardData next = history.getNext();
@@ -179,7 +185,8 @@ public class Board {
                 }
             }
 
-            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE), zobrist, moveNumber, moveNumberList, nextWinrate);
+            BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE),
+                                               zobrist, moveNumber, moveNumberList, nextWinrate, 0);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
@@ -236,7 +243,8 @@ public class Board {
          Stone[] stones = history.getStones();
          boolean blackToPlay = history.isBlacksTurn();
          Zobrist zobrist = history.getZobrist().clone();
-         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist, 0, new int[BOARD_SIZE * BOARD_SIZE], 0.0));
+         history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist,
+                                                      0, new int[BOARD_SIZE * BOARD_SIZE], 0.0, 0));
      }
 
     /**
@@ -359,9 +367,10 @@ public class Board {
     public boolean nextMove() {
         synchronized (this) {
             // Update win rate statistics
-            double wr = Lizzie.leelaz.getBestWinrate();
-            if (wr >= 0) {
-                history.getData().winrate = wr;
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+            if (stats.totalPlayouts >= history.getData().playouts) {
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
             }
             if (history.next() != null) {
                 // update leelaz board position, before updating to next node
@@ -584,6 +593,37 @@ public class Board {
         }
     }
 
+    public void moveBranchUp() {
+        synchronized (this) {
+            history.getCurrentHistoryNode().topOfBranch().moveUp();
+        }
+    }
+
+    public void moveBranchDown() {
+        synchronized (this) {
+            history.getCurrentHistoryNode().topOfBranch().moveDown();
+        }
+    }
+
+    public void deleteMove() {
+        synchronized (this) {
+            BoardHistoryNode curNode = history.getCurrentHistoryNode();
+            if (curNode.next() != null) {
+                // Will delete more than one move, ask for confirmation
+                int ret = JOptionPane.showConfirmDialog(null, "This will delete all moves and branches after this move", "Delete", JOptionPane.OK_CANCEL_OPTION);
+                if (ret != JOptionPane.OK_OPTION) {
+                    return;
+                }
+
+            }
+            // Don't try to delete if we're at the top
+            if (curNode.previous() == null) return;
+            previousMove();
+            int idx = BoardHistoryList.findIndexOfNode(curNode.previous(), curNode);
+            curNode.previous().deleteChild(idx);
+        }
+    }
+
     public BoardData getData() {
         return history.getData();
     }
@@ -606,9 +646,10 @@ public class Board {
     public boolean previousMove() {
         synchronized (this) {
             // Update win rate statistics
-            double wr  = Lizzie.leelaz.getBestWinrate();
-            if (wr >= 0) {
-                history.getData().winrate = wr;
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+            if (stats.totalPlayouts >= history.getData().playouts) {
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
             }
             if (history.previous() != null) {
                 Lizzie.leelaz.undo();
