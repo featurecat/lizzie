@@ -12,6 +12,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 
 import com.jhlabs.image.GaussianFilter;
+import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.analysis.Leelaz;
@@ -170,7 +171,8 @@ public class LizzieFrame extends JFrame {
 
     public static void saveSgf() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
-        JFileChooser chooser = new JFileChooser();
+        JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
+        JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
         chooser.setFileFilter(filter);
         chooser.setMultiSelectionEnabled(false);
         int result = chooser.showSaveDialog(null);
@@ -187,6 +189,7 @@ public class LizzieFrame extends JFrame {
             }
             try {
                 SGFParser.save(Lizzie.board, file.getPath());
+                filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
                 JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToSaveSgf"), "Error", JOptionPane.ERROR);
             }
@@ -195,7 +198,9 @@ public class LizzieFrame extends JFrame {
 
     public static void openSgf() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
-        JFileChooser chooser = new JFileChooser();
+        JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
+        JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+
         chooser.setFileFilter(filter);
         chooser.setMultiSelectionEnabled(false);
         int result = chooser.showOpenDialog(null);
@@ -207,6 +212,7 @@ public class LizzieFrame extends JFrame {
             try {
                 System.out.println(file.getPath());
                 SGFParser.load(file.getPath());
+                filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
                 JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
             }

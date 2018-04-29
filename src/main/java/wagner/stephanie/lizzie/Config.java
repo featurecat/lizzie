@@ -18,15 +18,16 @@ public class Config {
     public boolean showNextMoves = true;
     
     public JSONObject config;
-    
-    public Config() throws IOException {
-        JSONObject defaultConfig = createDefaultConfig();
+    public JSONObject persisted;
 
-        File file = new File("lizzie.properties");
+    private String persistFilename = "persist.properties";
+
+    private JSONObject loadAndMergeConfig(JSONObject defaultCfg, String fileName) throws IOException {
+        File file = new File(fileName);
         if (!file.canRead()) {
-            System.err.println("Creating config file");
+            System.err.printf("Creating config file %s\n", fileName);
             try {
-                writeConfig(defaultConfig, file);
+                writeConfig(defaultCfg, file);
             } catch (JSONException e) {
                 e.printStackTrace();
                 System.exit(1);
@@ -35,21 +36,34 @@ public class Config {
 
         FileInputStream fp = new FileInputStream(file);
 
-        this.config = null;
+        JSONObject mergedcfg = null;
         boolean modified = false;
         try {
-            this.config = new JSONObject(new JSONTokener(fp));
-            modified = merge_defaults(this.config, defaultConfig);
+            mergedcfg = new JSONObject(new JSONTokener(fp));
+            modified = merge_defaults(mergedcfg, defaultCfg);
         } catch (JSONException e) {
-            this.config = null;
+            mergedcfg = null;
             e.printStackTrace();
         }
-        
+
         fp.close();
 
         if (modified) {
-            writeConfig(this.config, file);
+            writeConfig(mergedcfg, file);
         }
+        return mergedcfg;
+
+
+    }
+
+    public Config() throws IOException {
+        JSONObject defaultConfig = createDefaultConfig();
+        JSONObject persistConfig = createPersistConfig();
+
+        // Main properties
+        this.config = loadAndMergeConfig(defaultConfig, "lizzie.properties");
+        // Persisted properties
+        this.persisted = loadAndMergeConfig(persistConfig, persistFilename);
 
         JSONObject uiConfig = config.getJSONObject("ui");
         showMoveNumber = uiConfig.getBoolean("show-move-number");
@@ -140,6 +154,25 @@ public class Config {
         return config;
     }
 
+    private JSONObject createPersistConfig() {
+        JSONObject config = new JSONObject();
+
+        // About engine parameter
+        JSONObject filesys = new JSONObject();
+        filesys.put("last-folder", "");
+
+        config.put("filesystem", filesys);
+
+        // About User Interface display
+        //JSONObject ui = new JSONObject();
+
+        //ui.put("window-height", 657);
+        //ui.put("window-width", 687);
+
+        //config.put("ui", ui);
+        return config;
+    }
+
     private void writeConfig(JSONObject config, File file) throws IOException, JSONException {
         file.createNewFile();
 
@@ -152,5 +185,8 @@ public class Config {
         fp.close();
     }
 
+    public void persist() throws IOException {
+        writeConfig(this.persisted, new File(persistFilename));
+    }
 
 }
