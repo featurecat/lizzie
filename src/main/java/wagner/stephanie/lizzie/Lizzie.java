@@ -52,6 +52,12 @@ public class Lizzie {
             }
         }
 
+        try {
+            config.persist();
+        } catch (IOException err) {
+            // Failed to save config
+        }
+
         leelaz.shutdown();
         System.exit(0);
     }
