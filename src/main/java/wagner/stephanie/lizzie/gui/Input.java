@@ -107,6 +107,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         Lizzie.board.moveBranchDown();
     }
 
+    private void deleteMove() { Lizzie.board.deleteMove(); }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -248,6 +250,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     Lizzie.frame.isPlayingAgainstLeelaz = true;
                     Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "B" : "W"));
                 }
+                break;
+
+            case VK_DELETE:
+            case VK_BACK_SPACE:
+                deleteMove();
                 break;
 
             default:

@@ -3,6 +3,8 @@ package wagner.stephanie.lizzie.rules;
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.Lizzie;
 
+import javax.swing.*;
+
 public class Board {
     public static final int BOARD_SIZE = 19;
     private final static String alphabet = "ABCDEFGHJKLMNOPQRST";
@@ -600,6 +602,25 @@ public class Board {
     public void moveBranchDown() {
         synchronized (this) {
             history.getCurrentHistoryNode().topOfBranch().moveDown();
+        }
+    }
+
+    public void deleteMove() {
+        synchronized (this) {
+            BoardHistoryNode curNode = history.getCurrentHistoryNode();
+            if (curNode.next() != null) {
+                // Will delete more than one move, ask for confirmation
+                int ret = JOptionPane.showConfirmDialog(null, "This will delete all moves and branches after this move", "Delete", JOptionPane.OK_CANCEL_OPTION);
+                if (ret != JOptionPane.OK_OPTION) {
+                    return;
+                }
+
+            }
+            // Don't try to delete if we're at the top
+            if (curNode.previous() == null) return;
+            previousMove();
+            int idx = BoardHistoryList.findIndexOfNode(curNode.previous(), curNode);
+            curNode.previous().deleteChild(idx);
         }
     }
 

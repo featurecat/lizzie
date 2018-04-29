@@ -164,4 +164,10 @@ public class BoardHistoryNode {
             }
         }
     }
+
+    public void deleteChild(int idx) {
+        if (idx < numberOfChildren()) {
+            nexts.remove(idx);
+        }
+    }
 }
