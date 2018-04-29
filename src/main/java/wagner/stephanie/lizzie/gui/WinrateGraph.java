@@ -76,6 +76,7 @@ public class WinrateGraph {
         double lastWr = 50;
         boolean lastNodeOk = false;
         int movenum = node.getData().moveNumber - 1;
+        int lastOkMove = -1;
 
         while (node.previous() != null)
         {
@@ -104,15 +105,25 @@ public class WinrateGraph {
                 }
 
                 if (lastNodeOk)
-                    g.drawLine(posx + ((movenum + 1)*width/numMoves),
-                            posy + height - (int)(lastWr*height/100),
-                            posx + (movenum*width/numMoves),
-                            posy + height - (int)(wr*height/100));
+                    g.setColor(Color.green);
+                else
+                    g.setColor(Color.gray);
+
+                if (lastOkMove > 0) {
+                    g.drawLine(posx + (lastOkMove * width / numMoves),
+                            posy + height - (int) (lastWr * height / 100),
+                            posx + (movenum * width / numMoves),
+                            posy + height - (int) (wr * height / 100));
+                }
+
                 if (node == curMove)
+                {
+                    g.setColor(Color.green);
                     g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
                             posy + height - (int)(wr*height/100) - DOT_RADIUS,
                             DOT_RADIUS*2,
                             DOT_RADIUS*2);
+                }
                 lastWr = wr;
                 // Check if we were in a variation and has reached the main trunk
                 if (node == topOfVariation) {
@@ -126,6 +137,7 @@ public class WinrateGraph {
                     topOfVariation = null;
                 }
                 lastNodeOk = true;
+                lastOkMove = movenum;
             } else {
                 lastNodeOk = false;
             }
