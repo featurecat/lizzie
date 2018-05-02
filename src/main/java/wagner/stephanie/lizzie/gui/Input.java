@@ -109,6 +109,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     private void deleteMove() { Lizzie.board.deleteMove(); }
 
+    private void playCurrentVariation() {
+        Lizzie.frame.playCurrentVariation();
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -168,6 +172,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             case VK_P:
                 Lizzie.board.pass();
+                break;
+
+            case VK_COMMA:
+                playCurrentVariation();
                 break;
 
             case VK_M:

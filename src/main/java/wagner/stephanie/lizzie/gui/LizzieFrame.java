@@ -34,6 +34,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -573,6 +574,18 @@ public class LizzieFrame extends JFrame {
         if (boardCoordinates != null) {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+        }
+        repaint();
+    }
+
+    public void playCurrentVariation() {
+        List<String> variation = boardRenderer.variation;
+        if (variation != null) {
+            for (int i = 0; i < variation.size(); i++) {
+                int[] boardCoordinates = Board.convertNameToCoordinates(variation.get(i));
+                if (boardCoordinates != null)
+                    Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+            }
         }
         repaint();
     }
