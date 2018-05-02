@@ -257,6 +257,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 deleteMove();
                 break;
 
+            case VK_Z:
+                Lizzie.config.showRawBoard = true;
+                Lizzie.frame.repaint();
+                break;
+
             default:
         }
         Lizzie.frame.repaint();
@@ -280,6 +285,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 if (wasPonderingWhenControlsShown)
                     Lizzie.leelaz.togglePonder();
                 Lizzie.frame.showControls = false;
+                Lizzie.frame.repaint();
+                break;
+
+            case VK_Z:
+                Lizzie.config.showRawBoard = false;
                 Lizzie.frame.repaint();
                 break;
 

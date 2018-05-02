@@ -10,6 +10,7 @@ public class Config {
     public boolean showMoveNumber = false;
     public boolean showWinrate = true;
     public boolean showVariationGraph = true;
+    public boolean showRawBoard = false;
     
     // For plug-ins
     public boolean showBranch = true;
