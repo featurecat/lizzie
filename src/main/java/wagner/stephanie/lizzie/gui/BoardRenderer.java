@@ -79,13 +79,15 @@ public class BoardRenderer {
         renderImages(g);
 //        timer.lap("rendering images");
 
-        drawMoveNumbers(g);
+        if (!Lizzie.config.showRawBoard) {
+            drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
-            drawLeelazSuggestions(g);
+            if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
+                drawLeelazSuggestions(g);
 
-        if (Lizzie.config.showNextMoves) {
-            drawNextMoves(g);
+            if (Lizzie.config.showNextMoves) {
+                drawNextMoves(g);
+            }
         }
 
         PluginManager.onDraw(g);
@@ -221,7 +223,7 @@ public class BoardRenderer {
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
 
-        if (!Lizzie.config.showBranch) {
+        if (Lizzie.config.showRawBoard || !Lizzie.config.showBranch) {
             return;
         }
 
