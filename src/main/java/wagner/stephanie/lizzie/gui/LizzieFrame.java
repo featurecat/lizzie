@@ -262,7 +262,9 @@ public class LizzieFrame extends JFrame {
             boardRenderer.draw(g);
 
             if (Lizzie.leelaz != null) {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") + (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")), 0.02);
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
+                        (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
+                        this.getInsets().left, boardY + maxSize*2/3, .02);
 
                 int panelMargin = (int) (maxSize * 0.05);
                 // Todo: Make board move over when there is no space beside the board
@@ -288,7 +290,8 @@ public class LizzieFrame extends JFrame {
                     variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
                 }
             } else {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"),0.03);
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"),this.getInsets().left,
+                        boardY + maxSize*2/3,0.03);
             }
 
             // cleanup
@@ -335,9 +338,7 @@ public class LizzieFrame extends JFrame {
         g.drawImage(result, vx, vy, null);
     }
 
-    private void drawPonderingState(Graphics2D g, String text, double size) {
-        int x = this.getInsets().left;
-        int y = this.getInsets().top;
+    private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int)(Math.max(getWidth(), getHeight()) * size));
         FontMetrics fm = g.getFontMetrics(font);
         int stringWidth = fm.stringWidth(text);
