@@ -48,6 +48,7 @@ public class BoardRenderer {
     private BufferedImage branchStonesShadowImage = null;
 
     public ITheme theme;
+    public List<String> variation;
 
 
     public BoardRenderer() {
@@ -222,6 +223,7 @@ public class BoardRenderer {
         // calculate best moves and branch
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
+        variation = null;
 
         if (Lizzie.config.showRawBoard || !Lizzie.config.showBranch) {
             return;
@@ -236,7 +238,8 @@ public class BoardRenderer {
                 int[] coord = Board.convertNameToCoordinates(move.coordinate);
 
                 if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
-                    branch = new Branch(Lizzie.board, move.variation);
+                    variation = move.variation;
+                    branch = new Branch(Lizzie.board, variation);
                     break;
                 }
             }
