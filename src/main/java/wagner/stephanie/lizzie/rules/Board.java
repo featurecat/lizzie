@@ -137,6 +137,13 @@ public class Board {
      */
     public void place(int x, int y, Stone color) {
         synchronized (this) {
+            if (scoreMode) {
+                // Mark clicked stone as dead
+                Stone[] stones = history.getStones();
+                toggleLiveStatus(capturedStones, x, y);
+                return;
+            }
+
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
 
@@ -663,6 +670,7 @@ public class Board {
      */
     public boolean previousMove() {
         synchronized (this) {
+            if (inScoreMode()) setScoreMode(false);
             // Update win rate statistics
             Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
             if (stats.totalPlayouts >= history.getData().playouts) {
