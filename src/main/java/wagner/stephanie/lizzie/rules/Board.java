@@ -659,4 +659,13 @@ public class Board {
             return false;
         }
     }
+
+    public boolean undoToChildOfPreviousWithVariation() {
+        BoardHistoryNode start = history.getCurrentHistoryNode();
+        BoardHistoryNode goal = history.findChildOfPreviousWithVariation(start);
+        if (start == goal)
+            return false;
+        while ((history.getCurrentHistoryNode() != goal) && previousMove()) ;
+        return true;
+    }
 }

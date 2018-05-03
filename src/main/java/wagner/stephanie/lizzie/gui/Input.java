@@ -73,6 +73,17 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             Lizzie.board.previousMove();
     }
 
+    private void undoToChildOfPreviousWithVariation() {
+        // Undo until the position just after the junction position.
+        // If we are already on such a position, we go to
+        // the junction position for convenience.
+        // Use cases:
+        // [Delete branch] Call this function and then deleteMove.
+        // [Go to junction] Call this function twice.
+        if (!Lizzie.board.undoToChildOfPreviousWithVariation())
+            Lizzie.board.previousMove();
+    }
+
     private void redo() {
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
@@ -145,7 +156,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_UP:
-                undo();
+                if (e.isShiftDown()) {
+                    undoToChildOfPreviousWithVariation();
+                } else {
+                    undo();
+                }
                 break;
 
             case VK_DOWN:
