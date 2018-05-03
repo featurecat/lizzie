@@ -1,7 +1,7 @@
 package wagner.stephanie.lizzie.rules;
 
 public enum Stone {
-    BLACK, WHITE, EMPTY, BLACK_RECURSED, WHITE_RECURSED, BLACK_GHOST, WHITE_GHOST;
+    BLACK, WHITE, EMPTY, BLACK_RECURSED, WHITE_RECURSED, BLACK_GHOST, WHITE_GHOST, DAME, BLACK_POINT, WHITE_POINT, BLACK_CAPTURED, WHITE_CAPTURED;
 
     /**
      * used to find the opposite color stone
