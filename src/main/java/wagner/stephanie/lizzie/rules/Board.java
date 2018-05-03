@@ -2,14 +2,19 @@ package wagner.stephanie.lizzie.rules;
 
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.analysis.LeelazListener;
+import wagner.stephanie.lizzie.analysis.MoveData;
 
 import javax.swing.*;
+import java.util.List;
 
-public class Board {
+public class Board implements LeelazListener {
     public static final int BOARD_SIZE = 19;
     private final static String alphabet = "ABCDEFGHJKLMNOPQRST";
 
     private BoardHistoryList history;
+    private boolean analysisMode = false;
+    private int playoutsAnalysis = 100;
 
     public Board() {
         Stone[] stones = new Stone[BOARD_SIZE * BOARD_SIZE];
@@ -657,6 +662,32 @@ public class Board {
                 return true;
             }
             return false;
+        }
+    }
+
+    public void toggleAnalysis() {
+        if (getNextMove() == null) return;
+        if (analysisMode) {
+            Lizzie.leelaz.removeListener(this);
+            analysisMode = false;
+        } else {
+            String answer = JOptionPane.showInputDialog("# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
+
+            playoutsAnalysis = Integer.parseInt(answer);
+            Lizzie.leelaz.addListener(this);
+            analysisMode = true;
+            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+        }
+    }
+
+    public void bestMoveNotification(List<MoveData> bestMoves) {
+        if (analysisMode) {
+            if (bestMoves.get(0).playouts > playoutsAnalysis) {
+                if (!nextMove()) {
+                    // Reached the end...
+                    toggleAnalysis();
+                }
+            }
         }
     }
 }

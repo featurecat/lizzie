@@ -37,6 +37,8 @@ public class Leelaz {
     private List<MoveData> bestMoves;
     private List<MoveData> bestMovesTemp;
 
+    private List<LeelazListener> listeners;
+
     private boolean isPondering;
     private long startPonderTime;
 
@@ -58,6 +60,7 @@ public class Leelaz {
         isReadingPonderOutput = false;
         bestMoves = new ArrayList<>();
         bestMovesTemp = new ArrayList<>();
+        listeners = new ArrayList<>();
 
         isPondering = false;
         startPonderTime = System.currentTimeMillis();
@@ -190,6 +193,8 @@ public class Leelaz {
             } else if (line.startsWith("~end") && !isWaitingToStartPonder) {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
+
+                notifyBestMoveListeners();
 
                 if (Lizzie.frame != null) Lizzie.frame.repaint();
             } else {
@@ -391,5 +396,19 @@ public class Leelaz {
         }
 
         return stats;
+    }
+
+    public synchronized void addListener(LeelazListener listener) {
+        listeners.add(listener);
+    }
+
+    public synchronized void removeListener(LeelazListener listener) {
+        listeners.remove(listener);
+    }
+
+    private synchronized void notifyBestMoveListeners() {
+        for (LeelazListener listener: listeners) {
+            listener.bestMoveNotification(bestMoves);
+        }
     }
 }
