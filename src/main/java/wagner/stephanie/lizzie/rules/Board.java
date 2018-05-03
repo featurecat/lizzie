@@ -20,7 +20,7 @@ public class Board {
         int[] lastMove = null;
 
         history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay,
-                                                     new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50, 0));
+                                                     new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 0, 0, 50, 0));
     }
 
     /**
@@ -98,7 +98,7 @@ public class Board {
 
             // build the new game state
             BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE),
-                                               zobrist, moveNumber, moveNumberList, 0, 0);
+                                               zobrist, moveNumber, moveNumberList, history.getData().blackCaptures, history.getData().whiteCaptures, 0, 0);
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
@@ -185,8 +185,10 @@ public class Board {
                 }
             }
 
+            int bc = history.getData().blackCaptures;
+            int wc = history.getData().whiteCaptures;
             BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE),
-                                               zobrist, moveNumber, moveNumberList, nextWinrate, 0);
+                                               zobrist, moveNumber, moveNumberList, bc, wc, nextWinrate, 0);
 
             // don't make this coordinate if it is suicidal or violates superko
             if (isSuicidal || history.violatesSuperko(newState))
@@ -244,7 +246,7 @@ public class Board {
          boolean blackToPlay = history.isBlacksTurn();
          Zobrist zobrist = history.getZobrist().clone();
          history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist,
-                                                      0, new int[BOARD_SIZE * BOARD_SIZE], 0.0, 0));
+                                                      0, new int[BOARD_SIZE * BOARD_SIZE], 0, 0, 0.0, 0));
      }
 
     /**
