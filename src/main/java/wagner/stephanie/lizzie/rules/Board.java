@@ -682,6 +682,10 @@ public class Board implements LeelazListener {
 
     public void bestMoveNotification(List<MoveData> bestMoves) {
         if (analysisMode) {
+            if (bestMoves == null || bestMoves.size() == 0) {
+                // Return empty when end is reached
+                toggleAnalysis();
+            };
             if (bestMoves.get(0).playouts > playoutsAnalysis) {
                 if (!nextMove()) {
                     // Reached the end...
