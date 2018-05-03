@@ -294,6 +294,8 @@ public class LizzieFrame extends JFrame {
                         boardY + maxSize*2/3,0.03);
             }
 
+            drawCaptured(g, 0, this.getInsets().top, boardRenderer.getLocation().x - (int)(maxSize*0.05), boardY+ maxSize/8 - this.getInsets().top);
+
             // cleanup
             g.dispose();
         }
@@ -559,6 +561,58 @@ public class LizzieFrame extends JFrame {
             g.drawLine(middleX, barPosY, middleX, barPosY + barHeight);
             g.setStroke(oldstroke);
         }
+    }
+
+    private void drawCaptured(Graphics2D g, int posX, int posY, int width, int height) {
+        // Draw border
+        g.setColor(new Color(0, 0, 0, 130));
+        g.fillRect(posX, posY, width, height);
+
+        // border. does not include bottom edge
+        int strokeRadius = 3;
+        g.setStroke(new BasicStroke(2 * strokeRadius));
+        g.drawLine(posX + strokeRadius, posY + strokeRadius,
+                posX - strokeRadius + width, posY + strokeRadius);
+        g.drawLine(posX + strokeRadius, posY + 3 * strokeRadius,
+                posX + strokeRadius, posY - strokeRadius + height);
+        g.drawLine(posX - strokeRadius + width, posY + 3 * strokeRadius,
+                posX - strokeRadius + width, posY - strokeRadius + height);
+
+        // Draw middle line
+        g.drawLine(posX - strokeRadius + width/2, posY + 3 * strokeRadius,
+                posX - strokeRadius + width/2, posY - strokeRadius + height);
+        g.setColor(Color.white);
+
+        // Draw black and white "stone"
+        int diam = 40;
+        g.setColor(Color.black);
+        g.fillOval(posX + width/4 - diam/2, posY + height*3/8, diam, diam);
+
+        g.setColor(Color.WHITE);
+        g.fillOval(posX + width*3/4 - diam/2, posY + height*3/8, diam, diam);
+
+        // Draw captures
+        String bval, wval;
+        if (Lizzie.board.inScoreMode())
+        {
+            double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
+            bval = String.format("%.0f", score[0]);
+            wval = String.format("%.1f", score[1]);
+        } else {
+            bval = String.format("%d", Lizzie.board.getData().blackCaptures);
+            wval = String.format("%d", Lizzie.board.getData().whiteCaptures);
+        }
+
+        g.setColor(Color.WHITE);
+        int bw = g.getFontMetrics().stringWidth(bval);
+        int ww = g.getFontMetrics().stringWidth(wval);
+
+        g.drawString(bval,
+                posX + width/4 - bw/2,
+                posY + height*7/8);
+        g.drawString(wval,
+                posX + width*3/4 - ww/2,
+                posY + height*7/8);
     }
 
     /**
