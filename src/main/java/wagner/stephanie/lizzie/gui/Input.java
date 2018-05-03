@@ -257,6 +257,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 deleteMove();
                 break;
 
+            case VK_PERIOD:
+                if (Lizzie.board.getHistory().getNext() == null)
+                {
+                    Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
+                }
+                break;
+
             default:
         }
         Lizzie.frame.repaint();

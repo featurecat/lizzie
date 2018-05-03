@@ -4,12 +4,18 @@ import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.Lizzie;
 
 import javax.swing.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
 
 public class Board {
     public static final int BOARD_SIZE = 19;
     private final static String alphabet = "ABCDEFGHJKLMNOPQRST";
 
     private BoardHistoryList history;
+    private Stone[] capturedStones;
+
+    private boolean scoreMode;
 
     public Board() {
         Stone[] stones = new Stone[BOARD_SIZE * BOARD_SIZE];
@@ -19,8 +25,11 @@ public class Board {
         boolean blackToPlay = true;
         int[] lastMove = null;
 
+        capturedStones = null;
+        scoreMode = false;
+
         history = new BoardHistoryList(new BoardData(stones, lastMove, Stone.EMPTY, blackToPlay,
-                                                     new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 50, 0));
+                                                     new Zobrist(), 0, new int[BOARD_SIZE * BOARD_SIZE], 0, 0, 50, 0));
     }
 
     /**
@@ -98,7 +107,7 @@ public class Board {
 
             // build the new game state
             BoardData newState = new BoardData(stones, null, color, color.equals(Stone.WHITE),
-                                               zobrist, moveNumber, moveNumberList, 0, 0);
+                                               zobrist, moveNumber, moveNumberList, history.getData().blackCaptures, history.getData().whiteCaptures, 0, 0);
 
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
@@ -128,6 +137,13 @@ public class Board {
      */
     public void place(int x, int y, Stone color) {
         synchronized (this) {
+            if (scoreMode) {
+                // Mark clicked stone as dead
+                Stone[] stones = history.getStones();
+                toggleLiveStatus(capturedStones, x, y);
+                return;
+            }
+
             if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
                 return;
 
@@ -171,13 +187,14 @@ public class Board {
             zobrist.toggleStone(x, y, color);
 
             // remove enemy stones
-            removeDeadChain(x + 1, y, color.opposite(), stones, zobrist);
-            removeDeadChain(x, y + 1, color.opposite(), stones, zobrist);
-            removeDeadChain(x - 1, y, color.opposite(), stones, zobrist);
-            removeDeadChain(x, y - 1, color.opposite(), stones, zobrist);
+            int capturedStones = 0;
+            capturedStones += removeDeadChain(x + 1, y, color.opposite(), stones, zobrist);
+            capturedStones += removeDeadChain(x, y + 1, color.opposite(), stones, zobrist);
+            capturedStones += removeDeadChain(x - 1, y, color.opposite(), stones, zobrist);
+            capturedStones += removeDeadChain(x, y - 1, color.opposite(), stones, zobrist);
 
             // check to see if the player made a suicidal coordinate
-            boolean isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
+            int isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
 
             for (int i = 0; i < BOARD_SIZE * BOARD_SIZE; i++) {
                 if (stones[i].equals(Stone.EMPTY)) {
@@ -185,11 +202,17 @@ public class Board {
                 }
             }
 
+            int bc = history.getData().blackCaptures;
+            int wc = history.getData().whiteCaptures;
+            if (color.isBlack())
+                bc += capturedStones;
+            else
+                wc += capturedStones;
             BoardData newState = new BoardData(stones, lastMove, color, color.equals(Stone.WHITE),
-                                               zobrist, moveNumber, moveNumberList, nextWinrate, 0);
+                                               zobrist, moveNumber, moveNumberList, bc, wc, nextWinrate, 0);
 
             // don't make this coordinate if it is suicidal or violates superko
-            if (isSuicidal || history.violatesSuperko(newState))
+            if (isSuicidal > 0|| history.violatesSuperko(newState))
                 return;
 
             // update leelaz with board position
@@ -244,7 +267,7 @@ public class Board {
          boolean blackToPlay = history.isBlacksTurn();
          Zobrist zobrist = history.getZobrist().clone();
          history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist,
-                                                      0, new int[BOARD_SIZE * BOARD_SIZE], 0.0, 0));
+                                                      0, new int[BOARD_SIZE * BOARD_SIZE], 0, 0, 0.0, 0));
      }
 
     /**
@@ -255,19 +278,16 @@ public class Board {
      * @param color   the color of the chain to remove
      * @param stones  the stones array to modify
      * @param zobrist the zobrist object to modify
-     * @return whether or not stones were removed
+     * @return number of removed stones
      */
-    private boolean removeDeadChain(int x, int y, Stone color, Stone[] stones, Zobrist zobrist) {
+    private int removeDeadChain(int x, int y, Stone color, Stone[] stones, Zobrist zobrist) {
         if (!isValid(x, y) || stones[getIndex(x, y)] != color)
-            return false;
+            return 0;
 
         boolean hasLiberties = hasLibertiesHelper(x, y, color, stones);
 
         // either remove stones or reset what hasLibertiesHelper does to the board
-        cleanupHasLibertiesHelper(x, y, color.recursed(), stones, zobrist, !hasLiberties);
-
-        // if hasLiberties is false, then we removed stones
-        return !hasLiberties;
+        return cleanupHasLibertiesHelper(x, y, color.recursed(), stones, zobrist, !hasLiberties);
     }
 
     /**
@@ -309,20 +329,25 @@ public class Board {
      * @param stones       the stones array to modify
      * @param zobrist      the zobrist object to modify
      * @param removeStones if true, we will remove all these stones. otherwise, we will set them to their unrecursed version
+     * @return number of removed stones
      */
-    private void cleanupHasLibertiesHelper(int x, int y, Stone color, Stone[] stones, Zobrist zobrist, boolean removeStones) {
+    private int cleanupHasLibertiesHelper(int x, int y, Stone color, Stone[] stones, Zobrist zobrist, boolean removeStones) {
+        int removed = 0;
         if (!isValid(x, y) || stones[getIndex(x, y)] != color)
-            return;
+            return 0;
 
         stones[getIndex(x, y)] = removeStones ? Stone.EMPTY : color.unrecursed();
-        if (removeStones)
+        if (removeStones) {
             zobrist.toggleStone(x, y, color.unrecursed());
+            removed = 1;
+        }
 
         // use the flood fill algorithm to replace all adjacent recursed stones
-        cleanupHasLibertiesHelper(x + 1, y, color, stones, zobrist, removeStones);
-        cleanupHasLibertiesHelper(x, y + 1, color, stones, zobrist, removeStones);
-        cleanupHasLibertiesHelper(x - 1, y, color, stones, zobrist, removeStones);
-        cleanupHasLibertiesHelper(x, y - 1, color, stones, zobrist, removeStones);
+        removed += cleanupHasLibertiesHelper(x + 1, y, color, stones, zobrist, removeStones);
+        removed += cleanupHasLibertiesHelper(x, y + 1, color, stones, zobrist, removeStones);
+        removed += cleanupHasLibertiesHelper(x - 1, y, color, stones, zobrist, removeStones);
+        removed += cleanupHasLibertiesHelper(x, y - 1, color, stones, zobrist, removeStones);
+        return removed;
     }
 
     /**
@@ -645,6 +670,7 @@ public class Board {
      */
     public boolean previousMove() {
         synchronized (this) {
+            if (inScoreMode()) setScoreMode(false);
             // Update win rate statistics
             Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
             if (stats.totalPlayouts >= history.getData().playouts) {
@@ -658,5 +684,244 @@ public class Board {
             }
             return false;
         }
+    }
+
+    public void setScoreMode(boolean on) {
+        if (on) {
+            // load a copy of the data at the current node of history
+            capturedStones = history.getStones().clone();
+        } else {
+            capturedStones = null;
+        }
+        scoreMode = on;
+    }
+
+    /*
+     * Starting at position stonex, stoney, remove all stones with same color within an area bordered by stones
+     * of opposite color (AKA captured stones)
+     */
+    private void toggleLiveStatus(Stone[] stones, int stonex, int stoney)
+    {
+        Stone[] shdwstones = stones.clone();
+        Stone toggle = stones[getIndex(stonex, stoney)];
+        Stone toggleToo;
+        switch (toggle) {
+            case BLACK:
+                toggleToo = Stone.BLACK_CAPTURED;
+                break;
+            case BLACK_CAPTURED:
+                toggleToo = Stone.BLACK;
+                break;
+            case WHITE:
+                toggleToo = Stone.WHITE_CAPTURED;
+                break;
+            case WHITE_CAPTURED:
+                toggleToo = Stone.WHITE;
+                break;
+            default:
+                return;
+        }
+        boolean lastup, lastdown;
+        // This is using a flood fill algorithm that uses a Q instead of being recursive
+        Queue<int[]> visitQ = new ArrayDeque<>();
+        visitQ.add(new int[]{stonex, stoney});
+        while (!visitQ.isEmpty())
+        {
+            int[] curpos = visitQ.remove();
+            int x = curpos[0];
+            int y = curpos[1];
+
+            // Move all the way left
+            while (x > 0 && (stones[getIndex(x-1, y)] == Stone.EMPTY || stones[getIndex(x-1, y)] == toggle))
+            {
+                x--;
+            }
+
+            lastup = lastdown = false;
+            // Find all stones within empty area line by line (new lines added to Q)
+            while (x < BOARD_SIZE ) {
+                if (shdwstones[getIndex(x, y)] == Stone.EMPTY) {
+                    shdwstones[getIndex(x, y)] = Stone.DAME; // Too mark that it has been visited
+                 } else if (stones[getIndex(x, y)] == toggle) {
+                    stones[getIndex(x, y)] = toggleToo;
+                } else {
+                    break;
+                }
+                // Check above
+                if (y - 1 >= 0 && (shdwstones[getIndex(x, y - 1)] == Stone.EMPTY || stones[getIndex(x, y - 1)] == toggle)) {
+                    if (!lastup)
+                        visitQ.add(new int[]{x, y - 1});
+                    lastup = true;
+                } else {
+                    lastup = false;
+                }
+                // Check below
+                if (y + 1 < BOARD_SIZE && (shdwstones[getIndex(x, y + 1)] == Stone.EMPTY || stones[getIndex(x, y + 1)] == toggle)) {
+                    if (!lastdown)
+                        visitQ.add(new int[]{x, y + 1});
+                    lastdown = true;
+                } else {
+                    lastdown = false;
+                }
+                x++;
+            }
+        }
+        Lizzie.frame.repaint();
+    }
+
+    /*
+     * Check if a point on the board is empty or contains a captured stone
+     */
+    private boolean emptyOrCaptured(Stone[] stones, int x, int y) {
+        int curidx = getIndex(x, y);
+        if (stones[curidx] == Stone.EMPTY || stones[curidx] == Stone.BLACK_CAPTURED || stones[curidx] == Stone.WHITE_CAPTURED)
+            return true;
+        return false;
+    }
+
+    /*
+     * Starting from startx, starty, mark all empty points within area as either white, black or dame.
+     * If two stones of opposite color (neither marked as captured) is encountered, the area is dame.
+     *
+     * @return A stone with color white, black or dame
+     */
+    private Stone markEmptyArea(Stone[] stones, int startx, int starty) {
+        Stone[] shdwstones = stones.clone();
+        Stone found = Stone.EMPTY; // Found will either be black or white, or dame if both are found in area
+        boolean lastup, lastdown;
+        Queue<int[]> visitQ = new ArrayDeque<>();
+        visitQ.add(new int[]{startx, starty});
+        Deque<Integer> allPoints = new ArrayDeque<>();
+        // Check one line at the time, new lines added to visitQ
+        while (!visitQ.isEmpty())
+        {
+            int[] curpos = visitQ.remove();
+            int x = curpos[0];
+            int y = curpos[1];
+            if (!emptyOrCaptured(shdwstones, x, y)) {
+                continue;
+            }
+            // Move all the way left
+            while (x > 0 && emptyOrCaptured(shdwstones, x - 1, y))
+            {
+                x--;
+            }
+            // Are we on the border, or do we have a stone to the left?
+            if (x > 0 && shdwstones[getIndex(x - 1, y)] != found) {
+                if (found == Stone.EMPTY) found = shdwstones[getIndex(x - 1, y)];
+                else found = Stone.DAME;
+            }
+
+            lastup = lastdown = false;
+            while (x < BOARD_SIZE && emptyOrCaptured(shdwstones, x, y)) {
+                // Check above
+                if (y - 1 >= 0 && shdwstones[getIndex(x, y - 1)] != Stone.DAME) {
+                    if (emptyOrCaptured(shdwstones, x, y - 1)) {
+                        if (!lastup)
+                            visitQ.add(new int[]{x, y - 1});
+                        lastup = true;
+                    } else {
+                        lastup = false;
+                        if (found != shdwstones[getIndex(x, y - 1)]) {
+                            if (found == Stone.EMPTY) {
+                                found = shdwstones[getIndex(x, y - 1)];
+                            }
+                            else {
+                                found = Stone.DAME;
+                            }
+                        }
+                    }
+                }
+                // Check below
+                if (y + 1 < BOARD_SIZE && shdwstones[getIndex(x, y + 1)] != Stone.DAME) {
+                    if (emptyOrCaptured(shdwstones, x, y + 1)) {
+                        if (!lastdown) {
+                            visitQ.add(new int[]{x, y + 1});
+                        }
+                        lastdown = true;
+                    } else {
+                        lastdown = false;
+                        if (found != shdwstones[getIndex(x, y + 1)]) {
+                            if (found == Stone.EMPTY) {
+                                found = shdwstones[getIndex(x, y + 1)];
+                            }
+                            else {
+                                found = Stone.DAME;
+                            }
+                        }
+                    }
+                }
+                // Add current stone to empty area and mark as visited
+                if (shdwstones[getIndex(x,y)] == Stone.EMPTY)
+                    allPoints.add(getIndex(x,y));
+
+                // Use dame stone to mark as visited
+                shdwstones[getIndex(x, y)] = Stone.DAME;
+                x++;
+            }
+            // At this point x is at the edge of the board or on a stone
+            if (x < BOARD_SIZE && shdwstones[getIndex(x, y)] != found) {
+                if (found == Stone.EMPTY) found = shdwstones[getIndex(x, y )];
+                else found = Stone.DAME;
+            }
+        }
+        // Finally mark all points as black or white captured if they were surronded by white or black
+        if (found == Stone.WHITE) found = Stone.WHITE_POINT;
+        else if (found == Stone.BLACK) found = Stone.BLACK_POINT;
+        // else found == DAME and will be set as this.
+        while (!allPoints.isEmpty()) {
+            int idx = allPoints.remove();
+            stones[idx] = found;
+        }
+        return found;
+    }
+
+    /*
+     * Mark all empty points on board as black point, white point or dame
+     */
+    public Stone[] scoreStones() {
+
+        Stone[] scoreStones = capturedStones.clone();
+
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                if (scoreStones[getIndex(i, j)] == Stone.EMPTY) {
+                    markEmptyArea(scoreStones, i, j);
+                }
+            }
+        }
+        return scoreStones;
+    }
+
+    /*
+     * Count score for whole board, including komi and captured stones
+     */
+    public double[] getScore(Stone[] scoreStones) {
+        double score[] = new double[] {getData().blackCaptures, getData().whiteCaptures + getHistory().getGameInfo().getKomi()};
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int j = 0; j < BOARD_SIZE; j++) {
+                switch (scoreStones[getIndex(i, j)]) {
+                    case BLACK_POINT:
+                        score[0]++;
+                        break;
+                    case BLACK_CAPTURED:
+                        score[1] += 2;
+                        break;
+
+                    case WHITE_POINT:
+                        score[1]++;
+                        break;
+                    case WHITE_CAPTURED:
+                        score[0] += 2;
+                        break;
+
+                }
+            }
+        }
+        return score;
+    }
+
+    public boolean inScoreMode() {
+        return scoreMode;
     }
 }

@@ -47,6 +47,8 @@ public class BoardRenderer {
     private BufferedImage branchStonesImage = null;
     private BufferedImage branchStonesShadowImage = null;
 
+    private boolean lastInScoreMode = false;
+
     public ITheme theme;
 
 
@@ -72,8 +74,11 @@ public class BoardRenderer {
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
-        drawBranch();
-
+        if (Lizzie.board.inScoreMode()) {
+            drawScore(g);
+        } else {
+            drawBranch();
+        }
 //        timer.lap("branch");
 
         renderImages(g);
@@ -181,7 +186,8 @@ public class BoardRenderer {
         // draw a new image if frame size changes or board state changes
         if (cachedStonesImage == null || cachedStonesImage.getWidth() != boardLength ||
                 cachedStonesImage.getHeight() != boardLength ||
-                !cachedZhash.equals(Lizzie.board.getData().zobrist)) {
+                !cachedZhash.equals(Lizzie.board.getData().zobrist)
+                || Lizzie.board.inScoreMode() || lastInScoreMode) {
 
             cachedStonesImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
             cachedStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
@@ -203,7 +209,42 @@ public class BoardRenderer {
             cachedZhash = Lizzie.board.getData().zobrist;
             g.dispose();
             gShadow.dispose();
+            lastInScoreMode = false;
         }
+        if (Lizzie.board.inScoreMode()) lastInScoreMode = true;
+
+    }
+
+    /*
+     * Draw a white/black dot on territory and captured stones. Dame is drawn as red dot.
+     */
+    private void drawScore(Graphics2D go) {
+        Graphics2D g = cachedStonesImage.createGraphics();
+        Stone scorestones[] = Lizzie.board.scoreStones();
+        int scoreRadius = stoneRadius / 4;
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                int stoneX = scaledMargin + squareLength * i;
+                int stoneY = scaledMargin + squareLength * j;
+                switch (scorestones[Board.getIndex(i, j)]) {
+                    case WHITE_POINT:
+                    case BLACK_CAPTURED:
+                        g.setColor(Color.white);
+                        fillCircle(g,  stoneX, stoneY, scoreRadius);
+                        break;
+                    case BLACK_POINT:
+                    case WHITE_CAPTURED:
+                        g.setColor(Color.black);
+                        fillCircle(g,  stoneX, stoneY, scoreRadius);
+                        break;
+                    case DAME:
+                        g.setColor(Color.red);
+                        fillCircle(g,  stoneX, stoneY, scoreRadius);
+                        break;
+                }
+            }
+        }
+        g.dispose();
     }
 
     /**
@@ -295,7 +336,7 @@ public class BoardRenderer {
                 g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ?
                         Color.BLACK : Color.WHITE);
                 drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
-            } else if (lastMove == null && Lizzie.board.getData().moveNumber != 0) {
+            } else if (lastMove == null && Lizzie.board.getData().moveNumber != 0 && !Lizzie.board.inScoreMode()) {
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
                 g.fillOval(x + boardLength / 2 - 4 * stoneRadius, y + boardLength / 2 - 4 * stoneRadius, stoneRadius * 8, stoneRadius * 8);
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
@@ -567,6 +608,7 @@ public class BoardRenderer {
 
         switch (color) {
             case BLACK:
+            case BLACK_CAPTURED:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getBlackStone(new int[]{x, y});
@@ -579,6 +621,7 @@ public class BoardRenderer {
                 break;
 
             case WHITE:
+            case WHITE_CAPTURED:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
