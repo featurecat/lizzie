@@ -148,8 +148,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 undo();
                 break;
 
+            case VK_PAGE_UP:
+                for (int i = 0; i < 10; i++)
+                    undo();
+                break;
+
             case VK_DOWN:
                 redo();
+                break;
+
+            case VK_PAGE_DOWN:
+                for (int i = 0; i < 10; i++)
+                    redo();
                 break;
 
             case VK_N:
