@@ -2,13 +2,16 @@ package wagner.stephanie.lizzie.rules;
 
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.analysis.LeelazListener;
+import wagner.stephanie.lizzie.analysis.MoveData;
 
 import javax.swing.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Queue;
+import java.util.List;
 
-public class Board {
+public class Board implements LeelazListener {
     public static final int BOARD_SIZE = 19;
     private final static String alphabet = "ABCDEFGHJKLMNOPQRST";
 
@@ -16,6 +19,10 @@ public class Board {
     private Stone[] capturedStones;
 
     private boolean scoreMode;
+
+    private boolean analysisMode = false;
+    private int playoutsAnalysis = 100;
+
 
     public Board() {
         Stone[] stones = new Stone[BOARD_SIZE * BOARD_SIZE];
@@ -932,5 +939,39 @@ public class Board {
 
     public boolean inScoreMode() {
         return scoreMode;
+    }
+
+    public void toggleAnalysis() {
+        if (analysisMode) {
+            Lizzie.leelaz.removeListener(this);
+            analysisMode = false;
+        } else {
+            if (getNextMove() == null) return;
+            String answer = JOptionPane.showInputDialog("# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
+            if (answer == null) return;
+            try {
+                playoutsAnalysis = Integer.parseInt(answer);
+            } catch (NumberFormatException err) {
+                System.out.println("Not a valid number");
+                return;
+            }
+            Lizzie.leelaz.addListener(this);
+            analysisMode = true;
+            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+        }
+    }
+
+    public void bestMoveNotification(List<MoveData> bestMoves) {
+        if (analysisMode) {
+            if (bestMoves == null || bestMoves.size() == 0) {
+                // If we get empty list, something strange happened, abort analysis
+                toggleAnalysis();
+            } else if (bestMoves.get(0).playouts > playoutsAnalysis) {
+                if (!nextMove()) {
+                    // Reached the end...
+                    toggleAnalysis();
+                }
+            }
+        }
     }
 }

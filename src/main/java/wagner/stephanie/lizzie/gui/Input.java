@@ -293,6 +293,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_Z:
                 Lizzie.config.showRawBoard = true;
                 Lizzie.frame.repaint();
+
+            case VK_A:
+                Lizzie.board.toggleAnalysis();
                 break;
 
             case VK_PERIOD:

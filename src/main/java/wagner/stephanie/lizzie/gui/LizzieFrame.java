@@ -54,6 +54,7 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyC"),
             resourceBundle.getString("LizzieFrame.commands.keyP"),
             resourceBundle.getString("LizzieFrame.commands.keyPeriod"),
+            resourceBundle.getString("LizzieFrame.commands.keyA"),
             resourceBundle.getString("LizzieFrame.commands.keyM"),
             resourceBundle.getString("LizzieFrame.commands.keyI"),
             resourceBundle.getString("LizzieFrame.commands.keyO"),
