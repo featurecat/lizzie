@@ -23,7 +23,8 @@ any `leelaz_opencl_tuning` file you have into the directory.
 First, you will need to have a special version of Leela Zero that
 continually outputs pondering information. You can get this from one
 of the Lizzie releases or build it yourself; just substitute
-`leelaz-src/UCTSearch.cpp` for the `UCTSearch.cpp` file found in the
+`leelaz-src/UCTSearch.cpp` and `leelaz-src/UCTSearch.h` for the
+`UCTSearch.cpp` and `UCTSearch.h` files found in the
 Leela Zero sources. Then copy the resulting `leelaz` to the root of
 the Lizzie directory tree.
 
