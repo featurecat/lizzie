@@ -147,6 +147,8 @@ public class SGFParser {
                         blackPlayer = tagContent;
                     } else if (tag.equals("PW")) {
                         whitePlayer = tagContent;
+                    }  else if (tag.equals("KM")) {
+                        Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
                     }
                     break;
                 case ';':
