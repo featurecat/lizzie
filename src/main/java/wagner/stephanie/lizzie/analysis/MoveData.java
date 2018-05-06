@@ -27,6 +27,10 @@ public class MoveData {
         winrate = Double.parseDouble(data[4].substring(0, data[4].length() - 2));
 
         variation = new ArrayList<>();
-        variation.addAll(Arrays.asList(data).subList(8, data.length));
+        // Leela 0.11.0 has extra fields before PV.
+        line = line.split("PV: *")[1];
+        data = line.trim().split(" +");
+        // System.out.println(" ## " + line); System.out.flush();
+        variation.addAll(Arrays.asList(data));
     }
 }
