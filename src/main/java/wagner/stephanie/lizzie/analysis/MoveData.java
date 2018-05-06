@@ -30,7 +30,6 @@ public class MoveData {
         // Leela 0.11.0 has extra fields before PV.
         line = line.split("PV: *")[1];
         data = line.trim().split(" +");
-        // System.out.println(" ## " + line); System.out.flush();
         variation.addAll(Arrays.asList(data));
     }
 }

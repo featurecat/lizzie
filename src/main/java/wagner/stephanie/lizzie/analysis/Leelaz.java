@@ -265,7 +265,6 @@ public class Leelaz {
     private void parseLineFailSafe(String line) {
         synchronized (this) {
             boolean isMoveDataLine = line.matches("(?s) +[A-T][0-9]+ -> +[0-9].*");
-            // System.out.println(" # " + isMoveDataLine + " |" + line); System.out.flush();
             if (!isReadingPonderOutput && isMoveDataLine && !isWaitingToStartPonder) {
                 if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
                     // we have pondered for enough time. pause pondering
@@ -323,7 +322,7 @@ public class Leelaz {
     }
 
     /**
-     * Parse a move-info line of Leelaz output
+     * Parse a move-data line of Leelaz output
      *
      * @param line output line
      */
