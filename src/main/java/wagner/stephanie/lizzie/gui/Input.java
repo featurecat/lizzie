@@ -293,6 +293,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_Z:
                 Lizzie.config.showRawBoard = true;
                 Lizzie.frame.repaint();
+                break;
 
             case VK_A:
                 Lizzie.board.toggleAnalysis();
@@ -323,6 +324,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 if (System.getProperty("os.name", "").toUpperCase().startsWith("MAC")) {
                     controlIsPressed = false;
                 }
+                break;
 
             case VK_X:
                 if (wasPonderingWhenControlsShown)
