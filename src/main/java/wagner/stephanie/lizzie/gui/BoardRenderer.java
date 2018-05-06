@@ -477,6 +477,7 @@ public class BoardRenderer {
 
         for (int i = 0; i < nexts.size(); i++) {
             int[] nextMove = nexts.get(i).getData().lastMove;
+            if (nextMove == null) continue;
             if (Lizzie.board.getData().blackToPlay) {
                 g.setColor(Color.BLACK);
             } else {
