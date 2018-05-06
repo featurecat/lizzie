@@ -275,6 +275,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 if (System.getProperty("os.name", "").toUpperCase().startsWith("MAC")) {
                     controlIsPressed = false;
                 }
+                break;
 
             case VK_X:
                 if (wasPonderingWhenControlsShown)
