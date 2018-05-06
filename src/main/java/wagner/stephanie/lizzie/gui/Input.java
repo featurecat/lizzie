@@ -291,6 +291,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.frame.repaint();
                 break;
 
+            case VK_A:
+                Lizzie.board.toggleAnalysis();
+                break;
+
             case VK_PERIOD:
                 if (Lizzie.board.getHistory().getNext() == null)
                 {

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * an interface with leelaz.exe go engine. Can be adapted for GTP, but is specifically designed for GCP's Leela Zero.
@@ -37,6 +38,8 @@ public class Leelaz {
     private List<MoveData> bestMoves;
     private List<MoveData> bestMovesTemp;
 
+    private List<LeelazListener> listeners;
+
     private boolean isPondering;
     private long startPonderTime;
 
@@ -58,6 +61,7 @@ public class Leelaz {
         isReadingPonderOutput = false;
         bestMoves = new ArrayList<>();
         bestMovesTemp = new ArrayList<>();
+        listeners = new CopyOnWriteArrayList<>();
 
         isPondering = false;
         startPonderTime = System.currentTimeMillis();
@@ -190,6 +194,8 @@ public class Leelaz {
             } else if (line.startsWith("~end") && !isWaitingToStartPonder) {
                 isReadingPonderOutput = false;
                 bestMoves = bestMovesTemp;
+
+                notifyBestMoveListeners();
 
                 if (Lizzie.frame != null) Lizzie.frame.repaint();
             } else {
@@ -391,5 +397,21 @@ public class Leelaz {
         }
 
         return stats;
+    }
+
+    public synchronized void addListener(LeelazListener listener) {
+        listeners.add(listener);
+    }
+
+    // Beware, due to race conditions, bestMoveNotification can be called once even after item is removed
+    // with removeListener
+    public synchronized void removeListener(LeelazListener listener) {
+        listeners.remove(listener);
+    }
+
+    private synchronized void notifyBestMoveListeners() {
+        for (LeelazListener listener: listeners) {
+            listener.bestMoveNotification(bestMoves);
+        }
     }
 }

@@ -387,6 +387,8 @@ public class BoardRenderer {
         final int MAX_ALPHA = 240;
         final double HUE_SCALING_FACTOR = 3.0;
         final double ALPHA_SCALING_FACTOR = 5.0;
+        final float GREEN_HUE = Color.RGBtoHSB(0,1,0,null)[0];
+        final float CYAN_HUE = Color.RGBtoHSB(0,1,1,null)[0];
 
         if (!bestMoves.isEmpty()) {
 
@@ -424,8 +426,8 @@ public class BoardRenderer {
                     int suggestionY = y + scaledMargin + squareLength * coordinates[1];
 
 
-                    // -0.32 = Greenest hue, 0 = Reddest hue
-                    float hue = (float) (-0.32 * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
+                    // 0 = Reddest hue
+                    float hue = isBestMove ? CYAN_HUE : (float) (-GREEN_HUE * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
                     float saturation = 0.75f; //saturation
                     float brightness = 0.85f; //brightness
                     int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
@@ -443,15 +445,8 @@ public class BoardRenderer {
                     }
 
                     if (branch == null || (isBestMove && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
-                        // highlight LeelaZero's top recommended move
                         int strokeWidth = 1;
-                        if (isBestMove) { // this is the best move
-                            strokeWidth = 2;
-                            g.setColor(Color.RED);
-                            g.setStroke(new BasicStroke(strokeWidth));
-                        } else {
-                            g.setColor(color.darker());
-                        }
+                        g.setColor(color.darker());
                         drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
                         g.setStroke(new BasicStroke(1));
                     }
