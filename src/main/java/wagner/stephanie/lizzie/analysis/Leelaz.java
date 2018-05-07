@@ -116,7 +116,7 @@ public class Leelaz {
 
         if (!isCorrectVersion()) {
             // warn user
-            JOptionPane.showMessageDialog(Lizzie.frame, "This version of Leela Zero is incompatible with Lizzie.\nPlease follow the instructions in the readme.");
+            JOptionPane.showMessageDialog(Lizzie.frame, "This version of Leela Zero is incompatible with Lizzie.\nPlease follow the instructions in the readme.\n(Trying failsafe mode...)");
             failSafeMode = true;
         }
         // start a thread to continuously read Leelaz output
