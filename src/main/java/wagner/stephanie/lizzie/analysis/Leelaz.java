@@ -394,10 +394,8 @@ public class Leelaz {
         return stats;
     }
     
-    
     /*
      * initializes the normalizing factor for winrate_to_handicap_stones conversion.
-     * 
      */
     public void estimatePassWinrate() {
     	// we use A1 instead of pass, because valuenetwork is more accurate for A1 on empty board than a pass.
@@ -407,6 +405,7 @@ public class Leelaz {
     	playMove(Stone.BLACK, "A1");
     	togglePonder();
     	WinrateStats stats = getWinrateStats();
+
     	// we could use a timelimit or higher minimum playouts to get a more accurate measurement.
     	while( stats.totalPlayouts < 1 ) {
     		try {
@@ -432,13 +431,13 @@ public class Leelaz {
     	// this is pretty accurate for human handicap games at least.
     	// also this kind of property is a requirement for handicaps to determined based on rank difference.
 
-
     	// lets convert the 0%-50% range and 100%-50% from both the move and and pass into range of 0-1
     	double moveWinrateSymmetric = 1-Math.abs(1-(pWinrate/100)*2);
     	double passWinrateSymmetric = 1-Math.abs(1-(mHandicapWinrate/100)*2);
-//    	System.out.println(moveWinrateSymmetric + " " + passWinrateSymmetric);
+
     	// convert the symmetric move winrate into correctly scaled log scale, so that winrate of passWinrate equals 1 handicap.
     	double handicapSymmetric = Math.log(moveWinrateSymmetric)/Math.log(passWinrateSymmetric);
+
     	// make it negative if we had low winrate below 50.
     	return Math.signum(pWinrate-50)*handicapSymmetric;
     }
