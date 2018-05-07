@@ -2,8 +2,10 @@ package wagner.stephanie.lizzie;
 
 import org.json.JSONException;
 import wagner.stephanie.lizzie.analysis.Leelaz;
+import wagner.stephanie.lizzie.analysis.Leelaz.WinrateStats;
 import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 
 import javax.swing.*;
@@ -27,20 +29,25 @@ public class Lizzie {
 
         config = new Config();
 
+        PluginManager.loadPlugins();
+
+        board = new Board();
+
+        frame = new LizzieFrame();
+        
         new Thread( () -> {
             try {
                 leelaz = new Leelaz();
+                if( config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
+                	leelaz.estimatePassWinrate();
+                }
                 leelaz.togglePonder();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
 
-        PluginManager.loadPlugins();
-
-        board = new Board();
-
-        frame = new LizzieFrame();
+        
     }
 
     public static void shutdown() {

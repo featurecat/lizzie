@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.analysis.Leelaz.WinrateStats;
 import wagner.stephanie.lizzie.rules.Stone;
 
 import javax.swing.*;
@@ -510,6 +511,54 @@ public class Leelaz {
         }
 
         return stats;
+    }
+    
+    /*
+     * initializes the normalizing factor for winrate_to_handicap_stones conversion.
+     */
+    public void estimatePassWinrate() {
+    	// we use A1 instead of pass, because valuenetwork is more accurate for A1 on empty board than a pass.
+    	// probably the reason for higher accuracy is that networks have randomness which produces occasionally A1 as first move, but never pass.
+    	// for all practical purposes, A1 should equal pass for the value it provides, hence good replacement.
+    	// this way we avoid having to run lots of playouts for accurate winrate for pass.
+    	playMove(Stone.BLACK, "A1");
+    	togglePonder();
+    	WinrateStats stats = getWinrateStats();
+
+    	// we could use a timelimit or higher minimum playouts to get a more accurate measurement.
+    	while( stats.totalPlayouts < 1 ) {
+    		try {
+    			Thread.sleep(100);
+    		} catch (InterruptedException e) {
+    			throw new Error(e);
+    		}
+    		stats=getWinrateStats();
+    	}
+    	mHandicapWinrate=stats.maxWinrate; 
+    	togglePonder();
+    	undo();
+    	Lizzie.board.clear();
+    }
+
+    public static double mHandicapWinrate=25;
+
+    /**
+     * Convert winrate to handicap stones, by normalizing winrate by first move pass winrate (one stone handicap).
+     */
+    public static double winrateToHandicap(double pWinrate) {
+    	// we assume each additional handicap lowers winrate by fixed percentage.
+    	// this is pretty accurate for human handicap games at least.
+    	// also this kind of property is a requirement for handicaps to determined based on rank difference.
+
+    	// lets convert the 0%-50% range and 100%-50% from both the move and and pass into range of 0-1
+    	double moveWinrateSymmetric = 1-Math.abs(1-(pWinrate/100)*2);
+    	double passWinrateSymmetric = 1-Math.abs(1-(mHandicapWinrate/100)*2);
+
+    	// convert the symmetric move winrate into correctly scaled log scale, so that winrate of passWinrate equals 1 handicap.
+    	double handicapSymmetric = Math.log(moveWinrateSymmetric)/Math.log(passWinrateSymmetric);
+
+    	// make it negative if we had low winrate below 50.
+    	return Math.signum(pWinrate-50)*handicapSymmetric;
     }
 
     public synchronized void addListener(LeelazListener listener) {

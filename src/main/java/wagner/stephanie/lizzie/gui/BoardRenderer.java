@@ -460,8 +460,15 @@ public class BoardRenderer {
                         g.setColor(Color.BLACK);
                         if (branch != null && Lizzie.board.getData().blackToPlay)
                             g.setColor(Color.WHITE);
-
-                        drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
+                        
+                        String text;
+                        if( uiConfig.getBoolean("handicap-instead-of-winrate") ) {
+                            text=String.format("%.2f", Lizzie.leelaz.winrateToHandicap(move.winrate));
+                        } else {
+                            text=String.format("%.1f", roundedWinrate);
+                        }
+                        
+                        drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, text, stoneRadius, stoneRadius * 1.5, 1);
                         drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, LizzieFrame.OpenSansRegularBase, getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                     }
                 }
