@@ -627,10 +627,16 @@ public class LizzieFrame extends JFrame {
     public void onClicked(int x, int y) {
         // check for board click
         int[] boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+        int moveNumber = winrateGraph.moveNumber(x, y);
 
         if (boardCoordinates != null) {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+        }
+        if (moveNumber >= 0) {
+            isPlayingAgainstLeelaz = false;
+            Lizzie.board.goToMoveNumber(moveNumber);
+            storeMoveNumber();
         }
         repaint();
     }
@@ -649,12 +655,42 @@ public class LizzieFrame extends JFrame {
 
     public void onMouseMoved(int x, int y) {
         int[] newMouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
+        int moveNumber = winrateGraph.moveNumber(x, y);
         if (mouseHoverCoordinate != null && newMouseHoverCoordinate != null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
             mouseHoverCoordinate = newMouseHoverCoordinate;
             repaint();
         } else {
             mouseHoverCoordinate = newMouseHoverCoordinate;
         }
+        if (moveNumber >= 0) {
+            tryStoreMoveNumber();
+            if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
+                repaint();
+            }
+        } else {
+            if (tryRestoreMoveNumber()) {
+                repaint();
+            }
+        }
+    }
+
+    private void storeMoveNumber() {
+        winrateGraph.storedMoveNumber = Lizzie.board.getHistory().getMoveNumber();
+    }
+
+    private void tryStoreMoveNumber() {
+        if (winrateGraph.storedMoveNumber < 0) {
+            storeMoveNumber();
+        }
+    }
+
+    private boolean tryRestoreMoveNumber() {
+        if (winrateGraph.storedMoveNumber >= 0) {
+            Lizzie.board.goToMoveNumber(winrateGraph.storedMoveNumber);
+            winrateGraph.storedMoveNumber = -1;
+            return true;
+        }
+        return false;
     }
 
     public void toggleCoordinates() {

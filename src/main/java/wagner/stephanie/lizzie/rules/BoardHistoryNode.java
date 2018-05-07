@@ -123,6 +123,10 @@ public class BoardHistoryNode {
         }
     }
 
+    public boolean isFirstChild() {
+        return (previous != null) && previous.next() == this;
+    }
+
     public BoardHistoryNode getVariation(int idx) {
         if (nexts.size() <= idx) {
             return null;

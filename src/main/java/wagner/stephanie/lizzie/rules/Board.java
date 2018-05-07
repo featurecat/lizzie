@@ -418,6 +418,32 @@ public class Board implements LeelazListener {
         }
     }
 
+    public boolean goToMoveNumber(int moveNumber) {
+        return goToMoveNumberHelper(moveNumber, false);
+    }
+
+    public boolean goToMoveNumberWithinBranch(int moveNumber) {
+        return goToMoveNumberHelper(moveNumber, true);
+    }
+
+    public boolean goToMoveNumberHelper(int moveNumber, boolean withinBranch) {
+        int delta = moveNumber - history.getMoveNumber();
+        boolean moved = false;
+        for (int i = 0; i < Math.abs(delta); i++) {
+            if (withinBranch && delta < 0) {
+                BoardHistoryNode curNode = history.getCurrentHistoryNode();
+                if (!curNode.isFirstChild()) {
+                    break;
+                }
+            }
+            if (!(delta > 0 ? nextMove() : previousMove())) {
+                break;
+            }
+            moved = true;
+        }
+        return moved;
+    }
+
     /**
      * Goes to the next variation, thread safe
      */
