@@ -418,6 +418,15 @@ public class Board implements LeelazListener {
         }
     }
 
+    public void goToMoveNumber(int moveNumber) {
+        BoardHistoryNode curNode = history.getCurrentHistoryNode();
+        int curMoveNumber = curNode.getData().moveNumber;
+        int delta = moveNumber - curMoveNumber;
+        for (int i = 0;
+             i < Math.abs(delta) && (delta > 0 ? nextMove() : previousMove());
+             i++) {}
+    }
+
     /**
      * Goes to the next variation, thread safe
      */

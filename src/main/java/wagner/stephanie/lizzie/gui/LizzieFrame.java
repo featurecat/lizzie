@@ -627,10 +627,15 @@ public class LizzieFrame extends JFrame {
     public void onClicked(int x, int y) {
         // check for board click
         int[] boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+        int moveNumber = winrateGraph.moveNumber(x, y);
 
         if (boardCoordinates != null) {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+        }
+        if (moveNumber >= 0) {
+            isPlayingAgainstLeelaz = false;
+            Lizzie.board.goToMoveNumber(moveNumber);
         }
         repaint();
     }

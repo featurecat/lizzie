@@ -11,6 +11,24 @@ import java.awt.geom.Point2D;
 public class WinrateGraph {
 
     private int DOT_RADIUS = 6;
+    private int[] params = {0, 0, 0, 0, 0};
+
+    public int moveNumber(int x, int y)
+    {
+        int posx = params[0];
+        int posy = params[1];
+        int width = params[2];
+        int height = params[3];
+        int numMoves = params[4];
+        if (posx <= x && x < posx + width && posy <= y && y < posy + height) {
+            // x == posx + (movenum * width / numMoves) ==> movenum = ...
+            int movenum = Math.round((x - posx) * numMoves / (float) width);
+            // movenum == moveNumber - 1 ==> moveNumber = ...
+            return movenum + 1;
+        } else {
+            return -1;
+        }
+    }
 
     public void draw(Graphics2D g, int posx, int posy, int width, int height)
     {
@@ -147,5 +165,12 @@ public class WinrateGraph {
         }
 
         g.setStroke(new BasicStroke(1));
+
+        // record parameters for calculating moveNumber
+        params[0] = posx;
+        params[1] = posy;
+        params[2] = width;
+        params[3] = height;
+        params[4] = numMoves;
     }
 }
