@@ -8,8 +8,6 @@ import static java.awt.event.KeyEvent.*;
 import wagner.stephanie.lizzie.plugin.PluginManager;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
-    private boolean controlIsPressed = false;
-
     @Override
     public void mouseClicked(MouseEvent e) {
 
@@ -62,24 +60,37 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     }
 
     private void undo() {
+        undo(1);
+    }
+
+    private void undo(int movesToAdvance) {
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
-        int movesToAdvance = 1;
-        if (controlIsPressed)
-            movesToAdvance = 10;
 
         for (int i = 0; i < movesToAdvance; i++)
             Lizzie.board.previousMove();
     }
 
+    private void undoToChildOfPreviousWithVariation() {
+        // Undo until the position just after the junction position.
+        // If we are already on such a position, we go to
+        // the junction position for convenience.
+        // Use cases:
+        // [Delete branch] Call this function and then deleteMove.
+        // [Go to junction] Call this function twice.
+        if (!Lizzie.board.undoToChildOfPreviousWithVariation())
+            Lizzie.board.previousMove();
+    }
+
     private void redo() {
+        redo(1);
+    }
+
+    private void redo(int movesToAdvance) {
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
-        int movesToAdvance = 1;
-        if (controlIsPressed)
-            movesToAdvance = 10;
 
         for (int i = 0; i < movesToAdvance; i++)
             Lizzie.board.nextMove();
@@ -109,25 +120,21 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     private void deleteMove() { Lizzie.board.deleteMove(); }
 
+    private void playCurrentVariation() {
+        Lizzie.frame.playCurrentVariation();
+    }
+
+    private boolean controlIsPressed(KeyEvent e) {
+        boolean mac = System.getProperty("os.name", "").toUpperCase().startsWith("MAC");
+        return e.isControlDown() || (mac && e.isMetaDown());
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
         PluginManager.onKeyPressed(e);
 
-        int movesToAdvance = 1; // number of moves to advance if control is held down
-
         switch (e.getKeyCode()) {
-            case VK_CONTROL:
-
-                controlIsPressed = true;
-                break;
-
-            case VK_META:
-                if (System.getProperty("os.name", "").toUpperCase().startsWith("MAC")) {
-                    controlIsPressed = true;
-                }
-                break;
-
             case VK_RIGHT:
                 if (e.isShiftDown()) {
                     moveBranchDown();
@@ -145,11 +152,25 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_UP:
-                undo();
+                if (e.isShiftDown()) {
+                    undoToChildOfPreviousWithVariation();
+                } else if (controlIsPressed(e)) {
+                    undo(10);
+                } else {
+                    undo();
+                }
+                break;
+                
+            case VK_PAGE_DOWN:
+                redo(10);
                 break;
 
             case VK_DOWN:
-                redo();
+                if (controlIsPressed(e)) {
+                    redo(10);
+                } else {
+                    redo();
+                }
                 break;
 
             case VK_N:
@@ -170,12 +191,20 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.board.pass();
                 break;
 
+            case VK_COMMA:
+                playCurrentVariation();
+                break;
+
             case VK_M:
                 Lizzie.config.toggleShowMoveNumber();
                 break;
 
             case VK_F:
                 Lizzie.config.toggleShowNextMoves();
+                break;
+                
+            case VK_PAGE_UP:
+                undo(10);
                 break;
 
             case VK_I:
@@ -198,7 +227,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_V:
-                if (controlIsPressed) {
+                if (controlIsPressed(e)) {
                     Lizzie.frame.pasteSgf();
                 } else {
                     Lizzie.config.toggleShowBranch();
@@ -236,7 +265,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_C:
-                if (controlIsPressed) {
+                if (controlIsPressed(e)) {
                     Lizzie.frame.copySgf();
                 } else {
                     Lizzie.frame.toggleCoordinates();
@@ -257,6 +286,22 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 deleteMove();
                 break;
 
+            case VK_Z:
+                Lizzie.config.showRawBoard = true;
+                Lizzie.frame.repaint();
+                break;
+
+            case VK_A:
+                Lizzie.board.toggleAnalysis();
+                break;
+
+            case VK_PERIOD:
+                if (Lizzie.board.getHistory().getNext() == null)
+                {
+                    Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
+                }
+                break;
+
             default:
         }
         Lizzie.frame.repaint();
@@ -267,20 +312,15 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     public void keyReleased(KeyEvent e) {
         PluginManager.onKeyReleased(e);
         switch (e.getKeyCode()) {
-            case VK_CONTROL:
-                controlIsPressed = false;
-                break;
-
-            case VK_META:
-                if (System.getProperty("os.name", "").toUpperCase().startsWith("MAC")) {
-                    controlIsPressed = false;
-                }
-                break;
-
             case VK_X:
                 if (wasPonderingWhenControlsShown)
                     Lizzie.leelaz.togglePonder();
                 Lizzie.frame.showControls = false;
+                Lizzie.frame.repaint();
+                break;
+
+            case VK_Z:
+                Lizzie.config.showRawBoard = false;
                 Lizzie.frame.repaint();
                 break;
 

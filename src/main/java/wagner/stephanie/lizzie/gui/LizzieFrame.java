@@ -34,6 +34,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -52,6 +53,8 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.mouseWheelScroll"),
             resourceBundle.getString("LizzieFrame.commands.keyC"),
             resourceBundle.getString("LizzieFrame.commands.keyP"),
+            resourceBundle.getString("LizzieFrame.commands.keyPeriod"),
+            resourceBundle.getString("LizzieFrame.commands.keyA"),
             resourceBundle.getString("LizzieFrame.commands.keyM"),
             resourceBundle.getString("LizzieFrame.commands.keyI"),
             resourceBundle.getString("LizzieFrame.commands.keyO"),
@@ -262,7 +265,9 @@ public class LizzieFrame extends JFrame {
             boardRenderer.draw(g);
 
             if (Lizzie.leelaz != null) {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") + (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")), 0.02);
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
+                        (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
+                        this.getInsets().left, boardY + maxSize*2/3, .02);
 
                 int panelMargin = (int) (maxSize * 0.05);
                 // Todo: Make board move over when there is no space beside the board
@@ -288,8 +293,11 @@ public class LizzieFrame extends JFrame {
                     variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
                 }
             } else {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"),0.03);
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"),this.getInsets().left,
+                        boardY + maxSize*2/3,0.03);
             }
+
+            drawCaptured(g, 0, this.getInsets().top, boardRenderer.getLocation().x - (int)(maxSize*0.05), boardY+ maxSize/8 - this.getInsets().top);
 
             // cleanup
             g.dispose();
@@ -335,9 +343,7 @@ public class LizzieFrame extends JFrame {
         g.drawImage(result, vx, vy, null);
     }
 
-    private void drawPonderingState(Graphics2D g, String text, double size) {
-        int x = this.getInsets().left;
-        int y = this.getInsets().top;
+    private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int)(Math.max(getWidth(), getHeight()) * size));
         FontMetrics fm = g.getFontMetrics(font);
         int stringWidth = fm.stringWidth(text);
@@ -567,6 +573,58 @@ public class LizzieFrame extends JFrame {
         }
     }
 
+    private void drawCaptured(Graphics2D g, int posX, int posY, int width, int height) {
+        // Draw border
+        g.setColor(new Color(0, 0, 0, 130));
+        g.fillRect(posX, posY, width, height);
+
+        // border. does not include bottom edge
+        int strokeRadius = 3;
+        g.setStroke(new BasicStroke(2 * strokeRadius));
+        g.drawLine(posX + strokeRadius, posY + strokeRadius,
+                posX - strokeRadius + width, posY + strokeRadius);
+        g.drawLine(posX + strokeRadius, posY + 3 * strokeRadius,
+                posX + strokeRadius, posY - strokeRadius + height);
+        g.drawLine(posX - strokeRadius + width, posY + 3 * strokeRadius,
+                posX - strokeRadius + width, posY - strokeRadius + height);
+
+        // Draw middle line
+        g.drawLine(posX - strokeRadius + width/2, posY + 3 * strokeRadius,
+                posX - strokeRadius + width/2, posY - strokeRadius + height);
+        g.setColor(Color.white);
+
+        // Draw black and white "stone"
+        int diam = 40;
+        g.setColor(Color.black);
+        g.fillOval(posX + width/4 - diam/2, posY + height*3/8, diam, diam);
+
+        g.setColor(Color.WHITE);
+        g.fillOval(posX + width*3/4 - diam/2, posY + height*3/8, diam, diam);
+
+        // Draw captures
+        String bval, wval;
+        if (Lizzie.board.inScoreMode())
+        {
+            double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
+            bval = String.format("%.0f", score[0]);
+            wval = String.format("%.1f", score[1]);
+        } else {
+            bval = String.format("%d", Lizzie.board.getData().blackCaptures);
+            wval = String.format("%d", Lizzie.board.getData().whiteCaptures);
+        }
+
+        g.setColor(Color.WHITE);
+        int bw = g.getFontMetrics().stringWidth(bval);
+        int ww = g.getFontMetrics().stringWidth(wval);
+
+        g.drawString(bval,
+                posX + width/4 - bw/2,
+                posY + height*7/8);
+        g.drawString(wval,
+                posX + width*3/4 - ww/2,
+                posY + height*7/8);
+    }
+
     /**
      * Checks whether or not something was clicked and performs the appropriate action
      *
@@ -576,22 +634,70 @@ public class LizzieFrame extends JFrame {
     public void onClicked(int x, int y) {
         // check for board click
         int[] boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+        int moveNumber = winrateGraph.moveNumber(x, y);
 
         if (boardCoordinates != null) {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+        }
+        if (moveNumber >= 0) {
+            isPlayingAgainstLeelaz = false;
+            Lizzie.board.goToMoveNumber(moveNumber);
+            storeMoveNumber();
+        }
+        repaint();
+    }
+
+    public void playCurrentVariation() {
+        List<String> variation = boardRenderer.variation;
+        if (variation != null) {
+            for (int i = 0; i < variation.size(); i++) {
+                int[] boardCoordinates = Board.convertNameToCoordinates(variation.get(i));
+                if (boardCoordinates != null)
+                    Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+            }
         }
         repaint();
     }
 
     public void onMouseMoved(int x, int y) {
         int[] newMouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
+        int moveNumber = winrateGraph.moveNumber(x, y);
         if (mouseHoverCoordinate != null && newMouseHoverCoordinate != null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
             mouseHoverCoordinate = newMouseHoverCoordinate;
             repaint();
         } else {
             mouseHoverCoordinate = newMouseHoverCoordinate;
         }
+        if (moveNumber >= 0) {
+            tryStoreMoveNumber();
+            if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
+                repaint();
+            }
+        } else {
+            if (tryRestoreMoveNumber()) {
+                repaint();
+            }
+        }
+    }
+
+    private void storeMoveNumber() {
+        winrateGraph.storedMoveNumber = Lizzie.board.getHistory().getMoveNumber();
+    }
+
+    private void tryStoreMoveNumber() {
+        if (winrateGraph.storedMoveNumber < 0) {
+            storeMoveNumber();
+        }
+    }
+
+    private boolean tryRestoreMoveNumber() {
+        if (winrateGraph.storedMoveNumber >= 0) {
+            Lizzie.board.goToMoveNumber(winrateGraph.storedMoveNumber);
+            winrateGraph.storedMoveNumber = -1;
+            return true;
+        }
+        return false;
     }
 
     public void toggleCoordinates() {

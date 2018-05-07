@@ -17,7 +17,10 @@ public class BoardData {
     public double winrate;
     public int playouts;
 
-    public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist, int moveNumber, int[] moveNumberList, double winrate, int playouts) {
+    public int blackCaptures;
+    public int whiteCaptures;
+
+    public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist, int moveNumber, int[] moveNumberList, int blackCaptures, int whiteCaptures, double winrate, int playouts) {
         this.moveNumber = moveNumber;
         this.lastMove = lastMove;
         this.moveNumberList = moveNumberList;
@@ -30,5 +33,7 @@ public class BoardData {
 
         this.winrate = winrate;
         this.playouts = playouts;
+        this.blackCaptures = blackCaptures;
+        this.whiteCaptures = whiteCaptures;
     }
 }

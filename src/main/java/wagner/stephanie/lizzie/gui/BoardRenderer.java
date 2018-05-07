@@ -47,7 +47,10 @@ public class BoardRenderer {
     private BufferedImage branchStonesImage = null;
     private BufferedImage branchStonesShadowImage = null;
 
+    private boolean lastInScoreMode = false;
+
     public ITheme theme;
+    public List<String> variation;
 
 
     public BoardRenderer() {
@@ -72,20 +75,25 @@ public class BoardRenderer {
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
-        drawBranch();
-
+        if (Lizzie.board.inScoreMode()) {
+            drawScore(g);
+        } else {
+            drawBranch();
+        }
 //        timer.lap("branch");
 
         renderImages(g);
 //        timer.lap("rendering images");
 
-        drawMoveNumbers(g);
+        if (!Lizzie.config.showRawBoard) {
+            drawMoveNumbers(g);
 //        timer.lap("movenumbers");
-        if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
-            drawLeelazSuggestions(g);
+            if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
+                drawLeelazSuggestions(g);
 
-        if (Lizzie.config.showNextMoves) {
-            drawNextMoves(g);
+            if (Lizzie.config.showNextMoves) {
+                drawNextMoves(g);
+            }
         }
 
         PluginManager.onDraw(g);
@@ -181,7 +189,8 @@ public class BoardRenderer {
         // draw a new image if frame size changes or board state changes
         if (cachedStonesImage == null || cachedStonesImage.getWidth() != boardLength ||
                 cachedStonesImage.getHeight() != boardLength ||
-                !cachedZhash.equals(Lizzie.board.getData().zobrist)) {
+                !cachedZhash.equals(Lizzie.board.getData().zobrist)
+                || Lizzie.board.inScoreMode() || lastInScoreMode) {
 
             cachedStonesImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
             cachedStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
@@ -203,7 +212,42 @@ public class BoardRenderer {
             cachedZhash = Lizzie.board.getData().zobrist;
             g.dispose();
             gShadow.dispose();
+            lastInScoreMode = false;
         }
+        if (Lizzie.board.inScoreMode()) lastInScoreMode = true;
+
+    }
+
+    /*
+     * Draw a white/black dot on territory and captured stones. Dame is drawn as red dot.
+     */
+    private void drawScore(Graphics2D go) {
+        Graphics2D g = cachedStonesImage.createGraphics();
+        Stone scorestones[] = Lizzie.board.scoreStones();
+        int scoreRadius = stoneRadius / 4;
+        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+            for (int j = 0; j < Board.BOARD_SIZE; j++) {
+                int stoneX = scaledMargin + squareLength * i;
+                int stoneY = scaledMargin + squareLength * j;
+                switch (scorestones[Board.getIndex(i, j)]) {
+                    case WHITE_POINT:
+                    case BLACK_CAPTURED:
+                        g.setColor(Color.white);
+                        fillCircle(g,  stoneX, stoneY, scoreRadius);
+                        break;
+                    case BLACK_POINT:
+                    case WHITE_CAPTURED:
+                        g.setColor(Color.black);
+                        fillCircle(g,  stoneX, stoneY, scoreRadius);
+                        break;
+                    case DAME:
+                        g.setColor(Color.red);
+                        fillCircle(g,  stoneX, stoneY, scoreRadius);
+                        break;
+                }
+            }
+        }
+        g.dispose();
     }
 
     /**
@@ -220,8 +264,9 @@ public class BoardRenderer {
         // calculate best moves and branch
         bestMoves = Lizzie.leelaz.getBestMoves();
         branch = null;
+        variation = null;
 
-        if (!Lizzie.config.showBranch) {
+        if (Lizzie.config.showRawBoard || !Lizzie.config.showBranch) {
             return;
         }
 
@@ -234,7 +279,8 @@ public class BoardRenderer {
                 int[] coord = Board.convertNameToCoordinates(move.coordinate);
 
                 if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
-                    branch = new Branch(Lizzie.board, move.variation);
+                    variation = move.variation;
+                    branch = new Branch(Lizzie.board, variation);
                     break;
                 }
             }
@@ -295,7 +341,7 @@ public class BoardRenderer {
                 g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ?
                         Color.BLACK : Color.WHITE);
                 drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
-            } else if (lastMove == null && Lizzie.board.getData().moveNumber != 0) {
+            } else if (lastMove == null && Lizzie.board.getData().moveNumber != 0 && !Lizzie.board.inScoreMode()) {
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
                 g.fillOval(x + boardLength / 2 - 4 * stoneRadius, y + boardLength / 2 - 4 * stoneRadius, stoneRadius * 8, stoneRadius * 8);
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
@@ -341,6 +387,8 @@ public class BoardRenderer {
         final int MAX_ALPHA = 240;
         final double HUE_SCALING_FACTOR = 3.0;
         final double ALPHA_SCALING_FACTOR = 5.0;
+        final float GREEN_HUE = Color.RGBtoHSB(0,1,0,null)[0];
+        final float CYAN_HUE = Color.RGBtoHSB(0,1,1,null)[0];
 
         if (!bestMoves.isEmpty()) {
 
@@ -378,8 +426,8 @@ public class BoardRenderer {
                     int suggestionY = y + scaledMargin + squareLength * coordinates[1];
 
 
-                    // -0.32 = Greenest hue, 0 = Reddest hue
-                    float hue = (float) (-0.32 * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
+                    // 0 = Reddest hue
+                    float hue = isBestMove ? CYAN_HUE : (float) (-GREEN_HUE * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
                     float saturation = 0.75f; //saturation
                     float brightness = 0.85f; //brightness
                     int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
@@ -397,15 +445,8 @@ public class BoardRenderer {
                     }
 
                     if (branch == null || (isBestMove && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
-                        // highlight LeelaZero's top recommended move
                         int strokeWidth = 1;
-                        if (isBestMove) { // this is the best move
-                            strokeWidth = 2;
-                            g.setColor(Color.RED);
-                            g.setStroke(new BasicStroke(strokeWidth));
-                        } else {
-                            g.setColor(color.darker());
-                        }
+                        g.setColor(color.darker());
                         drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
                         g.setStroke(new BasicStroke(1));
                     }
@@ -574,6 +615,7 @@ public class BoardRenderer {
 
         switch (color) {
             case BLACK:
+            case BLACK_CAPTURED:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getBlackStone(new int[]{x, y});
@@ -586,6 +628,7 @@ public class BoardRenderer {
                 break;
 
             case WHITE:
+            case WHITE_CAPTURED:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
