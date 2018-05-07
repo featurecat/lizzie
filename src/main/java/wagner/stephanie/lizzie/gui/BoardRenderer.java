@@ -420,13 +420,14 @@ public class BoardRenderer {
                         if (branch != null && Lizzie.board.getData().blackToPlay)
                             g.setColor(Color.WHITE);
                         
+                        String text;
                         if( uiConfig.getBoolean("handicap-instead-of-winrate") ) {
-                            drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, String.format("%.2f", winrateToHandicap(move.winrate/100,Lizzie.getHandicapWinrate()/100)), stoneRadius, stoneRadius * 1.5, 1);
+                            text=String.format("%.2f", Lizzie.winrateToHandicap(move.winrate));
                         } else {
-                            drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, String.format("%.1f", roundedWinrate), stoneRadius, stoneRadius * 1.5, 1);
-                        	
+                            text=String.format("%.1f", roundedWinrate);
                         }
                         
+                        drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, text, stoneRadius, stoneRadius * 1.5, 1);
                         drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, LizzieFrame.OpenSansRegularBase, getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                     }
                 }
@@ -434,13 +435,6 @@ public class BoardRenderer {
 
 
         }
-    }
-
-    /**
-     * Convert winrate to handicap stones, by normalizing winrate by first move pass winrate (one stone handicap).
-     */
-    private static double winrateToHandicap(double pWinrate,double pOneHandicapWinrate) {
-        return Math.signum(0.5-pWinrate)*Math.log(1-Math.abs(1-pWinrate*2))/-Math.log(1-Math.abs(1-pOneHandicapWinrate*2));
     }
 
     private void drawNextMoves(Graphics2D g) {

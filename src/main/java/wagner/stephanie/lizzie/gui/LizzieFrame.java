@@ -511,12 +511,19 @@ public class LizzieFrame extends JFrame {
         g.setFont(font);
 
         // Last move
-        if (validLastWinrate && validWinrate)
+        if (validLastWinrate && validWinrate) {
+        	String text;
+            if( Lizzie.config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
+                text=String.format(": %.2f%%", Lizzie.winrateToHandicap(100 - lastWR - curWR));
+        	} else {
+                text=String.format(": %.1f%%", 100 - lastWR - curWR);
+        	}
+
             g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") +
-                         String.format(": %.1f%%", 100 - lastWR - curWR),
+                         text,
                          posX + 2 * strokeRadius,
                          posY + height - 2 * strokeRadius); // - font.getSize());
-        else {
+        } else {
             // I think it's more elegant to just not display anything when we don't have
             // valid data --dfannius
             // g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + ": ?%",
