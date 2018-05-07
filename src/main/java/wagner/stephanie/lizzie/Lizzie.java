@@ -2,8 +2,10 @@ package wagner.stephanie.lizzie;
 
 import org.json.JSONException;
 import wagner.stephanie.lizzie.analysis.Leelaz;
+import wagner.stephanie.lizzie.analysis.Leelaz.WinrateStats;
 import wagner.stephanie.lizzie.plugin.PluginManager;
 import wagner.stephanie.lizzie.rules.Board;
+import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 
 import javax.swing.*;
@@ -27,22 +29,52 @@ public class Lizzie {
 
         config = new Config();
 
+        PluginManager.loadPlugins();
+
+        board = new Board();
+
+        frame = new LizzieFrame();
+        
         new Thread( () -> {
             try {
                 leelaz = new Leelaz();
+                if( config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
+                	estimatePassWinrate();
+                }
                 leelaz.togglePonder();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }).start();
 
-        PluginManager.loadPlugins();
-
-        board = new Board();
-
-        frame = new LizzieFrame();
+        
     }
 
+    public static void estimatePassWinrate() {
+    	leelaz.playMove(Stone.WHITE, "pass");
+    	leelaz.togglePonder();
+    	WinrateStats stats=leelaz.getWinrateStats();
+    	while( stats.totalPlayouts < 1 ) {
+    		try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				throw new Error(e);
+			}
+    		stats=leelaz.getWinrateStats();
+    	}
+    	mHandicapWinrate=stats.maxWinrate;
+    	System.out.println("handicap winrate set to " + stats.maxWinrate + " after " + stats.totalPlayouts + " playouts." );
+    	leelaz.togglePonder();
+    	leelaz.undo();
+    	board.clear();
+    }
+    
+    public static double mHandicapWinrate=0.5;
+    
+    public static double getHandicapWinrate() {
+    	return mHandicapWinrate;
+    }
+    
     public static void shutdown() {
         PluginManager.onShutdown();
         if (config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
