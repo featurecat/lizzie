@@ -422,7 +422,7 @@ public class BoardRenderer {
                         
                         String text;
                         if( uiConfig.getBoolean("handicap-instead-of-winrate") ) {
-                            text=String.format("%.2f", Lizzie.winrateToHandicap(move.winrate));
+                            text=String.format("%.2f", Lizzie.leelaz.winrateToHandicap(move.winrate));
                         } else {
                             text=String.format("%.1f", roundedWinrate);
                         }

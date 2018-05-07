@@ -39,7 +39,7 @@ public class Lizzie {
             try {
                 leelaz = new Leelaz();
                 if( config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
-                	estimatePassWinrate();
+                	leelaz.estimatePassWinrate();
                 }
                 leelaz.togglePonder();
             } catch (IOException e) {
@@ -48,34 +48,6 @@ public class Lizzie {
         }).start();
 
         
-    }
-
-    public static void estimatePassWinrate() {
-    	leelaz.playMove(Stone.BLACK, "A1"); // we use A1 instead of pass, because networks have some experience with this due to early randomness but none with pass. hence the network has reasonably converged and don't need lots of playouts for reasonable estimate.
-    	leelaz.togglePonder();
-    	WinrateStats stats=leelaz.getWinrateStats();
-    	while( stats.totalPlayouts < 1 ) {
-    		try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				throw new Error(e);
-			}
-    		stats=leelaz.getWinrateStats();
-    	}
-    	mHandicapWinrate=stats.maxWinrate;
-    	System.out.println("handicap winrate set to " + stats.maxWinrate + " after " + stats.totalPlayouts + " playouts." );
-    	leelaz.togglePonder();
-    	leelaz.undo();
-    	board.clear();
-    }
-    
-    public static double mHandicapWinrate=25;
-    
-    /**
-     * Convert winrate to handicap stones, by normalizing winrate by first move pass winrate (one stone handicap).
-     */
-    public static double winrateToHandicap(double pWinrate) {
-        return Math.signum(0.5-(pWinrate/100))*Math.log(1-Math.abs(1-(pWinrate/100)*2))/-Math.log(1-Math.abs(1-(mHandicapWinrate/100)*2));
     }
 
     public static void shutdown() {

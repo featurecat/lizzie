@@ -149,7 +149,7 @@ public class Config {
         ui.put("show-next-moves", true);
         ui.put("win-rate-always-black", false);
         ui.put("confirm-exit", false);
-        ui.put("handicap-instead-of-winrate",true);
+        ui.put("handicap-instead-of-winrate",false);
 
         config.put("ui", ui);
         return config;
