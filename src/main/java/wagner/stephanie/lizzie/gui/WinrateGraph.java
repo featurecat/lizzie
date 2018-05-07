@@ -12,23 +12,7 @@ public class WinrateGraph {
 
     private int DOT_RADIUS = 6;
     private int[] params = {0, 0, 0, 0, 0};
-
-    public int moveNumber(int x, int y)
-    {
-        int posx = params[0];
-        int posy = params[1];
-        int width = params[2];
-        int height = params[3];
-        int numMoves = params[4];
-        if (posx <= x && x < posx + width && posy <= y && y < posy + height) {
-            // x == posx + (movenum * width / numMoves) ==> movenum = ...
-            int movenum = Math.round((x - posx) * numMoves / (float) width);
-            // movenum == moveNumber - 1 ==> moveNumber = ...
-            return movenum + 1;
-        } else {
-            return -1;
-        }
-    }
+    public int storedMoveNumber = -1;
 
     public void draw(Graphics2D g, int posx, int posy, int width, int height)
     {
@@ -108,6 +92,14 @@ public class WinrateGraph {
                     wr = bwr;
                     playouts = stats.totalPlayouts;
                 }
+                if (storedMoveNumber >= 0) {
+                    Stroke previousStroke = g.getStroke();
+                    int x = posx + (movenum*width/numMoves);
+                    g.setStroke(dashed);
+                    g.setColor(Color.white);
+                    g.drawLine(x, posy, x, posy + height);
+                    g.setStroke(previousStroke);
+                }
             }
             if (playouts > 0) {
                 if (wr < 0)
@@ -134,7 +126,7 @@ public class WinrateGraph {
                             posy + height - (int) (wr * height / 100));
                 }
 
-                if (node == curMove)
+                if (storedMoveNumber >= 0 ? movenum == storedMoveNumber - 1 : node == curMove)
                 {
                     g.setColor(Color.green);
                     g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
@@ -172,5 +164,22 @@ public class WinrateGraph {
         params[2] = width;
         params[3] = height;
         params[4] = numMoves;
+    }
+
+    public int moveNumber(int x, int y)
+    {
+        int posx = params[0];
+        int posy = params[1];
+        int width = params[2];
+        int height = params[3];
+        int numMoves = params[4];
+        if (posx <= x && x < posx + width && posy <= y && y < posy + height) {
+            // x == posx + (movenum * width / numMoves) ==> movenum = ...
+            int movenum = Math.round((x - posx) * numMoves / (float) width);
+            // movenum == moveNumber - 1 ==> moveNumber = ...
+            return movenum + 1;
+        } else {
+            return -1;
+        }
     }
 }
