@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * an interface with leelaz.exe go engine. Can be adapted for GTP, but is specifically designed for GCP's Leela Zero.
@@ -52,6 +54,8 @@ public class Leelaz {
     // genmove
     public boolean isThinking = false;
 
+    private boolean failSafeMode = false;
+
     /**
      * Initializes the leelaz process and starts reading output
      *
@@ -78,8 +82,12 @@ public class Leelaz {
         commands.add("-g");
         commands.add("-t");
         commands.add(""+config.getInt("threads"));
-        commands.add("-w");
-        commands.add(config.getString("weights"));
+        String weightsString = config.getString("weights");
+        if (!weightsString.isEmpty()) {
+            // Leela 0.11.0 lacks this option
+            commands.add("-w");
+            commands.add(weightsString);
+        }
         commands.add("-b");
         commands.add("0");
 
@@ -106,13 +114,13 @@ public class Leelaz {
 
         initializeStreams();
 
-        if (isCorrectVersion()) {
-            // start a thread to continuously read Leelaz output
-            new Thread(this::read).start();
-        } else {
-            // warn user or exit
+        if (!isCorrectVersion()) {
+            // warn user
             JOptionPane.showMessageDialog(Lizzie.frame, "This version of Leela Zero is incompatible with Lizzie.\nPlease follow the instructions in the readme.");
+            failSafeMode = true;
         }
+        // start a thread to continuously read Leelaz output
+        new Thread(this::read).start();
     }
 
     /**
@@ -182,6 +190,14 @@ public class Leelaz {
      * @param line output line
      */
     private void parseLine(String line) {
+        if (failSafeMode) {
+            parseLineFailSafe(line);
+        } else {
+            parseLineNormal(line);
+        }
+    }
+
+    private void parseLineNormal(String line) {
         synchronized (this) {
             if (line.startsWith("~begin") && !isWaitingToStartPonder) {
                 if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
@@ -243,6 +259,103 @@ public class Leelaz {
                     }
                 }
             }
+        }
+    }
+
+    private void parseLineFailSafe(String line) {
+        synchronized (this) {
+            boolean isMoveDataLine = line.matches("(?s) +[A-T][0-9]+ -> +[0-9].*");
+            if (!isReadingPonderOutput && isMoveDataLine && !isWaitingToStartPonder) {
+                if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
+                    // we have pondered for enough time. pause pondering
+                    togglePonder();
+                }
+
+                isReadingPonderOutput = true;
+                bestMovesTemp = new ArrayList<>();
+                parseMoveDataLine(line);
+            } else if (isReadingPonderOutput && !isMoveDataLine && !isWaitingToStartPonder) {
+                isReadingPonderOutput = false;
+                bestMoves = bestMovesTemp;
+
+                notifyBestMoveListeners();
+
+                if (Lizzie.frame != null) Lizzie.frame.repaint();
+                if (isPondering) {
+                    startPonder();
+                }
+            } else {
+
+                if (isReadingPonderOutput && !isWaitingToStartPonder) {
+                    parseMoveDataLine(line);
+                } else {
+                    if (printCommunication) {
+                        System.out.print(line);
+                    }
+
+                    line = line.trim();
+                    if (Lizzie.frame != null && line.startsWith("=") && line.length() > 2) {
+
+                        if (isWaitingToStartPonder) {
+                            // Now we can tell it to actually start pondering
+                            startPonder();
+                        }
+
+                        if (isSettingHandicap) {
+                            line = line.substring(2);
+                            String[] stones = line.split(" ");
+                            for (String stone : stones) {
+                                int[] coordinates = Lizzie.board.convertNameToCoordinates(stone);
+                                Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
+                            }
+                            isSettingHandicap = false;
+                        } else if (isThinking) {
+                            if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                                Lizzie.board.place(line.substring(2));
+                            }
+                            isThinking = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Parse a move-data line of Leelaz output
+     *
+     * @param line output line
+     */
+    private void parseMoveDataLine(String line) {
+        line = line.trim();
+        // ignore passes, and only accept lines that start with a coordinate letter
+        if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
+            if (!(Lizzie.frame != null && Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
+                try {
+                    bestMovesTemp.add(new MoveData(line));
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    // this is very rare but is possible. ignore
+                }
+            }
+        }
+    }
+
+    /**
+     * Tell Leelaz to start pondering
+     *
+     */
+    private void startPonder() {
+        sendCommand("time_left b 0 0");
+        isWaitingToStartPonder = false;
+        Timer ponderStopTimer = new Timer();
+        ponderStopTimer.schedule(new ponderStopTask(), 1000);
+    }
+
+    class ponderStopTask extends TimerTask {
+        public void run() {
+            // Send any command to terminate pondering.
+            sendCommand("name");
+            isReadingPonderOutput = false;
         }
     }
 

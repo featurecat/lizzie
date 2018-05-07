@@ -46,3 +46,16 @@ To build the code and package it:
 
 (or whatever the current version of the shaded `jar` file is in
 `target/`).
+
+## Failsafe mode (experimental)
+
+You can use the original Leela Zero in a failsefe mode instead of the
+special version described in the first paragraph of "Building Leela
+Zero" section above.  You can also use
+[Leela 0.11.0](https://www.sjeng.org/leela.html)
+as follows:
+
+1. Rename leela_gtp or leela_gtp_opencl to "leelaz".
+2. Set the "weights" parameter to "" in lizzie.properties.
+
+    "weights": "",
