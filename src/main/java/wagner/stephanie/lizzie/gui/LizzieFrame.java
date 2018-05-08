@@ -83,6 +83,7 @@ public class LizzieFrame extends JFrame {
     public boolean showCoordinates = false;
     public boolean isPlayingAgainstLeelaz = false;
     public boolean playerIsBlack = true;
+    public int winRateGridLines = 3;
 
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
@@ -567,8 +568,10 @@ public class LizzieFrame extends JFrame {
                                             new float[]{4}, 0);
             g.setStroke(dashed);
 
-            int middleX = barPosxB + (int) (maxBarwidth / 2);
-            g.drawLine(middleX, barPosY, middleX, barPosY + barHeight);
+            for (int i = 1; i <= winRateGridLines; i++) {
+                int x = barPosxB + (int) (i * (maxBarwidth / (winRateGridLines + 1)));
+                g.drawLine(x, barPosY, x, barPosY + barHeight);
+            }
             g.setStroke(oldstroke);
         }
     }
