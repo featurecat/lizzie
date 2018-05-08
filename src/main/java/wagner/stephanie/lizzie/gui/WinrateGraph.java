@@ -140,6 +140,7 @@ public class WinrateGraph {
                             DOT_RADIUS*2);
                 }
                 lastWr = wr;
+                lastNodeOk = true;
                 // Check if we were in a variation and has reached the main trunk
                 if (node == topOfVariation) {
                     // Reached top of variation, go to end of main trunk before continuing
@@ -150,9 +151,11 @@ public class WinrateGraph {
                         lastWr = 100 - lastWr;
                     g.setStroke(new BasicStroke(3));
                     topOfVariation = null;
+                    if (node.getData().playouts == 0) {
+                        lastNodeOk = false;
+                    }
                 }
-                lastNodeOk = true;
-                lastOkMove = movenum;
+                lastOkMove = lastNodeOk ? movenum : -1;
             } else {
                 lastNodeOk = false;
             }
