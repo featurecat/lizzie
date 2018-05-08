@@ -202,6 +202,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_F:
                 Lizzie.config.toggleShowNextMoves();
                 break;
+
+            case VK_H:
+                Lizzie.config.toggleHandicapInsteadOfWinrate();
+                break;
                 
             case VK_PAGE_UP:
                 undo(10);

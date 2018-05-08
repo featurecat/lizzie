@@ -83,6 +83,7 @@ public class LizzieFrame extends JFrame {
     public boolean showCoordinates = false;
     public boolean isPlayingAgainstLeelaz = false;
     public boolean playerIsBlack = true;
+    public int winRateGridLines = 3;
 
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
@@ -519,7 +520,7 @@ public class LizzieFrame extends JFrame {
         // Last move
         if (validLastWinrate && validWinrate) {
         	String text;
-            if( Lizzie.config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
+            if(Lizzie.config.handicapInsteadOfWinrate) {
             	text=String.format(": %.2f", Lizzie.leelaz.winrateToHandicap(100-curWR) - Lizzie.leelaz.winrateToHandicap(lastWR));
         	} else {
                 text=String.format(": %.1f%%", 100 - lastWR - curWR);
@@ -567,8 +568,10 @@ public class LizzieFrame extends JFrame {
                                             new float[]{4}, 0);
             g.setStroke(dashed);
 
-            int middleX = barPosxB + (int) (maxBarwidth / 2);
-            g.drawLine(middleX, barPosY, middleX, barPosY + barHeight);
+            for (int i = 1; i <= winRateGridLines; i++) {
+                int x = barPosxB + (int) (i * (maxBarwidth / (winRateGridLines + 1)));
+                g.drawLine(x, barPosY, x, barPosY + barHeight);
+            }
             g.setStroke(oldstroke);
         }
     }
