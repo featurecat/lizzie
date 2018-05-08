@@ -173,7 +173,7 @@ public class WinrateGraph {
 
     private double convertWinrate(double winrate) {
         double maxHandicap = 10;
-        if (Lizzie.config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate")) {
+        if (Lizzie.config.handicapInsteadOfWinrate) {
             double handicap = Lizzie.leelaz.winrateToHandicap(winrate);
             // handicap == + maxHandicap => r == 1.0
             // handicap == - maxHandicap => r == 0.0

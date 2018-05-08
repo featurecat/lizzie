@@ -462,7 +462,7 @@ public class BoardRenderer {
                             g.setColor(Color.WHITE);
                         
                         String text;
-                        if( uiConfig.getBoolean("handicap-instead-of-winrate") ) {
+                        if (Lizzie.config.handicapInsteadOfWinrate) {
                             text=String.format("%.2f", Lizzie.leelaz.winrateToHandicap(move.winrate));
                         } else {
                             text=String.format("%.1f", roundedWinrate);

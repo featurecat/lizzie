@@ -520,7 +520,7 @@ public class LizzieFrame extends JFrame {
         // Last move
         if (validLastWinrate && validWinrate) {
         	String text;
-            if( Lizzie.config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
+            if(Lizzie.config.handicapInsteadOfWinrate) {
             	text=String.format(": %.2f", Lizzie.leelaz.winrateToHandicap(100-curWR) - Lizzie.leelaz.winrateToHandicap(lastWR));
         	} else {
                 text=String.format(": %.1f%%", 100 - lastWR - curWR);

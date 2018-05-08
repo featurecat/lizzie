@@ -11,6 +11,7 @@ public class Config {
     public boolean showWinrate = true;
     public boolean showVariationGraph = true;
     public boolean showRawBoard = false;
+    public boolean handicapInsteadOfWinrate = false;
     
     // For plug-ins
     public boolean showBranch = true;
@@ -73,6 +74,7 @@ public class Config {
         showVariationGraph = uiConfig.getBoolean("show-variation-graph");
         showBestMoves = uiConfig.getBoolean("show-best-moves");
         showNextMoves = uiConfig.getBoolean("show-next-moves");
+        handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     }
 
     // Modifies config by adding in values from default_config that are missing.
@@ -118,6 +120,11 @@ public class Config {
     public void toggleShowNextMoves() {
         this.showNextMoves = !this.showNextMoves;
     }
+    public void toggleHandicapInsteadOfWinrate() {
+        this.handicapInsteadOfWinrate = !this.handicapInsteadOfWinrate;
+    }
+
+
 
     private JSONObject createDefaultConfig() {
         JSONObject config = new JSONObject();

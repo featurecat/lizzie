@@ -38,7 +38,7 @@ public class Lizzie {
         new Thread( () -> {
             try {
                 leelaz = new Leelaz();
-                if( config.config.getJSONObject("ui").getBoolean("handicap-instead-of-winrate") ) {
+                if(config.handicapInsteadOfWinrate) {
                 	leelaz.estimatePassWinrate();
                 }
                 leelaz.togglePonder();
