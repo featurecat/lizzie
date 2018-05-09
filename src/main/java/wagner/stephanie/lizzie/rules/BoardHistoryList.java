@@ -131,6 +131,7 @@ public class BoardHistoryList {
     public void setStone(int[] coordinates, Stone stone) {
         int index = Board.getIndex(coordinates[0], coordinates[1]);
         head.getData().stones[index] = stone;
+        head.getData().zobrist.toggleStone(coordinates[0], coordinates[1], stone);
     }
 
     public Stone[] getStones() {

@@ -209,7 +209,7 @@ public class BoardRenderer {
                 }
             }
 
-            cachedZhash = Lizzie.board.getData().zobrist;
+            cachedZhash = Lizzie.board.getData().zobrist.clone();
             g.dispose();
             gShadow.dispose();
             lastInScoreMode = false;

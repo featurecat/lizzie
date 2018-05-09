@@ -25,6 +25,13 @@ public class Board implements LeelazListener {
 
 
     public Board() {
+        initialize();
+    }
+
+    /**
+     * Initialize the board completely
+     */
+    private void initialize() {
         Stone[] stones = new Stone[BOARD_SIZE * BOARD_SIZE];
         for (int i = 0; i < stones.length; i++)
             stones[i] = Stone.EMPTY;
@@ -691,11 +698,10 @@ public class Board implements LeelazListener {
     }
 
     /**
-     * Clears all history and starts over.
+     * Clears all history and starts over from empty board.
      */
     public void clear() {
-        while (previousMove());
-        history.clear();
+        initialize();
     }
 
     /**
