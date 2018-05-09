@@ -97,7 +97,8 @@ public class WinrateGraph {
                     wr = bwr;
                     playouts = stats.totalPlayouts;
                 }
-                if (storedMoveNumber >= 0) {
+                {
+                    // Draw a vertical line at the current move
                     Stroke previousStroke = g.getStroke();
                     int x = posx + (movenum*width/numMoves);
                     g.setStroke(dashed);
