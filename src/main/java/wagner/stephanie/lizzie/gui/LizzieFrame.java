@@ -18,6 +18,7 @@ import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.BoardData;
+import wagner.stephanie.lizzie.rules.GIBParser;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
 import javax.swing.*;
@@ -201,7 +202,7 @@ public class LizzieFrame extends JFrame {
     }
 
     public static void openSgf() {
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
 
@@ -210,12 +211,16 @@ public class LizzieFrame extends JFrame {
         int result = chooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
-            if (!file.getPath().endsWith(".sgf")) {
+            if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
                 file = new File(file.getPath() + ".sgf");
             }
             try {
                 System.out.println(file.getPath());
-                SGFParser.load(file.getPath());
+                if (file.getPath().endsWith(".sgf")) {
+                    SGFParser.load(file.getPath());
+                } else {
+                    GIBParser.load(file.getPath());
+                }
                 filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
                 JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
