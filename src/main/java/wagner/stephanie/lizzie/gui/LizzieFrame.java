@@ -643,7 +643,7 @@ public class LizzieFrame extends JFrame {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
         }
-        if (moveNumber >= 0) {
+        if (Lizzie.config.showWinrate && moveNumber >= 0) {
             isPlayingAgainstLeelaz = false;
             Lizzie.board.goToMoveNumber(moveNumber);
             storeMoveNumber();
@@ -672,7 +672,7 @@ public class LizzieFrame extends JFrame {
         } else {
             mouseHoverCoordinate = newMouseHoverCoordinate;
         }
-        if (moveNumber >= 0) {
+        if (Lizzie.config.showWinrate && moveNumber >= 0) {
             tryStoreMoveNumber();
             if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
                 repaint();
