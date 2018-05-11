@@ -101,7 +101,11 @@ public class SGFParser {
                     inTag = true;
                     String tagTemp = tagBuilder.toString();
                     if (!tagTemp.isEmpty()) {
-                        tag = tagTemp;
+                        // Ignore small letters in tags for the long format Smart-Go file.
+                        // (ex) "PlayerBlack" ==> "PB"
+                        // It is the default format of mgt, an old SGF tool.
+                        // (Mgt is still supported in Debian and Ubuntu.)
+                        tag = tagTemp.replaceAll("[a-z]", "");
                     }
                     tagContentBuilder = new StringBuilder();
                     break;
