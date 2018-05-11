@@ -82,6 +82,7 @@ public class WinrateGraph {
         width = (int)(width*0.95); // Leave some space after last move
         double lastWr = 50;
         boolean lastNodeOk = false;
+        boolean inFirstPath = true;
         int movenum = node.getData().moveNumber - 1;
         int lastOkMove = -1;
 
@@ -132,7 +133,9 @@ public class WinrateGraph {
                             posy + height - (int) (convertWinrate(wr) * height / 100));
                 }
 
-                if (storedMoveNumber >= 0 ? movenum == storedMoveNumber - 1 : node == curMove)
+                if (storedMoveNumber >= 0 ?
+                    (inFirstPath && movenum == storedMoveNumber - 1) :
+                    node == curMove)
                 {
                     g.setColor(Color.green);
                     g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
@@ -155,6 +158,7 @@ public class WinrateGraph {
                     if (node.getData().playouts == 0) {
                         lastNodeOk = false;
                     }
+                    inFirstPath = false;
                 }
                 lastOkMove = lastNodeOk ? movenum : -1;
             } else {
