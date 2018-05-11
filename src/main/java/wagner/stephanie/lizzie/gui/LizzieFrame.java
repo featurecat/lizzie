@@ -147,7 +147,6 @@ public class LizzieFrame extends JFrame {
         if (newGameDialog.isCancelled()) return;
 
         Lizzie.board.clear();
-        Lizzie.leelaz.sendCommand("clear_board");
         Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
 
         Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
