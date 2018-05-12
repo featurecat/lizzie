@@ -18,6 +18,7 @@ import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.BoardData;
+import wagner.stephanie.lizzie.rules.BoardHistoryNode;
 import wagner.stephanie.lizzie.rules.GIBParser;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
@@ -85,6 +86,8 @@ public class LizzieFrame extends JFrame {
     public boolean isPlayingAgainstLeelaz = false;
     public boolean playerIsBlack = true;
     public int winRateGridLines = 3;
+
+    private BoardHistoryNode nodeBeforeIntentionalAction = null;
 
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
@@ -701,10 +704,14 @@ public class LizzieFrame extends JFrame {
     private boolean tryRestoreMoveNumber() {
         if (winrateGraph.storedMoveNumber >= 0) {
             Lizzie.board.goToMoveNumber(winrateGraph.storedMoveNumber);
-            winrateGraph.storedMoveNumber = -1;
+            discardStoredMoveNumber();
             return true;
         }
         return false;
+    }
+
+    private void discardStoredMoveNumber() {
+        winrateGraph.storedMoveNumber = -1;
     }
 
     public void toggleCoordinates() {
@@ -750,5 +757,20 @@ public class LizzieFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void beginIntentionalAction() {
+        // We need to detect "intentional" changes of the board
+        // for the winrate graph.
+        // Changes caused by mouse hover are temporal,
+        // whereas intentional changes are permanent.
+        nodeBeforeIntentionalAction = Lizzie.board.getHistory().getCurrentHistoryNode();
+    }
+
+    public void endIntentionalAction() {
+        if (Lizzie.board.getHistory().getCurrentHistoryNode() != nodeBeforeIntentionalAction) {
+            discardStoredMoveNumber();
+        }
+        repaint();
     }
 }
