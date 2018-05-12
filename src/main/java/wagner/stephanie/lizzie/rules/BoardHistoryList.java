@@ -194,6 +194,37 @@ public class BoardHistoryList {
         return false;
     }
 
+    /**
+     * Returns the root node
+     *
+     * @return root node
+     */
+    public BoardHistoryNode root() {
+        BoardHistoryNode top = head;
+        while (top.previous() != null) {
+            top = top.previous();
+        }
+        return top;
+    }
+
+    /**
+     * Returns the length of current branch
+     *
+     * @return length of current branch
+     */
+    public int currentBranchLength() {
+        return getMoveNumber() + BoardHistoryList.getDepth(head);
+    }
+
+    /**
+     * Returns the length of main trunk
+     *
+     * @return length of main trunk
+     */
+    public int mainTrunkLength() {
+        return BoardHistoryList.getDepth(root());
+    }
+
     /*
      * Static helper methods
      */
