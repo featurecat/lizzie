@@ -681,8 +681,11 @@ public class Board implements LeelazListener {
                 }
 
             }
-            // Don't try to delete if we're at the top
-            if (curNode.previous() == null) return;
+            // Clear the board if we're at the top
+            if (curNode.previous() == null) {
+                clear();
+                return;
+            }
             previousMove();
             int idx = BoardHistoryList.findIndexOfNode(curNode.previous(), curNode);
             curNode.previous().deleteChild(idx);
