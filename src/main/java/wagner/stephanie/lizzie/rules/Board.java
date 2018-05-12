@@ -433,6 +433,15 @@ public class Board implements LeelazListener {
         return goToMoveNumberHelper(moveNumber, true);
     }
 
+    public boolean goToMoveNumberBeyondBranch(int moveNumber) {
+        // Go to main trunk if current branch is shorter than moveNumber.
+        if (moveNumber > history.currentBranchLength() &&
+            moveNumber <= history.mainTrunkLength()) {
+            goToMoveNumber(0);
+        }
+        return goToMoveNumber(moveNumber);
+    }
+
     public boolean goToMoveNumberHelper(int moveNumber, boolean withinBranch) {
         int delta = moveNumber - history.getMoveNumber();
         boolean moved = false;

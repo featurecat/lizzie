@@ -649,7 +649,7 @@ public class LizzieFrame extends JFrame {
         }
         if (Lizzie.config.showWinrate && moveNumber >= 0) {
             isPlayingAgainstLeelaz = false;
-            Lizzie.board.goToMoveNumber(moveNumber);
+            Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
             storeMoveNumber();
         }
         repaint();
