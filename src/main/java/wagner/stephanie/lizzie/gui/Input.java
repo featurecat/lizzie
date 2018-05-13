@@ -120,6 +120,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     private void deleteMove() { Lizzie.board.deleteMove(); }
 
+    private void deleteBranch() { Lizzie.board.deleteBranch(); }
+
     private void playCurrentVariation() {
         Lizzie.frame.playCurrentVariation();
     }
@@ -287,7 +289,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             case VK_DELETE:
             case VK_BACK_SPACE:
-                deleteMove();
+                if (e.isShiftDown()) {
+                    deleteBranch();
+                } else {
+                    deleteMove();
+                }
                 break;
 
             case VK_Z:

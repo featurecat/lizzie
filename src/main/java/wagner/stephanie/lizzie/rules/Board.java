@@ -701,6 +701,17 @@ public class Board implements LeelazListener {
         }
     }
 
+    public void deleteBranch() {
+        int originalMoveNumber = history.getMoveNumber();
+        undoToChildOfPreviousWithVariation();
+        int moveNumberBeforeOperation = history.getMoveNumber();
+        deleteMove();
+        boolean canceled = (history.getMoveNumber() == moveNumberBeforeOperation);
+        if (canceled) {
+            goToMoveNumber(originalMoveNumber);
+        }
+    }
+
     public BoardData getData() {
         return history.getData();
     }
