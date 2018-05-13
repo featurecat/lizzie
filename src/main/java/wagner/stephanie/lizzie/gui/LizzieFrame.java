@@ -679,7 +679,9 @@ public class LizzieFrame extends JFrame {
         } else {
             mouseHoverCoordinate = newMouseHoverCoordinate;
         }
-        if (Lizzie.config.showWinrate && moveNumber >= 0) {
+        if (isPlayingAgainstLeelaz) {
+            // Disable mouse hover actions on winrate graph for avoiding confusion.
+        } else if (Lizzie.config.showWinrate && moveNumber >= 0) {
             tryStoreMoveNumber();
             if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
                 repaint();
