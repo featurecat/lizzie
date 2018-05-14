@@ -18,6 +18,8 @@ import wagner.stephanie.lizzie.analysis.GameInfo;
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.rules.Board;
 import wagner.stephanie.lizzie.rules.BoardData;
+import wagner.stephanie.lizzie.rules.BoardHistoryNode;
+import wagner.stephanie.lizzie.rules.GIBParser;
 import wagner.stephanie.lizzie.rules.SGFParser;
 
 import javax.swing.*;
@@ -85,6 +87,8 @@ public class LizzieFrame extends JFrame {
     public boolean playerIsBlack = true;
     public int winRateGridLines = 3;
 
+    private BoardHistoryNode nodeBeforeIntentionalAction = null;
+
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
@@ -146,7 +150,6 @@ public class LizzieFrame extends JFrame {
         if (newGameDialog.isCancelled()) return;
 
         Lizzie.board.clear();
-        Lizzie.leelaz.sendCommand("clear_board");
         Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
 
         Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
@@ -201,7 +204,7 @@ public class LizzieFrame extends JFrame {
     }
 
     public static void openSgf() {
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
 
@@ -210,12 +213,16 @@ public class LizzieFrame extends JFrame {
         int result = chooser.showOpenDialog(null);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
-            if (!file.getPath().endsWith(".sgf")) {
+            if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
                 file = new File(file.getPath() + ".sgf");
             }
             try {
                 System.out.println(file.getPath());
-                SGFParser.load(file.getPath());
+                if (file.getPath().endsWith(".sgf")) {
+                    SGFParser.load(file.getPath());
+                } else {
+                    GIBParser.load(file.getPath());
+                }
                 filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
                 JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
@@ -643,9 +650,9 @@ public class LizzieFrame extends JFrame {
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
         }
-        if (moveNumber >= 0) {
+        if (Lizzie.config.showWinrate && moveNumber >= 0) {
             isPlayingAgainstLeelaz = false;
-            Lizzie.board.goToMoveNumber(moveNumber);
+            Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
             storeMoveNumber();
         }
         repaint();
@@ -672,7 +679,7 @@ public class LizzieFrame extends JFrame {
         } else {
             mouseHoverCoordinate = newMouseHoverCoordinate;
         }
-        if (moveNumber >= 0) {
+        if (Lizzie.config.showWinrate && moveNumber >= 0) {
             tryStoreMoveNumber();
             if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
                 repaint();
@@ -697,10 +704,14 @@ public class LizzieFrame extends JFrame {
     private boolean tryRestoreMoveNumber() {
         if (winrateGraph.storedMoveNumber >= 0) {
             Lizzie.board.goToMoveNumber(winrateGraph.storedMoveNumber);
-            winrateGraph.storedMoveNumber = -1;
+            discardStoredMoveNumber();
             return true;
         }
         return false;
+    }
+
+    private void discardStoredMoveNumber() {
+        winrateGraph.storedMoveNumber = -1;
     }
 
     public void toggleCoordinates() {
@@ -746,5 +757,20 @@ public class LizzieFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void beginIntentionalAction() {
+        // We need to detect "intentional" changes of the board
+        // for the winrate graph.
+        // Changes caused by mouse hover are temporal,
+        // whereas intentional changes are permanent.
+        nodeBeforeIntentionalAction = Lizzie.board.getHistory().getCurrentHistoryNode();
+    }
+
+    public void endIntentionalAction() {
+        if (Lizzie.board.getHistory().getCurrentHistoryNode() != nodeBeforeIntentionalAction) {
+            discardStoredMoveNumber();
+        }
+        repaint();
     }
 }

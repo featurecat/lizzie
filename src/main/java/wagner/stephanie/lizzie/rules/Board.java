@@ -433,6 +433,15 @@ public class Board implements LeelazListener {
         return goToMoveNumberHelper(moveNumber, true);
     }
 
+    public boolean goToMoveNumberBeyondBranch(int moveNumber) {
+        // Go to main trunk if current branch is shorter than moveNumber.
+        if (moveNumber > history.currentBranchLength() &&
+            moveNumber <= history.mainTrunkLength()) {
+            goToMoveNumber(0);
+        }
+        return goToMoveNumber(moveNumber);
+    }
+
     public boolean goToMoveNumberHelper(int moveNumber, boolean withinBranch) {
         int delta = moveNumber - history.getMoveNumber();
         boolean moved = false;
@@ -681,11 +690,25 @@ public class Board implements LeelazListener {
                 }
 
             }
-            // Don't try to delete if we're at the top
-            if (curNode.previous() == null) return;
+            // Clear the board if we're at the top
+            if (curNode.previous() == null) {
+                clear();
+                return;
+            }
             previousMove();
             int idx = BoardHistoryList.findIndexOfNode(curNode.previous(), curNode);
             curNode.previous().deleteChild(idx);
+        }
+    }
+
+    public void deleteBranch() {
+        int originalMoveNumber = history.getMoveNumber();
+        undoToChildOfPreviousWithVariation();
+        int moveNumberBeforeOperation = history.getMoveNumber();
+        deleteMove();
+        boolean canceled = (history.getMoveNumber() == moveNumberBeforeOperation);
+        if (canceled) {
+            goToMoveNumber(originalMoveNumber);
         }
     }
 
@@ -701,6 +724,7 @@ public class Board implements LeelazListener {
      * Clears all history and starts over from empty board.
      */
     public void clear() {
+        Lizzie.leelaz.sendCommand("clear_board");
         initialize();
     }
 

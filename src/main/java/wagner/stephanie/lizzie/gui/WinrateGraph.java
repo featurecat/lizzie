@@ -82,6 +82,7 @@ public class WinrateGraph {
         width = (int)(width*0.95); // Leave some space after last move
         double lastWr = 50;
         boolean lastNodeOk = false;
+        boolean inFirstPath = true;
         int movenum = node.getData().moveNumber - 1;
         int lastOkMove = -1;
 
@@ -97,12 +98,19 @@ public class WinrateGraph {
                     wr = bwr;
                     playouts = stats.totalPlayouts;
                 }
-                if (storedMoveNumber >= 0) {
+                {
+                    // Draw a vertical line at the current move
                     Stroke previousStroke = g.getStroke();
                     int x = posx + (movenum*width/numMoves);
                     g.setStroke(dashed);
                     g.setColor(Color.white);
                     g.drawLine(x, posy, x, posy + height);
+                    // Show move number
+                    String moveNumString = "" + node.getData().moveNumber;
+                    int mw = g.getFontMetrics().stringWidth(moveNumString);
+                    int margin = strokeRadius;
+                    int mx = x - posx < width / 2 ? x + margin : x - mw - margin;
+                    g.drawString(moveNumString, mx, posy + height - margin);
                     g.setStroke(previousStroke);
                 }
             }
@@ -131,7 +139,9 @@ public class WinrateGraph {
                             posy + height - (int) (convertWinrate(wr) * height / 100));
                 }
 
-                if (storedMoveNumber >= 0 ? movenum == storedMoveNumber - 1 : node == curMove)
+                if (storedMoveNumber >= 0 ?
+                    (inFirstPath && movenum == storedMoveNumber - 1) :
+                    node == curMove)
                 {
                     g.setColor(Color.green);
                     g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,
@@ -154,6 +164,7 @@ public class WinrateGraph {
                     if (node.getData().playouts == 0) {
                         lastNodeOk = false;
                     }
+                    inFirstPath = false;
                 }
                 lastOkMove = lastNodeOk ? movenum : -1;
             } else {

@@ -120,6 +120,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     private void deleteMove() { Lizzie.board.deleteMove(); }
 
+    private void deleteBranch() { Lizzie.board.deleteBranch(); }
+
     private void playCurrentVariation() {
         Lizzie.frame.playCurrentVariation();
     }
@@ -132,6 +134,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     @Override
     public void keyPressed(KeyEvent e) {
 
+        Lizzie.frame.beginIntentionalAction();
         PluginManager.onKeyPressed(e);
 
         switch (e.getKeyCode()) {
@@ -257,7 +260,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     Lizzie.frame.drawControls();
                 }
                 Lizzie.frame.showControls = true;
-                Lizzie.frame.repaint();
                 break;
 
             case VK_W:
@@ -287,12 +289,15 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             case VK_DELETE:
             case VK_BACK_SPACE:
-                deleteMove();
+                if (e.isShiftDown()) {
+                    deleteBranch();
+                } else {
+                    deleteMove();
+                }
                 break;
 
             case VK_Z:
                 Lizzie.config.showRawBoard = true;
-                Lizzie.frame.repaint();
                 break;
 
             case VK_A:
@@ -308,7 +313,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             default:
         }
-        Lizzie.frame.repaint();
+        Lizzie.frame.endIntentionalAction();
     }
 
     private boolean wasPonderingWhenControlsShown = false;
@@ -334,10 +339,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        Lizzie.frame.beginIntentionalAction();
         if (e.getWheelRotation() > 0) {
             redo();
         } else if (e.getWheelRotation() < 0) {
             undo();
         }
+        Lizzie.frame.endIntentionalAction();
     }
 }
