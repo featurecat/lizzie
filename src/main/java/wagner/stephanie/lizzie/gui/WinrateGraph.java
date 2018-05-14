@@ -12,7 +12,6 @@ public class WinrateGraph {
 
     private int DOT_RADIUS = 6;
     private int[] params = {0, 0, 0, 0, 0};
-    public int storedMoveNumber = -1;
 
     public void draw(Graphics2D g, int posx, int posy, int width, int height)
     {
@@ -139,9 +138,7 @@ public class WinrateGraph {
                             posy + height - (int) (convertWinrate(wr) * height / 100));
                 }
 
-                if (storedMoveNumber >= 0 ?
-                    (inFirstPath && movenum == storedMoveNumber - 1) :
-                    node == curMove)
+                if (node == curMove)
                 {
                     g.setColor(Color.green);
                     g.fillOval(posx + (movenum*width/numMoves) - DOT_RADIUS,

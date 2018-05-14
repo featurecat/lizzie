@@ -87,8 +87,6 @@ public class LizzieFrame extends JFrame {
     public boolean playerIsBlack = true;
     public int winRateGridLines = 3;
 
-    private BoardHistoryNode nodeBeforeIntentionalAction = null;
-
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
@@ -653,7 +651,6 @@ public class LizzieFrame extends JFrame {
         if (Lizzie.config.showWinrate && moveNumber >= 0) {
             isPlayingAgainstLeelaz = false;
             Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
-            storeMoveNumber();
         }
         repaint();
     }
@@ -672,46 +669,21 @@ public class LizzieFrame extends JFrame {
 
     public void onMouseMoved(int x, int y) {
         int[] newMouseHoverCoordinate = boardRenderer.convertScreenToCoordinates(x, y);
-        int moveNumber = winrateGraph.moveNumber(x, y);
         if (mouseHoverCoordinate != null && newMouseHoverCoordinate != null && (mouseHoverCoordinate[0] != newMouseHoverCoordinate[0] || mouseHoverCoordinate[1] != newMouseHoverCoordinate[1])) {
             mouseHoverCoordinate = newMouseHoverCoordinate;
             repaint();
         } else {
             mouseHoverCoordinate = newMouseHoverCoordinate;
         }
+    }
+
+    public void onMouseDragged(int x, int y) {
+        int moveNumber = winrateGraph.moveNumber(x, y);
         if (Lizzie.config.showWinrate && moveNumber >= 0) {
-            tryStoreMoveNumber();
             if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
                 repaint();
             }
-        } else {
-            if (tryRestoreMoveNumber()) {
-                repaint();
-            }
         }
-    }
-
-    private void storeMoveNumber() {
-        winrateGraph.storedMoveNumber = Lizzie.board.getHistory().getMoveNumber();
-    }
-
-    private void tryStoreMoveNumber() {
-        if (winrateGraph.storedMoveNumber < 0) {
-            storeMoveNumber();
-        }
-    }
-
-    private boolean tryRestoreMoveNumber() {
-        if (winrateGraph.storedMoveNumber >= 0) {
-            Lizzie.board.goToMoveNumber(winrateGraph.storedMoveNumber);
-            discardStoredMoveNumber();
-            return true;
-        }
-        return false;
-    }
-
-    private void discardStoredMoveNumber() {
-        winrateGraph.storedMoveNumber = -1;
     }
 
     public void toggleCoordinates() {
@@ -757,20 +729,5 @@ public class LizzieFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void beginIntentionalAction() {
-        // We need to detect "intentional" changes of the board
-        // for the winrate graph.
-        // Changes caused by mouse hover are temporal,
-        // whereas intentional changes are permanent.
-        nodeBeforeIntentionalAction = Lizzie.board.getHistory().getCurrentHistoryNode();
-    }
-
-    public void endIntentionalAction() {
-        if (Lizzie.board.getHistory().getCurrentHistoryNode() != nodeBeforeIntentionalAction) {
-            discardStoredMoveNumber();
-        }
-        repaint();
     }
 }
