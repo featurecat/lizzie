@@ -42,7 +42,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        int x = e.getX();
+        int y = e.getY();
 
+        Lizzie.frame.onMouseDragged(x, y);
     }
 
     @Override
@@ -134,7 +137,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     @Override
     public void keyPressed(KeyEvent e) {
 
-        Lizzie.frame.beginIntentionalAction();
         PluginManager.onKeyPressed(e);
 
         switch (e.getKeyCode()) {
@@ -313,7 +315,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             default:
         }
-        Lizzie.frame.endIntentionalAction();
+        Lizzie.frame.repaint();
     }
 
     private boolean wasPonderingWhenControlsShown = false;
@@ -339,12 +341,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        Lizzie.frame.beginIntentionalAction();
         if (e.getWheelRotation() > 0) {
             redo();
         } else if (e.getWheelRotation() < 0) {
             undo();
         }
-        Lizzie.frame.endIntentionalAction();
+        Lizzie.frame.repaint();
     }
 }
