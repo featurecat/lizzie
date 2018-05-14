@@ -618,6 +618,11 @@ int UCTSearch::think(int color, passflag_t passflag) {
 }
 
 void UCTSearch::ponder() {
+    while(ponder_helper()) {};                                      // lizzie
+}
+
+bool UCTSearch::ponder_helper() {                                   // lizzie
+    bool stopped_for_lizzie = false;                                // lizzie
     update_root();
 
     m_run = true;
@@ -641,22 +646,26 @@ void UCTSearch::ponder() {
         Time elapsed;                                               // lizzie
         int elapsed_centis = Time::timediff_centis(start, elapsed); // lizzie
         if (elapsed_centis - last_update > 10) { // lizzie: output ponder data 10 times per second
-            last_update = elapsed_centis;                           // lizzie
-           
-            myprintf("~begin\n");                                   // lizzie
-            dump_stats(m_rootstate, *m_root);                       // lizzie
-            myprintf("~end\n");                                     // lizzie
+            stopped_for_lizzie = keeprunning;                       // lizzie
+            keeprunning = false;                                    // lizzie
         }                                                           // lizzie
     } while(!Utils::input_pending() && keeprunning);
 
     // stop the search
     m_run = false;
     tg.wait_all();
+    if (stopped_for_lizzie) {                                 // lizzie
+      // Be sure to call tg.wait_all before dump_stats.       // lizzie
+      myprintf("~begin\n");                                   // lizzie
+      dump_stats(m_rootstate, *m_root);                       // lizzie
+      myprintf("~end\n");                                     // lizzie
+    }                                                         // lizzie
     // display search info
     myprintf("\n");
     dump_stats(m_rootstate, *m_root);
 
     myprintf("\n%d visits, %d nodes\n\n", m_root->get_visits(), m_nodes.load());
+    return stopped_for_lizzie;                                // lizzie
 }
 
 void UCTSearch::set_playout_limit(int playouts) {
