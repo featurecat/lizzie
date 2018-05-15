@@ -103,6 +103,19 @@ public class BoardRenderer {
     }
 
     /**
+     * Return the best move of Leelaz's suggestions
+     *
+     * @return the coordinate name of the best move
+     */
+    public String bestMoveCoordinateName() {
+        if (bestMoves == null || bestMoves.size() == 0) {
+            return null;
+        } else {
+            return bestMoves.get(0).coordinate;
+        }
+    }
+
+    /**
      * Calculate good values for boardLength, scaledMargin, availableLength, and squareLength
      */
     private void setupSizeParameters() {

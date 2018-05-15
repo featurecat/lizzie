@@ -125,10 +125,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     private void deleteBranch() { Lizzie.board.deleteBranch(); }
 
-    private void playCurrentVariation() {
-        Lizzie.frame.playCurrentVariation();
-    }
-
     private boolean controlIsPressed(KeyEvent e) {
         boolean mac = System.getProperty("os.name", "").toUpperCase().startsWith("MAC");
         return e.isControlDown() || (mac && e.isMetaDown());
@@ -197,7 +193,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_COMMA:
-                playCurrentVariation();
+                if (!Lizzie.frame.playCurrentVariation())
+                    Lizzie.frame.playBestMove();
                 break;
 
             case VK_M:
