@@ -70,6 +70,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
+        if (Lizzie.frame.incrementDisplayedBranchLength(- movesToAdvance)) {
+            return;
+        }
 
         for (int i = 0; i < movesToAdvance; i++)
             Lizzie.board.previousMove();
@@ -94,9 +97,29 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
+        if (Lizzie.frame.incrementDisplayedBranchLength(movesToAdvance)) {
+            return;
+        }
 
         for (int i = 0; i < movesToAdvance; i++)
             Lizzie.board.nextMove();
+    }
+
+    private void startRawBoard() {
+        if (!Lizzie.config.showRawBoard) {
+            Lizzie.frame.startRawBoard();
+        }
+        Lizzie.config.showRawBoard = true;
+    }
+
+    private void stopRawBoard() {
+        Lizzie.frame.stopRawBoard();
+        Lizzie.config.showRawBoard = false;
+    }
+
+    private void toggleHints() {
+        Lizzie.config.toggleShowBranch();
+        Lizzie.config.showNextMoves = Lizzie.config.showBestMoves = Lizzie.config.showBranch;
     }
 
     private void nextBranch() {
@@ -299,7 +322,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_Z:
-                Lizzie.config.showRawBoard = true;
+                if (e.isShiftDown()) {
+                    toggleHints();
+                } else {
+                    startRawBoard();
+                }
                 break;
 
             case VK_A:
@@ -331,7 +358,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_Z:
-                Lizzie.config.showRawBoard = false;
+                stopRawBoard();
                 Lizzie.frame.repaint();
                 break;
 

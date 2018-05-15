@@ -52,6 +52,13 @@ public class BoardRenderer {
     public ITheme theme;
     public List<String> variation;
 
+    // special values of displayedBranchLength
+    public static final int SHOW_RAW_BOARD = -1;
+    public static final int SHOW_NORMAL_BOARD = -2;
+
+    private int displayedBranchLength = SHOW_NORMAL_BOARD;
+    private int cachedDisplayedBranchLength = SHOW_RAW_BOARD;
+    private boolean showingBranch = false;
 
     public BoardRenderer() {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
@@ -85,7 +92,7 @@ public class BoardRenderer {
         renderImages(g);
 //        timer.lap("rendering images");
 
-        if (!Lizzie.config.showRawBoard) {
+        if (!isShowingRawBoard()) {
             drawMoveNumbers(g);
 //        timer.lap("movenumbers");
             if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
@@ -189,6 +196,7 @@ public class BoardRenderer {
         // draw a new image if frame size changes or board state changes
         if (cachedStonesImage == null || cachedStonesImage.getWidth() != boardLength ||
                 cachedStonesImage.getHeight() != boardLength ||
+                cachedDisplayedBranchLength != displayedBranchLength ||
                 !cachedZhash.equals(Lizzie.board.getData().zobrist)
                 || Lizzie.board.inScoreMode() || lastInScoreMode) {
 
@@ -210,6 +218,7 @@ public class BoardRenderer {
             }
 
             cachedZhash = Lizzie.board.getData().zobrist.clone();
+            cachedDisplayedBranchLength = displayedBranchLength;
             g.dispose();
             gShadow.dispose();
             lastInScoreMode = false;
@@ -254,6 +263,7 @@ public class BoardRenderer {
      * Draw the 'ghost stones' which show a variation Leelaz is thinking about
      */
     private void drawBranch() {
+        showingBranch = false;
         branchStonesImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
         branchStonesShadowImage = new BufferedImage(boardLength, boardLength, BufferedImage.TYPE_INT_ARGB);
         branch = null;
@@ -266,7 +276,7 @@ public class BoardRenderer {
         branch = null;
         variation = null;
 
-        if (Lizzie.config.showRawBoard || !Lizzie.config.showBranch) {
+        if (isShowingRawBoard() || !Lizzie.config.showBranch) {
             return;
         }
 
@@ -288,12 +298,15 @@ public class BoardRenderer {
 
         if (branch == null)
             return;
+        showingBranch = true;
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             for (int j = 0; j < Board.BOARD_SIZE; j++) {
                 if (Lizzie.board.getData().stones[Board.getIndex(i,j)] != Stone.EMPTY)
+                    continue;
+                if (branch.data.moveNumberList[Board.getIndex(i,j)] > maxBranchMoves())
                     continue;
 
                 int stoneX = scaledMargin + squareLength * i;
@@ -365,8 +378,12 @@ public class BoardRenderer {
                 if (moveNumberList[Board.getIndex(i, j)] > 0 && !(branch != null && Lizzie.frame.mouseHoverCoordinate != null && i == Lizzie.frame.mouseHoverCoordinate[0] && j == Lizzie.frame.mouseHoverCoordinate[1])) {
                     if (lastMove != null && i == lastMove[0] && j == lastMove[1])
                         g.setColor(Color.RED.brighter());//stoneAtThisPoint.isBlack() ? Color.RED.brighter() : Color.BLUE.brighter());
-                    else
-                        g.setColor(stoneAtThisPoint.isBlack() ? Color.WHITE : Color.BLACK);
+                    else {
+                        // Draw white letters on black stones nomally.
+                        // But use black letters for showing black moves without stones.
+                        boolean reverse = (moveNumberList[Board.getIndex(i, j)] > maxBranchMoves());
+                        g.setColor(stoneAtThisPoint.isBlack() ^ reverse ? Color.WHITE : Color.BLACK);
+                    }
 
                     String moveNumberString = moveNumberList[Board.getIndex(i, j)] + "";
                     drawString(g, stoneX, stoneY, LizzieFrame.OpenSansRegularBase, moveNumberString, (float) (stoneRadius * 1.4), (int) (stoneRadius * 1.4));
@@ -832,5 +849,40 @@ public class BoardRenderer {
      */
     private int calculateSquareLength(int availableLength) {
         return availableLength / (Board.BOARD_SIZE - 1);
+    }
+
+    private boolean isShowingRawBoard() {
+        return (displayedBranchLength == SHOW_RAW_BOARD || displayedBranchLength == 0);
+    }
+
+    private int maxBranchMoves() {
+        switch (displayedBranchLength) {
+        case SHOW_NORMAL_BOARD:
+            return Integer.MAX_VALUE;
+        case SHOW_RAW_BOARD:
+            return -1;
+        default:
+            return displayedBranchLength;
+        }
+    }
+
+    public boolean isShowingBranch() {
+        return showingBranch;
+    }
+
+    public void setDisplayedBranchLength(int n) {
+        displayedBranchLength = n;
+    }
+
+    public boolean incrementDisplayedBranchLength(int n) {
+        switch (displayedBranchLength) {
+        case SHOW_NORMAL_BOARD:
+        case SHOW_RAW_BOARD:
+            return false;
+        default:
+            // force nonnegative
+            displayedBranchLength = Math.max(0, displayedBranchLength + n);
+            return true;
+        }
     }
 }
