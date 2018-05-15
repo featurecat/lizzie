@@ -695,6 +695,23 @@ public class LizzieFrame extends JFrame {
                 whitePlayer, blackPlayer));
     }
 
+    private void setDisplayedBranchLength(int n) {
+        boardRenderer.setDisplayedBranchLength(n);
+    }
+
+    public void startRawBoard() {
+        boolean onBranch = boardRenderer.isShowingBranch();
+        int n = (onBranch ? 1 : BoardRenderer.SHOW_RAW_BOARD);
+        boardRenderer.setDisplayedBranchLength(n);
+    }
+
+    public void stopRawBoard() {
+        boardRenderer.setDisplayedBranchLength(BoardRenderer.SHOW_NORMAL_BOARD);
+    }
+
+    public boolean incrementDisplayedBranchLength(int n) {
+        return boardRenderer.incrementDisplayedBranchLength(n);
+    }
 
     public void copySgf() {
         try {

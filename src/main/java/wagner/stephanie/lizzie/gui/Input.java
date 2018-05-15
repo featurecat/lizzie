@@ -70,6 +70,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
+        if (Lizzie.frame.incrementDisplayedBranchLength(- movesToAdvance)) {
+            return;
+        }
 
         for (int i = 0; i < movesToAdvance; i++)
             Lizzie.board.previousMove();
@@ -93,6 +96,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     private void redo(int movesToAdvance) {
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
+        }
+        if (Lizzie.frame.incrementDisplayedBranchLength(movesToAdvance)) {
+            return;
         }
 
         for (int i = 0; i < movesToAdvance; i++)
@@ -299,6 +305,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_Z:
+                if (!Lizzie.config.showRawBoard) {
+                    Lizzie.frame.startRawBoard();
+                }
                 Lizzie.config.showRawBoard = true;
                 break;
 
@@ -331,6 +340,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_Z:
+                Lizzie.frame.stopRawBoard();
                 Lizzie.config.showRawBoard = false;
                 Lizzie.frame.repaint();
                 break;
