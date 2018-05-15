@@ -311,10 +311,10 @@ public class Leelaz {
                             }
                             isSettingHandicap = false;
                         } else if (isThinking) {
-                            if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                            if (Lizzie.frame.isPlayingAgainstLeelaz && line.matches("(?s)= ([A-T][0-9]+|pass).*")) {
                                 Lizzie.board.place(line.substring(2));
+                                isThinking = false;
                             }
-                            isThinking = false;
                         }
                     }
                 }
