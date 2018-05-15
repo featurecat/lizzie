@@ -655,16 +655,27 @@ public class LizzieFrame extends JFrame {
         repaint();
     }
 
-    public void playCurrentVariation() {
+    public boolean playCurrentVariation() {
         List<String> variation = boardRenderer.variation;
-        if (variation != null) {
+        boolean onVariation = (variation != null);
+        if (onVariation) {
             for (int i = 0; i < variation.size(); i++) {
                 int[] boardCoordinates = Board.convertNameToCoordinates(variation.get(i));
                 if (boardCoordinates != null)
                     Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
             }
         }
-        repaint();
+        return onVariation;
+    }
+
+    public void playBestMove() {
+        String bestCoordinateName = boardRenderer.bestMoveCoordinateName();
+        if (bestCoordinateName == null)
+            return;
+        int[] boardCoordinates = Board.convertNameToCoordinates(bestCoordinateName);
+        if (boardCoordinates != null) {
+            Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
+        }
     }
 
     public void onMouseMoved(int x, int y) {
