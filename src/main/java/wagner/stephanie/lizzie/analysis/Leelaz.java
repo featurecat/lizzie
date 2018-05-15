@@ -191,6 +191,9 @@ public class Leelaz {
      * @param line output line
      */
     private void parseLine(String line) {
+        if (printCommunication) {
+            System.out.print(line);
+        }
         if (failSafeMode) {
             parseLineFailSafe(line);
         } else {
@@ -230,10 +233,6 @@ public class Leelaz {
                         }
                     }
                 } else {
-                    if (printCommunication) {
-                        System.out.print(line);
-                    }
-
                     line = line.trim();
                     if (Lizzie.frame != null && line.startsWith("=") && line.length() > 2) {
 
@@ -290,10 +289,6 @@ public class Leelaz {
                 if (isReadingPonderOutput && !isWaitingToStartPonder) {
                     parseMoveDataLine(line);
                 } else {
-                    if (printCommunication) {
-                        System.out.print(line);
-                    }
-
                     line = line.trim();
                     if (Lizzie.frame != null && line.startsWith("=") && line.length() > 2) {
 
