@@ -71,6 +71,7 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyEnd"),
             resourceBundle.getString("LizzieFrame.commands.keyControl"),
     };
+    private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
     private static BoardRenderer boardRenderer;
     private static VariationTree variatonTree;
     private static WinrateGraph winrateGraph;
@@ -104,7 +105,7 @@ public class LizzieFrame extends JFrame {
      * Creates a window
      */
     public LizzieFrame() {
-        super("Lizzie - Leela Zero Interface");
+        super(DEFAULT_TITLE);
 
         boardRenderer = new BoardRenderer();
         variatonTree = new VariationTree();
@@ -702,7 +703,7 @@ public class LizzieFrame extends JFrame {
     }
 
     public void setPlayers(String whitePlayer, String blackPlayer) {
-        setTitle(String.format("Lizzie - Leela Zero Interface (%s [W] vs %s [B])",
+        setTitle(String.format("%s (%s [W] vs %s [B])", DEFAULT_TITLE,
                 whitePlayer, blackPlayer));
     }
 
@@ -722,6 +723,10 @@ public class LizzieFrame extends JFrame {
 
     public boolean incrementDisplayedBranchLength(int n) {
         return boardRenderer.incrementDisplayedBranchLength(n);
+    }
+
+    public void resetTitle() {
+        setTitle(DEFAULT_TITLE);
     }
 
     public void copySgf() {
