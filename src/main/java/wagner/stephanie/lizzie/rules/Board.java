@@ -1021,8 +1021,7 @@ public class Board implements LeelazListener {
     public void bestMoveNotification(List<MoveData> bestMoves) {
         if (analysisMode) {
             if (bestMoves == null || bestMoves.size() == 0) {
-                // If we get empty list, something strange happened, abort analysis
-                toggleAnalysis();
+                // If we get empty list, something strange happened, ignore notification
             } else if (bestMoves.get(0).playouts > playoutsAnalysis) {
                 if (!nextMove()) {
                     // Reached the end...
