@@ -253,20 +253,72 @@ public class LizzieFrame extends JFrame {
             backgroundG = null;
 
         if (!showControls) {
+            // layout parameters
+
+            int topInset = this.getInsets().top;
+
+            // board
+            int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
+            maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
+            int boardX = (getWidth() - maxSize) / 2;
+            int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
+
+            int panelMargin = (int) (maxSize * 0.05);
+
+            // move statistics (winrate bar)
+            // boardX equals width of space on each side
+            int statx = (int) (boardRenderer.getLocation().x * 0);
+            int staty = boardY + maxSize / 8;
+            int statw = boardRenderer.getLocation().x - statx - panelMargin;
+            int stath = maxSize / 10;
+
+            // winrate graph
+            int grx = statx;
+            int gry = staty + stath;
+            int grw = statw;
+            int grh = statw;
+
+            // graph container
+            int contx = statx;
+            int conty = staty;
+            int contw = statw;
+            int conth = stath;
+
+            // captured stones
+            int capx = 0;
+            int capy = this.getInsets().top;
+            int capw = boardRenderer.getLocation().x - (int)(maxSize*0.05);
+            int caph = boardY+ maxSize/8 - this.getInsets().top;
+
+            // variation tree container
+            int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
+            int vy = 0;
+            int vw = getWidth() - vx;
+            int vh = getHeight();
+
+            // variation tree
+            int treex = vx;
+            int treey = vy;
+            int treew = vw + 1;
+            int treeh = vh;
+
+            // pondering message
+            int ponderingX = this.getInsets().left;
+            int ponderingY = boardY + maxSize*2/3;
+            double ponderingSize = .02;
+
+            // loading message
+            int loadingX = ponderingX;
+            int loadingY = ponderingY;
+            double loadingSize = 0.03;
+
             // initialize
 
             cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = (Graphics2D) cachedImage.getGraphics();
 
-            int topInset = this.getInsets().top;
-
-            int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
-            maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
-
             drawCommandString(g);
 
-            int boardX = (getWidth() - maxSize) / 2;
-            int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
             boardRenderer.setLocation(boardX, boardY);
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
@@ -274,37 +326,24 @@ public class LizzieFrame extends JFrame {
             if (Lizzie.leelaz != null) {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
                         (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
-                        this.getInsets().left, boardY + maxSize*2/3, .02);
+                        ponderingX, ponderingY, ponderingSize);
 
-                int panelMargin = (int) (maxSize * 0.05);
                 // Todo: Make board move over when there is no space beside the board
                 if (Lizzie.config.showWinrate) {
-                    // boardX equals width of space on each side
-                    int statx = (int) (boardRenderer.getLocation().x * 0);
-                    int staty = boardY + maxSize / 8;
-                    int statw = boardRenderer.getLocation().x - statx - panelMargin;
-                    int stath = maxSize / 10;
-
-                    drawWinrateGraphContainer(backgroundG, statx, staty, statw, stath);
+                    drawWinrateGraphContainer(backgroundG, contx, conty, contw, conth);
                     drawMoveStatistics(g, statx, staty, statw, stath);
-                    winrateGraph.draw(g, statx, staty + stath, statw, statw);
+                    winrateGraph.draw(g, grx, gry, grw, grh);
                 }
 
                 if (Lizzie.config.showVariationGraph) {
-                    int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
-                    int vy = 0;
-                    int vw = getWidth() - vx;
-                    int vh = getHeight();
-
                     drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
-                    variatonTree.draw(g, vx, 0, getWidth() - vx + 1, getHeight());
+                    variatonTree.draw(g, treex, treey, treew, treeh);
                 }
             } else {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"),this.getInsets().left,
-                        boardY + maxSize*2/3,0.03);
+                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"), loadingX, loadingY, loadingSize);
             }
 
-            drawCaptured(g, 0, this.getInsets().top, boardRenderer.getLocation().x - (int)(maxSize*0.05), boardY+ maxSize/8 - this.getInsets().top);
+            drawCaptured(g, capx, capy, capw, caph);
 
             // cleanup
             g.dispose();
