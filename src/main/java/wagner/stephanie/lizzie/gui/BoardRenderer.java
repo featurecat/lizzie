@@ -39,6 +39,7 @@ public class BoardRenderer {
 
     private BufferedImage cachedBackgroundImage = null;
     private boolean cachedBackgroundImageHasCoordinatesEnabled = false;
+    private int cachedX, cachedY;
 
     private BufferedImage cachedStonesImage = null;
     private BufferedImage cachedStonesShadowImage = null;
@@ -59,13 +60,15 @@ public class BoardRenderer {
     private int displayedBranchLength = SHOW_NORMAL_BOARD;
     private int cachedDisplayedBranchLength = SHOW_RAW_BOARD;
     private boolean showingBranch = false;
+    private boolean isMainBoard = false;
 
-    public BoardRenderer() {
+    public BoardRenderer(boolean isMainBoard) {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
         theme = ITheme.loadTheme(uiConfig.getString("theme"));
         if (theme == null) {
             theme = new DefaultTheme();
         }
+        this.isMainBoard = isMainBoard;
     }
 
     /**
@@ -82,7 +85,7 @@ public class BoardRenderer {
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
-        if (Lizzie.board.inScoreMode()) {
+        if (Lizzie.board.inScoreMode() && isMainBoard) {
             drawScore(g);
         } else {
             drawBranch();
@@ -91,6 +94,11 @@ public class BoardRenderer {
 
         renderImages(g);
 //        timer.lap("rendering images");
+
+        if (!isMainBoard) {
+            drawMoveNumbers(g);
+            return;
+        }
 
         if (!isShowingRawBoard()) {
             drawMoveNumbers(g);
@@ -147,7 +155,8 @@ public class BoardRenderer {
         // draw the cached background image if frame size changes
         if (cachedBackgroundImage == null || cachedBackgroundImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight() ||
-                cachedBackgroundImageHasCoordinatesEnabled != Lizzie.frame.showCoordinates) {
+                cachedX != x || cachedY != y ||
+                cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()) {
 
             cachedBackgroundImage = new BufferedImage(Lizzie.frame.getWidth(), Lizzie.frame.getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
@@ -182,7 +191,7 @@ public class BoardRenderer {
             }
 
             // draw coordinates if enabled
-            if (Lizzie.frame.showCoordinates) {
+            if (showCoordinates()) {
                 g.setColor(Color.BLACK);
                 String alphabet = "ABCDEFGHJKLMNOPQRST";
                 for (int i = 0; i < Board.BOARD_SIZE; i++) {
@@ -194,12 +203,14 @@ public class BoardRenderer {
                     drawString(g, x - scaledMargin / 2 + +boardLength, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
                 }
             }
-            cachedBackgroundImageHasCoordinatesEnabled = Lizzie.frame.showCoordinates;
+            cachedBackgroundImageHasCoordinatesEnabled = showCoordinates();
             g.dispose();
         }
 
         g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         g0.drawImage(cachedBackgroundImage, 0, 0, null);
+        cachedX = x;
+        cachedY = y;
     }
 
     /**
@@ -289,25 +300,18 @@ public class BoardRenderer {
         branch = null;
         variation = null;
 
-        if (isShowingRawBoard() || !Lizzie.config.showBranch) {
+        if (isMainBoard && (isShowingRawBoard() || !Lizzie.config.showBranch)) {
             return;
         }
 
         Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
         Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
 
-        if (Lizzie.frame.mouseHoverCoordinate != null) {
-            for (int i = 0; i < bestMoves.size(); i++) {
-                MoveData move = bestMoves.get(i);
-                int[] coord = Board.convertNameToCoordinates(move.coordinate);
-
-                if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
-                    variation = move.variation;
-                    branch = new Branch(Lizzie.board, variation);
-                    break;
-                }
-            }
-        }
+        MoveData suggestedMove = (isMainBoard ? mouseHoveredMove() : getBestMove());
+        if (suggestedMove == null)
+            return;
+        variation = suggestedMove.variation;
+        branch = new Branch(Lizzie.board, variation);
 
         if (branch == null)
             return;
@@ -332,6 +336,24 @@ public class BoardRenderer {
 
         g.dispose();
         gShadow.dispose();
+    }
+
+    private MoveData mouseHoveredMove() {
+        if (Lizzie.frame.mouseHoverCoordinate != null) {
+            for (int i = 0; i < bestMoves.size(); i++) {
+                MoveData move = bestMoves.get(i);
+                int[] coord = Board.convertNameToCoordinates(move.coordinate);
+
+                if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
+                    return move;
+                }
+            }
+        }
+        return null;
+    }
+
+    private MoveData getBestMove() {
+        return bestMoves.isEmpty() ? null : bestMoves.get(0);
     }
 
     /**
@@ -559,7 +581,7 @@ public class BoardRenderer {
      * @param boardLength go board's length in pixels; must be boardLength >= BOARD_SIZE - 1
      * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
      */
-    private static int[] calculatePixelMargins(int boardLength) {
+    private int[] calculatePixelMargins(int boardLength) {
         //boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge of the board
         if (boardLength < Board.BOARD_SIZE - 1)
             throw new IllegalArgumentException("boardLength may not be less than " + (Board.BOARD_SIZE - 1) + ", but was " + boardLength);
@@ -568,7 +590,7 @@ public class BoardRenderer {
         int availableLength;
 
         // decrease boardLength until the availableLength will result in square board intersections
-        double margin = Lizzie.frame.showCoordinates ? MARGIN_WITH_COORDINATES : MARGIN;
+        double margin = showCoordinates() ? MARGIN_WITH_COORDINATES : MARGIN;
         boardLength++;
         do {
             boardLength--;
@@ -897,5 +919,9 @@ public class BoardRenderer {
             displayedBranchLength = Math.max(0, displayedBranchLength + n);
             return true;
         }
+    }
+
+    private boolean showCoordinates() {
+        return isMainBoard && Lizzie.frame.showCoordinates;
     }
 }

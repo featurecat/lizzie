@@ -73,6 +73,7 @@ public class LizzieFrame extends JFrame {
     };
     private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
     private static BoardRenderer boardRenderer;
+    private static BoardRenderer subBoardRenderer;
     private static VariationTree variatonTree;
     private static WinrateGraph winrateGraph;
 
@@ -107,7 +108,8 @@ public class LizzieFrame extends JFrame {
     public LizzieFrame() {
         super(DEFAULT_TITLE);
 
-        boardRenderer = new BoardRenderer();
+        boardRenderer = new BoardRenderer(true);
+        subBoardRenderer = new BoardRenderer(false);
         variatonTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
@@ -304,13 +306,20 @@ public class LizzieFrame extends JFrame {
 
             // pondering message
             int ponderingX = this.getInsets().left;
-            int ponderingY = boardY + maxSize*2/3;
+            int ponderingY = boardY + (int) (maxSize*0.93);
             double ponderingSize = .02;
 
             // loading message
             int loadingX = ponderingX;
             int loadingY = ponderingY;
             double loadingSize = 0.03;
+
+            // subboard
+            int subBoardX = 0;
+            int subBoardY = gry + grh;
+            int subBoardWidth = grw;
+            int subBoardHeight = ponderingY - subBoardY;
+            int subBoardLength = Math.min(subBoardWidth, subBoardHeight);
 
             // initialize
 
@@ -338,6 +347,15 @@ public class LizzieFrame extends JFrame {
                 if (Lizzie.config.showVariationGraph) {
                     drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
                     variatonTree.draw(g, treex, treey, treew, treeh);
+                }
+                if (Lizzie.config.showSubBoard) {
+                    try {
+                        subBoardRenderer.setLocation(subBoardX, subBoardY);
+                        subBoardRenderer.setBoardLength(subBoardLength);
+                        subBoardRenderer.draw(g);
+                    } catch (Exception e) {
+                        // This can happen when no space is left for subboard.
+                    }
                 }
             } else {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"), loadingX, loadingY, loadingSize);

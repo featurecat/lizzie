@@ -18,6 +18,7 @@ public class Config {
 
     public boolean showBestMoves = true;
     public boolean showNextMoves = true;
+    public boolean showSubBoard = true;
     
     public JSONObject config;
     public JSONObject persisted;
@@ -74,6 +75,7 @@ public class Config {
         showVariationGraph = uiConfig.getBoolean("show-variation-graph");
         showBestMoves = uiConfig.getBoolean("show-best-moves");
         showNextMoves = uiConfig.getBoolean("show-next-moves");
+        showSubBoard = uiConfig.getBoolean("show-subboard");
         handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     }
 
@@ -155,6 +157,7 @@ public class Config {
         ui.put("show-variation-graph", true);
         ui.put("show-best-moves", true);
         ui.put("show-next-moves", true);
+        ui.put("show-subboard", true);
         ui.put("win-rate-always-black", false);
         ui.put("confirm-exit", false);
         ui.put("handicap-instead-of-winrate",false);
