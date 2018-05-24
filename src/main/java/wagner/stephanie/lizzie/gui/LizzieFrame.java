@@ -603,12 +603,21 @@ public class LizzieFrame extends JFrame {
         g.setColor(Color.white);
 
         // Draw black and white "stone"
-        int diam = 40;
+        int diam = height / 3;
+        int smallDiam = diam / 2;
+        int bdiam = diam, wdiam = diam;
+        if (Lizzie.board.inScoreMode()) {
+            // do nothing
+        } else if (Lizzie.board.getHistory().isBlacksTurn()) {
+            wdiam = smallDiam;
+        } else {
+            bdiam = smallDiam;
+        }
         g.setColor(Color.black);
-        g.fillOval(posX + width/4 - diam/2, posY + height*3/8, diam, diam);
+        g.fillOval(posX + width/4 - bdiam/2, posY + height*3/8 + (diam - bdiam)/2, bdiam, bdiam);
 
         g.setColor(Color.WHITE);
-        g.fillOval(posX + width*3/4 - diam/2, posY + height*3/8, diam, diam);
+        g.fillOval(posX + width*3/4 - wdiam/2, posY + height*3/8 + (diam - wdiam)/2, wdiam, wdiam);
 
         // Draw captures
         String bval, wval;
