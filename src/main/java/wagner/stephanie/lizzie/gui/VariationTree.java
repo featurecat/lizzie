@@ -9,8 +9,8 @@ import java.util.ArrayList;
 
 public class VariationTree {
 
-    private int YSPACING = 30;
-    private int XSPACING = 30;
+    private int YSPACING;
+    private int XSPACING;
     private int DOT_DIAM = 11; // Should be odd number
 
     private ArrayList<Integer> laneUsageList;
@@ -109,6 +109,10 @@ public class VariationTree {
     public void draw(Graphics2D g, int posx, int posy, int width, int height) {
         if (width <= 0 || height <= 0)
             return; // we don't have enough space
+
+        // Use dense tree for saving space if large-subboard
+        YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
+        XSPACING = YSPACING;
 
         // Draw background
         g.setColor(new Color(0, 0, 0, 60));

@@ -321,6 +321,43 @@ public class LizzieFrame extends JFrame {
             int subBoardHeight = ponderingY - subBoardY;
             int subBoardLength = Math.min(subBoardWidth, subBoardHeight);
 
+            if (Lizzie.config.showLargeSubBoard()) {
+                boardX = getWidth() - maxSize - panelMargin;
+                int spaceW = boardX - panelMargin;
+                int spaceH = getHeight() - topInset;
+                int panelW = spaceW / 2;
+                int panelH = spaceH / 4;
+                capx = 0;
+                capy = topInset;
+                capw = panelW;
+                caph = (int) (panelH * 0.2);
+                statx = 0;
+                staty = capy + caph;
+                statw = panelW;
+                stath = (int) (panelH * 0.4);
+                grx = statx;
+                gry = staty + stath;
+                grw = statw;
+                grh = panelH - caph - stath;
+                contx = statx;
+                conty = staty;
+                contw = statw;
+                conth = stath + grh;
+                vx = panelW;
+                vy = 0;
+                vw = panelW;
+                vh = topInset + panelH;
+                treex = vx;
+                treey = vy;
+                treew = vw + 1;
+                treeh = vh;
+                subBoardX = 0;
+                subBoardY = topInset + panelH;
+                subBoardWidth = spaceW;
+                subBoardHeight = ponderingY - subBoardY;
+                subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+            }
+
             // initialize
 
             cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -691,12 +728,15 @@ public class LizzieFrame extends JFrame {
         g.setColor(Color.WHITE);
         int bw = g.getFontMetrics().stringWidth(bval);
         int ww = g.getFontMetrics().stringWidth(wval);
+        boolean largeSubBoard = Lizzie.config.showLargeSubBoard();
+        int bx = (largeSubBoard ? diam : - bw/2);
+        int wx = (largeSubBoard ? bx : - ww/2);
 
         g.drawString(bval,
-                posX + width/4 - bw/2,
+                posX + width/4 + bx,
                 posY + height*7/8);
         g.drawString(wval,
-                posX + width*3/4 - ww/2,
+                posX + width*3/4 + wx,
                 posY + height*7/8);
     }
 
