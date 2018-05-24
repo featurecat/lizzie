@@ -517,11 +517,10 @@ public class LizzieFrame extends JFrame {
         height -= 4 * strokeRadius;
 
         // Title
-        Font font = OpenSansRegularBase.deriveFont(Font.PLAIN, (int) (Math.min(width, height) * 0.2));
         strokeRadius = 2;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(Color.WHITE);
-        g.setFont(font);
+        setPanelFont(g, (int) (Math.min(width, height) * 0.2));
 
         // Last move
         if (validLastWinrate && validWinrate) {
@@ -621,6 +620,7 @@ public class LizzieFrame extends JFrame {
 
         // Draw captures
         String bval, wval;
+        setPanelFont(g, (float) (width * 0.06));
         if (Lizzie.board.inScoreMode())
         {
             double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
@@ -641,6 +641,11 @@ public class LizzieFrame extends JFrame {
         g.drawString(wval,
                 posX + width*3/4 - ww/2,
                 posY + height*7/8);
+    }
+
+    private void setPanelFont(Graphics2D g, float size) {
+        Font font = OpenSansRegularBase.deriveFont(Font.PLAIN, size);
+        g.setFont(font);
     }
 
     /**
