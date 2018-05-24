@@ -269,9 +269,9 @@ public class LizzieFrame extends JFrame {
 
             // move statistics (winrate bar)
             // boardX equals width of space on each side
-            int statx = (int) (boardRenderer.getLocation().x * 0);
+            int statx = 0;
             int staty = boardY + maxSize / 8;
-            int statw = boardRenderer.getLocation().x - statx - panelMargin;
+            int statw = boardX - statx - panelMargin;
             int stath = maxSize / 10;
 
             // winrate graph
@@ -289,11 +289,11 @@ public class LizzieFrame extends JFrame {
             // captured stones
             int capx = 0;
             int capy = this.getInsets().top;
-            int capw = boardRenderer.getLocation().x - (int)(maxSize*0.05);
+            int capw = boardX - (int)(maxSize*0.05);
             int caph = boardY+ maxSize/8 - this.getInsets().top;
 
             // variation tree container
-            int vx = boardRenderer.getLocation().x + boardRenderer.getActualBoardLength() + panelMargin;
+            int vx = boardX + maxSize + panelMargin;
             int vy = 0;
             int vw = getWidth() - vx;
             int vh = getHeight();
@@ -763,6 +763,9 @@ public class LizzieFrame extends JFrame {
         if (Lizzie.config.showWinrate && moveNumber >= 0) {
             isPlayingAgainstLeelaz = false;
             Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
+        }
+        if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
+            Lizzie.config.toggleLargeSubBoard();
         }
         repaint();
     }

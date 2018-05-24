@@ -127,6 +127,9 @@ public class Config {
     public void toggleHandicapInsteadOfWinrate() {
         this.handicapInsteadOfWinrate = !this.handicapInsteadOfWinrate;
     }
+    public void toggleLargeSubBoard() {
+        this.largeSubBoard = !this.largeSubBoard;
+    }
     public boolean showLargeSubBoard() {
         return showSubBoard && largeSubBoard;
     }

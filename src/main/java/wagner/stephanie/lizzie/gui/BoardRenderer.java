@@ -921,6 +921,10 @@ public class BoardRenderer {
         }
     }
 
+    public boolean isInside(int x1, int y1) {
+        return (x <= x1 && x1 < x + boardLength && y <= y1 && y1 < y + boardLength);
+    }
+
     private boolean showCoordinates() {
         return isMainBoard && Lizzie.frame.showCoordinates;
     }
