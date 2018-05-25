@@ -423,9 +423,12 @@ public class BoardRenderer {
         if (!bestMoves.isEmpty()) {
 
             int maxPlayouts = 0;
+            double maxWinrate = 0;
             for (MoveData move : bestMoves) {
                 if (move.playouts > maxPlayouts)
                     maxPlayouts = move.playouts;
+                if (move.winrate > maxWinrate)
+                    maxWinrate = move.winrate;
             }
 
             for (int i = 0; i < Board.BOARD_SIZE; i++) {
@@ -476,7 +479,13 @@ public class BoardRenderer {
 
                     if (branch == null || (isBestMove && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
                         int strokeWidth = 1;
-                        g.setColor(color.darker());
+                        if (isBestMove != (move.winrate == maxWinrate)) {
+                            strokeWidth = 2;
+                            g.setColor(isBestMove ? Color.RED : Color.BLUE);
+                            g.setStroke(new BasicStroke(strokeWidth));
+                        } else {
+                            g.setColor(color.darker());
+                        }
                         drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
                         g.setStroke(new BasicStroke(1));
                     }
