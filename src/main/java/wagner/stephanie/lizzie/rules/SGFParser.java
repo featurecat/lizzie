@@ -74,6 +74,7 @@ public class SGFParser {
 
         String blackPlayer = "", whitePlayer = "";
 
+        PARSE_LOOP:
         for (byte b : value.getBytes()) {
             // Check unicode charactors (UTF-8)
             char c = (char) b;
@@ -97,7 +98,7 @@ public class SGFParser {
                     if (!inTag) {
                         subTreeDepth -= 1;
                         if (isMultiGo) {
-                            return true;
+                            break PARSE_LOOP;
                         }
                     }
                     break;
