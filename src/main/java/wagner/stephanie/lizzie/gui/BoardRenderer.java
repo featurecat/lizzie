@@ -487,7 +487,7 @@ public class BoardRenderer {
                     float brightness = 0.85f; //brightness
                     int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
                             ALPHA_SCALING_FACTOR + 1));
-//                    if (uiConfig.getBoolean("shadows-enabled") && isMainBoard)
+//                    if (uiConfig.getBoolean("shadows-enabled"))
 //                        alpha = 255;
 
                     Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
@@ -564,7 +564,7 @@ public class BoardRenderer {
     }
 
     private void drawWoodenBoard(Graphics2D g) {
-        if (uiConfig.getBoolean("fancy-board") && isMainBoard) {
+        if (uiConfig.getBoolean("fancy-board")) {
             // fancy version
             int shadowRadius = (int) (boardLength * MARGIN / 6);
             Image boardImage = theme.getBoard();
@@ -617,7 +617,7 @@ public class BoardRenderer {
     }
 
     private void drawShadow(Graphics2D g, int centerX, int centerY, boolean isGhost, float shadowStrength) {
-        if (!uiConfig.getBoolean("shadows-enabled") || !isMainBoard)
+        if (!uiConfig.getBoolean("shadows-enabled"))
             return;
 
         final int shadowSize = (int) (stoneRadius * 0.3 * uiConfig.getInt("shadow-size") / 100);
@@ -677,7 +677,7 @@ public class BoardRenderer {
         switch (color) {
             case BLACK:
             case BLACK_CAPTURED:
-                if (useFancyStones()) {
+                if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getBlackStone(new int[]{x, y});
                     g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
@@ -690,7 +690,7 @@ public class BoardRenderer {
 
             case WHITE:
             case WHITE_CAPTURED:
-                if (useFancyStones()) {
+                if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
                     g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
@@ -704,7 +704,7 @@ public class BoardRenderer {
                 break;
 
             case BLACK_GHOST:
-                if (useFancyStones()) {
+                if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, true);
                     Image stone = theme.getBlackStone(new int[]{x, y});
                     g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
@@ -716,7 +716,7 @@ public class BoardRenderer {
                 break;
 
             case WHITE_GHOST:
-                if (useFancyStones()) {
+                if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, true);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
                     g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
@@ -936,9 +936,5 @@ public class BoardRenderer {
 
     private boolean showCoordinates() {
         return isMainBoard && Lizzie.frame.showCoordinates;
-    }
-
-    private boolean useFancyStones() {
-        return uiConfig.getBoolean("fancy-stones") && isMainBoard;
     }
 }
