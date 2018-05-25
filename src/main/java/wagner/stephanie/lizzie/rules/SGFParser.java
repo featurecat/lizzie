@@ -62,7 +62,7 @@ public class SGFParser {
             return false;
         }
         int subTreeDepth = 0;
-        boolean inTag = false, isMultiGo = false;
+        boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
         StringBuilder tagBuilder = new StringBuilder();
         StringBuilder tagContentBuilder = new StringBuilder();
@@ -78,6 +78,13 @@ public class SGFParser {
             // Check unicode charactors (UTF-8)
             char c = (char) b;
             if (((int) b & 0x80) != 0) {
+                continue;
+            }
+            if (escaping) {
+                // Any char following "\" is inserted verbatim
+                // (ref) "3.2. Text" in https://www.red-bean.com/sgf/sgf4.html
+                tagContentBuilder.append(c);
+                escaping = false;
                 continue;
             }
             switch (c) {
@@ -162,6 +169,10 @@ public class SGFParser {
                         break;
                     }
                     if (inTag) {
+                        if (c == '\\') {
+                            escaping = true;
+                            continue;
+                        }
                         tagContentBuilder.append(c);
                     } else {
                         if (c != '\n' && c != '\r' && c != '\t' && c != ' ') {
