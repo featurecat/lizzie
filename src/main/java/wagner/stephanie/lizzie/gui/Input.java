@@ -119,7 +119,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     private void toggleHints() {
         Lizzie.config.toggleShowBranch();
-        Lizzie.config.showNextMoves = Lizzie.config.showBestMoves = Lizzie.config.showBranch;
+        Lizzie.config.showSubBoard = Lizzie.config.showNextMoves = Lizzie.config.showBestMoves
+            = Lizzie.config.showBranch;
     }
 
     private void nextBranch() {
