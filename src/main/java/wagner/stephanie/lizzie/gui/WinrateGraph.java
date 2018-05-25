@@ -11,6 +11,7 @@ import java.awt.geom.Point2D;
 public class WinrateGraph {
 
     private int DOT_RADIUS = 6;
+    private int[] origParams = {0, 0, 0, 0};
     private int[] params = {0, 0, 0, 0, 0};
 
     public void draw(Graphics2D g, int posx, int posy, int width, int height)
@@ -34,6 +35,12 @@ public class WinrateGraph {
         g.drawRect(posx+ strokeRadius, posy + strokeRadius, width - 2 * strokeRadius, height- 2 * strokeRadius);
 
         g.setPaint(original);
+
+        // record parameters (before resizing) for calculating moveNumber
+        origParams[0] = posx;
+        origParams[1] = posy;
+        origParams[2] = width;
+        origParams[3] = height;
 
         // resize the box now so it's inside the border
         posx += 2*strokeRadius;
@@ -197,12 +204,17 @@ public class WinrateGraph {
 
     public int moveNumber(int x, int y)
     {
+        int origPosx = origParams[0];
+        int origPosy = origParams[1];
+        int origWidth = origParams[2];
+        int origHeight = origParams[3];
         int posx = params[0];
         int posy = params[1];
         int width = params[2];
         int height = params[3];
         int numMoves = params[4];
-        if (posx <= x && x < posx + width && posy <= y && y < posy + height) {
+        if (origPosx <= x && x < origPosx + origWidth &&
+            origPosy <= y && y < origPosy + origHeight) {
             // x == posx + (movenum * width / numMoves) ==> movenum = ...
             int movenum = Math.round((x - posx) * numMoves / (float) width);
             // movenum == moveNumber - 1 ==> moveNumber = ...
