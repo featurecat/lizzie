@@ -1,6 +1,8 @@
 package wagner.stephanie.lizzie.rules;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import wagner.stephanie.lizzie.Lizzie;
 import wagner.stephanie.lizzie.analysis.GameInfo;
 
@@ -55,10 +57,12 @@ public class SGFParser {
     }
 
     private static boolean parse(String value) {
-        value = value.trim();
-        if (value.charAt(0) != '(') {
-            return false;
-        } else if (value.charAt(value.length() - 1) != ')') {
+        // Drop anything outside "(;...)"
+        final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;.*\\)).*?");
+        Matcher sgfMatcher = SGF_PATTERN.matcher(value);
+        if (sgfMatcher.matches()) {
+            value = sgfMatcher.group(1);
+        } else {
             return false;
         }
         int subTreeDepth = 0;
