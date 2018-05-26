@@ -109,7 +109,7 @@ public class Board implements LeelazListener {
                 history.next();
                 Lizzie.leelaz.playMove(color, "pass");
                 if (Lizzie.frame.isPlayingAgainstLeelaz)
-                    Lizzie.leelaz.sendCommand("genmove " + (history.isBlacksTurn()? "B" : "W"));
+                    Lizzie.leelaz.genmove((history.isBlacksTurn()? "B" : "W"));
 
                 return;
             }
@@ -126,7 +126,7 @@ public class Board implements LeelazListener {
             // update leelaz with pass
             Lizzie.leelaz.playMove(color, "pass");
             if (Lizzie.frame.isPlayingAgainstLeelaz)
-                Lizzie.leelaz.sendCommand("genmove " + (history.isBlacksTurn()? "W" : "B"));
+                Lizzie.leelaz.genmove((history.isBlacksTurn()? "W" : "B"));
 
             // update history with pass
             history.addOrGoto(newState);
@@ -180,7 +180,7 @@ public class Board implements LeelazListener {
                 // should be opposite from the bottom case
                 if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != getData().blackToPlay) {
                     Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
-                    Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "W" : "B"));
+                    Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "W" : "B"));
                 } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
                     Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
                 }
@@ -232,7 +232,7 @@ public class Board implements LeelazListener {
             // update leelaz with board position
             if (Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack == getData().blackToPlay) {
                 Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
-                Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "W" : "B"));
+                Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "W" : "B"));
             } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
                 Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
             }
