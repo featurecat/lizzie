@@ -306,7 +306,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
                     Lizzie.frame.playerIsBlack = !Lizzie.board.getData().blackToPlay;
                     Lizzie.frame.isPlayingAgainstLeelaz = true;
-                    Lizzie.leelaz.sendCommand("genmove " + (Lizzie.board.getData().blackToPlay ? "B" : "W"));
+                    Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "B" : "W"));
                 }
                 break;
 
