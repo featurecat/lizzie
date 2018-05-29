@@ -464,7 +464,8 @@ public class LizzieFrame extends JFrame {
         int height = (int)(stringHeight * 1.2);
 
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        filter20.filter(cachedBackground.getSubimage(x, y, result.getWidth(), result.getHeight()), result);
+        // commenting this out for now... always causing an exception on startup. will fix in the upcoming refactoring
+//        filter20.filter(cachedBackground.getSubimage(x, y, result.getWidth(), result.getHeight()), result);
         g.drawImage(result, x, y, null);
 
         g.setColor(new Color(0,0,0,130));

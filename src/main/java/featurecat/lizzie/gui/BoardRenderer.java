@@ -657,8 +657,8 @@ public class BoardRenderer {
      */
     private int[] calculatePixelMargins(int boardLength) {
         //boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge of the board
-        if (boardLength < Board.BOARD_SIZE - 1)
-            throw new IllegalArgumentException("boardLength may not be less than " + (Board.BOARD_SIZE - 1) + ", but was " + boardLength);
+//        if (boardLength < Board.BOARD_SIZE - 1)
+//            throw new IllegalArgumentException("boardLength may not be less than " + (Board.BOARD_SIZE - 1) + ", but was " + boardLength);
 
         int scaledMargin;
         int availableLength;
