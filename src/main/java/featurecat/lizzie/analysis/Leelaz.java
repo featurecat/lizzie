@@ -238,6 +238,7 @@ public class Leelaz {
                 } else if (isThinking && !isPondering) {
                     if (Lizzie.frame.isPlayingAgainstLeelaz) {
                         Lizzie.board.place(params[1]);
+                        isThinking = false;
                     }
                 } else if (isCheckingVersion) {
                     String[] ver = params[1].split("\\.");
@@ -352,6 +353,7 @@ public class Leelaz {
         }*/
         sendCommand(command);
         isThinking = true;
+        isPondering = false;
     }
 
     public void undo() {
