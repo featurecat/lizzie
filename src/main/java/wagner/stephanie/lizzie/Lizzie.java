@@ -1,6 +1,7 @@
 package wagner.stephanie.lizzie;
 
 import org.json.JSONException;
+import wagner.stephanie.benchmark.Stopwatch;
 import wagner.stephanie.lizzie.analysis.Leelaz;
 import wagner.stephanie.lizzie.analysis.Leelaz.WinrateStats;
 import wagner.stephanie.lizzie.plugin.PluginManager;
@@ -9,7 +10,9 @@ import wagner.stephanie.lizzie.rules.Stone;
 import wagner.stephanie.lizzie.gui.LizzieFrame;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Main class.
@@ -19,7 +22,7 @@ public class Lizzie {
     public static Leelaz leelaz;
     public static Board board;
     public static Config config;
-    public static String lizzieVersion = "0.4";
+    public static String lizzieVersion = "0.5";
 
     /**
      * Launches the game window, and runs the game.

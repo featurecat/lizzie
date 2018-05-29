@@ -1,3 +1,4 @@
+persist.properties
 lizzie.properties
 out/*
 .idea/
@@ -8,3 +9,4 @@ network
 leelaz
 src/main/resources/META-INF
 target
+leelaz_opencl_tuning

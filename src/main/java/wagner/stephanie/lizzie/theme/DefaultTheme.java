@@ -1,7 +1,5 @@
 package wagner.stephanie.lizzie.theme;
 
-import wagner.stephanie.benchmark.Stopwatch;
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
