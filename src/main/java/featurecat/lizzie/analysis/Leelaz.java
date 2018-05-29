@@ -120,12 +120,13 @@ public class Leelaz {
         initializeStreams();
 
         // Send a version request to check that we have a supported version
-        // Response handled in  parseLine
+        // Response handled in parseLine
         isCheckingVersion = true;
         sendCommand("version");
 
         // start a thread to continuously read Leelaz output
         new Thread(this::read).start();
+        Lizzie.frame.refreshBackground();
     }
 
     private void updateToLatestNetwork() {

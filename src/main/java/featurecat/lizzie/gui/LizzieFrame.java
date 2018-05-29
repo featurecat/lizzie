@@ -237,6 +237,7 @@ public class LizzieFrame extends JFrame {
     private boolean cachedBackgroundShowControls = false;
     private boolean cachedShowWinrate = true;
     private boolean cachedShowVariationGraph = true;
+    private boolean redrawBackgroundAnyway = false;
 
     /**
      * Draws the game board and interface
@@ -248,7 +249,7 @@ public class LizzieFrame extends JFrame {
             return;
 
         Graphics2D backgroundG;
-        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls || cachedShowWinrate != Lizzie.config.showWinrate || cachedShowVariationGraph != Lizzie.config.showVariationGraph)
+        if (cachedBackgroundWidth != getWidth() || cachedBackgroundHeight != getHeight() || cachedBackgroundShowControls != showControls || cachedShowWinrate != Lizzie.config.showWinrate || cachedShowVariationGraph != Lizzie.config.showVariationGraph || redrawBackgroundAnyway)
             backgroundG = createBackground();
         else
             backgroundG = null;
@@ -413,6 +414,15 @@ public class LizzieFrame extends JFrame {
         bs.show();
     }
 
+    /**
+     * temporary measure to refresh background. ideally we shouldn't need this
+     * (but we want to release Lizzie 0.5 today, not tomorrow!). Refactor me out please! (you need to get blurring to
+     * work properly on startup).
+     */
+    public void refreshBackground() {
+        redrawBackgroundAnyway = true;
+    }
+
     private Graphics2D createBackground() {
         cachedBackground = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
         cachedBackgroundWidth = cachedBackground.getWidth();
@@ -420,6 +430,8 @@ public class LizzieFrame extends JFrame {
         cachedBackgroundShowControls = showControls;
         cachedShowWinrate = Lizzie.config.showWinrate;
         cachedShowVariationGraph = Lizzie.config.showVariationGraph;
+
+        redrawBackgroundAnyway = false;
 
         Graphics2D g = cachedBackground.createGraphics();
 
@@ -528,6 +540,8 @@ public class LizzieFrame extends JFrame {
             g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
             g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
         }
+
+        refreshBackground();
     }
 
     private boolean userAlreadyKnowsAboutCommandString = false;
