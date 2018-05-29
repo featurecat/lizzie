@@ -7,6 +7,8 @@ import java.awt.event.*;
 import static java.awt.event.KeyEvent.*;
 import featurecat.lizzie.plugin.PluginManager;
 
+import javax.swing.*;
+
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -200,26 +202,32 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
             case VK_N:
                 // stop the ponder
-                if (Lizzie.leelaz.isPondering())
-                    Lizzie.leelaz.togglePonder();
-                LizzieFrame.startNewGame();
+                JOptionPane.showMessageDialog(Lizzie.frame, "Lizzie 0.5 temporarily cannot play moves from Leela Zero due to a bug in Leela Zero. This will hopefully be fixed by Lizzie 0.6");
                 break;
+//                if (Lizzie.leelaz.isPondering())
+//                    Lizzie.leelaz.togglePonder();
+//                LizzieFrame.startNewGame();
+//                break;
             case VK_SPACE:
-                if (Lizzie.frame.isPlayingAgainstLeelaz) {
-                    Lizzie.frame.isPlayingAgainstLeelaz = false;
-                    Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
-                }
-                Lizzie.leelaz.togglePonder();
+                JOptionPane.showMessageDialog(Lizzie.frame, "Lizzie 0.5 temporarily cannot play moves from Leela Zero due to a bug in Leela Zero. This will hopefully be fixed by Lizzie 0.6");
                 break;
+//                if (Lizzie.frame.isPlayingAgainstLeelaz) {
+//                    Lizzie.frame.isPlayingAgainstLeelaz = false;
+//                    Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
+//                }
+//                Lizzie.leelaz.togglePonder();
+//                break;
 
             case VK_P:
                 Lizzie.board.pass();
                 break;
 
             case VK_COMMA:
-                if (!Lizzie.frame.playCurrentVariation())
-                    Lizzie.frame.playBestMove();
+                JOptionPane.showMessageDialog(Lizzie.frame, "Lizzie 0.5 temporarily cannot play moves from Leela Zero due to a bug in Leela Zero. This will hopefully be fixed by Lizzie 0.6");
                 break;
+//                if (!Lizzie.frame.playCurrentVariation())
+//                    Lizzie.frame.playBestMove();
+//                break;
 
             case VK_M:
                 Lizzie.config.toggleShowMoveNumber();
@@ -302,13 +310,15 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_ENTER:
-                if (!Lizzie.leelaz.isThinking) {
-                    Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
-                    Lizzie.frame.playerIsBlack = !Lizzie.board.getData().blackToPlay;
-                    Lizzie.frame.isPlayingAgainstLeelaz = true;
-                    Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "B" : "W"));
-                }
+                JOptionPane.showMessageDialog(Lizzie.frame, "Lizzie 0.5 temporarily cannot play moves from Leela Zero due to a bug in Leela Zero. This will hopefully be fixed by Lizzie 0.6");
                 break;
+//                if (!Lizzie.leelaz.isThinking) {
+//                    Lizzie.leelaz.sendCommand("time_settings 0 " + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds") + " 1");
+//                    Lizzie.frame.playerIsBlack = !Lizzie.board.getData().blackToPlay;
+//                    Lizzie.frame.isPlayingAgainstLeelaz = true;
+//                    Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "B" : "W"));
+//                }
+//                break;
 
             case VK_DELETE:
             case VK_BACK_SPACE:
