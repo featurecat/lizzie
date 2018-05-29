@@ -85,7 +85,7 @@ public class Leelaz {
 
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
-        commands.add("./leelaz"); // windows, linux, mac all understand this
+        commands.add(config.optString("engine-program", "./leelaz")); // windows, linux, mac all understand this
         commands.add("-g");
         commands.add("-t");
         commands.add("" + config.getInt("threads"));
@@ -115,7 +115,7 @@ public class Leelaz {
 
         // run leelaz
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.directory(new File("."));
+        processBuilder.directory(new File(config.optString("engine-start-location", ".")));
         processBuilder.redirectErrorStream(true);
         process = processBuilder.start();
 

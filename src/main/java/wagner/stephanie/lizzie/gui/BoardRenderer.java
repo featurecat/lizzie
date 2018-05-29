@@ -177,18 +177,7 @@ public class BoardRenderer {
             }
 
             // draw the star points
-            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            int starPointRadius = (int) (STARPOINT_DIAMETER * boardLength) / 2;
-            final int NUM_STARPOINTS = 3;
-            final int STARPOINT_EDGE_OFFSET = 3;
-            final int STARPOINT_GRID_DISTANCE = 6;
-            for (int i = 0; i < NUM_STARPOINTS; i++) {
-                for (int j = 0; j < NUM_STARPOINTS; j++) {
-                    int centerX = x + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * i);
-                    int centerY = y + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * j);
-                    fillCircle(g, centerX, centerY, starPointRadius);
-                }
-            }
+            drawStarPoints(g);
 
             // draw coordinates if enabled
             if (showCoordinates()) {
@@ -199,8 +188,8 @@ public class BoardRenderer {
                     drawString(g, x + scaledMargin + squareLength * i, y - scaledMargin / 2 + boardLength, LizzieFrame.OpenSansRegularBase, "" + alphabet.charAt(i), stoneRadius * 4 / 5, stoneRadius);
                 }
                 for (int i = 0; i < Board.BOARD_SIZE; i++) {
-                    drawString(g, x + scaledMargin / 2, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
-                    drawString(g, x - scaledMargin / 2 + +boardLength, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (19 - i), stoneRadius * 4 / 5, stoneRadius);
+                    drawString(g, x + scaledMargin / 2, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (Board.BOARD_SIZE - i), stoneRadius * 4 / 5, stoneRadius);
+                    drawString(g, x - scaledMargin / 2 + +boardLength, y + scaledMargin + squareLength * i, LizzieFrame.OpenSansRegularBase, "" + (Board.BOARD_SIZE - i), stoneRadius * 4 / 5, stoneRadius);
                 }
             }
             cachedBackgroundImageHasCoordinatesEnabled = showCoordinates();
@@ -211,6 +200,76 @@ public class BoardRenderer {
         g0.drawImage(cachedBackgroundImage, 0, 0, null);
         cachedX = x;
         cachedY = y;
+    }
+
+    /**
+     * Draw the star points on the board, according to board size
+     *
+     * @param g graphics2d object to draw
+     */
+    private void drawStarPoints(Graphics2D g) {
+        if (Board.BOARD_SIZE == 9) {
+            drawStarPoints9x9(g);
+        } else if (Board.BOARD_SIZE == 13) {
+            drawStarPoints13x13(g);
+        } else {
+            drawStarPoints19x19(g);
+        }
+    }
+
+    private void drawStarPoints19x19(Graphics2D g) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int starPointRadius = (int) (STARPOINT_DIAMETER * boardLength) / 2;
+        final int NUM_STARPOINTS = 3;
+        final int STARPOINT_EDGE_OFFSET = 3;
+        final int STARPOINT_GRID_DISTANCE = 6;
+        for (int i = 0; i < NUM_STARPOINTS; i++) {
+            for (int j = 0; j < NUM_STARPOINTS; j++) {
+                int centerX = x + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * i);
+                int centerY = y + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * j);
+                fillCircle(g, centerX, centerY, starPointRadius);
+            }
+        }
+    }
+
+    private void drawStarPoints13x13(Graphics2D g) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int starPointRadius = (int) (STARPOINT_DIAMETER * boardLength) / 2;
+        final int NUM_STARPOINTS = 2;
+        final int STARPOINT_EDGE_OFFSET = 3;
+        final int STARPOINT_GRID_DISTANCE = 6;
+        for (int i = 0; i < NUM_STARPOINTS; i++) {
+            for (int j = 0; j < NUM_STARPOINTS; j++) {
+                int centerX = x + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * i);
+                int centerY = y + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * j);
+                fillCircle(g, centerX, centerY, starPointRadius);
+            }
+        }
+
+        // Draw center
+        int centerX = x + scaledMargin + squareLength * STARPOINT_GRID_DISTANCE;
+        int centerY = y + scaledMargin + squareLength * STARPOINT_GRID_DISTANCE;
+        fillCircle(g, centerX, centerY, starPointRadius);
+    }
+
+    private void drawStarPoints9x9(Graphics2D g) {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int starPointRadius = (int) (STARPOINT_DIAMETER * boardLength) / 2;
+        final int NUM_STARPOINTS = 2;
+        final int STARPOINT_EDGE_OFFSET = 2;
+        final int STARPOINT_GRID_DISTANCE = 4;
+        for (int i = 0; i < NUM_STARPOINTS; i++) {
+            for (int j = 0; j < NUM_STARPOINTS; j++) {
+                int centerX = x + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * i);
+                int centerY = y + scaledMargin + squareLength * (STARPOINT_EDGE_OFFSET + STARPOINT_GRID_DISTANCE * j);
+                fillCircle(g, centerX, centerY, starPointRadius);
+            }
+        }
+
+        // Draw center
+        int centerX = x + scaledMargin + squareLength * STARPOINT_GRID_DISTANCE;
+        int centerY = y + scaledMargin + squareLength * STARPOINT_GRID_DISTANCE;
+        fillCircle(g, centerX, centerY, starPointRadius);
     }
 
     /**
@@ -343,6 +402,9 @@ public class BoardRenderer {
             for (int i = 0; i < bestMoves.size(); i++) {
                 MoveData move = bestMoves.get(i);
                 int[] coord = Board.convertNameToCoordinates(move.coordinate);
+                if (coord == null) {
+                    continue;
+                }
 
                 if (coord[0] == Lizzie.frame.mouseHoverCoordinate[0] && coord[1] == Lizzie.frame.mouseHoverCoordinate[1]) {
                     return move;
@@ -460,6 +522,10 @@ public class BoardRenderer {
                     // this is inefficient but it looks better with shadows
                     for (MoveData m : bestMoves) {
                         int[] coord = Board.convertNameToCoordinates(m.coordinate);
+                        // Handle passes
+                        if (coord == null) {
+                            continue;
+                        }
                         if (coord[0] == i && coord[1] == j) {
                             move = m;
                             break;

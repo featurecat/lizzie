@@ -3,6 +3,8 @@ package wagner.stephanie.lizzie;
 import org.json.*;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 public class Config {
@@ -52,12 +54,66 @@ public class Config {
 
         fp.close();
 
+        // Validate and correct settings
+        if (validateAndCorrectSettings(mergedcfg)) {
+            modified = true;
+        }
+
         if (modified) {
             writeConfig(mergedcfg, file);
         }
         return mergedcfg;
 
 
+    }
+
+    /**
+     * Check settings to ensure its consistency, especially for those whose types are not <code>boolean</code>.
+     * If any inconsistency is found, try to correct it or to report it.
+     * <br>
+     * For example, we only support 9x9, 13x13 or 19x19(default) sized boards. If the configured board size
+     * is not in the list above, we should correct it.
+     *
+     * @param config The config json object to check
+     * @return if any correction has been made.
+     */
+    private boolean validateAndCorrectSettings(JSONObject config) {
+        // We don't care persisted settings. They are managed automatically.
+        if (config == null || !config.has("ui")) {
+            return false;
+        }
+
+        boolean madeCorrections = false;
+
+        // Check ui configs
+        JSONObject ui = config.getJSONObject("ui");
+
+        // Check board-size. We support only 9x9, 13x13 or 19x19
+        int boardSize = ui.optInt("board-size", 19);
+        if (boardSize != 19 && boardSize != 13 && boardSize != 9) {
+            // Correct it to default 19x19
+            ui.put("board-size", 19);
+            madeCorrections = true;
+        }
+
+        // Check engine configs
+        JSONObject leelaz = config.getJSONObject("leelaz");
+        // Check if the engine program exists.
+        String enginePath = leelaz.optString("engine-program", "./leelaz");
+        if (!Files.exists(Paths.get(enginePath)) && !Files.exists(Paths.get(enginePath + ".exe" /* For windows */))) {
+            // FIXME: I don't know how to handle it properly.. Possibly showing a warning dialog may be a good idea?
+            leelaz.put("engine-program", "./leelaz");
+            madeCorrections = true;
+        }
+
+        // Similar checks for startup directory. It should exist and should be a directory.
+        String engineStartLocation = leelaz.optString("engine-start-location", ".");
+        if (!(Files.exists(Paths.get(engineStartLocation)) && Files.isDirectory(Paths.get(engineStartLocation)))) {
+            leelaz.put("engine-start-location", ".");
+            madeCorrections = true;
+        }
+
+        return madeCorrections;
     }
 
     public Config() throws IOException {
@@ -151,6 +207,8 @@ public class Config {
         leelaz.put("max-game-thinking-time-seconds", 2);
         leelaz.put("print-comms", false);
         leelaz.put("analyze-update-interval-centisec", 10);
+        leelaz.put("engine-program", "./leelaz");
+        leelaz.put("engine-start-location", ".");
         leelaz.put("automatically-download-latest-network", true);
 
         config.put("leelaz", leelaz);
@@ -175,6 +233,7 @@ public class Config {
         ui.put("win-rate-always-black", false);
         ui.put("confirm-exit", false);
         ui.put("handicap-instead-of-winrate",false);
+        ui.put("board-size", 19);
 
         config.put("ui", ui);
         return config;

@@ -12,7 +12,7 @@ import java.util.Queue;
 import java.util.List;
 
 public class Board implements LeelazListener {
-    public static final int BOARD_SIZE = 19;
+    public static final int BOARD_SIZE = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
     private final static String alphabet = "ABCDEFGHJKLMNOPQRST";
 
     private BoardHistoryList history;
@@ -65,6 +65,9 @@ public class Board implements LeelazListener {
      */
     public static int[] convertNameToCoordinates(String namedCoordinate) {
         namedCoordinate = namedCoordinate.trim();
+        if (namedCoordinate.equalsIgnoreCase("pass")) {
+            return null;
+        }
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
         int x = alphabet.indexOf(namedCoordinate.charAt(0));
         int y = Integer.parseInt(namedCoordinate.substring(1)) - 1;
