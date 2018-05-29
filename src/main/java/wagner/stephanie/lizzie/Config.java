@@ -12,16 +12,16 @@ public class Config {
     public boolean showVariationGraph = true;
     public boolean showRawBoard = false;
     public boolean handicapInsteadOfWinrate = false;
-    
-    // For plug-ins
-    public boolean showBranch = true;
 
+    public boolean showBranch = true;
     public boolean showBestMoves = true;
     public boolean showNextMoves = true;
     public boolean showSubBoard = true;
     public boolean largeSubBoard = false;
     
     public JSONObject config;
+    public JSONObject leelazConfig;
+    public JSONObject uiConfig;
     public JSONObject persisted;
 
     private String persistFilename = "persist.properties";
@@ -69,7 +69,9 @@ public class Config {
         // Persisted properties
         this.persisted = loadAndMergeConfig(persistConfig, persistFilename);
 
-        JSONObject uiConfig = config.getJSONObject("ui");
+        leelazConfig = config.getJSONObject("leelaz");
+        uiConfig = config.getJSONObject("ui");
+
         showMoveNumber = uiConfig.getBoolean("show-move-number");
         showBranch = uiConfig.getBoolean("show-leelaz-variation");
         showWinrate = uiConfig.getBoolean("show-winrate");
@@ -142,13 +144,14 @@ public class Config {
 
         // About engine parameter
         JSONObject leelaz = new JSONObject();
-        leelaz.put("weights", "network");
+        leelaz.put("network-file", "network");
         leelaz.put("threads", 2);
         leelaz.put("gpu", new JSONArray("[]"));
         leelaz.put("max-analyze-time-minutes", 2);
         leelaz.put("max-game-thinking-time-seconds", 2);
         leelaz.put("print-comms", false);
         leelaz.put("analyze-update-interval-centisec", 10);
+        leelaz.put("automatically-download-latest-network", true);
 
         config.put("leelaz", leelaz);
 

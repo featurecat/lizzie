@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import wagner.stephanie.lizzie.Lizzie;
+import wagner.stephanie.lizzie.Util;
 import wagner.stephanie.lizzie.rules.Stone;
 
 import javax.swing.*;
@@ -11,12 +12,16 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * an interface with leelaz.exe go engine. Can be adapted for GTP, but is specifically designed for GCP's Leela Zero.
@@ -25,7 +30,8 @@ import java.util.Collections;
  */
 public class Leelaz {
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-    //    private static final long SECOND = 1000;
+    private static final String baseURL = "http://zero.sjeng.org";
+
     private long maxAnalyzeTimeMillis;//, maxThinkingTimeMillis;
     private int cmdNumber;
     private int currentCmdNum;
@@ -72,19 +78,22 @@ public class Leelaz {
 
         printCommunication = config.getBoolean("print-comms");
         maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
-//        maxThinkingTimeMillis = SECOND * config.getInt("max-game-thinking-time-seconds");
+
+        if (config.getBoolean("automatically-download-latest-network")) {
+            updateToLatestNetwork();
+        }
 
         // list of commands for the leelaz process
         List<String> commands = new ArrayList<>();
         commands.add("./leelaz"); // windows, linux, mac all understand this
         commands.add("-g");
         commands.add("-t");
-        commands.add(""+config.getInt("threads"));
-        String weightsString = config.getString("weights");
-        if (!weightsString.isEmpty()) {
+        commands.add("" + config.getInt("threads"));
+        String networkFileName = config.getString("network-file");
+        if (!networkFileName.isEmpty()) {
             // Leela 0.11.0 lacks this option
             commands.add("-w");
-            commands.add(weightsString);
+            commands.add(networkFileName);
         }
         commands.add("-b");
         commands.add("0");
@@ -121,6 +130,50 @@ public class Leelaz {
         new Thread(this::read).start();
     }
 
+    private void updateToLatestNetwork() {
+        try {
+            if (needToDownloadLatestNetwork()) {
+
+                Util.saveAsFile(new URL(baseURL + "/networks/" + getBestNetworkHash() + ".gz"),
+                        new File(Lizzie.config.leelazConfig.getString("network-file")));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getBestNetworkHash() throws IOException {
+        // finds a valid network hash
+        Pattern networkHashFinder = Pattern.compile("(?<=/networks/)[a-f0-9]+");
+
+        String networks = null;
+        try {
+            networks = Util.downloadAsString(new URL(baseURL + "/network-profiles"));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        if (networks == null) {
+            throw new IOException("Could not determine the best network URL");
+        }
+        Matcher m = networkHashFinder.matcher(networks);
+        // get the first match - this will be the best network.
+        m.find();
+
+        return m.group(0);
+    }
+
+    private boolean needToDownloadLatestNetwork() throws IOException {
+        File networkFile = new File(Lizzie.config.leelazConfig.getString("network-file"));
+        if (!networkFile.exists()) {
+            return true;
+        } else {
+            String currentNetworkHash = Util.getSha256Sum(networkFile);
+            String bestNetworkHash = getBestNetworkHash();
+
+            return !currentNetworkHash.equals(bestNetworkHash);
+        }
+    }
+
     /**
      * Initializes the input and output streams
      */
@@ -151,7 +204,7 @@ public class Leelaz {
             if (line.equals("\n")) {
                 // End of response
             } else if (line.startsWith("info")) {
-                if (currentCmdNum == cmdNumber -1) {
+                if (currentCmdNum == cmdNumber - 1) {
                     // This should not be stale data when the command number match
                     parseInfo(line.substring(5));
                     notifyBestMoveListeners();
@@ -369,65 +422,65 @@ public class Leelaz {
 
             // get the total number of playouts in moves
             stats.totalPlayouts = moves.stream().reduce(0,
-                                                        (Integer result, MoveData move) -> result + move.playouts,
-                                                        (Integer a, Integer b) -> a + b);
+                    (Integer result, MoveData move) -> result + move.playouts,
+                    (Integer a, Integer b) -> a + b);
 
             // set maxWinrate to the weighted average winrate of moves
             stats.maxWinrate = moves.stream().reduce(0d,
-                                                     (Double result, MoveData move) ->
-                                                         result + move.winrate * move.playouts / stats.totalPlayouts,
-                                                     (Double a, Double b) -> a + b);
+                    (Double result, MoveData move) ->
+                            result + move.winrate * move.playouts / stats.totalPlayouts,
+                    (Double a, Double b) -> a + b);
         }
 
         return stats;
     }
-    
+
     /*
      * initializes the normalizing factor for winrate_to_handicap_stones conversion.
      */
     public void estimatePassWinrate() {
-    	// we use A1 instead of pass, because valuenetwork is more accurate for A1 on empty board than a pass.
-    	// probably the reason for higher accuracy is that networks have randomness which produces occasionally A1 as first move, but never pass.
-    	// for all practical purposes, A1 should equal pass for the value it provides, hence good replacement.
-    	// this way we avoid having to run lots of playouts for accurate winrate for pass.
-    	playMove(Stone.BLACK, "A1");
-    	togglePonder();
-    	WinrateStats stats = getWinrateStats();
+        // we use A1 instead of pass, because valuenetwork is more accurate for A1 on empty board than a pass.
+        // probably the reason for higher accuracy is that networks have randomness which produces occasionally A1 as first move, but never pass.
+        // for all practical purposes, A1 should equal pass for the value it provides, hence good replacement.
+        // this way we avoid having to run lots of playouts for accurate winrate for pass.
+        playMove(Stone.BLACK, "A1");
+        togglePonder();
+        WinrateStats stats = getWinrateStats();
 
-    	// we could use a timelimit or higher minimum playouts to get a more accurate measurement.
-    	while( stats.totalPlayouts < 1 ) {
-    		try {
-    			Thread.sleep(100);
-    		} catch (InterruptedException e) {
-    			throw new Error(e);
-    		}
-    		stats=getWinrateStats();
-    	}
-    	mHandicapWinrate=stats.maxWinrate; 
-    	togglePonder();
-    	undo();
-    	Lizzie.board.clear();
+        // we could use a timelimit or higher minimum playouts to get a more accurate measurement.
+        while (stats.totalPlayouts < 1) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new Error(e);
+            }
+            stats = getWinrateStats();
+        }
+        mHandicapWinrate = stats.maxWinrate;
+        togglePonder();
+        undo();
+        Lizzie.board.clear();
     }
 
-    public static double mHandicapWinrate=25;
+    public static double mHandicapWinrate = 25;
 
     /**
      * Convert winrate to handicap stones, by normalizing winrate by first move pass winrate (one stone handicap).
      */
     public static double winrateToHandicap(double pWinrate) {
-    	// we assume each additional handicap lowers winrate by fixed percentage.
-    	// this is pretty accurate for human handicap games at least.
-    	// also this kind of property is a requirement for handicaps to determined based on rank difference.
+        // we assume each additional handicap lowers winrate by fixed percentage.
+        // this is pretty accurate for human handicap games at least.
+        // also this kind of property is a requirement for handicaps to determined based on rank difference.
 
-    	// lets convert the 0%-50% range and 100%-50% from both the move and and pass into range of 0-1
-    	double moveWinrateSymmetric = 1-Math.abs(1-(pWinrate/100)*2);
-    	double passWinrateSymmetric = 1-Math.abs(1-(mHandicapWinrate/100)*2);
+        // lets convert the 0%-50% range and 100%-50% from both the move and and pass into range of 0-1
+        double moveWinrateSymmetric = 1 - Math.abs(1 - (pWinrate / 100) * 2);
+        double passWinrateSymmetric = 1 - Math.abs(1 - (mHandicapWinrate / 100) * 2);
 
-    	// convert the symmetric move winrate into correctly scaled log scale, so that winrate of passWinrate equals 1 handicap.
-    	double handicapSymmetric = Math.log(moveWinrateSymmetric)/Math.log(passWinrateSymmetric);
+        // convert the symmetric move winrate into correctly scaled log scale, so that winrate of passWinrate equals 1 handicap.
+        double handicapSymmetric = Math.log(moveWinrateSymmetric) / Math.log(passWinrateSymmetric);
 
-    	// make it negative if we had low winrate below 50.
-    	return Math.signum(pWinrate-50)*handicapSymmetric;
+        // make it negative if we had low winrate below 50.
+        return Math.signum(pWinrate - 50) * handicapSymmetric;
     }
 
     public synchronized void addListener(LeelazListener listener) {
@@ -441,7 +494,7 @@ public class Leelaz {
     }
 
     private synchronized void notifyBestMoveListeners() {
-        for (LeelazListener listener: listeners) {
+        for (LeelazListener listener : listeners) {
             listener.bestMoveNotification(bestMoves);
         }
     }

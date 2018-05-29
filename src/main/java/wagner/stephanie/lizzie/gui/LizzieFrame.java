@@ -1,5 +1,7 @@
 package wagner.stephanie.lizzie.gui;
 
+import static wagner.stephanie.lizzie.Util.clamp;
+
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -449,7 +451,7 @@ public class LizzieFrame extends JFrame {
         FontMetrics fm = g.getFontMetrics(font);
         int stringWidth = fm.stringWidth(text);
         int stringHeight = fm.getAscent() - fm.getDescent();
-        int width = (int)(stringWidth*1);
+        int width = stringWidth;
         int height = (int)(stringHeight * 1.2);
 
         BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -491,17 +493,17 @@ public class LizzieFrame extends JFrame {
         Graphics2D g = cachedImage.createGraphics();
 
         int maxSize = Math.min(getWidth(), getHeight());
-        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.037));
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
         g.setFont(font);
         FontMetrics metrics = g.getFontMetrics(font);
         int maxCommandWidth = Arrays.asList(commands).stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
         int lineHeight = (int) (font.getSize() * 1.15);
 
-        int boxWidth = (int) (maxCommandWidth * 1.4);
-        int boxHeight = commands.length * lineHeight;
+        int boxWidth = clamp((int) (maxCommandWidth * 1.4), 0, getWidth());
+        int boxHeight = clamp(commands.length * lineHeight, 0, getHeight());
 
-        int commandsX = getWidth() / 2 - boxWidth / 2;
-        int commandsY = getHeight() / 2 - boxHeight / 2;
+        int commandsX = clamp(getWidth() / 2 - boxWidth / 2, 0, getWidth());
+        int commandsY = clamp(getHeight() / 2 - boxHeight / 2, 0, getHeight());
 
         BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
         filter10.filter(cachedBackground.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);

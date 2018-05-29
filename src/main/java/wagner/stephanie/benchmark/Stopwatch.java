@@ -41,6 +41,13 @@ public class Stopwatch {
         System.out.println("in " + totalTime / 1_000_000.0 + " ms");
     }
 
+    public void printTimePerAction(int numActionsExecuted) {
+        System.out.println("\n======== profiler ========");
+        long totalTime = System.nanoTime() - startTime;
+        System.out.println((totalTime / 1_000_000.0 / numActionsExecuted) + " ms per action");
+        System.out.println(numActionsExecuted + " total actions executed in " + totalTime / 1_000_000_000.0 + " s");
+    }
+
     /**
      * Reset the Stopwatch so it can be used again. Begins timing from the moment this method is executed.
      */
