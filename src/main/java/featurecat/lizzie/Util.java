@@ -24,7 +24,7 @@ public class Util {
     }
 
     /**
-     * @return the sha 256 checksum of a file
+     * @return the sha 256 checksum of decompressed contents from a GZIPed file
      */
     public static String getSha256Sum(File file) {
         try (InputStream inputStream = new GZIPInputStream(new FileInputStream(file))) {
@@ -65,7 +65,7 @@ public class Util {
     }
 
     /**
-     * Downloads the contents of the url, decompresses them with GZIP, and saves them in a file.
+     * Downloads the contents of the url, and saves them in a file.
      */
     public static void saveAsFile(URL url, File file) {
         try {
