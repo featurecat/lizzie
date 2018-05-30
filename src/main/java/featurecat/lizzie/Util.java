@@ -27,7 +27,7 @@ public class Util {
      * @return the sha 256 checksum of a file
      */
     public static String getSha256Sum(File file) {
-        try (FileInputStream inputStream = new FileInputStream(file)) {
+        try (InputStream inputStream = new GZIPInputStream(new FileInputStream(file))) {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
             DigestInputStream digestInputStream = new DigestInputStream(inputStream, messageDigest);
 
@@ -69,7 +69,7 @@ public class Util {
      */
     public static void saveAsFile(URL url, File file) {
         try {
-            ReadableByteChannel rbc = Channels.newChannel(new GZIPInputStream(url.openStream()));
+            ReadableByteChannel rbc = Channels.newChannel(url.openStream());
             FileOutputStream fos = new FileOutputStream(file);
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         } catch (IOException e) {
