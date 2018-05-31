@@ -132,9 +132,11 @@ public class Leelaz {
     private void updateToLatestNetwork() {
         try {
             if (needToDownloadLatestNetwork()) {
-
-                Util.saveAsFile(new URL(baseURL + "/networks/" + getBestNetworkHash() + ".gz"),
-                        new File(Lizzie.config.leelazConfig.getString("network-file")));
+                int dialogResult = JOptionPane.showConfirmDialog (null, "Download the latest network file? This may take some time.");
+                if(dialogResult == JOptionPane.YES_OPTION){
+                    Util.saveAsFile(new URL(baseURL + "/networks/" + getBestNetworkHash() + ".gz"),
+                            new File(Lizzie.config.leelazConfig.getString("network-file")));
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

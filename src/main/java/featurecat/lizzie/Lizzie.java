@@ -50,7 +50,7 @@ public class Lizzie {
 
     public static void shutdown() {
         PluginManager.onShutdown();
-        if (config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
+        if (board != null && config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
             int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
             if (ret == JOptionPane.OK_OPTION) {
                 LizzieFrame.saveSgf();
@@ -63,7 +63,8 @@ public class Lizzie {
             // Failed to save config
         }
 
-        leelaz.shutdown();
+        if (leelaz != null)
+            leelaz.shutdown();
         System.exit(0);
     }
 
