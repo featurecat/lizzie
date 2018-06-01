@@ -26,7 +26,8 @@ public class Config {
     public JSONObject uiConfig;
     public JSONObject persisted;
 
-    private String persistFilename = "persist.properties";
+    private String configFilename = "config.txt";
+    private String persistFilename = "persist";
 
     private JSONObject loadAndMergeConfig(JSONObject defaultCfg, String fileName) throws IOException {
         File file = new File(fileName);
@@ -121,7 +122,7 @@ public class Config {
         JSONObject persistConfig = createPersistConfig();
 
         // Main properties
-        this.config = loadAndMergeConfig(defaultConfig, "lizzie.properties");
+        this.config = loadAndMergeConfig(defaultConfig, configFilename);
         // Persisted properties
         this.persisted = loadAndMergeConfig(persistConfig, persistFilename);
 
@@ -200,23 +201,21 @@ public class Config {
 
         // About engine parameter
         JSONObject leelaz = new JSONObject();
-        leelaz.put("network-file", "network");
-        leelaz.put("threads", 2);
-        leelaz.put("gpu", new JSONArray("[]"));
+        leelaz.put("network-file", "network.gz");
+        leelaz.put("engine-command", "./leelaz --gtp --lagbuffer 0 --weights %network-file --threads 2");
+        leelaz.put("engine-start-location", ".");
         leelaz.put("max-analyze-time-minutes", 2);
         leelaz.put("max-game-thinking-time-seconds", 2);
         leelaz.put("print-comms", false);
         leelaz.put("analyze-update-interval-centisec", 10);
-        leelaz.put("engine-program", "./leelaz");
-        leelaz.put("engine-start-location", ".");
-        leelaz.put("automatically-download-latest-network", true);
+        leelaz.put("automatically-download-latest-network", false);
 
         config.put("leelaz", leelaz);
 
         // About User Interface display
         JSONObject ui = new JSONObject();
 
-        ui.put("board-color", new JSONArray("[178, 140, 0]"));
+        ui.put("board-color", new JSONArray("[217, 152, 77]"));
         ui.put("theme", "DefaultTheme");
         ui.put("shadows-enabled", true);
         ui.put("fancy-stones", true);

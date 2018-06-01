@@ -45,7 +45,11 @@ public class Util {
                 sb.append(String.format("%02X", b));
             }
             return sb.toString().toLowerCase();
-        } catch (NoSuchAlgorithmException | IOException e) {
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (EOFException e) {
+            // do nothing, just means we need to download a new one
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return null;

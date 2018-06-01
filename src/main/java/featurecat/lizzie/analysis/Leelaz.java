@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.Collections;
@@ -81,35 +82,12 @@ public class Leelaz {
             updateToLatestNetwork();
         }
 
-        // list of commands for the leelaz process
-        List<String> commands = new ArrayList<>();
-        commands.add(config.optString("engine-program", "./leelaz")); // windows, linux, mac all understand this
-        commands.add("-g");
-        commands.add("-t");
-        commands.add("" + config.getInt("threads"));
-        String networkFileName = config.getString("network-file");
-        if (!networkFileName.isEmpty()) {
-            // Leela 0.11.0 lacks this option
-            commands.add("-w");
-            commands.add(networkFileName);
-        }
-        commands.add("-b");
-        commands.add("0");
-
-//        if (config.getBoolean("noise")) {
-//            commands.add("-n");
-//        }
-
-        try {
-            JSONArray gpu = config.getJSONArray("gpu");
-
-            for (int i = 0; i < gpu.length(); i++) {
-                commands.add("--gpu");
-                commands.add(String.valueOf(gpu.getInt(i)));
-            }
-        } catch (Exception e) {
-            // Nothing
-        }
+        // command string for starting the engine
+        String engineCommand = config.getString("engine-command");
+        // substitute in the weights file
+        engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
+        // create this as a list which gets passed into the processbuilder
+        List<String> commands = Arrays.asList(engineCommand.split(" "));
 
         // run leelaz
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
@@ -140,6 +118,7 @@ public class Leelaz {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            // now we're probably still ok. Maybe we're offline -- then it's not a big problem.
         }
     }
 
@@ -169,7 +148,11 @@ public class Leelaz {
             return true;
         } else {
             String currentNetworkHash = Util.getSha256Sum(networkFile);
+            if (currentNetworkHash == null)
+                return true;
+
             String bestNetworkHash = getBestNetworkHash();
+
 
             return !currentNetworkHash.equals(bestNetworkHash);
         }
