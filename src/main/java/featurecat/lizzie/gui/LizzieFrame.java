@@ -73,7 +73,7 @@ public class LizzieFrame extends JFrame {
     private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
     private static BoardRenderer boardRenderer;
     private static BoardRenderer subBoardRenderer;
-    private static VariationTree variatonTree;
+    private static VariationTree variationTree;
     private static WinrateGraph winrateGraph;
 
     public static Font OpenSansRegularBase;
@@ -109,7 +109,7 @@ public class LizzieFrame extends JFrame {
 
         boardRenderer = new BoardRenderer(true);
         subBoardRenderer = new BoardRenderer(false);
-        variatonTree = new VariationTree();
+        variationTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
         // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
@@ -129,6 +129,9 @@ public class LizzieFrame extends JFrame {
         this.addKeyListener(input);
         this.addMouseWheelListener(input);
         this.addMouseMotionListener(input);
+
+        // necessary for Windows users - otherwise Lizzie shows a blank white screen on startup until updates occur.
+        repaint();
 
         // when the window is closed: save the SGF file, then run shutdown()
         this.addWindowListener(new WindowAdapter() {
@@ -369,7 +372,7 @@ public class LizzieFrame extends JFrame {
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
-            if (Lizzie.leelaz != null) {
+            if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
                         (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
                         ponderingX, ponderingY, ponderingSize);
@@ -383,7 +386,7 @@ public class LizzieFrame extends JFrame {
 
                 if (Lizzie.config.showVariationGraph) {
                     drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
-                    variatonTree.draw(g, treex, treey, treew, treeh);
+                    variationTree.draw(g, treex, treey, treew, treeh);
                 }
                 if (Lizzie.config.showSubBoard) {
                     try {

@@ -22,7 +22,7 @@ public class Lizzie {
     /**
      * Launches the game window, and runs the game.
      */
-    public static void main(String[] args) throws IOException, JSONException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) throws IOException, JSONException, ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException, InterruptedException {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         config = new Config();
@@ -32,7 +32,7 @@ public class Lizzie {
         board = new Board();
 
         frame = new LizzieFrame();
-        
+
         new Thread( () -> {
             try {
                 leelaz = new Leelaz();

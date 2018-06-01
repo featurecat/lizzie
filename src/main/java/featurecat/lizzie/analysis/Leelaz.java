@@ -14,11 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,6 +25,8 @@ import java.util.regex.Pattern;
  * see www.github.com/gcp/leela-zero
  */
 public class Leelaz {
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
+
     private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
     private static final String baseURL = "http://zero.sjeng.org";
 
@@ -56,6 +55,7 @@ public class Leelaz {
     // genmove
     public boolean isThinking = false;
 
+    private boolean isLoaded = false;
     private boolean isCheckingVersion;
 
     /**
@@ -110,8 +110,8 @@ public class Leelaz {
     private void updateToLatestNetwork() {
         try {
             if (needToDownloadLatestNetwork()) {
-                int dialogResult = JOptionPane.showConfirmDialog (null, "Download the latest network file? This may take some time.");
-                if(dialogResult == JOptionPane.YES_OPTION){
+                int dialogResult = JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.display.download-latest-network-prompt"));
+                if (dialogResult == JOptionPane.YES_OPTION) {
                     Util.saveAsFile(new URL(baseURL + "/networks/" + getBestNetworkHash() + ".gz"),
                             new File(Lizzie.config.leelazConfig.getString("network-file")));
                 }
@@ -153,7 +153,6 @@ public class Leelaz {
 
             String bestNetworkHash = getBestNetworkHash();
 
-
             return !currentNetworkHash.equals(bestNetworkHash);
         }
     }
@@ -188,6 +187,7 @@ public class Leelaz {
             if (line.equals("\n")) {
                 // End of response
             } else if (line.startsWith("info")) {
+                isLoaded = true;
                 if (currentCmdNum == cmdNumber - 1) {
                     // This should not be stale data when the command number match
                     parseInfo(line.substring(5));
@@ -486,5 +486,9 @@ public class Leelaz {
         for (LeelazListener listener : listeners) {
             listener.bestMoveNotification(bestMoves);
         }
+    }
+
+    public boolean isLoaded() {
+        return isLoaded;
     }
 }
