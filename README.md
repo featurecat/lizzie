@@ -1,5 +1,5 @@
 # Lizzie - Leela Zero Interface
-![screenshot](/screen.png?raw=true)
+![screenshot](/screen0.5.png?raw=true)
 
 Lizzie is a graphical interface allowing the user to analyze games in
 real time using [Leela Zero](https://github.com/gcp/leela-zero). You
@@ -20,7 +20,7 @@ any `leelaz_opencl_tuning` file you have into the directory.
 
 ### Building Leela Zero
 
-First, you will need to have a special version of Leela Zero that
+First, you will need to have a version of Leela Zero that
 continually outputs pondering information. You can get this from one
 of the Lizzie releases or build it yourself; just compile from the **next** branch of Leela Zero (see http://github.com/gcp/leela-zero/tree/next for more details).
 
