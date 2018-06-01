@@ -20,7 +20,7 @@ package plugin;
 
 import java.io.IOException;
 
-import wagner.stephanie.lizzie.plugin.IPlugin;
+import IPlugin;
 
 /**
  * Plugin
