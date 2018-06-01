@@ -204,7 +204,7 @@ public class Config {
         leelaz.put("network-file", "network.gz");
         leelaz.put("engine-command", "./leelaz --gtp --lagbuffer 0 --weights %network-file --threads 2");
         leelaz.put("engine-start-location", ".");
-        leelaz.put("max-analyze-time-minutes", 2);
+        leelaz.put("max-analyze-time-minutes", 5);
         leelaz.put("max-game-thinking-time-seconds", 2);
         leelaz.put("print-comms", false);
         leelaz.put("analyze-update-interval-centisec", 10);
