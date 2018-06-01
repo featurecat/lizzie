@@ -1037,8 +1037,15 @@ public class Board implements LeelazListener {
                 toggleAnalysis();
             } else if (bestMoves == null || bestMoves.size() == 0) {
                 // If we get empty list, something strange happened, ignore notification
-            } else if (bestMoves.get(0).playouts > playoutsAnalysis) {
-                nextMove();
+            } else {
+                // sum the playouts to proceed like leelaz's --visits option.
+                int sum = 0;
+                for (MoveData move : bestMoves) {
+                    sum += move.playouts;
+                }
+                if (sum >= playoutsAnalysis) {
+                    nextMove();
+                }
             }
         }
     }
