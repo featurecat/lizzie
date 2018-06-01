@@ -997,6 +997,10 @@ public class Board implements LeelazListener {
         return score;
     }
 
+    public boolean inAnalysisMode() {
+        return analysisMode;
+    }
+
     public boolean inScoreMode() {
         return scoreMode;
     }

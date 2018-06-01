@@ -194,7 +194,7 @@ public class Leelaz {
                     notifyBestMoveListeners();
                     if (Lizzie.frame != null) Lizzie.frame.repaint();
                     if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
-                        sendCommand("name"); // Send any command to stop ponder
+                        togglePonder();
                     }
                 }
             } else if (line.startsWith("play")) {

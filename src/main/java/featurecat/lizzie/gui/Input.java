@@ -161,6 +161,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
         PluginManager.onKeyPressed(e);
 
+        // If any key is pressed, let's disable analysis mode.
+        // This is probably the user attempting to exit analysis mode.
+        if (e.getKeyCode() != VK_A && Lizzie.board.inAnalysisMode())
+            Lizzie.board.toggleAnalysis();
+
         switch (e.getKeyCode()) {
             case VK_RIGHT:
                 if (e.isShiftDown()) {
