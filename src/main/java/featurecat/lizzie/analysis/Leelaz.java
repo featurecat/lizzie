@@ -193,7 +193,8 @@ public class Leelaz {
                     parseInfo(line.substring(5));
                     notifyBestMoveListeners();
                     if (Lizzie.frame != null) Lizzie.frame.repaint();
-                    if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis) {
+                    // don't follow the maxAnalyzeTime rule if we are in analysis mode
+                    if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis && !Lizzie.board.inAnalysisMode()) {
                         togglePonder();
                     }
                 }
