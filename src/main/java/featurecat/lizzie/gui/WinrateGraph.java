@@ -136,7 +136,7 @@ public class WinrateGraph {
                 if (lastNodeOk)
                     g.setColor(Color.green);
                 else
-                    g.setColor(Color.gray);
+                    g.setColor(Color.blue.darker());
 
                 if (lastOkMove > 0) {
                     g.drawLine(posx + (lastOkMove * width / numMoves),

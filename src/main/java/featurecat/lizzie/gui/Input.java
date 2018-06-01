@@ -69,6 +69,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     }
 
     private void undo(int movesToAdvance) {
+        if (Lizzie.board.inAnalysisMode())
+            Lizzie.board.toggleAnalysis();
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
@@ -96,6 +98,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     }
 
     private void redo(int movesToAdvance) {
+        if (Lizzie.board.inAnalysisMode())
+            Lizzie.board.toggleAnalysis();
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.frame.isPlayingAgainstLeelaz = false;
         }
@@ -161,10 +165,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
         PluginManager.onKeyPressed(e);
 
-        // If any key is pressed, let's disable analysis mode.
+        // If any controls key is pressed, let's disable analysis mode.
         // This is probably the user attempting to exit analysis mode.
-        if (e.getKeyCode() != VK_A && Lizzie.board.inAnalysisMode())
-            Lizzie.board.toggleAnalysis();
+        boolean shouldDisableAnalysis = true;
 
         switch (e.getKeyCode()) {
             case VK_RIGHT:
@@ -336,6 +339,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             case VK_A:
+                shouldDisableAnalysis = false;
                 Lizzie.board.toggleAnalysis();
                 break;
 
@@ -347,7 +351,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             default:
+                shouldDisableAnalysis = false;
         }
+
+        if (shouldDisableAnalysis && Lizzie.board.inAnalysisMode())
+            Lizzie.board.toggleAnalysis();
+
         Lizzie.frame.repaint();
     }
 
@@ -374,6 +383,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        if (Lizzie.board.inAnalysisMode())
+            Lizzie.board.toggleAnalysis();
         if (e.getWheelRotation() > 0) {
             redo();
         } else if (e.getWheelRotation() < 0) {

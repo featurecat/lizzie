@@ -771,6 +771,8 @@ public class LizzieFrame extends JFrame {
         int moveNumber = winrateGraph.moveNumber(x, y);
 
         if (boardCoordinates != null) {
+            if (Lizzie.board.inAnalysisMode())
+                Lizzie.board.toggleAnalysis();
             if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
                 Lizzie.board.place(boardCoordinates[0], boardCoordinates[1]);
         }
