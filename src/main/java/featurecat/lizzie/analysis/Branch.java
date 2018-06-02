@@ -26,6 +26,8 @@ public class Branch {
 
         for (int i = 0; i < variation.size(); i++) {
             int[] coord = Board.convertNameToCoordinates(variation.get(i));
+            if (coord == null)
+                break;
             data.lastMove = coord;
             data.stones[Board.getIndex(coord[0], coord[1])] = data.blackToPlay ? Stone.BLACK_GHOST : Stone.WHITE_GHOST;
             data.moveNumberList[Board.getIndex(coord[0], coord[1])] = i + 1;
