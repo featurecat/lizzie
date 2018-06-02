@@ -25,6 +25,10 @@ public class BoardHistoryList {
         return gameInfo;
     }
 
+    public void setGameInfo(GameInfo gameInfo) {
+        this.gameInfo = gameInfo;
+    }
+
     /**
      * Clear history.
      */
