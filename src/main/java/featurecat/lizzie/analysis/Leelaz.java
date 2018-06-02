@@ -216,7 +216,7 @@ public class Leelaz {
 
 
                 if (isSettingHandicap) {
-                    for (int i = 2; i < params.length; i++) {
+                    for (int i = 1; i < params.length; i++) {
                         int[] coordinates = Lizzie.board.convertNameToCoordinates(params[i]);
                         Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
                     }
@@ -289,13 +289,13 @@ public class Leelaz {
      * @param command a GTP command containing no newline characters
      */
     public void sendCommand(String command) {
+        if (command.startsWith("fixed_handicap"))
+            isSettingHandicap = true;
         command = cmdNumber + " " + command;
         cmdNumber++;
         if (printCommunication) {
             System.out.printf("> %s\n", command);
         }
-        if (command.startsWith("fixed_handicap"))
-            isSettingHandicap = true;
         try {
             outputStream.write((command + "\n").getBytes());
             outputStream.flush();
