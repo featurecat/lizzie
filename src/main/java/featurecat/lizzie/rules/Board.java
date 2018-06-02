@@ -283,8 +283,10 @@ public class Board implements LeelazListener {
          Stone[] stones = history.getStones();
          boolean blackToPlay = history.isBlacksTurn();
          Zobrist zobrist = history.getZobrist().clone();
+         BoardHistoryList oldHistory = history;
          history = new BoardHistoryList(new BoardData(stones, null, Stone.EMPTY, blackToPlay, zobrist,
                                                       0, new int[BOARD_SIZE * BOARD_SIZE], 0, 0, 0.0, 0));
+         history.setGameInfo(oldHistory.getGameInfo());
      }
 
     /**
