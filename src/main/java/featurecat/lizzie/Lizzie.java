@@ -5,9 +5,12 @@ import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.plugin.PluginManager;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.gui.LizzieFrame;
+import org.json.JSONObject;
 
 import javax.swing.*;
+import java.io.File;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 /**
  * Main class.
@@ -26,6 +29,21 @@ public class Lizzie {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         config = new Config();
+
+        // Check that user has installed leela zero
+        JSONObject leelazconfig = Lizzie.config.config.getJSONObject("leelaz");
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
+        String startfolder = leelazconfig.optString("engine-start-location", ".");
+
+        // Check if engine is present
+        File lef = new File(startfolder + '/' + "leelaz");
+        if (!lef.exists()) {
+            File leexe = new File(startfolder + '/' + "leelaz.exe");
+            if (!leexe.exists()) {
+                JOptionPane.showMessageDialog(null, resourceBundle.getString("LizzieFrame.display.leelaz-missing"), "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
 
         PluginManager.loadPlugins();
 
