@@ -124,7 +124,7 @@ public class Leelaz {
 
     private String getBestNetworkHash() throws IOException {
         // finds a valid network hash
-        Pattern networkHashFinder = Pattern.compile("(?<=/networks/)[a-f0-9]+");
+        Pattern networkHashFinder = Pattern.compile("\"hash\":\"([a-f0-9]+)\",");
 
         String networks = null;
         try {
@@ -139,7 +139,7 @@ public class Leelaz {
         // get the first match - this will be the best network.
         m.find();
 
-        return m.group(0);
+        return m.group(1);
     }
 
     private boolean needToDownloadLatestNetwork() throws IOException {
