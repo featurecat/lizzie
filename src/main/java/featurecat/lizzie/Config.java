@@ -5,7 +5,10 @@ import org.json.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class Config {
 
@@ -100,7 +103,7 @@ public class Config {
         // Check engine configs
         JSONObject leelaz = config.getJSONObject("leelaz");
         // Check if the engine program exists.
-        String enginePath = leelaz.optString("engine-program", "./leelaz");
+        String enginePath = leelaz.optString("engine-program", getBestDefaultLeelazPath());
         if (!Files.exists(Paths.get(enginePath)) && !Files.exists(Paths.get(enginePath + ".exe" /* For windows */))) {
             // FIXME: I don't know how to handle it properly.. Possibly showing a warning dialog may be a good idea?
             leelaz.put("engine-program", "./leelaz");
@@ -194,6 +197,28 @@ public class Config {
     }
 
 
+    /**
+     * Scans the current directory as well as the current PATH to find a reasonable default leelaz binary.
+     *
+     * @return A working path to a leelaz binary. If there are none on the PATH, "./leelaz" is returned for backwards
+     * compatibility.
+     */
+    private String getBestDefaultLeelazPath() {
+        List<String> potentialPaths = new ArrayList<>();
+        potentialPaths.add(".");
+        potentialPaths.addAll(Arrays.asList(System.getenv("PATH").split(":")));
+
+        for (String potentialPath : potentialPaths) {
+            for (String potentialExtension : Arrays.asList(new String[] {"", ".exe"})) {
+                File potentialLeelaz = new File(potentialPath, "leelaz" + potentialExtension);
+                if (potentialLeelaz.exists() && potentialLeelaz.canExecute()) {
+                    return potentialLeelaz.getPath();
+                }
+            }
+        }
+
+        return "./leelaz";
+    }
 
 
     private JSONObject createDefaultConfig() {
@@ -202,7 +227,8 @@ public class Config {
         // About engine parameter
         JSONObject leelaz = new JSONObject();
         leelaz.put("network-file", "network.gz");
-        leelaz.put("engine-command", "./leelaz --gtp --lagbuffer 0 --weights %network-file --threads 2");
+        leelaz.put("engine-command", String.format("%s --gtp --lagbuffer 0 --weights %%network-file --threads 2",
+                getBestDefaultLeelazPath()));
         leelaz.put("engine-start-location", ".");
         leelaz.put("max-analyze-time-minutes", 5);
         leelaz.put("max-game-thinking-time-seconds", 2);
