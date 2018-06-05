@@ -260,7 +260,7 @@ public class Config {
         ui.put("confirm-exit", false);
         ui.put("handicap-instead-of-winrate",false);
         ui.put("board-size", 19);
-        ui.put("window-size", new JSONArray("[0, 0]"));
+        ui.put("window-size", new JSONArray("[1024, 768]"));
         ui.put("window-maximized", false);
 
         config.put("ui", ui);
