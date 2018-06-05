@@ -896,4 +896,8 @@ public class LizzieFrame extends JFrame {
             e.printStackTrace();
         }
     }
+
+    public void increaseMaxAlpha(int k) {
+        boardRenderer.increaseMaxAlpha(k);
+    }
 }
