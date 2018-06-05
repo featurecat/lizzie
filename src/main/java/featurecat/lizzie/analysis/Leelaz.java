@@ -308,14 +308,19 @@ public class Leelaz {
      * Sends a command from command queue for leelaz to execute if it is ready
      */
     private void trySendCommandFromQueue() {
-        if (!isResponseUpToDate()) {
-            return;  // leelaz is not ready yet
-        }
+        // Defer sending "lz-analyze" if leelaz is not ready yet.
+        // Though all commands should be deferred theoretically,
+        // only "lz-analyze" is differed here for fear of
+        // possible hang-up by missing response for some reason.
+        // cmdQueue can be replaced with a mere String variable in this case,
+        // but it is kept for future change of our mind.
         synchronized(cmdQueue) {
-            String command = cmdQueue.pollFirst();
-            if (command != null) {
-                sendCommandToLeelaz(command);
+            String command = cmdQueue.peekFirst();
+            if (command == null || (command.startsWith("lz-analyze") && !isResponseUpToDate())) {
+                return;
             }
+            cmdQueue.removeFirst();
+            sendCommandToLeelaz(command);
         }
     }
 
