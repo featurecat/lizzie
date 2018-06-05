@@ -23,7 +23,8 @@ public class Config {
     public boolean showNextMoves = true;
     public boolean showSubBoard = true;
     public boolean largeSubBoard = false;
-    
+    public boolean startMaximized = true;
+
     public JSONObject config;
     public JSONObject leelazConfig;
     public JSONObject uiConfig;
@@ -141,6 +142,7 @@ public class Config {
         showSubBoard = uiConfig.getBoolean("show-subboard");
         largeSubBoard = uiConfig.getBoolean("large-subboard");
         handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
+        startMaximized = uiConfig.getBoolean("window-maximized");
     }
 
     // Modifies config by adding in values from default_config that are missing.
@@ -195,7 +197,6 @@ public class Config {
     public boolean showLargeSubBoard() {
         return showSubBoard && largeSubBoard;
     }
-
 
     /**
      * Scans the current directory as well as the current PATH to find a reasonable default leelaz binary.
@@ -259,6 +260,8 @@ public class Config {
         ui.put("confirm-exit", false);
         ui.put("handicap-instead-of-winrate",false);
         ui.put("board-size", 19);
+        ui.put("window-size", new JSONArray("[0, 0]"));
+        ui.put("window-maximized", false);
 
         config.put("ui", ui);
         return config;
