@@ -6,7 +6,7 @@
 
     <groupId>featurecat</groupId>
     <artifactId>lizzie</artifactId>
-    <version>0.4</version>
+    <version>0.5</version>
 
     <properties>
         <!-- Prevent warning: "[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!"-->
@@ -44,7 +44,7 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>wagner.stephanie.lizzie.Lizzie</mainClass>
+                                    <mainClass>featurecat.lizzie.Lizzie</mainClass>
                                 </transformer>
                             </transformers>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
@@ -62,5 +62,6 @@
             <artifactId>json</artifactId>
             <version>20180130</version>
         </dependency>
+
     </dependencies>
 </project>
