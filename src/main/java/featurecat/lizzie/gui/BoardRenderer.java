@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Branch;
@@ -30,7 +31,7 @@ public class BoardRenderer {
     private int x, y;
     private int boardLength;
 
-    private JSONObject uiConfig;
+    private JSONObject uiConfig, uiPersist;
 
     private int scaledMargin, availableLength, squareLength, stoneRadius;
     private Branch branch;
@@ -69,6 +70,10 @@ public class BoardRenderer {
         if (theme == null) {
             theme = new DefaultTheme();
         }
+        uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
+        try {
+            maxAlpha = uiPersist.getInt("max-alpha");
+        } catch (JSONException e) {}
         this.isMainBoard = isMainBoard;
     }
 
@@ -1007,5 +1012,6 @@ public class BoardRenderer {
 
     public void increaseMaxAlpha(int k) {
         maxAlpha = Math.min(maxAlpha + k, 255);
+        uiPersist.put("max-alpha", maxAlpha);
     }
 }

@@ -32,7 +32,7 @@ public class Config {
     private String configFilename = "config.txt";
     private String persistFilename = "persist";
 
-    private JSONObject loadAndMergeConfig(JSONObject defaultCfg, String fileName) throws IOException {
+    private JSONObject loadAndMergeConfig(JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
         File file = new File(fileName);
         if (!file.canRead()) {
             System.err.printf("Creating config file %s\n", fileName);
@@ -59,7 +59,7 @@ public class Config {
         fp.close();
 
         // Validate and correct settings
-        if (validateAndCorrectSettings(mergedcfg)) {
+        if (needValidation && validateAndCorrectSettings(mergedcfg)) {
             modified = true;
         }
 
@@ -82,8 +82,7 @@ public class Config {
      * @return if any correction has been made.
      */
     private boolean validateAndCorrectSettings(JSONObject config) {
-        // We don't care persisted settings. They are managed automatically.
-        if (config == null || !config.has("ui")) {
+        if (config == null) {
             return false;
         }
 
@@ -125,9 +124,9 @@ public class Config {
         JSONObject persistConfig = createPersistConfig();
 
         // Main properties
-        this.config = loadAndMergeConfig(defaultConfig, configFilename);
+        this.config = loadAndMergeConfig(defaultConfig, configFilename, true);
         // Persisted properties
-        this.persisted = loadAndMergeConfig(persistConfig, persistFilename);
+        this.persisted = loadAndMergeConfig(persistConfig, persistFilename, false);
 
         leelazConfig = config.getJSONObject("leelaz");
         uiConfig = config.getJSONObject("ui");
@@ -274,12 +273,16 @@ public class Config {
         config.put("filesystem", filesys);
 
         // About User Interface display
-        //JSONObject ui = new JSONObject();
+        JSONObject ui = new JSONObject();
 
         //ui.put("window-height", 657);
         //ui.put("window-width", 687);
+        //ui.put("max-alpha", 240);
 
-        //config.put("ui", ui);
+        // Avoid the key "ui" because it was used to distinguish "config" and "persist"
+        // in old version of validateAndCorrectSettings().
+        // If we use "ui" here, we will have trouble to run old lizzie.
+        config.put("ui-persist", ui);
         return config;
     }
 
