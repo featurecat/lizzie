@@ -123,23 +123,7 @@ public class Leelaz {
     }
 
     private String getBestNetworkHash() throws IOException {
-        // finds a valid network hash
-        Pattern networkHashFinder = Pattern.compile("\"hash\":\"([a-f0-9]+)\",");
-
-        String networks = null;
-        try {
-            networks = Util.downloadAsString(new URL(baseURL + "/network-profiles"));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        if (networks == null) {
-            throw new IOException("Could not determine the best network URL");
-        }
-        Matcher m = networkHashFinder.matcher(networks);
-        // get the first match - this will be the best network.
-        m.find();
-
-        return m.group(1);
+        return Util.downloadAsString(new URL(baseURL + "/best-network-hash")).split("\n")[0];
     }
 
     private boolean needToDownloadLatestNetwork() throws IOException {
