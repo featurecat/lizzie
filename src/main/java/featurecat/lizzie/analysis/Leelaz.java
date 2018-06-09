@@ -82,6 +82,15 @@ public class Leelaz {
             updateToLatestNetwork();
         }
 
+        String startfolder = config.optString("engine-start-location", ".");
+
+        // Check if network file is present
+        File wf = new File(startfolder + '/' + config.getString("network-file"));
+        if (!wf.exists()) {
+            JOptionPane.showMessageDialog(null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+        }
+
+
         // command string for starting the engine
         String engineCommand = config.getString("engine-command");
         // substitute in the weights file
@@ -91,7 +100,7 @@ public class Leelaz {
 
         // run leelaz
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.directory(new File(config.optString("engine-start-location", ".")));
+        processBuilder.directory(new File(startfolder));
         processBuilder.redirectErrorStream(true);
         process = processBuilder.start();
 
