@@ -1,5 +1,6 @@
 package featurecat.lizzie.analysis;
 
+import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.Util;
 import org.json.JSONArray;
@@ -82,7 +83,7 @@ public class Leelaz {
             updateToLatestNetwork();
         }
 
-        String startfolder = config.optString("engine-start-location", ".");
+        String startfolder = Config.getBestDefaultLeelazPath(); // todo make this a little more obvious/less bug-prone
 
         // Check if network file is present
         File wf = new File(startfolder + '/' + config.getString("network-file"));

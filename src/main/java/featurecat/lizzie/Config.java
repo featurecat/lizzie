@@ -111,7 +111,7 @@ public class Config {
         }
 
         // Similar checks for startup directory. It should exist and should be a directory.
-        String engineStartLocation = leelaz.optString("engine-start-location", ".");
+        String engineStartLocation = getBestDefaultLeelazPath();
         if (!(Files.exists(Paths.get(engineStartLocation)) && Files.isDirectory(Paths.get(engineStartLocation)))) {
             leelaz.put("engine-start-location", ".");
             madeCorrections = true;
@@ -203,7 +203,7 @@ public class Config {
      * @return A working path to a leelaz binary. If there are none on the PATH, "./leelaz" is returned for backwards
      * compatibility.
      */
-    private String getBestDefaultLeelazPath() {
+    public static String getBestDefaultLeelazPath() {
         List<String> potentialPaths = new ArrayList<>();
         potentialPaths.add(".");
         potentialPaths.addAll(Arrays.asList(System.getenv("PATH").split(":")));
