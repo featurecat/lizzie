@@ -542,6 +542,7 @@ public class BoardRenderer {
                         continue;
 
                     boolean isBestMove = bestMoves.get(0) == move;
+                    boolean hasMaxWinrate = move.winrate == maxWinrate;
 
                     if (move.playouts == 0) // this actually can happen
                         continue;
@@ -573,7 +574,7 @@ public class BoardRenderer {
 
                     if (branch == null || (isBestMove && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
                         int strokeWidth = 1;
-                        if (isBestMove != (move.winrate == maxWinrate)) {
+                        if (isBestMove != hasMaxWinrate) {
                             strokeWidth = 2;
                             g.setColor(isBestMove ? Color.RED : Color.BLUE);
                             g.setStroke(new BasicStroke(strokeWidth));
@@ -585,7 +586,7 @@ public class BoardRenderer {
                     }
 
 
-                    if (branch == null && alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
+                    if (branch == null && (alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || hasMaxWinrate) || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
                         double roundedWinrate = Math.round(move.winrate * 10) / 10.0;
                         if (uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay) {
                            roundedWinrate = 100.0 - roundedWinrate;
