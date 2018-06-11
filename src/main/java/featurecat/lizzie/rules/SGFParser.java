@@ -217,7 +217,7 @@ public class SGFParser {
 
     private static void saveToStream(Board board, Writer writer) throws IOException {
         // collect game info
-        BoardHistoryList history = board.getHistory();
+        BoardHistoryList history = board.getHistory().shallowCopy();
         GameInfo gameInfo = history.getGameInfo();
         String playerBlack = gameInfo.getPlayerBlack();
         String playerWhite = gameInfo.getPlayerWhite();

@@ -29,6 +29,13 @@ public class BoardHistoryList {
         this.gameInfo = gameInfo;
     }
 
+    public BoardHistoryList shallowCopy() {
+        BoardHistoryList copy = new BoardHistoryList(null);
+        copy.head = head;
+        copy.gameInfo = gameInfo;
+        return copy;
+    }
+
     /**
      * Clear history.
      */
