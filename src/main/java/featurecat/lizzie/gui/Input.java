@@ -197,7 +197,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
                 
             case VK_PAGE_DOWN:
-                redo(10);
+                if (controlIsPressed(e) && e.isShiftDown()) {
+                    Lizzie.frame.increaseMaxAlpha(-5);
+                } else {
+                    redo(10);
+                }
                 break;
 
             case VK_DOWN:
@@ -245,7 +249,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
                 
             case VK_PAGE_UP:
-                undo(10);
+                if (controlIsPressed(e) && e.isShiftDown()) {
+                    Lizzie.frame.increaseMaxAlpha(5);
+                } else {
+                    undo(10);
+                }
                 break;
 
             case VK_I:

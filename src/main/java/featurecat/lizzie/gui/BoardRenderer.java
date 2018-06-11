@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Branch;
@@ -30,7 +31,7 @@ public class BoardRenderer {
     private int x, y;
     private int boardLength;
 
-    private JSONObject uiConfig;
+    private JSONObject uiConfig, uiPersist;
 
     private int scaledMargin, availableLength, squareLength, stoneRadius;
     private Branch branch;
@@ -61,12 +62,18 @@ public class BoardRenderer {
     private boolean showingBranch = false;
     private boolean isMainBoard = false;
 
+    private int maxAlpha = 240;
+
     public BoardRenderer(boolean isMainBoard) {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
         theme = ITheme.loadTheme(uiConfig.getString("theme"));
         if (theme == null) {
             theme = new DefaultTheme();
         }
+        uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
+        try {
+            maxAlpha = uiPersist.getInt("max-alpha");
+        } catch (JSONException e) {}
         this.isMainBoard = isMainBoard;
     }
 
@@ -497,7 +504,7 @@ public class BoardRenderer {
 
         final int MIN_ALPHA = 32;
         final int MIN_ALPHA_TO_DISPLAY_TEXT = 64;
-        final int MAX_ALPHA = 240;
+        final int MAX_ALPHA = maxAlpha = Math.max(maxAlpha, MIN_ALPHA_TO_DISPLAY_TEXT);
         final double HUE_SCALING_FACTOR = 3.0;
         final double ALPHA_SCALING_FACTOR = 5.0;
         final float GREEN_HUE = Color.RGBtoHSB(0,1,0,null)[0];
@@ -1001,5 +1008,10 @@ public class BoardRenderer {
 
     private boolean showCoordinates() {
         return isMainBoard && Lizzie.frame.showCoordinates;
+    }
+
+    public void increaseMaxAlpha(int k) {
+        maxAlpha = Math.min(maxAlpha + k, 255);
+        uiPersist.put("max-alpha", maxAlpha);
     }
 }
