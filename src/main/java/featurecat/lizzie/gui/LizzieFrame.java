@@ -20,6 +20,7 @@ import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -112,11 +113,14 @@ public class LizzieFrame extends JFrame {
         variationTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
-        // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
-        setSize(657, 687);
         setMinimumSize( new Dimension(640,480) );        
         setLocationRelativeTo(null); // start centered
-        setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
+        JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
+        setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
+
+        if (Lizzie.config.startMaximized) {
+            setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
+        }
 
         setVisible(true);
 
