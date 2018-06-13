@@ -83,7 +83,7 @@ public class Leelaz {
             updateToLatestNetwork();
         }
 
-        String startfolder = Config.getBestDefaultLeelazPath(); // todo make this a little more obvious/less bug-prone
+        String startfolder = new File(Config.getBestDefaultLeelazPath()).getParent(); // todo make this a little more obvious/less bug-prone
 
         // Check if network file is present
         File wf = new File(startfolder + '/' + config.getString("network-file"));
