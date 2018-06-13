@@ -1056,16 +1056,24 @@ public class Board implements LeelazListener {
     }
 
     public void autosave() {
-        autosaveToMemory();
-        try {
-            Lizzie.config.persist();
-        } catch (IOException err) {}
+        if (autosaveToMemory()) {
+            try {
+                Lizzie.config.persist();
+            } catch (IOException err) {}
+        }
     }
 
-    public void autosaveToMemory() {
+    public boolean autosaveToMemory() {
         try {
-            Lizzie.config.persisted.put("autosave", SGFParser.saveToString());
-        } catch (IOException err) {}
+            String sgf = SGFParser.saveToString();
+            if (sgf.equals(Lizzie.config.persisted.getString("autosave"))) {
+                return false;
+            }
+            Lizzie.config.persisted.put("autosave", sgf);
+        } catch (Exception err) { // IOException or JSONException
+            return false;
+        }
+        return true;
     }
 
     public void resumePreviousGame() {
