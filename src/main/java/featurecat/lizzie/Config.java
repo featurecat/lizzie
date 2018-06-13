@@ -257,6 +257,7 @@ public class Config {
         ui.put("large-subboard", false);
         ui.put("win-rate-always-black", false);
         ui.put("confirm-exit", false);
+        ui.put("resume-previous-game", false);
         ui.put("handicap-instead-of-winrate",false);
         ui.put("board-size", 19);
         ui.put("window-size", new JSONArray("[1024, 768]"));

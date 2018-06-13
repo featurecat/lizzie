@@ -4,6 +4,7 @@ import org.json.JSONException;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.plugin.PluginManager;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.gui.LizzieFrame;
 import org.json.JSONObject;
 
@@ -57,6 +58,9 @@ public class Lizzie {
                 if(config.handicapInsteadOfWinrate) {
                 	leelaz.estimatePassWinrate();
                 }
+                if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+                    board.resumePreviousGame();
+                }
                 leelaz.togglePonder();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -73,6 +77,9 @@ public class Lizzie {
             if (ret == JOptionPane.OK_OPTION) {
                 LizzieFrame.saveSgf();
             }
+        }
+        if (board != null) {
+            board.autosaveToMemory();
         }
 
         try {

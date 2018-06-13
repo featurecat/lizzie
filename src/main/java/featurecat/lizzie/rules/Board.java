@@ -4,12 +4,15 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.LeelazListener;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.rules.SGFParser;
 
+import java.io.IOException;
 import javax.swing.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Queue;
 import java.util.List;
+import org.json.JSONException;
 
 public class Board implements LeelazListener {
     public static final int BOARD_SIZE = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
@@ -1050,5 +1053,25 @@ public class Board implements LeelazListener {
                 }
             }
         }
+    }
+
+    public void autosave() {
+        autosaveToMemory();
+        try {
+            Lizzie.config.persist();
+        } catch (IOException err) {}
+    }
+
+    public void autosaveToMemory() {
+        try {
+            Lizzie.config.persisted.put("autosave", SGFParser.saveToString());
+        } catch (IOException err) {}
+    }
+
+    public void resumePreviousGame() {
+        try {
+            SGFParser.loadFromString(Lizzie.config.persisted.getString("autosave"));
+            while (nextMove()) ;
+        } catch (JSONException err) {}
     }
 }
