@@ -92,6 +92,8 @@ public class LizzieFrame extends JFrame {
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
+    private long lastAutosaveTime = System.currentTimeMillis();
+
     static {
         // load fonts
         try {
@@ -252,6 +254,7 @@ public class LizzieFrame extends JFrame {
      * @param g0 not used
      */
     public void paint(Graphics g0) {
+        autosaveMaybe();
         if (bs == null)
             return;
 
@@ -832,6 +835,15 @@ public class LizzieFrame extends JFrame {
             if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
                 repaint();
             }
+        }
+    }
+
+    private void autosaveMaybe() {
+        int interval = Lizzie.config.config.getJSONObject("ui").getInt("autosave-interval-seconds") * 1000;
+        long currentTime = System.currentTimeMillis();
+        if (interval > 0 && currentTime - lastAutosaveTime >= interval) {
+            Lizzie.board.autosave();
+            lastAutosaveTime = currentTime;
         }
     }
 
