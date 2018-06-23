@@ -72,7 +72,7 @@ public class SGFParser {
         StringBuilder tagContentBuilder = new StringBuilder();
         // MultiGo 's branch: (Main Branch (Main Branch) (Branch) )
         // Other 's branch: (Main Branch (Branch) Main Branch)
-        if (value.matches("(?m)(?s).*\\)\\s*\\)")) {
+        if (value.matches("(?s).*\\)\\s*\\)")) {
             isMultiGo = true;
         }
 
