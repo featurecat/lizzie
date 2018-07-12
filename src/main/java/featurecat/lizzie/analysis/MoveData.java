@@ -22,13 +22,30 @@ public class MoveData implements Comparable<MoveData> {
         String[] data = line.trim().split(" ");
 
         // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
-        coordinate = data[1];
-        playouts = Integer.parseInt(data[3]);
-        winrate = Integer.parseInt(data[5])/100.0;
-        order = Integer.parseInt(data[7]);
 
-        variation = new ArrayList<>(Arrays.asList(data));
-        variation = variation.subList(9, variation.size());
+        for (int i=0; i<data.length; i++) {
+            String key = data[i];
+            if (key.equals("pv")) {
+                //read variation to the end of line
+                variation = new ArrayList<>(Arrays.asList(data));
+                variation = variation.subList(i+1, data.length);
+                break;
+            } else {
+                String value = data[++i];
+                if (key.equals("move")) {
+                    coordinate = value;
+                }
+                if (key.equals("visits")) {
+                    playouts =  Integer.parseInt(value);
+                }
+                if (key.equals("winrate")) {
+                    winrate = Integer.parseInt(value)/100.0;
+                }
+                if (key.equals("order")) {
+                    order = Integer.parseInt(value);
+                }
+            }
+        }
     }
 
     public int compareTo(MoveData b) {
