@@ -322,6 +322,12 @@ public class LizzieFrame extends JFrame {
             int ponderingY = boardY + (int) (maxSize*0.93);
             double ponderingSize = .02;
 
+            // dynamic komi
+            int dynamicKomiX = this.getInsets().left;
+            int dynamicKomiY = boardY + (int) (maxSize*0.86);
+            double dynamicKomiSize = .02;
+
+
             // loading message
             int loadingX = ponderingX;
             int loadingY = ponderingY;
@@ -388,6 +394,10 @@ public class LizzieFrame extends JFrame {
                     drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
                             (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
                             ponderingX, ponderingY, ponderingSize);
+                }
+
+                if (Lizzie.leelaz.getDynamicKomi() != null) {
+                    drawPonderingState(g, Lizzie.leelaz.getDynamicKomi(), dynamicKomiX, dynamicKomiY, dynamicKomiSize);
                 }
 
                 // Todo: Make board move over when there is no space beside the board
