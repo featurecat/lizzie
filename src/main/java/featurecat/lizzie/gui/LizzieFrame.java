@@ -115,7 +115,7 @@ public class LizzieFrame extends JFrame {
         variationTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
-        setMinimumSize( new Dimension(640,480) );        
+        setMinimumSize( new Dimension(640,480) );
         setLocationRelativeTo(null); // start centered
         JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
         setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
@@ -408,7 +408,8 @@ public class LizzieFrame extends JFrame {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"), loadingX, loadingY, loadingSize);
             }
 
-            drawCaptured(g, capx, capy, capw, caph);
+            if (Lizzie.config.showCaptured)
+                drawCaptured(g, capx, capy, capw, caph);
 
             // cleanup
             g.dispose();
