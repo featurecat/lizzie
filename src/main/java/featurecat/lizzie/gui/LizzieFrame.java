@@ -185,7 +185,7 @@ public class LizzieFrame extends JFrame {
         gameInfoDialog.dispose();
     }
 
-    public static void saveSgf() {
+    public static void saveFile() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -207,12 +207,12 @@ public class LizzieFrame extends JFrame {
                 SGFParser.save(Lizzie.board, file.getPath());
                 filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToSaveSgf"), "Error", JOptionPane.ERROR);
+                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedTosaveFile"), "Error", JOptionPane.ERROR);
             }
         }
     }
 
-    public static void openSgf() {
+    public static void openFile() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -220,23 +220,26 @@ public class LizzieFrame extends JFrame {
         chooser.setFileFilter(filter);
         chooser.setMultiSelectionEnabled(false);
         int result = chooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
-            if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
-                file = new File(file.getPath() + ".sgf");
-            }
-            try {
-                System.out.println(file.getPath());
-                if (file.getPath().endsWith(".sgf")) {
-                    SGFParser.load(file.getPath());
-                } else {
-                    GIBParser.load(file.getPath());
-                }
-                filesystem.put("last-folder", file.getParent());
-            } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
-            }
-        }
+        if (result == JFileChooser.APPROVE_OPTION)
+          loadFile(chooser.getSelectedFile());
+    }
+
+    public static void loadFile(File file) {
+      JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
+      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
+          file = new File(file.getPath() + ".sgf");
+      }
+      try {
+          System.out.println(file.getPath());
+          if (file.getPath().endsWith(".sgf")) {
+              SGFParser.load(file.getPath());
+          } else {
+              GIBParser.load(file.getPath());
+          }
+          filesystem.put("last-folder", file.getParent());
+      } catch (IOException err) {
+          JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenFile"), "Error", JOptionPane.ERROR);
+      }
     }
 
     private BufferedImage cachedImage = null;

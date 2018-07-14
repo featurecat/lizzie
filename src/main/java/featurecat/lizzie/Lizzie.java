@@ -58,7 +58,9 @@ public class Lizzie {
                 if(config.handicapInsteadOfWinrate) {
                 	leelaz.estimatePassWinrate();
                 }
-                if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+                if (args.length == 1) {
+                    frame.loadFile(new File(args[0]));
+                } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
                     board.resumePreviousGame();
                 }
                 leelaz.togglePonder();
@@ -67,7 +69,7 @@ public class Lizzie {
             }
         }).start();
 
-        
+
     }
 
     public static void shutdown() {
@@ -75,7 +77,7 @@ public class Lizzie {
         if (board != null && config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
             int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
             if (ret == JOptionPane.OK_OPTION) {
-                LizzieFrame.saveSgf();
+                LizzieFrame.saveFile();
             }
         }
         if (board != null) {

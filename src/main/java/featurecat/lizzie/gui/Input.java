@@ -195,7 +195,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     undo();
                 }
                 break;
-                
+
             case VK_PAGE_DOWN:
                 if (controlIsPressed(e) && e.isShiftDown()) {
                     Lizzie.frame.increaseMaxAlpha(-5);
@@ -247,7 +247,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_H:
                 Lizzie.config.toggleHandicapInsteadOfWinrate();
                 break;
-                
+
             case VK_PAGE_UP:
                 if (controlIsPressed(e) && e.isShiftDown()) {
                     Lizzie.frame.increaseMaxAlpha(5);
@@ -266,13 +266,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                LizzieFrame.saveSgf();
+                LizzieFrame.saveFile();
                 break;
 
             case VK_O:
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                LizzieFrame.openSgf();
+                LizzieFrame.openFile();
                 break;
 
             case VK_V:
