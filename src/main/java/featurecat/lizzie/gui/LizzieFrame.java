@@ -411,7 +411,8 @@ public class LizzieFrame extends JFrame {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"), loadingX, loadingY, loadingSize);
             }
 
-            drawCaptured(g, capx, capy, capw, caph);
+            if (Lizzie.config.showCaptured)
+                drawCaptured(g, capx, capy, capw, caph);
 
             // cleanup
             g.dispose();
