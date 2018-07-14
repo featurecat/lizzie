@@ -18,6 +18,7 @@ public class Config {
     public boolean showRawBoard = false;
     public boolean handicapInsteadOfWinrate = false;
 
+    public boolean showStatus = true;
     public boolean showBranch = true;
     public boolean showBestMoves = true;
     public boolean showNextMoves = true;
@@ -133,6 +134,7 @@ public class Config {
         uiConfig = config.getJSONObject("ui");
 
         showMoveNumber = uiConfig.getBoolean("show-move-number");
+        showStatus = uiConfig.getBoolean("show-status");
         showBranch = uiConfig.getBoolean("show-leelaz-variation");
         showWinrate = uiConfig.getBoolean("show-winrate");
         showVariationGraph = uiConfig.getBoolean("show-variation-graph");
@@ -248,6 +250,7 @@ public class Config {
         ui.put("fancy-board", true);
         ui.put("shadow-size", 100);
         ui.put("show-move-number", false);
+        ui.put("show-status", true);
         ui.put("show-leelaz-variation", true);
         ui.put("show-winrate", true);
         ui.put("show-variation-graph", true);

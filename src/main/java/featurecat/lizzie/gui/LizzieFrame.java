@@ -115,7 +115,7 @@ public class LizzieFrame extends JFrame {
         variationTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
-        setMinimumSize( new Dimension(640,480) );        
+        setMinimumSize( new Dimension(640,480) );
         setLocationRelativeTo(null); // start centered
         JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
         setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
@@ -373,16 +373,19 @@ public class LizzieFrame extends JFrame {
             cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = (Graphics2D) cachedImage.getGraphics();
 
-            drawCommandString(g);
+            if (Lizzie.config.showStatus)
+                drawCommandString(g);
 
             boardRenderer.setLocation(boardX, boardY);
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
             if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
-                        (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
-                        ponderingX, ponderingY, ponderingSize);
+                if (Lizzie.config.showStatus) {
+                    drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
+                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
+                            ponderingX, ponderingY, ponderingSize);
+                }
 
                 // Todo: Make board move over when there is no space beside the board
                 if (Lizzie.config.showWinrate) {
@@ -404,7 +407,7 @@ public class LizzieFrame extends JFrame {
                         // This can happen when no space is left for subboard.
                     }
                 }
-            } else {
+            } else if (Lizzie.config.showStatus) {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"), loadingX, loadingY, loadingSize);
             }
 
