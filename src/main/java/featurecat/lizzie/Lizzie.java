@@ -58,7 +58,9 @@ public class Lizzie {
                 if(config.handicapInsteadOfWinrate) {
                 	leelaz.estimatePassWinrate();
                 }
-                if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+                if (args.length == 1) {
+                    frame.loadFile(new File(args[0]));
+                } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
                     board.resumePreviousGame();
                 }
                 leelaz.togglePonder();
