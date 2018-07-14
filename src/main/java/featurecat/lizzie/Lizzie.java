@@ -67,7 +67,7 @@ public class Lizzie {
             }
         }).start();
 
-        
+
     }
 
     public static void shutdown() {
@@ -75,7 +75,7 @@ public class Lizzie {
         if (board != null && config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
             int ret = JOptionPane.showConfirmDialog(null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
             if (ret == JOptionPane.OK_OPTION) {
-                LizzieFrame.saveSgf();
+                LizzieFrame.saveFile();
             }
         }
         if (board != null) {

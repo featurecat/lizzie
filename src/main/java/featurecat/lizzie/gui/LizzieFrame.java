@@ -115,7 +115,7 @@ public class LizzieFrame extends JFrame {
         variationTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
-        setMinimumSize( new Dimension(640,480) );        
+        setMinimumSize( new Dimension(640,480) );
         setLocationRelativeTo(null); // start centered
         JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
         setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
@@ -185,7 +185,7 @@ public class LizzieFrame extends JFrame {
         gameInfoDialog.dispose();
     }
 
-    public static void saveSgf() {
+    public static void saveFile() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -207,12 +207,12 @@ public class LizzieFrame extends JFrame {
                 SGFParser.save(Lizzie.board, file.getPath());
                 filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToSaveSgf"), "Error", JOptionPane.ERROR);
+                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedTosaveFile"), "Error", JOptionPane.ERROR);
             }
         }
     }
 
-    public static void openSgf() {
+    public static void openFile() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -234,7 +234,7 @@ public class LizzieFrame extends JFrame {
                 }
                 filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
+                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenFile"), "Error", JOptionPane.ERROR);
             }
         }
     }
