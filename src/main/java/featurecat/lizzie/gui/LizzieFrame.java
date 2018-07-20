@@ -323,8 +323,11 @@ public class LizzieFrame extends JFrame {
             double ponderingSize = .02;
 
             // dynamic komi
+            int dynamicKomiLabelX = this.getInsets().left;
+            int dynamicKomiLabelY = boardY + (int) (maxSize*0.86);
+
             int dynamicKomiX = this.getInsets().left;
-            int dynamicKomiY = boardY + (int) (maxSize*0.86);
+            int dynamicKomiY = boardY + (int) (maxSize*0.89);
             double dynamicKomiSize = .02;
 
 
@@ -397,6 +400,7 @@ public class LizzieFrame extends JFrame {
                 }
 
                 if (Lizzie.leelaz.getDynamicKomi() != null) {
+                    drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.dynamic-komi"), dynamicKomiLabelX, dynamicKomiLabelY, dynamicKomiSize);
                     drawPonderingState(g, Lizzie.leelaz.getDynamicKomi(), dynamicKomiX, dynamicKomiY, dynamicKomiSize);
                 }
 
