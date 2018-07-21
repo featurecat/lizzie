@@ -160,6 +160,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         return e.isControlDown() || (mac && e.isMetaDown());
     }
 
+    private void toggleShowDynamicKomi() {
+        Lizzie.config.showDynamicKomi = !Lizzie.config.showDynamicKomi;
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -356,6 +360,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 {
                     Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
                 }
+                break;
+
+            case VK_D:
+                toggleShowDynamicKomi();
                 break;
 
             default:

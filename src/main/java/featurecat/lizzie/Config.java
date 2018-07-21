@@ -18,6 +18,7 @@ public class Config {
     public boolean showRawBoard = false;
     public boolean showCaptured = true;
     public boolean handicapInsteadOfWinrate = false;
+    public boolean showDynamicKomi = true;
 
     public boolean showStatus = true;
     public boolean showBranch = true;
@@ -146,6 +147,7 @@ public class Config {
         largeSubBoard = uiConfig.getBoolean("large-subboard");
         handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
         startMaximized = uiConfig.getBoolean("window-maximized");
+        showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     }
 
     // Modifies config by adding in values from default_config that are missing.
@@ -269,6 +271,7 @@ public class Config {
         ui.put("board-size", 19);
         ui.put("window-size", new JSONArray("[1024, 768]"));
         ui.put("window-maximized", false);
+        ui.put("show-dynamic-komi", true);
 
         config.put("ui", ui);
         return config;
