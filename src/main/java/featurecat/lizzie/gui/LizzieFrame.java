@@ -35,6 +35,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -322,6 +323,15 @@ public class LizzieFrame extends JFrame {
             int ponderingY = boardY + (int) (maxSize*0.93);
             double ponderingSize = .02;
 
+            // dynamic komi
+            int dynamicKomiLabelX = this.getInsets().left;
+            int dynamicKomiLabelY = boardY + (int) (maxSize*0.86);
+
+            int dynamicKomiX = this.getInsets().left;
+            int dynamicKomiY = boardY + (int) (maxSize*0.89);
+            double dynamicKomiSize = .02;
+
+
             // loading message
             int loadingX = ponderingX;
             int loadingY = ponderingY;
@@ -388,6 +398,11 @@ public class LizzieFrame extends JFrame {
                     drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
                             (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
                             ponderingX, ponderingY, ponderingSize);
+                }
+
+                if (Lizzie.config.showDynamicKomi && Lizzie.leelaz.getDynamicKomi() != null) {
+                    drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.dynamic-komi"), dynamicKomiLabelX, dynamicKomiLabelY, dynamicKomiSize);
+                    drawPonderingState(g, Lizzie.leelaz.getDynamicKomi(), dynamicKomiX, dynamicKomiY, dynamicKomiSize);
                 }
 
                 // Todo: Make board move over when there is no space beside the board
@@ -517,17 +532,22 @@ public class LizzieFrame extends JFrame {
         // redraw background
         createBackground();
 
+        List<String> commandsToShow = new ArrayList<>(Arrays.asList(commands));
+        if (Lizzie.leelaz.getDynamicKomi() != null) {
+            commandsToShow.add(resourceBundle.getString("LizzieFrame.commands.keyD"));
+        }
+
         Graphics2D g = cachedImage.createGraphics();
 
         int maxSize = Math.min(getWidth(), getHeight());
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
         g.setFont(font);
         FontMetrics metrics = g.getFontMetrics(font);
-        int maxCommandWidth = Arrays.asList(commands).stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
+        int maxCommandWidth = commandsToShow.stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
         int lineHeight = (int) (font.getSize() * 1.15);
 
         int boxWidth = Util.clamp((int) (maxCommandWidth * 1.4), 0, getWidth());
-        int boxHeight = Util.clamp(commands.length * lineHeight, 0, getHeight());
+        int boxHeight = Util.clamp(commandsToShow.size() * lineHeight, 0, getHeight());
 
         int commandsX = Util.clamp(getWidth() / 2 - boxWidth / 2, 0, getWidth());
         int commandsY = Util.clamp(getHeight() / 2 - boxHeight / 2, 0, getHeight());
@@ -553,10 +573,12 @@ public class LizzieFrame extends JFrame {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.setColor(Color.WHITE);
-        for (int i = 0; i < commands.length; i++) {
-            String[] split = commands[i].split("\\|");
-            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
-            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
+        int lineOffset = commandsY;
+        for (String command : commandsToShow) {
+            String[] split = command.split("\\|");
+            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + lineOffset);
+            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + lineOffset);
+            lineOffset += lineHeight;
         }
 
         refreshBackground();

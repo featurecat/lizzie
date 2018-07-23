@@ -60,6 +60,8 @@ public class Leelaz {
     private boolean isLoaded = false;
     private boolean isCheckingVersion;
 
+    // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
+    private float dynamicKomi = Float.NaN, dynamicOppKomi = Float.NaN;
     /**
      * Initializes the leelaz process and starts reading output
      *
@@ -180,7 +182,25 @@ public class Leelaz {
      */
     private void parseLine(String line) {
         synchronized (this) {
-            if (line.equals("\n")) {
+            if (line.startsWith("komi="))
+            {
+                try {
+                    dynamicKomi = Float.parseFloat(line.substring("komi=".length()).trim());
+                }
+                catch (NumberFormatException nfe) {
+                    dynamicKomi = Float.NaN;
+                }
+            }
+            else if (line.startsWith("opp_komi="))
+            {
+                try {
+                    dynamicOppKomi = Float.parseFloat(line.substring("opp_komi=".length()).trim());
+                }
+                catch (NumberFormatException nfe) {
+                    dynamicOppKomi = Float.NaN;
+                }
+            }
+            else if (line.equals("\n")) {
                 // End of response
             } else if (line.startsWith("info")) {
                 isLoaded = true;
@@ -423,6 +443,13 @@ public class Leelaz {
         synchronized (this) {
             return bestMoves;
         }
+    }
+
+    public String getDynamicKomi() {
+        if (Float.isNaN(dynamicKomi) || Float.isNaN(dynamicOppKomi)) {
+            return null;
+        }
+        return String.format("%.1f / %.1f", dynamicKomi, dynamicOppKomi);
     }
 
     public boolean isPondering() {
