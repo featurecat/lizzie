@@ -272,6 +272,7 @@ public class Config {
         ui.put("window-size", new JSONArray("[1024, 768]"));
         ui.put("window-maximized", false);
         ui.put("show-dynamic-komi", true);
+        ui.put("min-playout-ratio-for-stats", 0.0);
 
         config.put("ui", ui);
         return config;
