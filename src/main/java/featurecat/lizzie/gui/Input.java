@@ -160,6 +160,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         return e.isControlDown() || (mac && e.isMetaDown());
     }
 
+    private void toggleShowDynamicKomi() {
+        Lizzie.config.showDynamicKomi = !Lizzie.config.showDynamicKomi;
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
 
@@ -195,9 +199,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                     undo();
                 }
                 break;
-                
+
             case VK_PAGE_DOWN:
-                redo(10);
+                if (controlIsPressed(e) && e.isShiftDown()) {
+                    Lizzie.frame.increaseMaxAlpha(-5);
+                } else {
+                    redo(10);
+                }
                 break;
 
             case VK_DOWN:
@@ -243,9 +251,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             case VK_H:
                 Lizzie.config.toggleHandicapInsteadOfWinrate();
                 break;
-                
+
             case VK_PAGE_UP:
-                undo(10);
+                if (controlIsPressed(e) && e.isShiftDown()) {
+                    Lizzie.frame.increaseMaxAlpha(5);
+                } else {
+                    undo(10);
+                }
                 break;
 
             case VK_I:
@@ -258,13 +270,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 // stop the ponder
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                LizzieFrame.saveSgf();
+                LizzieFrame.saveFile();
                 break;
 
             case VK_O:
                 if (Lizzie.leelaz.isPondering())
                     Lizzie.leelaz.togglePonder();
-                LizzieFrame.openSgf();
+                LizzieFrame.openFile();
                 break;
 
             case VK_V:
@@ -348,6 +360,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 {
                     Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
                 }
+                break;
+
+            case VK_D:
+                toggleShowDynamicKomi();
                 break;
 
             default:

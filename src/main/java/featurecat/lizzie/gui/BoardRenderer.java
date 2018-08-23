@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Branch;
@@ -30,7 +31,7 @@ public class BoardRenderer {
     private int x, y;
     private int boardLength;
 
-    private JSONObject uiConfig;
+    private JSONObject uiConfig, uiPersist;
 
     private int scaledMargin, availableLength, squareLength, stoneRadius;
     private Branch branch;
@@ -61,12 +62,18 @@ public class BoardRenderer {
     private boolean showingBranch = false;
     private boolean isMainBoard = false;
 
+    private int maxAlpha = 240;
+
     public BoardRenderer(boolean isMainBoard) {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
         theme = ITheme.loadTheme(uiConfig.getString("theme"));
         if (theme == null) {
             theme = new DefaultTheme();
         }
+        uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
+        try {
+            maxAlpha = uiPersist.getInt("max-alpha");
+        } catch (JSONException e) {}
         this.isMainBoard = isMainBoard;
     }
 
@@ -496,12 +503,10 @@ public class BoardRenderer {
             return;
 
         final int MIN_ALPHA = 32;
-        final int MIN_ALPHA_TO_DISPLAY_TEXT = 64;
-        final int MAX_ALPHA = 240;
         final double HUE_SCALING_FACTOR = 3.0;
         final double ALPHA_SCALING_FACTOR = 5.0;
-        final float GREEN_HUE = Color.RGBtoHSB(0,1,0,null)[0];
-        final float CYAN_HUE = Color.RGBtoHSB(0,1,1,null)[0];
+        final float GREEN_HUE = Color.RGBtoHSB(0, 1, 0, null)[0];
+        final float CYAN_HUE = Color.RGBtoHSB(0, 1, 1, null)[0];
 
         if (!bestMoves.isEmpty()) {
 
@@ -535,6 +540,7 @@ public class BoardRenderer {
                         continue;
 
                     boolean isBestMove = bestMoves.get(0) == move;
+                    boolean hasMaxWinrate = move.winrate == maxWinrate;
 
                     if (move.playouts == 0) // this actually can happen
                         continue;
@@ -550,7 +556,7 @@ public class BoardRenderer {
                     float hue = isBestMove ? CYAN_HUE : (float) (-GREEN_HUE * Math.max(0, Math.log(percentPlayouts) / HUE_SCALING_FACTOR + 1));
                     float saturation = 0.75f; //saturation
                     float brightness = 0.85f; //brightness
-                    int alpha = (int) (MIN_ALPHA + (MAX_ALPHA - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
+                    int alpha = (int) (MIN_ALPHA + (maxAlpha - MIN_ALPHA) * Math.max(0, Math.log(percentPlayouts) /
                             ALPHA_SCALING_FACTOR + 1));
 //                    if (uiConfig.getBoolean("shadows-enabled"))
 //                        alpha = 255;
@@ -566,7 +572,7 @@ public class BoardRenderer {
 
                     if (branch == null || (isBestMove && Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
                         int strokeWidth = 1;
-                        if (isBestMove != (move.winrate == maxWinrate)) {
+                        if (isBestMove != hasMaxWinrate) {
                             strokeWidth = 2;
                             g.setColor(isBestMove ? Color.RED : Color.BLUE);
                             g.setStroke(new BasicStroke(strokeWidth));
@@ -578,7 +584,8 @@ public class BoardRenderer {
                     }
 
 
-                    if (branch == null && alpha >= MIN_ALPHA_TO_DISPLAY_TEXT || (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
+                    if ((branch == null && (hasMaxWinrate || percentPlayouts >= uiConfig.getDouble("min-playout-ratio-for-stats"))) ||
+                        (Lizzie.frame.mouseHoverCoordinate != null && coordinates[0] == Lizzie.frame.mouseHoverCoordinate[0] && coordinates[1] == Lizzie.frame.mouseHoverCoordinate[1])) {
                         double roundedWinrate = Math.round(move.winrate * 10) / 10.0;
                         if (uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay) {
                            roundedWinrate = 100.0 - roundedWinrate;
@@ -1001,5 +1008,10 @@ public class BoardRenderer {
 
     private boolean showCoordinates() {
         return isMainBoard && Lizzie.frame.showCoordinates;
+    }
+
+    public void increaseMaxAlpha(int k) {
+        maxAlpha = Math.min(maxAlpha + k, 255);
+        uiPersist.put("max-alpha", maxAlpha);
     }
 }

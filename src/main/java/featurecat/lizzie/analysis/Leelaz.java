@@ -1,5 +1,6 @@
 package featurecat.lizzie.analysis;
 
+import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.Util;
 import org.json.JSONArray;
@@ -33,6 +34,7 @@ public class Leelaz {
     private long maxAnalyzeTimeMillis;//, maxThinkingTimeMillis;
     private int cmdNumber;
     private int currentCmdNum;
+    private ArrayDeque<String> cmdQueue;
 
     private Process process;
 
@@ -58,6 +60,8 @@ public class Leelaz {
     private boolean isLoaded = false;
     private boolean isCheckingVersion;
 
+    // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
+    private float dynamicKomi = Float.NaN, dynamicOppKomi = Float.NaN;
     /**
      * Initializes the leelaz process and starts reading output
      *
@@ -71,7 +75,8 @@ public class Leelaz {
         isPondering = false;
         startPonderTime = System.currentTimeMillis();
         cmdNumber = 1;
-        currentCmdNum = -1;
+        currentCmdNum = 0;
+        cmdQueue = new ArrayDeque<>();
 
         JSONObject config = Lizzie.config.config.getJSONObject("leelaz");
 
@@ -82,6 +87,15 @@ public class Leelaz {
             updateToLatestNetwork();
         }
 
+        String startfolder = new File(Config.getBestDefaultLeelazPath()).getParent(); // todo make this a little more obvious/less bug-prone
+
+        // Check if network file is present
+        File wf = new File(startfolder + '/' + config.getString("network-file"));
+        if (!wf.exists()) {
+            JOptionPane.showMessageDialog(null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+        }
+
+
         // command string for starting the engine
         String engineCommand = config.getString("engine-command");
         // substitute in the weights file
@@ -91,7 +105,7 @@ public class Leelaz {
 
         // run leelaz
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.directory(new File(config.optString("engine-start-location", ".")));
+        processBuilder.directory(new File(startfolder));
         processBuilder.redirectErrorStream(true);
         process = processBuilder.start();
 
@@ -123,23 +137,7 @@ public class Leelaz {
     }
 
     private String getBestNetworkHash() throws IOException {
-        // finds a valid network hash
-        Pattern networkHashFinder = Pattern.compile("(?<=/networks/)[a-f0-9]+");
-
-        String networks = null;
-        try {
-            networks = Util.downloadAsString(new URL(baseURL + "/network-profiles"));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        if (networks == null) {
-            throw new IOException("Could not determine the best network URL");
-        }
-        Matcher m = networkHashFinder.matcher(networks);
-        // get the first match - this will be the best network.
-        m.find();
-
-        return m.group(0);
+        return Util.downloadAsString(new URL(baseURL + "/best-network-hash")).split("\n")[0];
     }
 
     private boolean needToDownloadLatestNetwork() throws IOException {
@@ -184,11 +182,29 @@ public class Leelaz {
      */
     private void parseLine(String line) {
         synchronized (this) {
-            if (line.equals("\n")) {
+            if (line.startsWith("komi="))
+            {
+                try {
+                    dynamicKomi = Float.parseFloat(line.substring("komi=".length()).trim());
+                }
+                catch (NumberFormatException nfe) {
+                    dynamicKomi = Float.NaN;
+                }
+            }
+            else if (line.startsWith("opp_komi="))
+            {
+                try {
+                    dynamicOppKomi = Float.parseFloat(line.substring("opp_komi=".length()).trim());
+                }
+                catch (NumberFormatException nfe) {
+                    dynamicOppKomi = Float.NaN;
+                }
+            }
+            else if (line.equals("\n")) {
                 // End of response
             } else if (line.startsWith("info")) {
                 isLoaded = true;
-                if (currentCmdNum == cmdNumber - 1) {
+                if (isResponseUpToDate()) {
                     // This should not be stale data when the command number match
                     parseInfo(line.substring(5));
                     notifyBestMoveListeners();
@@ -205,18 +221,20 @@ public class Leelaz {
                 }
                 isThinking = false;
 
-            } else if (Lizzie.frame != null && line.startsWith("=")) {
+            } else if (Lizzie.frame != null && (line.startsWith("=") || line.startsWith("?"))) {
                 if (printCommunication) {
                     System.out.print(line);
                 }
                 String[] params = line.trim().split(" ");
                 currentCmdNum = Integer.parseInt(params[0].substring(1).trim());
 
-                if (params.length == 1) return;
+                trySendCommandFromQueue();
+
+                if (line.startsWith("?") || params.length == 1) return;
 
 
                 if (isSettingHandicap) {
-                    for (int i = 2; i < params.length; i++) {
+                    for (int i = 1; i < params.length; i++) {
                         int[] coordinates = Lizzie.board.convertNameToCoordinates(params[i]);
                         Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
                     }
@@ -284,24 +302,69 @@ public class Leelaz {
     }
 
     /**
-     * Sends a command for leelaz to execute
+     * Sends a command to command queue for leelaz to execute
      *
      * @param command a GTP command containing no newline characters
      */
     public void sendCommand(String command) {
+        synchronized(cmdQueue) {
+            String lastCommand = cmdQueue.peekLast();
+            // For efficiency, delete unnecessary "lz-analyze" that will be stopped immediately
+            if (lastCommand != null && lastCommand.startsWith("lz-analyze")) {
+                cmdQueue.removeLast();
+            }
+            cmdQueue.addLast(command);
+            trySendCommandFromQueue();
+        }
+    }
+
+    /**
+     * Sends a command from command queue for leelaz to execute if it is ready
+     */
+    private void trySendCommandFromQueue() {
+        // Defer sending "lz-analyze" if leelaz is not ready yet.
+        // Though all commands should be deferred theoretically,
+        // only "lz-analyze" is differed here for fear of
+        // possible hang-up by missing response for some reason.
+        // cmdQueue can be replaced with a mere String variable in this case,
+        // but it is kept for future change of our mind.
+        synchronized(cmdQueue) {
+            String command = cmdQueue.peekFirst();
+            if (command == null || (command.startsWith("lz-analyze") && !isResponseUpToDate())) {
+                return;
+            }
+            cmdQueue.removeFirst();
+            sendCommandToLeelaz(command);
+        }
+    }
+
+    /**
+     * Sends a command for leelaz to execute
+     *
+     * @param command a GTP command containing no newline characters
+     */
+    private void sendCommandToLeelaz(String command) {
+        if (command.startsWith("fixed_handicap"))
+            isSettingHandicap = true;
         command = cmdNumber + " " + command;
         cmdNumber++;
         if (printCommunication) {
             System.out.printf("> %s\n", command);
         }
-        if (command.startsWith("fixed_handicap"))
-            isSettingHandicap = true;
         try {
             outputStream.write((command + "\n").getBytes());
             outputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Check whether leelaz is responding to the last command
+     */
+    private boolean isResponseUpToDate() {
+        // Use >= instead of == for avoiding hang-up, though it cannot happen
+        return currentCmdNum >= cmdNumber - 1;
     }
 
     /**
@@ -380,6 +443,13 @@ public class Leelaz {
         synchronized (this) {
             return bestMoves;
         }
+    }
+
+    public String getDynamicKomi() {
+        if (Float.isNaN(dynamicKomi) || Float.isNaN(dynamicOppKomi)) {
+            return null;
+        }
+        return String.format("%.1f / %.1f", dynamicKomi, dynamicOppKomi);
     }
 
     public boolean isPondering() {

@@ -20,6 +20,7 @@ import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -34,6 +35,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -91,6 +93,8 @@ public class LizzieFrame extends JFrame {
     // Get the font name in current system locale
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
+    private long lastAutosaveTime = System.currentTimeMillis();
+
     static {
         // load fonts
         try {
@@ -112,11 +116,14 @@ public class LizzieFrame extends JFrame {
         variationTree = new VariationTree();
         winrateGraph = new WinrateGraph();
 
-        // on 1080p screens in Windows, this is a good width/height. removing a default size causes problems in Linux
-        setSize(657, 687);
-        setMinimumSize( new Dimension(640,480) );        
+        setMinimumSize( new Dimension(640,480) );
         setLocationRelativeTo(null); // start centered
-        setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
+        JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
+        setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
+
+        if (Lizzie.config.startMaximized) {
+            setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
+        }
 
         setVisible(true);
 
@@ -179,7 +186,7 @@ public class LizzieFrame extends JFrame {
         gameInfoDialog.dispose();
     }
 
-    public static void saveSgf() {
+    public static void saveFile() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -201,12 +208,12 @@ public class LizzieFrame extends JFrame {
                 SGFParser.save(Lizzie.board, file.getPath());
                 filesystem.put("last-folder", file.getParent());
             } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToSaveSgf"), "Error", JOptionPane.ERROR);
+                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedTosaveFile"), "Error", JOptionPane.ERROR);
             }
         }
     }
 
-    public static void openSgf() {
+    public static void openFile() {
         FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
         JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
         JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -214,23 +221,26 @@ public class LizzieFrame extends JFrame {
         chooser.setFileFilter(filter);
         chooser.setMultiSelectionEnabled(false);
         int result = chooser.showOpenDialog(null);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            File file = chooser.getSelectedFile();
-            if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
-                file = new File(file.getPath() + ".sgf");
-            }
-            try {
-                System.out.println(file.getPath());
-                if (file.getPath().endsWith(".sgf")) {
-                    SGFParser.load(file.getPath());
-                } else {
-                    GIBParser.load(file.getPath());
-                }
-                filesystem.put("last-folder", file.getParent());
-            } catch (IOException err) {
-                JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenSgf"), "Error", JOptionPane.ERROR);
-            }
-        }
+        if (result == JFileChooser.APPROVE_OPTION)
+          loadFile(chooser.getSelectedFile());
+    }
+
+    public static void loadFile(File file) {
+      JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
+      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
+          file = new File(file.getPath() + ".sgf");
+      }
+      try {
+          System.out.println(file.getPath());
+          if (file.getPath().endsWith(".sgf")) {
+              SGFParser.load(file.getPath());
+          } else {
+              GIBParser.load(file.getPath());
+          }
+          filesystem.put("last-folder", file.getParent());
+      } catch (IOException err) {
+          JOptionPane.showConfirmDialog(null, resourceBundle.getString("LizzieFrame.prompt.failedToOpenFile"), "Error", JOptionPane.ERROR);
+      }
     }
 
     private BufferedImage cachedImage = null;
@@ -248,6 +258,7 @@ public class LizzieFrame extends JFrame {
      * @param g0 not used
      */
     public void paint(Graphics g0) {
+        autosaveMaybe();
         if (bs == null)
             return;
 
@@ -312,6 +323,15 @@ public class LizzieFrame extends JFrame {
             int ponderingY = boardY + (int) (maxSize*0.93);
             double ponderingSize = .02;
 
+            // dynamic komi
+            int dynamicKomiLabelX = this.getInsets().left;
+            int dynamicKomiLabelY = boardY + (int) (maxSize*0.86);
+
+            int dynamicKomiX = this.getInsets().left;
+            int dynamicKomiY = boardY + (int) (maxSize*0.89);
+            double dynamicKomiSize = .02;
+
+
             // loading message
             int loadingX = ponderingX;
             int loadingY = ponderingY;
@@ -366,16 +386,24 @@ public class LizzieFrame extends JFrame {
             cachedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = (Graphics2D) cachedImage.getGraphics();
 
-            drawCommandString(g);
+            if (Lizzie.config.showStatus)
+                drawCommandString(g);
 
             boardRenderer.setLocation(boardX, boardY);
             boardRenderer.setBoardLength(maxSize);
             boardRenderer.draw(g);
 
             if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
-                drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
-                        (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
-                        ponderingX, ponderingY, ponderingSize);
+                if (Lizzie.config.showStatus) {
+                    drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
+                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
+                            ponderingX, ponderingY, ponderingSize);
+                }
+
+                if (Lizzie.config.showDynamicKomi && Lizzie.leelaz.getDynamicKomi() != null) {
+                    drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.dynamic-komi"), dynamicKomiLabelX, dynamicKomiLabelY, dynamicKomiSize);
+                    drawPonderingState(g, Lizzie.leelaz.getDynamicKomi(), dynamicKomiX, dynamicKomiY, dynamicKomiSize);
+                }
 
                 // Todo: Make board move over when there is no space beside the board
                 if (Lizzie.config.showWinrate) {
@@ -397,11 +425,12 @@ public class LizzieFrame extends JFrame {
                         // This can happen when no space is left for subboard.
                     }
                 }
-            } else {
+            } else if (Lizzie.config.showStatus) {
                 drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.loading"), loadingX, loadingY, loadingSize);
             }
 
-            drawCaptured(g, capx, capy, capw, caph);
+            if (Lizzie.config.showCaptured)
+                drawCaptured(g, capx, capy, capw, caph);
 
             // cleanup
             g.dispose();
@@ -503,17 +532,22 @@ public class LizzieFrame extends JFrame {
         // redraw background
         createBackground();
 
+        List<String> commandsToShow = new ArrayList<>(Arrays.asList(commands));
+        if (Lizzie.leelaz.getDynamicKomi() != null) {
+            commandsToShow.add(resourceBundle.getString("LizzieFrame.commands.keyD"));
+        }
+
         Graphics2D g = cachedImage.createGraphics();
 
         int maxSize = Math.min(getWidth(), getHeight());
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
         g.setFont(font);
         FontMetrics metrics = g.getFontMetrics(font);
-        int maxCommandWidth = Arrays.asList(commands).stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
+        int maxCommandWidth = commandsToShow.stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
         int lineHeight = (int) (font.getSize() * 1.15);
 
         int boxWidth = Util.clamp((int) (maxCommandWidth * 1.4), 0, getWidth());
-        int boxHeight = Util.clamp(commands.length * lineHeight, 0, getHeight());
+        int boxHeight = Util.clamp(commandsToShow.size() * lineHeight, 0, getHeight());
 
         int commandsX = Util.clamp(getWidth() / 2 - boxWidth / 2, 0, getWidth());
         int commandsY = Util.clamp(getHeight() / 2 - boxHeight / 2, 0, getHeight());
@@ -539,10 +573,12 @@ public class LizzieFrame extends JFrame {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g.setColor(Color.WHITE);
-        for (int i = 0; i < commands.length; i++) {
-            String[] split = commands[i].split("\\|");
-            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
-            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + (commandsY + i * lineHeight));
+        int lineOffset = commandsY;
+        for (String command : commandsToShow) {
+            String[] split = command.split("\\|");
+            g.drawString(split[0], verticalLineX - metrics.stringWidth(split[0]) - strokeRadius * 4, font.getSize() + lineOffset);
+            g.drawString(split[1], verticalLineX + strokeRadius * 4, font.getSize() + lineOffset);
+            lineOffset += lineHeight;
         }
 
         refreshBackground();
@@ -831,6 +867,15 @@ public class LizzieFrame extends JFrame {
         }
     }
 
+    private void autosaveMaybe() {
+        int interval = Lizzie.config.config.getJSONObject("ui").getInt("autosave-interval-seconds") * 1000;
+        long currentTime = System.currentTimeMillis();
+        if (interval > 0 && currentTime - lastAutosaveTime >= interval) {
+            Lizzie.board.autosave();
+            lastAutosaveTime = currentTime;
+        }
+    }
+
     public void toggleCoordinates() {
         showCoordinates = !showCoordinates;
     }
@@ -895,5 +940,9 @@ public class LizzieFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void increaseMaxAlpha(int k) {
+        boardRenderer.increaseMaxAlpha(k);
     }
 }

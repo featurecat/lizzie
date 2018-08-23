@@ -5,7 +5,10 @@ import org.json.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 public class Config {
 
@@ -13,14 +16,18 @@ public class Config {
     public boolean showWinrate = true;
     public boolean showVariationGraph = true;
     public boolean showRawBoard = false;
+    public boolean showCaptured = true;
     public boolean handicapInsteadOfWinrate = false;
+    public boolean showDynamicKomi = true;
 
+    public boolean showStatus = true;
     public boolean showBranch = true;
     public boolean showBestMoves = true;
     public boolean showNextMoves = true;
     public boolean showSubBoard = true;
     public boolean largeSubBoard = false;
-    
+    public boolean startMaximized = true;
+
     public JSONObject config;
     public JSONObject leelazConfig;
     public JSONObject uiConfig;
@@ -29,7 +36,7 @@ public class Config {
     private String configFilename = "config.txt";
     private String persistFilename = "persist";
 
-    private JSONObject loadAndMergeConfig(JSONObject defaultCfg, String fileName) throws IOException {
+    private JSONObject loadAndMergeConfig(JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
         File file = new File(fileName);
         if (!file.canRead()) {
             System.err.printf("Creating config file %s\n", fileName);
@@ -56,7 +63,7 @@ public class Config {
         fp.close();
 
         // Validate and correct settings
-        if (validateAndCorrectSettings(mergedcfg)) {
+        if (needValidation && validateAndCorrectSettings(mergedcfg)) {
             modified = true;
         }
 
@@ -79,8 +86,7 @@ public class Config {
      * @return if any correction has been made.
      */
     private boolean validateAndCorrectSettings(JSONObject config) {
-        // We don't care persisted settings. They are managed automatically.
-        if (config == null || !config.has("ui")) {
+        if (config == null) {
             return false;
         }
 
@@ -100,7 +106,7 @@ public class Config {
         // Check engine configs
         JSONObject leelaz = config.getJSONObject("leelaz");
         // Check if the engine program exists.
-        String enginePath = leelaz.optString("engine-program", "./leelaz");
+        String enginePath = leelaz.optString("engine-program", getBestDefaultLeelazPath());
         if (!Files.exists(Paths.get(enginePath)) && !Files.exists(Paths.get(enginePath + ".exe" /* For windows */))) {
             // FIXME: I don't know how to handle it properly.. Possibly showing a warning dialog may be a good idea?
             leelaz.put("engine-program", "./leelaz");
@@ -108,7 +114,7 @@ public class Config {
         }
 
         // Similar checks for startup directory. It should exist and should be a directory.
-        String engineStartLocation = leelaz.optString("engine-start-location", ".");
+        String engineStartLocation = getBestDefaultLeelazPath();
         if (!(Files.exists(Paths.get(engineStartLocation)) && Files.isDirectory(Paths.get(engineStartLocation)))) {
             leelaz.put("engine-start-location", ".");
             madeCorrections = true;
@@ -122,22 +128,26 @@ public class Config {
         JSONObject persistConfig = createPersistConfig();
 
         // Main properties
-        this.config = loadAndMergeConfig(defaultConfig, configFilename);
+        this.config = loadAndMergeConfig(defaultConfig, configFilename, true);
         // Persisted properties
-        this.persisted = loadAndMergeConfig(persistConfig, persistFilename);
+        this.persisted = loadAndMergeConfig(persistConfig, persistFilename, false);
 
         leelazConfig = config.getJSONObject("leelaz");
         uiConfig = config.getJSONObject("ui");
 
         showMoveNumber = uiConfig.getBoolean("show-move-number");
+        showStatus = uiConfig.getBoolean("show-status");
         showBranch = uiConfig.getBoolean("show-leelaz-variation");
         showWinrate = uiConfig.getBoolean("show-winrate");
         showVariationGraph = uiConfig.getBoolean("show-variation-graph");
+        showCaptured = uiConfig.getBoolean("show-captured");
         showBestMoves = uiConfig.getBoolean("show-best-moves");
         showNextMoves = uiConfig.getBoolean("show-next-moves");
         showSubBoard = uiConfig.getBoolean("show-subboard");
         largeSubBoard = uiConfig.getBoolean("large-subboard");
         handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
+        startMaximized = uiConfig.getBoolean("window-maximized");
+        showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     }
 
     // Modifies config by adding in values from default_config that are missing.
@@ -193,7 +203,28 @@ public class Config {
         return showSubBoard && largeSubBoard;
     }
 
+    /**
+     * Scans the current directory as well as the current PATH to find a reasonable default leelaz binary.
+     *
+     * @return A working path to a leelaz binary. If there are none on the PATH, "./leelaz" is returned for backwards
+     * compatibility.
+     */
+    public static String getBestDefaultLeelazPath() {
+        List<String> potentialPaths = new ArrayList<>();
+        potentialPaths.add(".");
+        potentialPaths.addAll(Arrays.asList(System.getenv("PATH").split(":")));
 
+        for (String potentialPath : potentialPaths) {
+            for (String potentialExtension : Arrays.asList(new String[] {"", ".exe"})) {
+                File potentialLeelaz = new File(potentialPath, "leelaz" + potentialExtension);
+                if (potentialLeelaz.exists() && potentialLeelaz.canExecute()) {
+                    return potentialLeelaz.getPath();
+                }
+            }
+        }
+
+        return "./leelaz";
+    }
 
 
     private JSONObject createDefaultConfig() {
@@ -202,7 +233,8 @@ public class Config {
         // About engine parameter
         JSONObject leelaz = new JSONObject();
         leelaz.put("network-file", "network.gz");
-        leelaz.put("engine-command", "./leelaz --gtp --lagbuffer 0 --weights %network-file --threads 2");
+        leelaz.put("engine-command", String.format("%s --gtp --lagbuffer 0 --weights %%network-file --threads 2",
+                getBestDefaultLeelazPath()));
         leelaz.put("engine-start-location", ".");
         leelaz.put("max-analyze-time-minutes", 5);
         leelaz.put("max-game-thinking-time-seconds", 2);
@@ -222,17 +254,25 @@ public class Config {
         ui.put("fancy-board", true);
         ui.put("shadow-size", 100);
         ui.put("show-move-number", false);
+        ui.put("show-status", true);
         ui.put("show-leelaz-variation", true);
         ui.put("show-winrate", true);
         ui.put("show-variation-graph", true);
+        ui.put("show-captured", true);
         ui.put("show-best-moves", true);
         ui.put("show-next-moves", true);
         ui.put("show-subboard", true);
         ui.put("large-subboard", false);
         ui.put("win-rate-always-black", false);
         ui.put("confirm-exit", false);
+        ui.put("resume-previous-game", false);
+        ui.put("autosave-interval-seconds", -1);
         ui.put("handicap-instead-of-winrate",false);
         ui.put("board-size", 19);
+        ui.put("window-size", new JSONArray("[1024, 768]"));
+        ui.put("window-maximized", false);
+        ui.put("show-dynamic-komi", true);
+        ui.put("min-playout-ratio-for-stats", 0.0);
 
         config.put("ui", ui);
         return config;
@@ -248,12 +288,16 @@ public class Config {
         config.put("filesystem", filesys);
 
         // About User Interface display
-        //JSONObject ui = new JSONObject();
+        JSONObject ui = new JSONObject();
 
         //ui.put("window-height", 657);
         //ui.put("window-width", 687);
+        //ui.put("max-alpha", 240);
 
-        //config.put("ui", ui);
+        // Avoid the key "ui" because it was used to distinguish "config" and "persist"
+        // in old version of validateAndCorrectSettings().
+        // If we use "ui" here, we will have trouble to run old lizzie.
+        config.put("ui-persist", ui);
         return config;
     }
 
