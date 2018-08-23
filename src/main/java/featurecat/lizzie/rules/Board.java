@@ -96,6 +96,19 @@ public class Board implements LeelazListener {
     public static boolean isValid(int x, int y) {
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
     }
+    
+    /**
+     * The comment. Thread safe
+     * @param comment the comment of stone
+     */
+    public void comment(String comment) {
+        synchronized (this) {
+
+            if (history.getData() != null) {
+                history.getData().comment = comment;
+            }
+        }
+    }
 
     /**
      * The pass. Thread safe

@@ -17,6 +17,8 @@ public class BoardData {
 
     public int blackCaptures;
     public int whiteCaptures;
+    
+    public String comment;
 
     public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist, int moveNumber, int[] moveNumberList, int blackCaptures, int whiteCaptures, double winrate, int playouts) {
         this.moveNumber = moveNumber;

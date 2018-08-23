@@ -1,11 +1,14 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.WrapString;
 import featurecat.lizzie.rules.BoardHistoryList;
 import featurecat.lizzie.rules.BoardHistoryNode;
 
 import java.awt.*;
 import java.util.ArrayList;
+
+import javax.swing.JLabel;
 
 public class VariationTree {
 
@@ -117,6 +120,8 @@ public class VariationTree {
         // Draw background
         g.setColor(new Color(0, 0, 0, 60));
         g.fillRect(posx, posy, width, height);
+        
+        height = (int)(height * 0.9);
 
         // draw edge of panel
         int strokeRadius = 2;
@@ -141,5 +146,38 @@ public class VariationTree {
             curposy -= YSPACING;
         }
         drawTree(g, posx + xoffset, curposy, 0, posy + height, node, 0,true);
+        
+        drawCommnet(g, posx, height + 5, width - xoffset/2, height);
+    }
+    
+    private void drawCommnet(Graphics2D g, int x, int y, int w, int h) {
+        String comment = (Lizzie.board.getHistory().getData() != null && Lizzie.board.getHistory().getData().comment != null) ? Lizzie.board.getHistory().getData().comment : "";
+        String systemDefaultFontName = new JLabel().getFont().getFontName();
+    	// May be need to set up a Chinese Font for display a Chinese Text in the non-Chinese environment
+    	// String systemDefaultFontName = "宋体";
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, 14);
+        FontMetrics fm = g.getFontMetrics(font);
+        int stringWidth = fm.stringWidth(comment);
+        int stringHeight = fm.getAscent() - fm.getDescent();
+        int width = stringWidth;
+        int height = (int)(stringHeight * 1.2);
+
+        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, w - 5);
+        if (list != null && list.size() > 0) {
+            int ystart = y;
+            if (list.size() > 5) {
+                ystart = y - height * (list.size() - 5);
+            }
+            // Draw background
+            g.setColor(new Color(0, 0, 0, 100));
+            g.fillRect(x, ystart-height, w, h);
+            g.setColor(Color.white);
+            g.setFont(font);
+            int i = 0;
+            for (String s : list) {
+                g.drawString(s, x, ystart + height * i);
+                i++;
+            }
+        }
     }
 }

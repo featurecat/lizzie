@@ -1,5 +1,6 @@
 package featurecat.lizzie.rules;
 
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +67,9 @@ public class SGFParser {
             return false;
         }
         int subTreeDepth = 0;
+        // save the variation nodes
+        HashMap<String, BoardHistoryNode> branchNodeMap = new HashMap<String, BoardHistoryNode>();
+        BoardHistoryNode branchNode = null;
         boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
         StringBuilder tagBuilder = new StringBuilder();
@@ -79,12 +83,16 @@ public class SGFParser {
         String blackPlayer = "", whitePlayer = "";
 
         PARSE_LOOP:
-        for (byte b : value.getBytes()) {
+        // for suppoert unicode char
+        // for (byte b : value.getBytes()) {
+        for (int i = 0; i < value.length(); i++) {
             // Check unicode charactors (UTF-8)
-            char c = (char) b;
-            if (((int) b & 0x80) != 0) {
-                continue;
-            }
+            // for suppoert unicode char
+            // char c = (char) b;
+            char c = value.charAt(i);
+            // if (((int) b & 0x80) != 0) {
+            //     continue;
+            // }
             if (escaping) {
                 // Any char following "\" is inserted verbatim
                 // (ref) "3.2. Text" in https://www.red-bean.com/sgf/sgf4.html
@@ -96,14 +104,20 @@ public class SGFParser {
                 case '(':
                     if (!inTag) {
                         subTreeDepth += 1;
+                        // save the variation nodes
+                        branchNodeMap.put(String.valueOf(subTreeDepth), Lizzie.board.getHistory().getCurrentHistoryNode());
                     }
                     break;
                 case ')':
                     if (!inTag) {
-                        subTreeDepth -= 1;
+                    	// Move to below
+                        // subTreeDepth -= 1;
                         if (isMultiGo) {
-                            break PARSE_LOOP;
+                            // restore the variation nodes
+                        	Lizzie.board.getHistory().setCurrentHistoryNode(branchNodeMap.get(String.valueOf(subTreeDepth)));
+//                            break PARSE_LOOP;
                         }
+                        subTreeDepth -= 1;
                     }
                     break;
                 case '[':
@@ -143,6 +157,9 @@ public class SGFParser {
                         } else {
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
                         }
+                    }  else if (tag.equals("C")) {
+                    	// for comment
+                        Lizzie.board.comment(tagContent);
                     } else if (tag.equals("AB")) {
                         int[] move = convertSgfPosToCoord(tagContent);
                         if (move == null) {
@@ -287,21 +304,72 @@ public class SGFParser {
 //            }
 //        }
 
-        while ((data = history.next()) != null) {
-
-            String stone;
-            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
-            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
-            else continue;
-
-            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
-
-            builder.append(String.format(";%s[%c%c]", stone, x, y));
-        }
+        // Write variation tree
+//        while ((data = history.next()) != null) {
+//
+//            String stone;
+//            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+//            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+//            else continue;
+//
+//            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+//            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+//
+//            builder.append(String.format(";%s[%c%c]", stone, x, y));
+//        }
+        builder.append(generateNode(board, writer, history.nextNode()));
 
         // close file
         builder.append(')');
         writer.append(builder.toString());
+    }
+    
+
+    private static String generateNode(Board board, Writer writer, BoardHistoryNode node) throws IOException {
+        StringBuilder builder = new StringBuilder("");
+        
+        if (node != null) {
+
+	        BoardData data;
+
+    		data = node.getData();
+            String stone = "";
+            if (Stone.BLACK.equals(data.lastMoveColor) || Stone.WHITE.equals(data.lastMoveColor)) {
+
+	            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+	            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+	
+	            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+	            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+	
+	            builder.append(String.format(";%s[%c%c]", stone, x, y));
+	            
+	            // Write the comment with win rate
+	            String comment = String.format("WinRate:%.2f%%", data.winrate);
+	            if (data.comment != null) {
+	            	if (data.comment.contains("WinRate")) {
+	            		comment = data.comment.replaceAll("WinRate[0-9\\.\\-]+%", comment);
+	            	} else {
+	            		comment = String.format("%s %s", data.comment, comment);
+	            	}
+	            }
+	            builder.append(String.format("C[%s]", comment));
+	            
+	        	if (node.numberOfChildren() > 1) {
+	        		// Variation
+	        		for (BoardHistoryNode sub : node.getNexts()) {
+	            		builder.append("(");
+	        			builder.append(generateNode(board, writer, sub));
+	            		builder.append(")");
+	        		}
+	        	} else if (node.numberOfChildren() == 1) {
+	        		builder.append(generateNode(board, writer, node.next()));
+	        	} else {
+	        		return builder.toString();
+	        	}
+            }
+        }
+        
+        return builder.toString();
     }
 }
