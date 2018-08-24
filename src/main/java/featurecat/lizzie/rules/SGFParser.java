@@ -74,7 +74,7 @@ public class SGFParser {
         StringBuilder tagContentBuilder = new StringBuilder();
         // MultiGo 's branch: (Main Branch (Main Branch) (Branch) )
         // Other 's branch: (Main Branch (Branch) Main Branch)
-        if (value.charAt(value.length() - 2) == ')') {
+        if (value.matches("(?s).*\\)\\s*\\)")) {
             isMultiGo = true;
         }
 
@@ -181,7 +181,14 @@ public class SGFParser {
                     } else if (tag.equals("PW")) {
                         whitePlayer = tagContent;
                     }  else if (tag.equals("KM")) {
-                        Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
+                        try {
+                            if (tagContent.trim().isEmpty()) {
+                                tagContent = "0.0";
+                            }
+                            Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                        }
                     }
                     break;
                 case ';':
@@ -227,7 +234,7 @@ public class SGFParser {
 
     private static void saveToStream(Board board, Writer writer) throws IOException {
         // collect game info
-        BoardHistoryList history = board.getHistory();
+        BoardHistoryList history = board.getHistory().shallowCopy();
         GameInfo gameInfo = history.getGameInfo();
         String playerBlack = gameInfo.getPlayerBlack();
         String playerWhite = gameInfo.getPlayerWhite();
