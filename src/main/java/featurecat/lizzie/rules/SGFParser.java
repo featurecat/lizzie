@@ -1,6 +1,5 @@
 package featurecat.lizzie.rules;
 
-import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,16 +66,15 @@ public class SGFParser {
             return false;
         }
         int subTreeDepth = 0;
-        // save the variation nodes
-        HashMap<String, BoardHistoryNode> branchNodeMap = new HashMap<String, BoardHistoryNode>();
-        BoardHistoryNode branchNode = null;
+        // the variation step count
+        int subTreeStepCount = 0;
         boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
         StringBuilder tagBuilder = new StringBuilder();
         StringBuilder tagContentBuilder = new StringBuilder();
         // MultiGo 's branch: (Main Branch (Main Branch) (Branch) )
         // Other 's branch: (Main Branch (Branch) Main Branch)
-        if (value.matches("(?s).*\\)\\s*\\)")) {
+        if (value.charAt(value.length() - 2) == ')') {
             isMultiGo = true;
         }
 
@@ -104,20 +102,20 @@ public class SGFParser {
                 case '(':
                     if (!inTag) {
                         subTreeDepth += 1;
-                        // save the variation nodes
-                        branchNodeMap.put(String.valueOf(subTreeDepth), Lizzie.board.getHistory().getCurrentHistoryNode());
+                        // init the step count
+                        subTreeStepCount = 0;
                     }
                     break;
                 case ')':
                     if (!inTag) {
-                    	// Move to below
-                        // subTreeDepth -= 1;
+                        subTreeDepth -= 1;
                         if (isMultiGo) {
                             // restore the variation nodes
-                        	Lizzie.board.getHistory().setCurrentHistoryNode(branchNodeMap.get(String.valueOf(subTreeDepth)));
+                            for (int s = 0; s < subTreeStepCount; s++) {
+                                Lizzie.board.previousMove();
+                            }
 //                            break PARSE_LOOP;
                         }
-                        subTreeDepth -= 1;
                     }
                     break;
                 case '[':
@@ -148,6 +146,7 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.BLACK);
                         } else {
+                        	subTreeStepCount += 1;
                             Lizzie.board.place(move[0], move[1], Stone.BLACK);
                         }
                     } else if (tag.equals("W")) {
@@ -155,6 +154,7 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.WHITE);
                         } else {
+                        	subTreeStepCount += 1;
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
                         }
                     }  else if (tag.equals("C")) {
@@ -181,14 +181,7 @@ public class SGFParser {
                     } else if (tag.equals("PW")) {
                         whitePlayer = tagContent;
                     }  else if (tag.equals("KM")) {
-                        try {
-                            if (tagContent.trim().isEmpty()) {
-                                tagContent = "0.0";
-                            }
-                            Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
-                        } catch (NumberFormatException e) {
-                            e.printStackTrace();
-                        }
+                        Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
                     }
                     break;
                 case ';':
@@ -234,7 +227,7 @@ public class SGFParser {
 
     private static void saveToStream(Board board, Writer writer) throws IOException {
         // collect game info
-        BoardHistoryList history = board.getHistory().shallowCopy();
+        BoardHistoryList history = board.getHistory();
         GameInfo gameInfo = history.getGameInfo();
         String playerBlack = gameInfo.getPlayerBlack();
         String playerWhite = gameInfo.getPlayerWhite();
@@ -272,7 +265,7 @@ public class SGFParser {
         // replay moves, and convert them to tags.
         // *  format: ";B[xy]" or ";W[xy]"
         // *  with 'xy' = coordinates ; or 'tt' for pass.
-        BoardData data;
+//        BoardData data;
 
         // TODO: this code comes from cngoodboy's plugin PR #65. It looks like it might be useful for handling
         //       AB/AW commands for sgfs in general -- we can extend it beyond just handicap. TODO integrate it
