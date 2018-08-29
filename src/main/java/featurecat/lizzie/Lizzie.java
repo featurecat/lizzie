@@ -1,5 +1,6 @@
 package featurecat.lizzie;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.plugin.PluginManager;
@@ -94,5 +95,39 @@ public class Lizzie {
             leelaz.shutdown();
         System.exit(0);
     }
+    
+    public static void switchEngine(int index) {
 
+        String commandLine = null;
+    	if (index == 0) {
+    		commandLine = Lizzie.config.leelazConfig.getString("engine-command");
+    	} else {
+    		JSONArray commandList = Lizzie.config.leelazConfig.getJSONArray("engine-command-list");
+    		if (commandList != null && commandList.length() >= index) {
+    			commandLine = commandList.getString(index - 1);
+    		}
+    	}
+    	
+        final int moveNumber = board.getData().moveNumber;
+
+        // Workaround for leelaz cannot exit when restarting
+        if (leelaz.isThinking) {
+            if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                Lizzie.frame.isPlayingAgainstLeelaz = false;
+                Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
+                Lizzie.leelaz.isThinking = false;
+            }
+            Lizzie.leelaz.togglePonder();
+        }
+
+        board.goToMoveNumber(0);
+        try {
+			leelaz.restartEngine(commandLine);
+	        board.goToMoveNumber(moveNumber);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+    }
 }
