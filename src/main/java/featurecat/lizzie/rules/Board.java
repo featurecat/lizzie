@@ -73,7 +73,7 @@ public class Board implements LeelazListener {
         }
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
         int x = alphabet.indexOf(namedCoordinate.charAt(0));
-        int y = Integer.parseInt(namedCoordinate.substring(1)) - 1;
+        int y = BOARD_SIZE - Integer.parseInt(namedCoordinate.substring(1));
         return new int[]{x, y};
     }
 
@@ -86,7 +86,7 @@ public class Board implements LeelazListener {
      */
     public static String convertCoordinatesToName(int x, int y) {
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-        return alphabet.charAt(x) + "" + (y + 1);
+        return alphabet.charAt(x) + "" + (BOARD_SIZE - y);
     }
 
     /**
