@@ -367,12 +367,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 break;
 
             default:
-            	if (((e.getModifiers() & KeyEvent.CTRL_MASK) != 0 || (e.getModifiers() & KeyEvent.META_MASK) != 0) && KeyEvent.VK_0 <= e.getKeyCode() && e.getKeyCode() <= KeyEvent.VK_9) {
-                    int index = e.getKeyCode() - KeyEvent.VK_0;
-                    Lizzie.switchEngine(index);
-                } else {
-                	shouldDisableAnalysis = false;
-                }
+                shouldDisableAnalysis = false;
         }
 
         if (shouldDisableAnalysis && Lizzie.board.inAnalysisMode())
