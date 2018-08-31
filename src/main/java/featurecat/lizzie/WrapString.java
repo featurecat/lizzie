@@ -73,7 +73,9 @@ public class WrapString {
 						pos = findBreakBefore(line, guess);
 				}
 			}
-			if (pos == -1)
+			// fix the bug for '-'
+//			if (pos == -1)
+			if (pos <= 0)
 				pos = guess; // Split in the middle of the word
 
 			list.add(line.substring(0, pos).trim());
