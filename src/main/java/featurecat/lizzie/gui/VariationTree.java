@@ -197,6 +197,7 @@ public class VariationTree {
 	                i++;
 	            }
 	            g.setColor(oriColor);
+                cHeight = cHeight + height;
 	        }
         }
         return cHeight;
