@@ -68,6 +68,7 @@ public class SGFParser {
         int subTreeDepth = 0;
         // the variation step count
         int subTreeStepCount = 0;
+        String awabComment = null, prevTag = null;
         boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
         StringBuilder tagBuilder = new StringBuilder();
@@ -159,7 +160,11 @@ public class SGFParser {
                         }
                     }  else if (tag.equals("C")) {
                     	// for comment
-                        Lizzie.board.comment(tagContent);
+                    	if ("AW".equals(prevTag) || "AB".equals(prevTag)) {
+                    		awabComment = tagContent;
+                    	} else {
+                    		Lizzie.board.comment(tagContent);
+                    	}
                     } else if (tag.equals("AB")) {
                         int[] move = convertSgfPosToCoord(tagContent);
                         if (move == null) {
@@ -190,6 +195,7 @@ public class SGFParser {
                             e.printStackTrace();
                         }
                     }
+                    prevTag = tag;
                     break;
                 case ';':
                     break;
@@ -215,6 +221,11 @@ public class SGFParser {
 
         // Rewind to game start
         while (Lizzie.board.previousMove()) ;
+        
+        // Set AW/AB Comment
+        if (awabComment != null) {
+    		Lizzie.board.comment(awabComment);        	
+        }
 
         return true;
     }
