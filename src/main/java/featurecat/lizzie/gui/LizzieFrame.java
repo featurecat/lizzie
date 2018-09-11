@@ -398,7 +398,7 @@ public class LizzieFrame extends JFrame {
             if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
                 if (Lizzie.config.showStatus) {
                     drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
-                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
+                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")) + " " + Lizzie.leelaz.currentWeight() + Lizzie.leelaz.isSwitching(),
                             ponderingX, ponderingY, ponderingSize);
                 }
 
@@ -415,9 +415,9 @@ public class LizzieFrame extends JFrame {
                 }
 
                 if (Lizzie.config.showVariationGraph) {
+                    drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
                 	// Draw the Comment of the Sgf
                 	int cHeight = drawCommnet(g, vx, vy, vw, vh, false);
-                    drawVariationTreeContainer(backgroundG, vx, vy, vw, vh - cHeight);
                     variationTree.draw(g, treex, treey, treew, treeh - cHeight);
                 } else {
                 	// Draw the Comment of the Sgf
@@ -497,6 +497,16 @@ public class LizzieFrame extends JFrame {
     private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int)(Math.max(getWidth(), getHeight()) * size));
         FontMetrics fm = g.getFontMetrics(font);
+        // for trim long text
+        if (Lizzie.leelaz.isLoaded()) {
+        	int mainBoardX = (boardRenderer != null && boardRenderer.getLocation() != null) ? boardRenderer.getLocation().x : 0;
+	        if (mainBoardX > x) {
+		        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(text, fm, mainBoardX - x);
+		        if (list != null && list.size() > 0) {
+		        	text = list.get(0);
+		        }
+	        }
+        }
         int stringWidth = fm.stringWidth(text);
         int stringHeight = fm.getAscent() - fm.getDescent();
         int width = stringWidth;
@@ -972,7 +982,7 @@ public class LizzieFrame extends JFrame {
         	cHeight = (int)(h * rate);
 	    	// May be need to set up a Chinese Font for display a Chinese Text in the non-Chinese environment
 //	    	String systemDefaultFontName = "宋体";
-	        int fontSize = (int)(Math.min(getWidth(), getHeight()) * 0.034);
+	        int fontSize = (int)(Math.min(getWidth(), getHeight()) * 0.98 * 0.03);
 	        try {
 	        	fontSize = Lizzie.config.uiConfig.getInt("comment-font-size");
 	        } catch (JSONException e) {
@@ -985,11 +995,11 @@ public class LizzieFrame extends JFrame {
 	        Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
 	        FontMetrics fm = g.getFontMetrics(font);
 	        int stringWidth = fm.stringWidth(comment);
-	        int stringHeight = fm.getAscent() - fm.getDescent();
+	        int stringHeight = fm.getHeight();	//fm.getAscent() - fm.getDescent();
 	        int width = stringWidth;
-	        int height = (int)(stringHeight * 1.2);
+	        int height = stringHeight;	//(int)(stringHeight * 1.2);
 	
-	        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, w - height);
+	        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, (int)(w - height/2));
 	        if (list != null && list.size() > 0) {
 	        	if (!full) {
 		            if (list.size() * height > cHeight) {
@@ -1002,7 +1012,7 @@ public class LizzieFrame extends JFrame {
 	            int ystart = full ? y : h - cHeight;
 	            // Draw background
 	            Color oriColor = g.getColor();
-	            g.setColor(new Color(0, 0, 0, 100));
+	            g.setColor(new Color(0, 0, 0, 150));
 	            g.fillRect(x, ystart - height, w, cHeight + height * 2);
 	            g.setColor(Color.white);
 	            g.setFont(font);
@@ -1017,6 +1027,6 @@ public class LizzieFrame extends JFrame {
 	        	cHeight = 0;
 	        }
         }
-        return (int)(cHeight);
+        return cHeight;
     }
 }
