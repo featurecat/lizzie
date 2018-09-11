@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
+import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.plugin.PluginManager;
 
 import java.io.*;
@@ -105,6 +106,8 @@ public class SGFParser {
                         subTreeDepth += 1;
                         // init the step count
                         subTreeStepCount = 0;
+                    } else {
+                        tagContentBuilder.append(c);
                     }
                     break;
                 case ')':
@@ -117,6 +120,8 @@ public class SGFParser {
                             }
 //                            break PARSE_LOOP;
                         }
+                    } else {
+                        tagContentBuilder.append(c);
                     }
                     break;
                 case '[':
@@ -259,6 +264,15 @@ public class SGFParser {
         builder.append(String.format("KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
                 komi, playerWhite, playerBlack, date, Lizzie.lizzieVersion));
 
+        // Update winrate
+        Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+
+        if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().playouts)
+        {
+            history.getData().winrate = stats.maxWinrate;
+            history.getData().playouts = stats.totalPlayouts;
+        }
+
         // move to the first move
         history.toStart();
 
@@ -278,7 +292,40 @@ public class SGFParser {
                     builder.append(String.format("[%c%c]", x, y));
                 }
             }
+        } else {
+        	//has AW/AB?
+            Stone[] stones = history.getStones();
+            StringBuilder abStone = new StringBuilder();
+            StringBuilder awStone = new StringBuilder();
+            for (int i = 0; i < stones.length; i++) {
+                Stone stone = stones[i];
+                if (stone.isBlack() || stone.isWhite()) {
+                    // i = x * Board.BOARD_SIZE + y;
+                    int corY = i % Board.BOARD_SIZE;
+                    int corX = (i - corY) / Board.BOARD_SIZE;
+
+                    char x = (char) (corX + 'a');
+                    char y = (char) (corY + 'a');
+
+                    if (stone.isBlack()) {
+                    	abStone.append(String.format("[%c%c]", x, y));
+                    } else {
+                    	awStone.append(String.format("[%c%c]", x, y));
+                    }
+                }
+            }
+            if (abStone.length() > 0) {
+            	builder.append("AB").append(abStone);
+            }
+            if (awStone.length() > 0) {
+            	builder.append("AW").append(awStone);
+            }
         }
+
+        // Start Comment
+        if (history.getData().comment != null) {
+        	builder.append(String.format("C[%s]", history.getData().comment));
+    	}
 
         // replay moves, and convert them to tags.
         // *  format: ";B[xy]" or ";W[xy]"
@@ -363,10 +410,10 @@ public class SGFParser {
 	            builder.append(String.format(";%s[%c%c]", stone, x, y));
 	            
 	            // Write the comment with win rate
-	            String comment = String.format("WinRate:%.2f%%", data.winrate);
+	            String comment = String.format("(%d)(%.2f%%)", data.playouts, 100-data.winrate);
 	            if (data.comment != null) {
-	            	if (data.comment.contains("WinRate")) {
-	            		comment = data.comment.replaceAll("WinRate[0-9\\.\\-]+%", comment);
+	            	if (data.comment.contains("%)")) {
+	            		comment = data.comment.replaceAll("(\\([0-9]+\\)\\([0-9\\.\\-]+%\\))", comment);
 	            	} else {
 	            		comment = String.format("%s %s", data.comment, comment);
 	            	}
