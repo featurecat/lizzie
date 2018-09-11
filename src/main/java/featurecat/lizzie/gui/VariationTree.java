@@ -1,16 +1,11 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.WrapString;
 import featurecat.lizzie.rules.BoardHistoryList;
 import featurecat.lizzie.rules.BoardHistoryNode;
 
 import java.awt.*;
 import java.util.ArrayList;
-
-import javax.swing.JLabel;
-
-import org.json.JSONException;
 
 public class VariationTree {
 
@@ -84,7 +79,7 @@ public class VariationTree {
         g.setColor(curcolor);
 
         // Draw main line
-        while (cur.next() != null && posy + YSPACING < maxposy) {
+        while (cur.next() != null && ((posy + YSPACING + DOT_DIAM) < maxposy)) { // Fix oval cover issue sometimes
             posy += YSPACING;
             cur = cur.next();
             if (cur == curMove)  {
@@ -122,10 +117,6 @@ public class VariationTree {
         // Draw background
         g.setColor(new Color(0, 0, 0, 60));
         g.fillRect(posx, posy, width, height);
-        
-        // Draw Comment
-        int cHeight = drawCommnet(g, posx, posy, width, height);
-        height = height - cHeight;
 
         // draw edge of panel
         int strokeRadius = 2;
@@ -150,56 +141,5 @@ public class VariationTree {
             curposy -= YSPACING;
         }
         drawTree(g, posx + xoffset, curposy, 0, posy + height, node, 0,true);
-    }
-    
-    private int drawCommnet(Graphics2D g, int x, int y, int w, int h) {
-    	int cHeight = 0;
-        String comment = (Lizzie.board.getHistory().getData() != null && Lizzie.board.getHistory().getData().comment != null) ? Lizzie.board.getHistory().getData().comment : "";
-        if (comment != null && comment.trim().length() > 0) {
-        	cHeight = (int)(h * 0.1);
-	        String systemDefaultFontName = new JLabel().getFont().getFontName();
-	    	// May be need to set up a Chinese Font for display a Chinese Text in the non-Chinese environment
-	    	// String systemDefaultFontName = "宋体";
-	        int fontSize = (int)(Math.max(w, cHeight) * 0.07);
-	        try {
-	        	fontSize = Lizzie.config.uiConfig.getInt("comment-font-size");
-	        } catch (JSONException e) {
-	        	if (fontSize < 16) {
-	        		fontSize = 16;
-	        	}
-	        }
-	        Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
-	        FontMetrics fm = g.getFontMetrics(font);
-	        int stringWidth = fm.stringWidth(comment);
-	        int stringHeight = fm.getAscent() - fm.getDescent();
-	        int width = stringWidth;
-	        int height = (int)(stringHeight * 1.2);
-	
-	        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, w);
-	        if (list != null && list.size() > 0) {
-	            int ystart = h - cHeight;
-	            if (list.size() * height > cHeight) {
-	            	cHeight = list.size() * height;
-	            	if (cHeight > (int)(h * 0.4)) {
-	            		cHeight = (int)(h * 0.4);
-	            	}
-	                ystart = h - cHeight;
-	            }
-	            // Draw background
-	            Color oriColor = g.getColor();
-	            g.setColor(new Color(0, 0, 0, 100));
-	            g.fillRect(x, ystart-height, w, cHeight + height * 2);
-	            g.setColor(Color.white);
-	            g.setFont(font);
-	            int i = 0;
-	            for (String s : list) {
-	                g.drawString(s, x, ystart + height * i);
-	                i++;
-	            }
-	            g.setColor(oriColor);
-                cHeight = cHeight + height;
-	        }
-        }
-        return cHeight;
     }
 }
