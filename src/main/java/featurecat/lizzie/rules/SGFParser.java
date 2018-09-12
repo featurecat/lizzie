@@ -1,5 +1,7 @@
 package featurecat.lizzie.rules;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +70,7 @@ public class SGFParser {
         }
         int subTreeDepth = 0;
         // the variation step count
-        int subTreeStepCount = 0;
+        Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
         String awabComment = null, prevTag = null;
         boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
@@ -105,21 +107,23 @@ public class SGFParser {
                     if (!inTag) {
                         subTreeDepth += 1;
                         // init the step count
-                        subTreeStepCount = 0;
+                        subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(0));
                     } else {
-                        tagContentBuilder.append(c);
+                    	if (i > 0) {
+                    		tagContentBuilder.append(c);
+                    	}
                     }
                     break;
                 case ')':
                     if (!inTag) {
-                        subTreeDepth -= 1;
                         if (isMultiGo) {
                             // restore the variation nodes
-                            for (int s = 0; s < subTreeStepCount; s++) {
+                            for (int s = 0; s < subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue(); s++) {
                                 Lizzie.board.previousMove();
                             }
 //                            break PARSE_LOOP;
                         }
+                        subTreeDepth -= 1;
                     } else {
                         tagContentBuilder.append(c);
                     }
@@ -152,7 +156,7 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.BLACK);
                         } else {
-                        	subTreeStepCount += 1;
+                        	subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
                             Lizzie.board.place(move[0], move[1], Stone.BLACK);
                         }
                     } else if (tag.equals("W")) {
@@ -160,7 +164,7 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.WHITE);
                         } else {
-                        	subTreeStepCount += 1;
+                        	subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
                         }
                     }  else if (tag.equals("C")) {
