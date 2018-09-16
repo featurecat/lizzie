@@ -398,7 +398,7 @@ public class LizzieFrame extends JFrame {
             if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
                 if (Lizzie.config.showStatus) {
                     drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
-                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")) + " " + Lizzie.leelaz.currentWeight() + Lizzie.leelaz.isSwitching(),
+                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
                             ponderingX, ponderingY, ponderingSize);
                 }
 
@@ -999,7 +999,7 @@ public class LizzieFrame extends JFrame {
 	        int width = stringWidth;
 	        int height = stringHeight;	//(int)(stringHeight * 1.2);
 	
-	        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, (int)(w - height/2));
+	        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, (int)(w - height*0.9));
 	        if (list != null && list.size() > 0) {
 	        	if (!full) {
 		            if (list.size() * height > cHeight) {

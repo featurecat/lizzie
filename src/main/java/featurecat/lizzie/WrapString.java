@@ -62,11 +62,11 @@ public class WrapString {
 			String before = line.substring(0, guess).trim();
 
 			width = fm.stringWidth(before);
-			int pos;
+			int pos = 0;
 			if (width > maxWidth) { // Too long
 				pos = findBreakBefore(line, guess);
 				// fix too long bug
-				if (pos <= 0) {
+				if (pos <= 0 || (width = fm.stringWidth(line.substring(0, pos).trim())) > maxWidth) {
 					int diff = width - maxWidth;
 					int i = 0;
 					for (; (diff > 0 && i < 4); i++) {

@@ -399,9 +399,7 @@ public class SGFParser {
         
         if (node != null) {
 
-	        BoardData data;
-
-    		data = node.getData();
+	        BoardData data = node.getData();
             String stone = "";
             if (Stone.BLACK.equals(data.lastMoveColor) || Stone.WHITE.equals(data.lastMoveColor)) {
 
@@ -414,15 +412,16 @@ public class SGFParser {
 	            builder.append(String.format(";%s[%c%c]", stone, x, y));
 	            
 	            // Write the comment with win rate
-	            String comment = String.format("(%d)(%.2f%%)", data.playouts, 100-data.winrate);
+	            String winrateComment = formatWinrate(node);
 	            if (data.comment != null) {
-	            	if (data.comment.contains("%)")) {
-	            		comment = data.comment.replaceAll("(\\([0-9]+\\)\\([0-9\\.\\-]+%\\))", comment);
+	            	String winratePattern = "\\([^\\(\\)/]*\\/[0-9\\.]*[kmKM]*\\)[0-9\\.\\-]+%*\\(*[0-9\\.\\-]+%*\\)*";
+	                if (data.comment.matches("(?s).*" + winratePattern + "(?s).*")) {
+	                	winrateComment = data.comment.replaceAll(winratePattern, winrateComment);
 	            	} else {
-	            		comment = String.format("%s %s", data.comment, comment);
+	            		winrateComment = String.format("%s %s", data.comment, winrateComment);
 	            	}
 	            }
-	            builder.append(String.format("C[%s]", comment));
+	            builder.append(String.format("C[%s]", winrateComment));
 	            
 	        	if (node.numberOfChildren() > 1) {
 	        		// Variation
@@ -440,5 +439,73 @@ public class SGFParser {
         }
         
         return builder.toString();
+    }
+    
+    /**
+     * Format Winrate
+     * 
+     */
+    private static String formatWinrate(BoardHistoryNode node) {
+    	if (node == null) {
+    		return "";
+    	}
+    	BoardData data = node.getData();
+        String engine = "Leelaz";	//Lizzie.leelaz.currentWeight();
+        String playouts = "";
+        String curWinrate = "";
+        String lastMoveWinrate = "";
+
+        double lastWR = 50;     // winrate the previous move
+        boolean validLastWinrate = false; // whether it was actually calculated
+        BoardData lastNode = node.previous().getData();
+        if (lastNode != null && lastNode.playouts > 0) {
+            lastWR = lastNode.winrate;
+            validLastWinrate = true;
+        }
+        double curWR = data.winrate; // winrate on this move
+        boolean validWinrate = (data.playouts > 0); // and whether it was actually calculated
+        if (!validWinrate) {
+            curWR = 100 - lastWR; // display last move's winrate for now (with color difference)
+        }
+        
+        // Playouts
+        playouts = getPlayoutsString(data.playouts);
+
+        // Winrate
+        if(Lizzie.config.handicapInsteadOfWinrate) {
+        	curWinrate = String.format("%.2f", Lizzie.leelaz.winrateToHandicap(100-curWR));
+    	} else {
+    		curWinrate = String.format("%.1f%%", 100 - curWR);
+    	}
+
+        // Last move
+        if (validLastWinrate && validWinrate) {
+            if(Lizzie.config.handicapInsteadOfWinrate) {
+            	lastMoveWinrate = String.format("(%.2f)", Lizzie.leelaz.winrateToHandicap(100-curWR) - Lizzie.leelaz.winrateToHandicap(lastWR));
+        	} else {
+        		lastMoveWinrate = String.format("(%.1f%%)", 100 - lastWR - curWR);
+        	}
+        }
+        
+        return String.format("(%s/%s)%s%s", engine, playouts, curWinrate, lastMoveWinrate);
+    }
+    
+    /**
+     * Temp TODO
+     * @return a shorter, rounded string version of playouts. e.g. 345 -> 345, 1265 -> 1.3k, 44556 -> 45k, 133523 -> 134k, 1234567 -> 1.2m
+     */
+    private static String getPlayoutsString(int playouts) {
+        if (playouts >= 1_000_000) {
+            double playoutsDouble = (double) playouts / 100_000; // 1234567 -> 12.34567
+            return Math.round(playoutsDouble) / 10.0 + "m";
+        } else if (playouts >= 10_000) {
+            double playoutsDouble = (double) playouts / 1_000; // 13265 -> 13.265
+            return Math.round(playoutsDouble) + "k";
+        } else if (playouts >= 1_000) {
+            double playoutsDouble = (double) playouts / 100; // 1265 -> 12.65
+            return Math.round(playoutsDouble) / 10.0 + "k";
+        } else {
+            return String.valueOf(playouts);
+        }
     }
 }
