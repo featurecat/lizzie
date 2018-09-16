@@ -13,6 +13,7 @@ import java.awt.RenderingHints;
 import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.Util;
+import featurecat.lizzie.WrapString;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.rules.Board;
@@ -21,6 +22,7 @@ import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -414,7 +416,12 @@ public class LizzieFrame extends JFrame {
 
                 if (Lizzie.config.showVariationGraph) {
                     drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
-                    variationTree.draw(g, treex, treey, treew, treeh);
+                	// Draw the Comment of the Sgf
+                	int cHeight = drawCommnet(g, vx, vy, vw, vh, false);
+                    variationTree.draw(g, treex, treey, treew, treeh - cHeight);
+                } else {
+                	// Draw the Comment of the Sgf
+                	int cHeight = drawCommnet(g, vx, boardY, vw, vh, true);
                 }
                 if (Lizzie.config.showSubBoard) {
                     try {
@@ -490,6 +497,16 @@ public class LizzieFrame extends JFrame {
     private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int)(Math.max(getWidth(), getHeight()) * size));
         FontMetrics fm = g.getFontMetrics(font);
+        // for trim long text
+        if (Lizzie.leelaz.isLoaded()) {
+        	int mainBoardX = (boardRenderer != null && boardRenderer.getLocation() != null) ? boardRenderer.getLocation().x : 0;
+	        if (mainBoardX > x) {
+		        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(text, fm, mainBoardX - x);
+		        if (list != null && list.size() > 0) {
+		        	text = list.get(0);
+		        }
+	        }
+        }
         int stringWidth = fm.stringWidth(text);
         int stringHeight = fm.getAscent() - fm.getDescent();
         int width = stringWidth;
@@ -944,5 +961,72 @@ public class LizzieFrame extends JFrame {
 
     public void increaseMaxAlpha(int k) {
         boardRenderer.increaseMaxAlpha(k);
+    }
+    
+    /**
+     * Draw the Comment of the Sgf file
+     * 
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param full
+     * @return
+     */
+    private int drawCommnet(Graphics2D g, int x, int y, int w, int h, boolean full) {
+    	int cHeight = 0;
+        String comment = (Lizzie.board.getHistory().getData() != null && Lizzie.board.getHistory().getData().comment != null) ? Lizzie.board.getHistory().getData().comment : "";
+        if (comment != null && comment.trim().length() > 0) {
+        	double rate = full ? 1 : 0.1;
+        	cHeight = (int)(h * rate);
+	    	// May be need to set up a Chinese Font for display a Chinese Text in the non-Chinese environment
+//	    	String systemDefaultFontName = "宋体";
+	        int fontSize = (int)(Math.min(getWidth(), getHeight()) * 0.98 * 0.03);
+	        try {
+	        	fontSize = Lizzie.config.uiConfig.getInt("comment-font-size");
+	        } catch (JSONException e) {
+	        	if (fontSize < 16) {
+	        		fontSize = 16;
+	        	} else if (fontSize < 16) {
+	        		fontSize = 16;
+	        	}
+	        }
+	        Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
+	        FontMetrics fm = g.getFontMetrics(font);
+	        int stringWidth = fm.stringWidth(comment);
+	        int stringHeight = fm.getHeight();	//fm.getAscent() - fm.getDescent();
+	        int width = stringWidth;
+	        int height = stringHeight;	//(int)(stringHeight * 1.2);
+	
+	        ArrayList<String> list = (ArrayList<String>) WrapString.wrap(comment, fm, (int)(w - height*0.9));
+	        if (list != null && list.size() > 0) {
+	        	if (!full) {
+		            if (list.size() * height > cHeight) {
+		            	cHeight = list.size() * height;
+		            	if (cHeight > (int)(h * 0.4)) {
+		            		cHeight = (int)(h * 0.4);
+		            	}
+		            }
+	        	}
+	            int ystart = full ? y : h - cHeight;
+	            // Draw background
+	            Color oriColor = g.getColor();
+	            g.setColor(new Color(0, 0, 0, 150));
+	            g.fillRect(x, ystart - height, w, cHeight + height * 2);
+	            g.setColor(Color.white);
+	            g.setFont(font);
+	            int i = 0;
+	            for (String s : list) {
+	                g.drawString(s, x + (int)(height * 0.2), ystart + height * (full?(i+1):i));
+	                i++;
+	            }
+	            g.setColor(oriColor);
+                cHeight = cHeight + height;
+	        } else {
+	        	cHeight = 0;
+	        }
+        }
+        return cHeight;
     }
 }

@@ -79,7 +79,7 @@ public class VariationTree {
         g.setColor(curcolor);
 
         // Draw main line
-        while (cur.next() != null && posy + YSPACING < maxposy) {
+        while (cur.next() != null && ((posy + YSPACING + DOT_DIAM) < maxposy)) { // Fix oval cover issue sometimes
             posy += YSPACING;
             cur = cur.next();
             if (cur == curMove)  {
