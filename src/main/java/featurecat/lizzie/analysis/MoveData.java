@@ -3,6 +3,8 @@ package featurecat.lizzie.analysis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Holds the data from Leelaz's pondering mode
@@ -58,6 +60,19 @@ public class MoveData {
      * @param line line of summary output
      */
     public static MoveData fromSummary(String summary) {
-      return new MoveData(); // TODO
+        Matcher match = summaryPattern.matcher(summary.trim());
+        if (!match.matches()) {
+            throw new IllegalArgumentException("Unexpected summary format: " + summary);
+        } else {
+            MoveData result = new MoveData();
+            result.coordinate = match.group(1);
+            result.playouts   = Integer.parseInt(match.group(2));
+            result.winrate    = Double.parseDouble(match.group(3));
+            result.variation  = Arrays.asList(match.group(4).split(" "));
+            return result;
+        }
     }
+
+    private static Pattern summaryPattern = Pattern.compile(
+      "^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
 }
