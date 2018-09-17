@@ -164,15 +164,11 @@ public class Leelaz {
     }
 
     private void parseInfo(String line) {
-
         bestMoves = new ArrayList<>();
         String[] variations = line.split(" info ");
         for (String var : variations) {
             bestMoves.add(MoveData.fromInfo(var));
         }
-        // Not actually necessary to sort with current version of LZ (0.15)
-        // but not guaranteed to be ordered in the future
-        Collections.sort(bestMoves);
     }
 
     /**

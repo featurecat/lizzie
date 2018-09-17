@@ -7,18 +7,13 @@ import java.util.List;
 /**
  * Holds the data from Leelaz's pondering mode
  */
-public class MoveData implements Comparable<MoveData> {
+public class MoveData {
     public String coordinate;
     public int playouts;
     public double winrate;
-    public int order;
     public List<String> variation;
 
     private MoveData() {}
-
-    public int compareTo(MoveData b) {
-        return order - b.order;
-    }
 
     /**
      * Parses a leelaz ponder output line. For example:
@@ -52,7 +47,6 @@ public class MoveData implements Comparable<MoveData> {
                 }
             }
         }
-
         return result;
     }
 
