@@ -745,6 +745,7 @@ public class Board implements LeelazListener {
             if (inScoreMode()) setScoreMode(false);
             // Update win rate statistics
             Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+
             if (stats.totalPlayouts >= history.getData().playouts) {
                 history.getData().winrate = stats.maxWinrate;
                 history.getData().playouts = stats.totalPlayouts;

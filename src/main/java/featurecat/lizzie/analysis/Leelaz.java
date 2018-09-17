@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * an interface with leelaz.exe go engine. Can be adapted for GTP, but is specifically designed for GCP's Leela Zero.
+ * An interface with leelaz go engine. Can be adapted for GTP, but is specifically designed for GCP's Leela Zero.
  * leelaz is modified to output information as it ponders
  * see www.github.com/gcp/leela-zero
  */
@@ -168,7 +168,7 @@ public class Leelaz {
         bestMoves = new ArrayList<>();
         String[] variations = line.split(" info ");
         for (String var : variations) {
-            bestMoves.add(new MoveData(var));
+            bestMoves.add(MoveData.fromInfo(var));
         }
         // Not actually necessary to sort with current version of LZ (0.15)
         // but not guaranteed to be ordered in the future
@@ -182,25 +182,21 @@ public class Leelaz {
      */
     private void parseLine(String line) {
         synchronized (this) {
-            if (line.startsWith("komi="))
-            {
+            if (line.startsWith("komi=")) {
                 try {
                     dynamicKomi = Float.parseFloat(line.substring("komi=".length()).trim());
                 }
                 catch (NumberFormatException nfe) {
                     dynamicKomi = Float.NaN;
                 }
-            }
-            else if (line.startsWith("opp_komi="))
-            {
+            } else if (line.startsWith("opp_komi=")) {
                 try {
                     dynamicOppKomi = Float.parseFloat(line.substring("opp_komi=".length()).trim());
                 }
                 catch (NumberFormatException nfe) {
                     dynamicOppKomi = Float.NaN;
                 }
-            }
-            else if (line.equals("\n")) {
+            } else if (line.equals("\n")) {
                 // End of response
             } else if (line.startsWith("info")) {
                 isLoaded = true;
@@ -268,7 +264,7 @@ public class Leelaz {
         if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
             if (!(Lizzie.frame != null && Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
                 try {
-                    bestMovesTemp.add(new MoveData(line));
+                    bestMovesTemp.add(MoveData.fromInfo(line));
                 } catch (ArrayIndexOutOfBoundsException e) {
                     // this is very rare but is possible. ignore
                 }
@@ -415,7 +411,7 @@ public class Leelaz {
     }
 
     /**
-     * this initializes leelaz's pondering mode at its current position
+     * This initializes leelaz's pondering mode at its current position
      */
     private void ponder() {
         isPondering = true;
