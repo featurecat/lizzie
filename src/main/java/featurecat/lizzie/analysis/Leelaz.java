@@ -206,6 +206,13 @@ public class Leelaz {
                         togglePonder();
                     }
                 }
+            } else if (line.contains(" -> ")) {
+                isLoaded = true;
+                if (isResponseUpToDate()) {
+                    bestMoves.add(MoveData.fromSummary(line));
+                    if (Lizzie.frame != null)
+                        Lizzie.frame.repaint();
+                }
             } else if (line.startsWith("play")) {
                 // In lz-genmove_analyze
                 if (Lizzie.frame.isPlayingAgainstLeelaz) {
