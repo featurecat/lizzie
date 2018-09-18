@@ -26,6 +26,8 @@ public class Board implements LeelazListener {
     private boolean analysisMode = false;
     private int playoutsAnalysis = 100;
 
+    // Save the node for restore move when in the branch
+    private BoardHistoryNode saveNode = null;
 
     public Board() {
         initialize();
@@ -430,6 +432,92 @@ public class Board implements LeelazListener {
                 return true;
             }
             return false;
+        }
+    }
+
+    /**
+     * Goes to the next coordinate, thread safe
+     * @param fromBackChildren by back children branch
+     * @return true when has next variation
+     */
+    public boolean nextMove(int fromBackChildren) {
+        synchronized (this) {
+            // Update win rate statistics
+            Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+            if (stats.totalPlayouts >= history.getData().playouts) {
+                history.getData().winrate = stats.maxWinrate;
+                history.getData().playouts = stats.totalPlayouts;
+            }
+            return nextVariation(fromBackChildren);
+        }
+    }
+
+    /**
+     *  Save the move number for restore
+     *  If in the branch, save the back routing from children
+     */
+    public void saveMoveNumber() {
+        BoardHistoryNode curNode = history.getCurrentHistoryNode();
+        int curMoveNum = curNode.getData().moveNumber;
+        if (curMoveNum > 0) {
+            if (!BoardHistoryList.isMainTrunk(curNode)) {
+                // If in branch, save the back routing from children
+                saveBackRouting(curNode);
+            }
+            goToMoveNumber(0);
+        }
+        saveNode = curNode;
+    }
+
+    /**
+     *  Save the back routing from children
+     */
+    public void saveBackRouting(BoardHistoryNode node) {
+        if (node != null && node.previous() != null) {
+            node.previous().setFromBackChildren(node.previous().getNexts().indexOf(node));
+            saveBackRouting(node.previous());
+        }
+    }
+
+    /**
+     *  Restore move number by saved node
+     */
+    public void restoreMoveNumber() {
+        restoreMoveNumber(saveNode);
+    }
+
+    /**
+     *  Restore move number by node
+     */
+    public void restoreMoveNumber(BoardHistoryNode node) {
+        if (node == null) {
+            return;
+        }
+        int moveNumber = node.getData().moveNumber;
+        if (moveNumber > 0) {
+            if (BoardHistoryList.isMainTrunk(node)) {
+                goToMoveNumber(moveNumber);
+            } else {
+                // If in Branch, restore by the back routing
+                goToMoveNumberByBackChildren(moveNumber);
+            }
+        }
+    }
+
+    /**
+     *  Go to move number by back routing from children when in branch
+     */
+    public void goToMoveNumberByBackChildren(int moveNumber) {
+        int delta = moveNumber - history.getMoveNumber();
+        for (int i = 0; i < Math.abs(delta); i++) {
+            BoardHistoryNode curNode = history.getCurrentHistoryNode();
+            if (curNode.numberOfChildren() > 1 && delta > 0) {
+                nextMove(curNode.getFromBackChildren());
+            } else {
+                if (!(delta > 0 ? nextMove() : previousMove())) {
+                    break;
+                }
+            }
         }
     }
 

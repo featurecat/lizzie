@@ -11,6 +11,9 @@ public class BoardHistoryNode {
 
     private BoardData data;
 
+    // Save the children for restore to branch
+    private int fromBackChildren;
+
     /**
      * Initializes a new list node
      */
@@ -173,4 +176,19 @@ public class BoardHistoryNode {
             nexts.remove(idx);
         }
     }
+
+    /**
+     * @param fromBackChildren the fromBackChildren to set
+     */
+    public void setFromBackChildren(int fromBackChildren) {
+        this.fromBackChildren = fromBackChildren;
+    }
+
+    /**
+     * @return the fromBackChildren
+     */
+    public int getFromBackChildren() {
+        return fromBackChildren;
+    }
+
 }

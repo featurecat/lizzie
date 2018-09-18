@@ -1,5 +1,6 @@
 package featurecat.lizzie;
 
+import java.awt.FontMetrics;
 import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
@@ -78,6 +79,38 @@ public class Util {
             fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Truncate text that is too long for the given width
+     * 
+     * @param line
+     * @param fm
+     * @param fitWidth
+     * @return fitted
+     */
+    public static String truncateStringByWidth(String line, FontMetrics fm, int fitWidth) {
+        if (line == null || line.length() == 0) {
+            return "";
+        }
+        int width = fm.stringWidth(line);
+        if (width > fitWidth) {
+            int guess = line.length() * fitWidth / width;
+            String before = line.substring(0, guess).trim();
+            width = fm.stringWidth(before);
+            if (width > fitWidth) {
+                int diff = width - fitWidth;
+                int i = 0;
+                for (; (diff > 0 && i < 5); i++) {
+                    diff = diff - fm.stringWidth(line.substring(guess - i - 1, guess - i));
+                }
+                return line.substring(0, guess - i).trim();
+            } else {
+                return before;
+            }
+        } else {
+            return line;
         }
     }
 }

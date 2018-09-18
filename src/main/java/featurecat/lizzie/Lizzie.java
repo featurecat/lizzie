@@ -1,5 +1,6 @@
 package featurecat.lizzie;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.plugin.PluginManager;
@@ -56,7 +57,7 @@ public class Lizzie {
             try {
                 leelaz = new Leelaz();
                 if(config.handicapInsteadOfWinrate) {
-                	leelaz.estimatePassWinrate();
+                    leelaz.estimatePassWinrate();
                 }
                 if (args.length == 1) {
                     frame.loadFile(new File(args[0]));
@@ -95,4 +96,44 @@ public class Lizzie {
         System.exit(0);
     }
 
+    /**
+     * Switch the Engine by index number
+     * @param index engine index
+     */
+    public static void switchEngine(int index) {
+
+        String commandLine = null;
+        if (index == 0) {
+            commandLine = Lizzie.config.leelazConfig.getString("engine-command");
+            commandLine = commandLine.replaceAll("%network-file", Lizzie.config.leelazConfig.getString("network-file"));
+        } else {
+            JSONArray commandList = Lizzie.config.leelazConfig.getJSONArray("engine-command-list");
+            if (commandList != null && commandList.length() >= index) {
+                commandLine = commandList.getString(index - 1);
+            } else {
+                index = -1;
+            }
+        }
+        if (index < 0 || commandLine == null || commandLine.trim().isEmpty() || index == Lizzie.leelaz.currentEngineN()) {
+            return;
+        }
+
+        // Workaround for leelaz cannot exit when restarting
+        if (leelaz.isThinking) {
+            if (Lizzie.frame.isPlayingAgainstLeelaz) {
+                Lizzie.frame.isPlayingAgainstLeelaz = false;
+                Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
+                Lizzie.leelaz.isThinking = false;
+            }
+            Lizzie.leelaz.togglePonder();
+        }
+
+        board.saveMoveNumber();
+        try {
+            leelaz.restartEngine(commandLine, index);
+            board.restoreMoveNumber();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

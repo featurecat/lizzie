@@ -366,6 +366,21 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 toggleShowDynamicKomi();
                 break;
 
+            // Use Ctrl+Num to switching multiple engine
+            case VK_0:
+            case VK_1:
+            case VK_2:
+            case VK_3:
+            case VK_4:
+            case VK_5:
+            case VK_6:
+            case VK_7:
+            case VK_8:
+            case VK_9:
+                if (controlIsPressed(e)) {
+                    Lizzie.switchEngine(e.getKeyCode() - VK_0);
+                }
+                break;
             default:
                 shouldDisableAnalysis = false;
         }

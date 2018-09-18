@@ -95,6 +95,9 @@ public class LizzieFrame extends JFrame {
 
     private long lastAutosaveTime = System.currentTimeMillis();
 
+    // Save the player title
+    private String playerTitle = null;
+
     static {
         // load fonts
         try {
@@ -395,8 +398,10 @@ public class LizzieFrame extends JFrame {
 
             if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
                 if (Lizzie.config.showStatus) {
+                    // Display switching prompt
                     drawPonderingState(g, resourceBundle.getString("LizzieFrame.display.pondering") +
-                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")),
+                            (Lizzie.leelaz.isPondering()?resourceBundle.getString("LizzieFrame.display.on"):resourceBundle.getString("LizzieFrame.display.off")) +
+                            " " + Lizzie.leelaz.currentWeight() + (Lizzie.leelaz.switching() ? resourceBundle.getString("LizzieFrame.prompt.switching") : ""),
                             ponderingX, ponderingY, ponderingSize);
                 }
 
@@ -491,6 +496,14 @@ public class LizzieFrame extends JFrame {
         Font font = new Font(systemDefaultFontName, Font.PLAIN, (int)(Math.max(getWidth(), getHeight()) * size));
         FontMetrics fm = g.getFontMetrics(font);
         int stringWidth = fm.stringWidth(text);
+        // Truncate too long text when display switching prompt
+        if (Lizzie.leelaz.isLoaded()) {
+            int mainBoardX = (boardRenderer != null && boardRenderer.getLocation() != null) ? boardRenderer.getLocation().x : 0;
+            if ((mainBoardX > x) && stringWidth > (mainBoardX - x) ) {
+                text = Util.truncateStringByWidth(text, fm, mainBoardX - x);
+                stringWidth = fm.stringWidth(text);
+            }
+        }
         int stringHeight = fm.getAscent() - fm.getDescent();
         int width = stringWidth;
         int height = (int)(stringHeight * 1.2);
@@ -881,8 +894,15 @@ public class LizzieFrame extends JFrame {
     }
 
     public void setPlayers(String whitePlayer, String blackPlayer) {
-        setTitle(String.format("%s (%s [W] vs %s [B])", DEFAULT_TITLE,
-                whitePlayer, blackPlayer));
+        this.playerTitle = String.format("(%s [W] vs %s [B])", whitePlayer, blackPlayer);
+        this.updateTitle();
+    }
+
+    public void updateTitle() {
+        StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
+        sb.append(this.playerTitle != null ? " " + this.playerTitle.trim() : "");
+        sb.append(Lizzie.leelaz.engineCommand() != null ? " [" + Lizzie.leelaz.engineCommand() + "]" : "");
+        setTitle(sb.toString());
     }
 
     private void setDisplayedBranchLength(int n) {
@@ -904,7 +924,8 @@ public class LizzieFrame extends JFrame {
     }
 
     public void resetTitle() {
-        setTitle(DEFAULT_TITLE);
+        this.playerTitle = null;
+        this.updateTitle();
     }
 
     public void copySgf() {
