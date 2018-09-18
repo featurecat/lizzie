@@ -101,6 +101,19 @@ public class Board implements LeelazListener {
     }
 
     /**
+     * The comment. Thread safe
+     * @param comment the comment of stone
+     */
+    public void comment(String comment) {
+        synchronized (this) {
+
+            if (history.getData() != null) {
+                history.getData().comment = comment;
+            }
+        }
+    }
+
+    /**
      * The pass. Thread safe
      *
      * @param color the type of pass
