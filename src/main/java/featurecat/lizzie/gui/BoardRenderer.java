@@ -639,8 +639,12 @@ public class BoardRenderer {
         if (uiConfig.getBoolean("fancy-board")) {
             // fancy version
             int shadowRadius = (int) (boardLength * MARGIN / 6);
-            Image boardImage = theme.getBoard();
-            g.drawImage(boardImage == null ? theme.getBoard() : boardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
+            // Support seamless texture
+            BufferedImage boardImage = theme.getBoard();
+            TexturePaint paint = new TexturePaint(boardImage, new Rectangle(0, 0, boardImage.getWidth(), boardImage.getHeight()));
+            g.setPaint(paint);
+            g.fill(new Rectangle(x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius));
+
             g.setStroke(new BasicStroke(shadowRadius * 2));
             // draw border
             g.setColor(new Color(0, 0, 0, 50));
@@ -751,8 +755,11 @@ public class BoardRenderer {
             case BLACK_CAPTURED:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
-                    Image stone = theme.getBlackStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+					// Enhance draw quality
+                    BufferedImage stone = theme.getBlackStone(new int[]{x, y});
+                    BufferedImage newstone = new BufferedImage(stoneRadius * 2 + 1, stoneRadius * 2 + 1, BufferedImage.TYPE_INT_ARGB);
+                    newstone.getGraphics().drawImage(stone.getScaledInstance(stoneRadius * 2 + 1, stoneRadius * 2 + 1, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                    g.drawImage(newstone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(Color.BLACK);
@@ -765,7 +772,10 @@ public class BoardRenderer {
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+					// Enhance draw quality
+                    BufferedImage newstone = new BufferedImage(stoneRadius * 2 + 1, stoneRadius * 2 + 1, BufferedImage.TYPE_INT_ARGB);
+                    newstone.getGraphics().drawImage(stone.getScaledInstance(stoneRadius * 2 + 1, stoneRadius * 2 + 1, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                    g.drawImage(newstone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(Color.WHITE);
@@ -778,8 +788,11 @@ public class BoardRenderer {
             case BLACK_GHOST:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, true);
-                    Image stone = theme.getBlackStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+					// Enhance draw quality
+                    BufferedImage stone = theme.getBlackStone(new int[]{x, y});
+                    BufferedImage newstone = new BufferedImage(stoneRadius * 2 + 1, stoneRadius * 2 + 1, BufferedImage.TYPE_INT_ARGB);
+                    newstone.getGraphics().drawImage(stone.getScaledInstance(stoneRadius * 2 + 1, stoneRadius * 2 + 1, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                    g.drawImage(newstone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(new Color(0, 0, 0));//, uiConfig.getInt("branch-stone-alpha")));
@@ -790,8 +803,11 @@ public class BoardRenderer {
             case WHITE_GHOST:
                 if (uiConfig.getBoolean("fancy-stones")) {
                     drawShadow(gShadow, centerX, centerY, true);
-                    Image stone = theme.getWhiteStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+					// Enhance draw quality
+                    BufferedImage stone = theme.getWhiteStone(new int[]{x, y});
+                    BufferedImage newstone = new BufferedImage(stoneRadius * 2 + 1, stoneRadius * 2 + 1, BufferedImage.TYPE_INT_ARGB);
+                    newstone.getGraphics().drawImage(stone.getScaledInstance(stoneRadius * 2 + 1, stoneRadius * 2 + 1, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                    g.drawImage(newstone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(new Color(255, 255, 255));//, uiConfig.getInt("branch-stone-alpha")));
