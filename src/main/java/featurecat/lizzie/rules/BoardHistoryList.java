@@ -101,7 +101,7 @@ public class BoardHistoryList {
 
         return head;
     }
-    
+
     /**
      * moves the pointer to the variation number idx, returns the data stored there
      *
@@ -134,7 +134,7 @@ public class BoardHistoryList {
     public List<BoardHistoryNode> getNexts() {
         return head.getNexts();
     }
-  
+
     /**
      * Does not change the pointer position
      *

@@ -72,7 +72,7 @@ public class SGFParser {
         Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
         // Comment of the AW/AB (Add White/Add Black) stone
         String awabComment = null;
-		// Previous Tag
+        // Previous Tag
         String prevTag = null;
         boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
@@ -86,7 +86,6 @@ public class SGFParser {
 
         String blackPlayer = "", whitePlayer = "";
 
-        PARSE_LOOP:
         // Suppoert unicode charactors (UTF-8)
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
@@ -104,10 +103,10 @@ public class SGFParser {
                         // Initialize the step count
                         subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(0));
                     } else {
-                    	if (i > 0) {
-                    	    // Allow the comment tag includes '('
-                    	    tagContentBuilder.append(c);
-                    	}
+                        if (i > 0) {
+                            // Allow the comment tag includes '('
+                            tagContentBuilder.append(c);
+                        }
                     }
                     break;
                 case ')':
@@ -152,8 +151,8 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.BLACK);
                         } else {
-                        	// Save the step count
-                        	subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
+                            // Save the step count
+                            subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
                             Lizzie.board.place(move[0], move[1], Stone.BLACK);
                         }
                     } else if (tag.equals("W")) {
@@ -161,17 +160,17 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.WHITE);
                         } else {
-                        	// Save the step count
-                        	subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
+                            // Save the step count
+                            subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
                         }
                     }  else if (tag.equals("C")) {
-                    	// Support comment
-                    	if ("AW".equals(prevTag) || "AB".equals(prevTag)) {
-                    		awabComment = tagContent;
-                    	} else {
-                    		Lizzie.board.comment(tagContent);
-                    	}
+                        // Support comment
+                        if ("AW".equals(prevTag) || "AB".equals(prevTag)) {
+                            awabComment = tagContent;
+                        } else {
+                            Lizzie.board.comment(tagContent);
+                        }
                     } else if (tag.equals("AB")) {
                         int[] move = convertSgfPosToCoord(tagContent);
                         if (move == null) {
@@ -231,7 +230,7 @@ public class SGFParser {
 
         // Set AW/AB Comment
         if (awabComment != null) {
-    		Lizzie.board.comment(awabComment);        	
+            Lizzie.board.comment(awabComment);
         }
 
         return true;
@@ -286,7 +285,7 @@ public class SGFParser {
                 }
             }
         } else {
-        	// Process the AW/AB stone
+            // Process the AW/AB stone
             Stone[] stones = history.getStones();
             StringBuilder abStone = new StringBuilder();
             StringBuilder awStone = new StringBuilder();
@@ -301,24 +300,24 @@ public class SGFParser {
                     char y = (char) (corY + 'a');
 
                     if (stone.isBlack()) {
-                    	abStone.append(String.format("[%c%c]", x, y));
+                        abStone.append(String.format("[%c%c]", x, y));
                     } else {
-                    	awStone.append(String.format("[%c%c]", x, y));
+                        awStone.append(String.format("[%c%c]", x, y));
                     }
                 }
             }
             if (abStone.length() > 0) {
-            	builder.append("AB").append(abStone);
+                builder.append("AB").append(abStone);
             }
             if (awStone.length() > 0) {
-            	builder.append("AW").append(awStone);
+                builder.append("AW").append(awStone);
             }
         }
 
         // The AW/AB Comment
         if (history.getData().comment != null) {
-        	builder.append(String.format("C[%s]", history.getData().comment));
-    	}
+            builder.append(String.format("C[%s]", history.getData().comment));
+        }
 
         // replay moves, and convert them to tags.
         // *  format: ";B[xy]" or ";W[xy]"
@@ -339,35 +338,35 @@ public class SGFParser {
 
         if (node != null) {
 
-	        BoardData data = node.getData();
+            BoardData data = node.getData();
             String stone = "";
             if (Stone.BLACK.equals(data.lastMoveColor) || Stone.WHITE.equals(data.lastMoveColor)) {
 
-	            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
-	            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+                if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+                else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
 
-	            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-	            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+                char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+                char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
 
-	            builder.append(String.format(";%s[%c%c]", stone, x, y));
+                builder.append(String.format(";%s[%c%c]", stone, x, y));
 
-	            // Write the comment
-	            if (data.comment != null) {
-	                builder.append(String.format("C[%s]", data.comment));
-	            }
+                // Write the comment
+                if (data.comment != null) {
+                    builder.append(String.format("C[%s]", data.comment));
+                }
 
-	        	if (node.numberOfChildren() > 1) {
-	        		// Variation
-	        		for (BoardHistoryNode sub : node.getNexts()) {
-	            		builder.append("(");
-	        			builder.append(generateNode(board, writer, sub));
-	            		builder.append(")");
-	        		}
-	        	} else if (node.numberOfChildren() == 1) {
-	        		builder.append(generateNode(board, writer, node.next()));
-	        	} else {
-	        		return builder.toString();
-	        	}
+                if (node.numberOfChildren() > 1) {
+                    // Variation
+                    for (BoardHistoryNode sub : node.getNexts()) {
+                        builder.append("(");
+                        builder.append(generateNode(board, writer, sub));
+                        builder.append(")");
+                    }
+                } else if (node.numberOfChildren() == 1) {
+                    builder.append(generateNode(board, writer, node.next()));
+                } else {
+                    return builder.toString();
+                }
             }
         }
 
