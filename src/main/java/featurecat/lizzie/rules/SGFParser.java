@@ -86,7 +86,7 @@ public class SGFParser {
 
         String blackPlayer = "", whitePlayer = "";
 
-        // Suppoert unicode charactors (UTF-8)
+        // Support unicode characters (UTF-8)
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
             if (escaping) {
@@ -101,7 +101,7 @@ public class SGFParser {
                     if (!inTag) {
                         subTreeDepth += 1;
                         // Initialize the step count
-                        subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(0));
+                        subTreeStepMap.put(subTreeDepth, 0);
                     } else {
                         if (i > 0) {
                             // Allow the comment tag includes '('
@@ -113,7 +113,8 @@ public class SGFParser {
                     if (!inTag) {
                         if (isMultiGo) {
                             // Restore to the variation node
-                            for (int s = 0; s < subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue(); s++) {
+                            int varStep = subTreeStepMap.get(subTreeDepth);
+                            for (int s = 0; s < varStep; s++) {
                                 Lizzie.board.previousMove();
                             }
                         }
@@ -152,7 +153,7 @@ public class SGFParser {
                             Lizzie.board.pass(Stone.BLACK);
                         } else {
                             // Save the step count
-                            subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
+                            subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                             Lizzie.board.place(move[0], move[1], Stone.BLACK);
                         }
                     } else if (tag.equals("W")) {
@@ -161,7 +162,7 @@ public class SGFParser {
                             Lizzie.board.pass(Stone.WHITE);
                         } else {
                             // Save the step count
-                            subTreeStepMap.put(Integer.valueOf(subTreeDepth), Integer.valueOf(subTreeStepMap.get(Integer.valueOf(subTreeDepth)).intValue() + 1));
+                            subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
                         }
                     }  else if (tag.equals("C")) {
@@ -325,15 +326,17 @@ public class SGFParser {
 
 
         // Write variation tree
-        builder.append(generateNode(board, writer, history.nextNode()));
+        builder.append(generateNode(board, history.nextNode()));
 
         // close file
         builder.append(')');
         writer.append(builder.toString());
     }
 
-    // Generate node
-    private static String generateNode(Board board, Writer writer, BoardHistoryNode node) throws IOException {
+    /**
+     * Generate node with variations
+     */
+    private static String generateNode(Board board, BoardHistoryNode node) throws IOException {
         StringBuilder builder = new StringBuilder("");
 
         if (node != null) {
@@ -359,11 +362,11 @@ public class SGFParser {
                     // Variation
                     for (BoardHistoryNode sub : node.getNexts()) {
                         builder.append("(");
-                        builder.append(generateNode(board, writer, sub));
+                        builder.append(generateNode(board, sub));
                         builder.append(")");
                     }
                 } else if (node.numberOfChildren() == 1) {
-                    builder.append(generateNode(board, writer, node.next()));
+                    builder.append(generateNode(board, node.next()));
                 } else {
                     return builder.toString();
                 }
