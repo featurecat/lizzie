@@ -46,6 +46,9 @@ public class BoardRenderer {
     private BufferedImage cachedStonesShadowImage = null;
     private Zobrist cachedZhash = new Zobrist(); // defaults to an empty board
 
+    private BufferedImage cachedBlackStoneImage = null;
+    private BufferedImage cachedWhiteStoneImage = null;
+
     private BufferedImage branchStonesImage = null;
     private BufferedImage branchStonesShadowImage = null;
 
@@ -756,7 +759,8 @@ public class BoardRenderer {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getBlackStone(new int[]{x, y});
                     // Enhance draw quality
-                    drawScaleSmoothImage(g, stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    int size = stoneRadius * 2 + 1;
+                    g.drawImage(getScaleStone(stone, color, size, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(Color.BLACK);
@@ -770,7 +774,8 @@ public class BoardRenderer {
                     drawShadow(gShadow, centerX, centerY, false);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
                     // Enhance draw quality
-                    drawScaleSmoothImage(g, stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    int size = stoneRadius * 2 + 1;
+                    g.drawImage(getScaleStone(stone, color, size, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(Color.WHITE);
@@ -785,7 +790,8 @@ public class BoardRenderer {
                     drawShadow(gShadow, centerX, centerY, true);
                     Image stone = theme.getBlackStone(new int[]{x, y});
                     // Enhance draw quality
-                    drawScaleSmoothImage(g, stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    int size = stoneRadius * 2 + 1;
+                    g.drawImage(getScaleStone(stone, color, size, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(new Color(0, 0, 0));//, uiConfig.getInt("branch-stone-alpha")));
@@ -798,7 +804,8 @@ public class BoardRenderer {
                     drawShadow(gShadow, centerX, centerY, true);
                     Image stone = theme.getWhiteStone(new int[]{x, y});
                     // Enhance draw quality
-                    drawScaleSmoothImage(g, stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
+                    int size = stoneRadius * 2 + 1;
+                    g.drawImage(getScaleStone(stone, color, size, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
                 } else {
                     drawShadow(gShadow, centerX, centerY, true);
                     g.setColor(new Color(255, 255, 255));//, uiConfig.getInt("branch-stone-alpha")));
@@ -813,11 +820,81 @@ public class BoardRenderer {
     }
 
     /**
+     * Get scaled stone, if cached then return cached
+     */
+    public BufferedImage getScaleStone(Image img, Stone color, int width, int height) {
+        BufferedImage stone = null;
+        switch (color) {
+            case BLACK:
+            case BLACK_CAPTURED:
+            case BLACK_GHOST:
+                if (cachedBlackStoneImage == null || cachedBlackStoneImage.getWidth() != width || cachedBlackStoneImage.getHeight() != height) {
+                    stone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2 = stone.createGraphics();
+                    g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                    g2.dispose();
+                    cachedBlackStoneImage = stone;
+                } else {
+                    return cachedBlackStoneImage;
+                }
+                break;
+            case WHITE:
+            case WHITE_CAPTURED:
+            case WHITE_GHOST:
+                if (cachedWhiteStoneImage == null || cachedWhiteStoneImage.getWidth() != width || cachedWhiteStoneImage.getHeight() != height) {
+                    stone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2 = stone.createGraphics();
+                    g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                    g2.dispose();
+                    cachedWhiteStoneImage = stone;
+                } else {
+                    return cachedWhiteStoneImage;
+                }
+                break;
+             default:
+        }
+        return stone;
+    }
+
+    /**
      * Draw scale smooth image, enhanced display quality
      */
-    public void drawScaleSmoothImage(Graphics2D g, Image img, int x, int y, int width, int height, ImageObserver observer) {
+    public void drawScaleSmoothImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
         BufferedImage newstone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        newstone.getGraphics().drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, observer);
+        Graphics2D g2 = newstone.createGraphics();
+        g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, observer);
+        g2.dispose();
+        g.drawImage(newstone, x, y, width, height, observer);
+    }
+
+    /**
+     * Draw scale smooth image, enhanced display quality, less and faster than drawScaleSmoothImage
+     */
+    public void drawScaleImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
+        BufferedImage newstone = (BufferedImage)img;
+        int w = img.getWidth();
+        int h = img.getHeight();
+        do {
+            if (w > width) {
+                w /= 2;
+                if (w < width) {
+                    w = width;
+                }
+            }
+            if (h > height) {
+                h /= 2;
+                if (h < height) {
+                    h = height;
+                }
+            }
+            BufferedImage tmp = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = tmp.createGraphics();
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+            g2.drawImage(newstone, 0, 0, w, h, null);
+            g2.dispose();
+            newstone = tmp;
+        }
+        while (w != width || h != height);
         g.drawImage(newstone, x, y, width, height, observer);
     }
 
