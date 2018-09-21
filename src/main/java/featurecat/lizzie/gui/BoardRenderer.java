@@ -792,46 +792,52 @@ public class BoardRenderer {
     }
 
     /**
-     * Draw scale smooth image, enhanced display quality
+     * Draw scale smooth image, enhanced display quality (Not use, for future)
+     * This function use the traditional Image.getScaledInstance() method
+     * to provide the nice quality, but the performance is poor.
+     * Recommended for use in a few drawings
      */
-    public void drawScaleSmoothImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
-        BufferedImage newstone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = newstone.createGraphics();
-        g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, observer);
-        g2.dispose();
-        g.drawImage(newstone, x, y, width, height, observer);
-    }
+//    public void drawScaleSmoothImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
+//        BufferedImage newstone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//        Graphics2D g2 = newstone.createGraphics();
+//        g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, observer);
+//        g2.dispose();
+//        g.drawImage(newstone, x, y, width, height, observer);
+//    }
 
     /**
-     * Draw scale smooth image, enhanced display quality, less and faster than drawScaleSmoothImage
+     * Draw scale smooth image, enhanced display quality (Not use, for future)
+     * This functions use a multi-step approach to prevent the information loss
+     * and produces a much higher quality that is close to the Image.getScaledInstance()
+     * and faster than Image.getScaledInstance() method.
      */
-    public void drawScaleImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
-        BufferedImage newstone = (BufferedImage)img;
-        int w = img.getWidth();
-        int h = img.getHeight();
-        do {
-            if (w > width) {
-                w /= 2;
-                if (w < width) {
-                    w = width;
-                }
-            }
-            if (h > height) {
-                h /= 2;
-                if (h < height) {
-                    h = height;
-                }
-            }
-            BufferedImage tmp = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g2 = tmp.createGraphics();
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            g2.drawImage(newstone, 0, 0, w, h, null);
-            g2.dispose();
-            newstone = tmp;
-        }
-        while (w != width || h != height);
-        g.drawImage(newstone, x, y, width, height, observer);
-    }
+//    public void drawScaleImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
+//        BufferedImage newstone = (BufferedImage)img;
+//        int w = img.getWidth();
+//        int h = img.getHeight();
+//        do {
+//            if (w > width) {
+//                w /= 2;
+//                if (w < width) {
+//                    w = width;
+//                }
+//            }
+//            if (h > height) {
+//                h /= 2;
+//                if (h < height) {
+//                    h = height;
+//                }
+//            }
+//            BufferedImage tmp = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//            Graphics2D g2 = tmp.createGraphics();
+//            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+//            g2.drawImage(newstone, 0, 0, w, h, null);
+//            g2.dispose();
+//            newstone = tmp;
+//        }
+//        while (w != width || h != height);
+//        g.drawImage(newstone, x, y, width, height, observer);
+//    }
 
     /**
      * Draw texture image
