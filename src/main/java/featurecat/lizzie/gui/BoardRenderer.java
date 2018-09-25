@@ -470,7 +470,7 @@ public class BoardRenderer {
         int[] moveNumberList = branch == null ? Lizzie.board.getMoveNumberList() : branch.data.moveNumberList;
 
         // Allow to display only last move number
-        int lastMoveNumber = Lizzie.board.getData().moveNumber;
+        int lastMoveNumber = branch == null ? Lizzie.board.getData().moveNumber : branch.data.moveNumber;
         int onlyLastMoveNumber = Lizzie.config.uiConfig.optInt("only-last-move-number", 9999);
 
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
