@@ -324,9 +324,8 @@ public class SGFParser {
         // *  format: ";B[xy]" or ";W[xy]"
         // *  with 'xy' = coordinates ; or 'tt' for pass.
 
-
         // Write variation tree
-        builder.append(generateNode(board, history.nextNode()));
+        builder.append(generateNode(board, history.getCurrentHistoryNode()));
 
         // close file
         builder.append(')');
@@ -357,19 +356,19 @@ public class SGFParser {
                 if (data.comment != null) {
                     builder.append(String.format("C[%s]", data.comment));
                 }
+            }
 
-                if (node.numberOfChildren() > 1) {
-                    // Variation
-                    for (BoardHistoryNode sub : node.getNexts()) {
-                        builder.append("(");
-                        builder.append(generateNode(board, sub));
-                        builder.append(")");
-                    }
-                } else if (node.numberOfChildren() == 1) {
-                    builder.append(generateNode(board, node.next()));
-                } else {
-                    return builder.toString();
+            if (node.numberOfChildren() > 1) {
+                // Variation
+                for (BoardHistoryNode sub : node.getNexts()) {
+                    builder.append("(");
+                    builder.append(generateNode(board, sub));
+                    builder.append(")");
                 }
+            } else if (node.numberOfChildren() == 1) {
+                builder.append(generateNode(board, node.next()));
+            } else {
+                return builder.toString();
             }
         }
 
