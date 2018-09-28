@@ -12,7 +12,6 @@ import java.io.IOException;
 /**
  * Main class.
  */
- //test
 public class Lizzie {
     public static LizzieFrame frame;
     public static Leelaz leelaz;

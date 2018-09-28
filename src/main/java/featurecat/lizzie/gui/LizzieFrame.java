@@ -772,7 +772,7 @@ public class LizzieFrame extends JFrame {
         // check for board click
         int[] boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
         int moveNumber = winrateGraph.moveNumber(x, y);
-
+		
         if (boardCoordinates != null) {
             if (Lizzie.board.inAnalysisMode())
                 Lizzie.board.toggleAnalysis();
@@ -786,6 +786,11 @@ public class LizzieFrame extends JFrame {
         if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
             Lizzie.config.toggleLargeSubBoard();
         }
+
+		if (Lizzie.frame.variationTree.jumpVariationTree(x,y)!=0) {
+			//Lizzie.board.goToMoveNumber(moveNumber);
+		}
+		
         repaint();
     }
 
