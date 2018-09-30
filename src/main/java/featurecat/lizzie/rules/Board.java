@@ -488,6 +488,58 @@ public class Board implements LeelazListener {
         }
     }
 
+
+	// jump anywhere in the board history tree.  Written for mouse click navigation 
+	public void jumpToAnyPosition(BoardHistoryNode targetNode) {
+		BoardHistoryNode  srcNode, tarNode=targetNode, prevNode;
+
+		int[] tar = new int[512], src = new int[512]; int i=0 ,j=0, k=0;
+
+		prevNode=tarNode.previous();
+		while(prevNode != null){
+			for(k=0;k<prevNode.numberOfChildren();k++)
+				if (prevNode.getVariation(k) == tarNode) 
+					tar[i++]=k;		
+			tarNode = prevNode; prevNode=prevNode.previous(); 
+		}
+
+		srcNode=history.getCurrentHistoryNode();
+		prevNode=srcNode.previous();
+		while(prevNode != null){
+			for(k=0;k<prevNode.numberOfChildren();k++)
+				if (prevNode.getVariation(k) == srcNode) 
+					src[j++]=k;
+			srcNode = prevNode; prevNode=prevNode.previous(); 
+		}
+
+		//compare tar[]  with src[] , and try to find nearest branch
+		for(k=0; k<Math.min(i,j);k++) {
+			if(tar[i-k-1] == src[j-k-1]) continue;
+			break;
+		}
+				
+		if (k==i)
+			{
+			//target node is shorter, just move back
+			for (int m=0; m<j-k; m++) previousMove();
+			}
+		else if (k==j){
+			//source node is shorter, move forward
+			for (int m=i-k; m>0;m--)
+				nextVariation(tar[m-1]);		
+			}
+
+		else {
+			// in the different branchs, must move back first, then move forword
+			for (int m=0; m<j-k; m++) 
+				previousMove();
+			for (int m=i-k; m>0;m--){
+				nextVariation(tar[m-1]);
+			}
+		}
+	}
+
+
     /*
      * Moves to next variation (variation to the right) if possible
      * To move to another variation, the variation must have a move with the same move number as the current move in it.
