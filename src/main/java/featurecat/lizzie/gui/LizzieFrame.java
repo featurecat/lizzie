@@ -823,9 +823,9 @@ public class LizzieFrame extends JFrame {
             Lizzie.config.toggleLargeSubBoard();
         }
 
-		if (Lizzie.frame.variationTree.jumpVariationTree(x,y)!=0) {
-			//Lizzie.board.goToMoveNumber(moveNumber);
-		}
+        if (Lizzie.config.showVariationGraph) {
+            Lizzie.frame.variationTree.jumpVariationTree(x,y);	
+        }
 		
         repaint();
     }
