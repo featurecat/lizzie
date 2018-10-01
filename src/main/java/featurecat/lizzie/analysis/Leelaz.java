@@ -87,25 +87,31 @@ public class Leelaz {
             updateToLatestNetwork();
         }
 
-        String startfolder = new File(Config.getBestDefaultLeelazPath()).getParent(); // todo make this a little more obvious/less bug-prone
-
-        // Check if network file is present
-        File wf = new File(startfolder + '/' + config.getString("network-file"));
-        if (!wf.exists()) {
-            JOptionPane.showMessageDialog(null, resourceBundle.getString("LizzieFrame.display.network-missing"));
-        }
-
-
-        // command string for starting the engine
+        File startfolder = new File(config.optString("engine-start-location", "."));
         String engineCommand = config.getString("engine-command");
+        String networkFile = config.getString("network-file");
         // substitute in the weights file
-        engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
+        engineCommand = engineCommand.replaceAll("%network-file", networkFile);
         // create this as a list which gets passed into the processbuilder
         List<String> commands = Arrays.asList(engineCommand.split(" "));
 
+        // Check if engine is present
+        File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
+        if (!lef.exists()) {
+            JOptionPane.showMessageDialog(null, resourceBundle.getString("LizzieFrame.display.leelaz-missing"), "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+            throw new IOException("engine not present");
+        }
+
+         // Check if network file is present
+        File wf = startfolder.toPath().resolve(new File(networkFile).toPath()).toFile();
+        if (!wf.exists()) {
+            JOptionPane.showMessageDialog(null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+            throw new IOException("network-file not present");
+        }
+
         // run leelaz
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
-        processBuilder.directory(new File(startfolder));
+        processBuilder.directory(startfolder);
         processBuilder.redirectErrorStream(true);
         process = processBuilder.start();
 
