@@ -470,8 +470,8 @@ public class LizzieFrame extends JFrame {
         BufferedImage background = boardRenderer.theme.getBackground();
         int drawWidth = Math.max(background.getWidth(), getWidth());
         int drawHeight = Math.max(background.getHeight(), getHeight());
-
-        g.drawImage(background, 0, 0, drawWidth, drawHeight, null);
+        // Support seamless texture
+        boardRenderer.drawTextureImage(g, background, 0, 0, drawWidth, drawHeight);
 
         return g;
     }
