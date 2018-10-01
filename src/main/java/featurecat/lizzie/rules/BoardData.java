@@ -18,6 +18,9 @@ public class BoardData {
     public int blackCaptures;
     public int whiteCaptures;
 
+    // Comment in the Sgf move
+    public String comment;
+
     public BoardData(Stone[] stones, int[] lastMove, Stone lastMoveColor, boolean blackToPlay, Zobrist zobrist, int moveNumber, int[] moveNumberList, int blackCaptures, int whiteCaptures, double winrate, int playouts) {
         this.moveNumber = moveNumber;
         this.lastMove = lastMove;

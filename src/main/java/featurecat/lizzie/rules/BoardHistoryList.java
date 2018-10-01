@@ -89,6 +89,20 @@ public class BoardHistoryList {
     }
 
     /**
+     * moves the pointer to the right, returns the node stored there
+     *
+     * @return the next node, null if there is no next node
+     */
+    public BoardHistoryNode nextNode() {
+        if (head.next() == null)
+            return null;
+        else
+            head = head.next();
+
+        return head;
+    }
+
+    /**
      * moves the pointer to the variation number idx, returns the data stored there
      *
      * @return the data of next node, null if there is no variaton with index
@@ -120,7 +134,7 @@ public class BoardHistoryList {
     public List<BoardHistoryNode> getNexts() {
         return head.getNexts();
     }
-  
+
     /**
      * Does not change the pointer position
      *
