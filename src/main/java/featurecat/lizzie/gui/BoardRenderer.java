@@ -473,10 +473,19 @@ public class BoardRenderer {
 
         int[] moveNumberList = branch == null ? Lizzie.board.getMoveNumberList() : branch.data.moveNumberList;
 
+        // Allow to display only last move number
+        int lastMoveNumber = branch == null ? Lizzie.board.getData().moveNumber : branch.data.moveNumber;
+        int onlyLastMoveNumber = Lizzie.config.uiConfig.optInt("only-last-move-number", 9999);
+
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             for (int j = 0; j < Board.BOARD_SIZE; j++) {
                 int stoneX = x + scaledMargin + squareLength * i;
                 int stoneY = y + scaledMargin + squareLength * j;
+
+                // Allow to display only last move number
+                if (lastMoveNumber - moveNumberList[Board.getIndex(i, j)] >= onlyLastMoveNumber) {
+                    continue;
+                }
 
                 Stone stoneAtThisPoint = branch == null ? Lizzie.board.getStones()[Board.getIndex(i, j)] :
                         branch.data.stones[Board.getIndex(i, j)];
