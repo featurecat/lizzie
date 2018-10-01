@@ -177,7 +177,7 @@ public class VariationTree {
 
 
         // Check first node 
-		if ( Math.abs(mouseX-curposx) < XSPACING/2 && Math.abs(mouseY-posy) < YSPACING/2)
+		if ( Math.abs(mouseX-curposx-dotoffset) < XSPACING/2 && Math.abs(mouseY-posy-dotoffset) < YSPACING/2)
 			return startNode;
 
 
@@ -185,7 +185,7 @@ public class VariationTree {
         while (cur.next() != null && posy + YSPACING < maxposy) {
             posy += YSPACING;
             cur = cur.next();
-			if (Math.abs(mouseX-curposx) < XSPACING/2 && Math.abs(mouseY-posy) < YSPACING/2)
+			if (Math.abs(mouseX-curposx-dotoffset) < XSPACING/2 && Math.abs(mouseY-posy-dotoffset) < YSPACING/2)
 				return cur;
 
         }
