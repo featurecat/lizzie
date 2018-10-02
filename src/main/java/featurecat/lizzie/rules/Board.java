@@ -489,12 +489,18 @@ public class Board implements LeelazListener {
     }
 
 
-	// jump anywhere in the board history tree.  Written for mouse click navigation 
+	// Jump anywhere in the board history tree.  Written for mouse click navigation
 	public void jumpToAnyPosition(BoardHistoryNode targetNode) {
-		BoardHistoryNode  srcNode, tarNode=targetNode, prevNode;
+		BoardHistoryNode  srcNode, tarNode, prevNode;
+        
+        //tar[] to track path from target node to root node
+        //src[] to track path from source node to root node
+        int[] tar = new int[512], src = new int[512];
 
-		int[] tar = new int[512], src = new int[512]; int i=0 ,j=0, k=0;
-
+        int i=0 ,j=0, k=0;  //i is index for target node, j for source node, k is working variable
+        
+        //find path from target node to root node
+        tarNode=targetNode;
 		prevNode=tarNode.previous();
 		while(prevNode != null){
 			for(k=0;k<prevNode.numberOfChildren();k++)
@@ -502,7 +508,8 @@ public class Board implements LeelazListener {
 					tar[i++]=k;		
 			tarNode = prevNode; prevNode=prevNode.previous(); 
 		}
-
+        
+        //find path from source node to root node
 		srcNode=history.getCurrentHistoryNode();
 		prevNode=srcNode.previous();
 		while(prevNode != null){
@@ -512,32 +519,31 @@ public class Board implements LeelazListener {
 			srcNode = prevNode; prevNode=prevNode.previous(); 
 		}
 
-		//compare tar[]  with src[] , and try to find nearest branch
+		//Compare tar[]  with src[] , and try to find nearest branch
 		for(k=0; k<Math.min(i,j);k++) {
 			if(tar[i-k-1] == src[j-k-1]) continue;
 			break;
 		}
-				
-		if (k==i)
-			{
-			//target node is shorter, just move back
-			for (int m=0; m<j-k; m++) previousMove();
-			}
-		else if (k==j){
+        
+        //Move to the target node from source node
+		if (k==i) {
+            //target node is shorter, just move back
+            for (int m=0; m<j-k; m++)
+                 previousMove();
+
+        } else if (k==j) {
 			//source node is shorter, move forward
 			for (int m=i-k; m>0;m--)
-				nextVariation(tar[m-1]);		
-			}
+                nextVariation(tar[m-1]);
 
-		else {
-			// in the different branchs, must move back first, then move forword
-			for (int m=0; m<j-k; m++) 
-				previousMove();
-			for (int m=i-k; m>0;m--){
-				nextVariation(tar[m-1]);
-			}
-		}
-	}
+        } else {
+            // in the different branchs, must move back first, then move forword
+            for (int m=0; m<j-k; m++)
+                previousMove();
+            for (int m=i-k; m>0;m--)
+                nextVariation(tar[m-1]);
+        }
+    }
 
 
     /*
