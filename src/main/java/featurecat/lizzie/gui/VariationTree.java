@@ -117,7 +117,7 @@ public class VariationTree {
         YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
         XSPACING = YSPACING;
 
-		posx1=posx;posy1=posy;width1=width;height1=height;  //backup for mouse click event
+	    posx1=posx;posy1=posy;width1=width;height1=height;  //backup for mouse click event
 
         // Draw background
         g.setColor(new Color(0, 0, 0, 60));
@@ -149,7 +149,7 @@ public class VariationTree {
     }
 	
 	 
-	//clone from drawTree() method but draw nothing, just caculate (x,y)->BoardNode
+    //Clone from drawTree() method but draw nothing, just caculate (x,y)->BoardNode
 	public BoardHistoryNode inSubtree(int posx, int posy, int mouseX, int mouseY, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber)
 	{
         // Finds depth on leftmost variation of this tree
@@ -205,13 +205,14 @@ public class VariationTree {
             posy -= YSPACING;
         }
 		return null;
-	}
-
+    }
+    
+    //Clone from draw() method but draw nothing, just caculate (x,y)->BoardNode
 	public BoardHistoryNode inVariationTree(int mouseX, int mouseY) {
 
-		//check if (x,y) is in the variation window
-		if (mouseX < posx1 || mouseX > posx1+width1 || mouseY < posy1 || mouseY > posy1+height1)
-			return null;
+	    //check if (x,y) is in the variation window
+	    if (mouseX < posx1 || mouseX > posx1+width1 || mouseY < posy1 || mouseY > posy1+height1)
+		    return null;
 	 
         // Use dense tree for saving space if large-subboard
         YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
@@ -235,13 +236,13 @@ public class VariationTree {
         }
         return inSubtree(posx1 + xoffset, curposy, mouseX, mouseY,0, posy1 + height1, node, 0);
 	
-		}
+    }
 	
 	public int jumpVariationTree(int mouseX, int mouseY){
 		BoardHistoryNode node;
 		node = inVariationTree(mouseX, mouseY);    //check if (x,y) hit proper branch node
-		if (node!=null)
-			Lizzie.board.jumpToAnyPosition(node);  
-		return 0;
+        if (node==null) return -1;  //check if any error occur
+        Lizzie.board.jumpToAnyPosition(node);  
+        return 0;
 	}
 }
