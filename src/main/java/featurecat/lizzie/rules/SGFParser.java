@@ -4,11 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
-import featurecat.lizzie.plugin.PluginManager;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 
@@ -38,7 +35,6 @@ public class SGFParser {
         }
 
         boolean returnValue = parse(value);
-        PluginManager.onSgfLoaded();
         return returnValue;
     }
 
