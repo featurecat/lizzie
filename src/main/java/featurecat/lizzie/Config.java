@@ -240,7 +240,6 @@ public class Config {
         JSONObject ui = new JSONObject();
 
         ui.put("board-color", new JSONArray("[217, 152, 77]"));
-        ui.put("theme", "DefaultTheme");
         ui.put("shadows-enabled", true);
         ui.put("fancy-stones", true);
         ui.put("fancy-board", true);
