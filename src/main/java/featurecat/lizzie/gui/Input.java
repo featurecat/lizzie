@@ -316,6 +316,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.config.toggleShowVariationGraph();
                 break;
 
+            case VK_T:
+                Lizzie.config.toggleShowComment();
+                break;
+
             case VK_C:
                 if (controlIsPressed(e)) {
                     Lizzie.frame.copySgf();
@@ -399,6 +403,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
+            return;
+        }
         if (Lizzie.board.inAnalysisMode())
             Lizzie.board.toggleAnalysis();
         if (e.getWheelRotation() > 0) {

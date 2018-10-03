@@ -21,6 +21,7 @@ import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -30,6 +31,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
@@ -68,6 +70,7 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyV"),
             resourceBundle.getString("LizzieFrame.commands.keyW"),
             resourceBundle.getString("LizzieFrame.commands.keyG"),
+            resourceBundle.getString("LizzieFrame.commands.keyT"),
             resourceBundle.getString("LizzieFrame.commands.keyHome"),
             resourceBundle.getString("LizzieFrame.commands.keyEnd"),
             resourceBundle.getString("LizzieFrame.commands.keyControl"),
@@ -94,6 +97,13 @@ public class LizzieFrame extends JFrame {
     private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
     private long lastAutosaveTime = System.currentTimeMillis();
+
+    // Display Comment
+    private JScrollPane scrollPane = null;
+    private JTextPane commentPane = null;
+    private BufferedImage commentImage = null;
+    private String cachedComment = null;
+    private Rectangle commentRect = null;
 
     static {
         // load fonts
@@ -124,6 +134,17 @@ public class LizzieFrame extends JFrame {
         if (Lizzie.config.startMaximized) {
             setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
         }
+
+        // Comment Pane
+        commentPane = new JTextPane();
+        commentPane.setEditable(false);
+        commentPane.setMargin(new Insets(5, 5, 5, 5));
+        commentPane.setBackground(new Color(0, 0, 0, 200));
+        commentPane.setForeground(Color.WHITE);
+        scrollPane = new JScrollPane();
+        scrollPane.setViewportView(commentPane);
+        scrollPane.setBorder(null);
+        scrollPane.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         setVisible(true);
 
@@ -414,7 +435,17 @@ public class LizzieFrame extends JFrame {
 
                 if (Lizzie.config.showVariationGraph) {
                     drawVariationTreeContainer(backgroundG, vx, vy, vw, vh);
-                    variationTree.draw(g, treex, treey, treew, treeh);
+                    int cHeight = 0;
+                    if (Lizzie.config.showComment) {
+                        // Draw the Comment of the Sgf
+                        cHeight = drawComment(g, vx, vy, vw, vh, false);
+                    }
+                    variationTree.draw(g, treex, treey, treew, treeh - cHeight);
+                } else {
+                    if (Lizzie.config.showComment) {
+                        // Draw the Comment of the Sgf
+                        drawComment(g, vx, topInset, vw, vh - topInset + vy, true);
+                    }
                 }
                 if (Lizzie.config.showSubBoard) {
                     try {
@@ -867,6 +898,44 @@ public class LizzieFrame extends JFrame {
         }
     }
 
+    /**
+     * Process Comment Mouse Wheel Moved
+     * 
+     * @return true when the scroll event was processed by this method
+     */
+    public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
+        if (Lizzie.config.showComment && commentRect != null && commentRect.contains(e.getX(), e.getY())) {
+            scrollPane.dispatchEvent(e);
+            createCommentImage(true, 0, 0);
+            getGraphics().drawImage(commentImage, commentRect.x, commentRect.y, commentRect.width, commentRect.height, null);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Create comment cached image
+     * 
+     * @param forceRefresh
+     * @param w
+     * @param h
+     */
+    public void createCommentImage(boolean forceRefresh, int w, int h) {
+        if (forceRefresh || commentImage == null || scrollPane.getWidth() != w || scrollPane.getHeight() != h) {
+            if (w > 0 && h > 0) {
+                scrollPane.setSize(w, h);
+            }
+            commentImage = new BufferedImage(scrollPane.getWidth(), scrollPane.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g2 = commentImage.createGraphics();
+            scrollPane.doLayout();
+            scrollPane.addNotify();
+            scrollPane.validate();
+            scrollPane.printAll(g2);
+            g2.dispose();
+        }
+    }
+
     private void autosaveMaybe() {
         int interval = Lizzie.config.config.getJSONObject("ui").getInt("autosave-interval-seconds") * 1000;
         long currentTime = System.currentTimeMillis();
@@ -944,5 +1013,38 @@ public class LizzieFrame extends JFrame {
 
     public void increaseMaxAlpha(int k) {
         boardRenderer.increaseMaxAlpha(k);
+    }
+
+    /**
+     * Draw the Comment of the Sgf file
+     *
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param full
+     * @return
+     */
+    private int drawComment(Graphics2D g, int x, int y, int w, int h, boolean full) {
+        String comment = (Lizzie.board.getHistory().getData() != null && Lizzie.board.getHistory().getData().comment != null) ? Lizzie.board.getHistory().getData().comment : "";
+        int cHeight = full ? h : (int)(h*0.5);
+        int fontSize = (int)(Math.min(getWidth(), getHeight()) * 0.98 * 0.03);
+        try {
+            fontSize = Lizzie.config.uiConfig.getInt("comment-font-size");
+        } catch (JSONException e) {
+            if (fontSize < 16) {
+                fontSize = 16;
+            }
+        }
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
+        commentPane.setFont(font);
+        commentPane.setText(comment);
+        commentPane.setSize(w, cHeight);
+        createCommentImage((comment != null && !comment.equals(this.cachedComment)) ? true : false, w, cHeight);
+        commentRect = new Rectangle(x, y + (h - cHeight), scrollPane.getWidth(), scrollPane.getHeight());
+        g.drawImage(commentImage, commentRect.x, commentRect.y, commentRect.width, commentRect.height, null);
+        cachedComment = comment;
+        return cHeight;
     }
 }
