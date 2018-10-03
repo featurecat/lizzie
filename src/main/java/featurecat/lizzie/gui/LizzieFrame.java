@@ -71,6 +71,10 @@ public class LizzieFrame extends JFrame {
             resourceBundle.getString("LizzieFrame.commands.keyHome"),
             resourceBundle.getString("LizzieFrame.commands.keyEnd"),
             resourceBundle.getString("LizzieFrame.commands.keyControl"),
+            resourceBundle.getString("LizzieFrame.commands.keyZ"),
+            resourceBundle.getString("LizzieFrame.commands.keyComma"),
+            resourceBundle.getString("LizzieFrame.commands.mouseWheelScrollShift"),
+            resourceBundle.getString("LizzieFrame.commands.mouseRigthclick"),
     };
     private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
     private static BoardRenderer boardRenderer;
@@ -540,7 +544,7 @@ public class LizzieFrame extends JFrame {
         Graphics2D g = cachedImage.createGraphics();
 
         int maxSize = Math.min(getWidth(), getHeight());
-        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
+        Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.028));
         g.setFont(font);
         FontMetrics metrics = g.getFontMetrics(font);
         int maxCommandWidth = commandsToShow.stream().reduce(0, (Integer i, String command) -> Math.max(i, metrics.stringWidth(command)), (Integer a, Integer b) -> Math.max(a, b));
