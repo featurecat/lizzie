@@ -77,7 +77,7 @@ public class SGFParser {
         if (szMatcher.matches()) {
             Lizzie.board.reopen(Integer.parseInt(szMatcher.group(1)));
         } else {
-            Lizzie.board.reopen(0);
+            Lizzie.board.reopen(19);
         }
 
         int subTreeDepth = 0;

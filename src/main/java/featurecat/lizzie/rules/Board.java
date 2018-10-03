@@ -109,11 +109,9 @@ public class Board implements LeelazListener {
      * @param size
      */
     public void reopen(int size) {
-        if (size == 0) {
-            size = 19;
-        }
+        size = (size == 13 || size == 9) ? size : 19;
         if (size != BOARD_SIZE) {
-            BOARD_SIZE = (size == 19 || size == 13 || size == 9) ? size : 19;
+            BOARD_SIZE = size;
             initialize();
             forceRefresh = true;
         }
