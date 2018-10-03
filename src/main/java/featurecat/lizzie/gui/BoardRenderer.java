@@ -8,7 +8,9 @@ import featurecat.lizzie.analysis.Branch;
 import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.plugin.PluginManager;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
+import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.rules.Zobrist;
 
@@ -17,6 +19,7 @@ import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,6 +122,8 @@ public class BoardRenderer {
             if (Lizzie.config.showNextMoves) {
                 drawNextMoves(g);
             }
+            
+            drawStoneMarkup(g);
         }
 
         PluginManager.onDraw(g);
@@ -166,7 +171,10 @@ public class BoardRenderer {
         if (cachedBackgroundImage == null || cachedBackgroundImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight() ||
                 cachedX != x || cachedY != y ||
-                cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()) {
+                cachedBackgroundImageHasCoordinatesEnabled != showCoordinates() ||
+                Lizzie.board.isForceRefresh()) {
+
+            Lizzie.board.setForceRefresh(false);
 
             cachedBackgroundImage = new BufferedImage(Lizzie.frame.getWidth(), Lizzie.frame.getHeight(),
                     BufferedImage.TYPE_INT_ARGB);
@@ -855,6 +863,76 @@ public class BoardRenderer {
         TexturePaint paint = new TexturePaint(img, new Rectangle(0, 0, img.getWidth(), img.getHeight()));
         g.setPaint(paint);
         g.fill(new Rectangle(x, y, width, height));
+    }
+
+    /**
+     * Draw stone Markups
+     * 
+     * @param g
+     */
+    private void drawStoneMarkup(Graphics2D g) {
+
+        BoardData data = Lizzie.board.getHistory().getData();
+
+        data.getProperties().forEach((key, value) -> {
+            if (SGFParser.isListProperty(key)) {
+                String[] labels = value.split(",");
+                for (String label : labels) {
+                    String[] moves = label.split(":");
+                    int[] move = SGFParser.convertSgfPosToCoord(moves[0]);
+                    if (move != null) {
+                        int[] lastMove = branch == null ? Lizzie.board.getLastMove() : branch.data.lastMove;
+                        if (!Arrays.equals(move, lastMove)) {
+                            int moveX = x + scaledMargin + squareLength * move[0];
+                            int moveY = y + scaledMargin + squareLength * move[1];
+                            g.setColor(Lizzie.board.getStones()[Board.getIndex(move[0], move[1])].isBlack() ? Color.WHITE : Color.BLACK);
+                            g.setStroke(new BasicStroke(2));
+                            if ("LB".equals(key) && moves.length > 1) {
+                                // Label
+                                drawString(g, moveX, moveY, LizzieFrame.OpenSansRegularBase, moves[1], (float) (stoneRadius * 1.4), (int) (stoneRadius * 1.4));
+                            } else if ("TR".equals(key)) {
+                                // Triangle
+                                drawTriangle(g, moveX, moveY, (stoneRadius + 1)*2/3);
+                            } else if ("SQ".equals(key)) {
+                                // Square
+                                drawSquare(g, moveX, moveY, (stoneRadius + 1)/2);
+                            } else if ("CR".equals(key)) {
+                                // Circle
+                                drawCircle(g, moveX, moveY, stoneRadius*2/3);
+                            } else if ("MA".equals(key)) {
+                                // Mark (X)
+                                drawMarkX(g, moveX, moveY, (stoneRadius + 1)/2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Draws the triangle of a circle centered at (centerX, centerY) with radius $radius$
+     */
+    private void drawTriangle(Graphics2D g, int centerX, int centerY, int radius) {
+        int offset = (int)(3.0/2.0*radius/Math.sqrt(3.0));
+        int x[] = {centerX, centerX - offset, centerX + offset};
+        int y[] = {centerY - radius, centerY + radius/2, centerY + radius/2};
+        g.drawPolygon(x, y, 3);
+    }
+
+    /**
+     * Draws the square of a circle centered at (centerX, centerY) with radius $radius$
+     */
+    private void drawSquare(Graphics2D g, int centerX, int centerY, int radius) {
+        g.drawRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
+
+    /**
+     * Draws the mark(X) of a circle centered at (centerX, centerY) with radius $radius$
+     */
+    private void drawMarkX(Graphics2D g, int centerX, int centerY, int radius) {
+        g.drawLine(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        g.drawLine(centerX - radius, centerY + radius, centerX + radius, centerY - radius);
     }
 
     /**
