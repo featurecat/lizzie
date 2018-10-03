@@ -10,16 +10,16 @@ import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.rules.Zobrist;
-import featurecat.lizzie.theme.DefaultTheme;
-import featurecat.lizzie.theme.ITheme;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import javax.imageio.ImageIO;
 
 public class BoardRenderer {
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
@@ -40,6 +40,8 @@ public class BoardRenderer {
     private int cachedX, cachedY;
 
     private BufferedImage cachedStonesImage = null;
+    private BufferedImage cachedBoardImage = null;
+    private BufferedImage cachedWallpaperImage = null;
     private BufferedImage cachedStonesShadowImage = null;
     private Zobrist cachedZhash = new Zobrist(); // defaults to an empty board
 
@@ -51,7 +53,6 @@ public class BoardRenderer {
 
     private boolean lastInScoreMode = false;
 
-    public ITheme theme;
     public List<String> variation;
 
     // special values of displayedBranchLength
@@ -67,10 +68,6 @@ public class BoardRenderer {
 
     public BoardRenderer(boolean isMainBoard) {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
-        theme = ITheme.loadTheme(uiConfig.getString("theme"));
-        if (theme == null) {
-            theme = new DefaultTheme();
-        }
         uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
         try {
             maxAlpha = uiPersist.getInt("max-alpha");
@@ -88,7 +85,7 @@ public class BoardRenderer {
         setupSizeParameters();
 
 //        Stopwatch timer = new Stopwatch();
-        drawBackground(g);
+        drawGoban(g);
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
@@ -157,7 +154,7 @@ public class BoardRenderer {
     /**
      * Draw the green background and go board with lines. We cache the image for a performance boost.
      */
-    private void drawBackground(Graphics2D g0) {
+    private void drawGoban(Graphics2D g0) {
         // draw the cached background image if frame size changes
         if (cachedBackgroundImage == null || cachedBackgroundImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight() ||
@@ -646,11 +643,16 @@ public class BoardRenderer {
 
     private void drawWoodenBoard(Graphics2D g) {
         if (uiConfig.getBoolean("fancy-board")) {
-            // fancy version
+            if  (cachedBoardImage == null) {
+                try {
+                    cachedBoardImage = ImageIO.read(getClass().getResourceAsStream("/assets/board.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             int shadowRadius = (int) (boardLength * MARGIN / 6);
-            BufferedImage boardImage = theme.getBoard();
-            // Support seamless texture
-            drawTextureImage(g, boardImage == null ? theme.getBoard() : boardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius);
+            drawTextureImage(g, cachedBoardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius);
 
             g.setStroke(new BasicStroke(shadowRadius * 2));
             // draw border
@@ -659,7 +661,6 @@ public class BoardRenderer {
             g.setStroke(new BasicStroke(1));
 
         } else {
-            // simple version
             JSONArray boardColor = uiConfig.getJSONArray("board-color");
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             g.setColor(new Color(boardColor.getInt(0), boardColor.getInt(1), boardColor.getInt(2)));
@@ -762,9 +763,8 @@ public class BoardRenderer {
             boolean isGhost = (color == Stone.BLACK_GHOST || color == Stone.WHITE_GHOST);
             if (uiConfig.getBoolean("fancy-stones")) {
                 drawShadow(gShadow, centerX, centerY, isGhost);
-                Image stone = isBlack ? theme.getBlackStone(new int[]{x, y}) : theme.getWhiteStone(new int[]{x, y});
                 int size = stoneRadius * 2 + 1;
-                g.drawImage(getScaleStone(stone, isBlack, size, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
+                g.drawImage(getScaleStone(isBlack, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
             } else {
                 drawShadow(gShadow, centerX, centerY, true);
                 g.setColor(isBlack ? (isGhost ? new Color(0, 0, 0) : Color.BLACK) : (isGhost ? new Color(255, 255, 255) : Color.WHITE));
@@ -780,12 +780,19 @@ public class BoardRenderer {
     /**
      * Get scaled stone, if cached then return cached
      */
-    public BufferedImage getScaleStone(Image img, boolean isBlack, int width, int height) {
+    private BufferedImage getScaleStone(boolean isBlack, int size) {
         BufferedImage stone = isBlack ? cachedBlackStoneImage : cachedWhiteStoneImage;
-        if (stone == null || stone.getWidth() != width || stone.getHeight() != height) {
-            stone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        if (stone == null) {
+            stone = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            String imgPath = isBlack ? "/assets/black0.png" : "/assets/white0.png";
+            Image img = null;
+            try {
+               img = ImageIO.read(getClass().getResourceAsStream(imgPath));
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
             Graphics2D g2 = stone.createGraphics();
-            g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+            g2.drawImage(img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
             g2.dispose();
             if (isBlack) {
                 cachedBlackStoneImage = stone;
@@ -794,6 +801,17 @@ public class BoardRenderer {
             }
         }
         return stone;
+    }
+
+    public BufferedImage getWallpaper() {
+      if (cachedWallpaperImage == null) {
+        try {
+            cachedWallpaperImage = ImageIO.read(getClass().getResourceAsStream("/assets/background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+      }
+      return cachedWallpaperImage;
     }
 
     /**
