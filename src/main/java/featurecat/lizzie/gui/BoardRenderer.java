@@ -6,12 +6,12 @@ import org.json.JSONObject;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Branch;
 import featurecat.lizzie.analysis.MoveData;
-import featurecat.lizzie.plugin.PluginManager;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.rules.Zobrist;
-
+import featurecat.lizzie.theme.DefaultTheme;
+import featurecat.lizzie.theme.ITheme;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
@@ -20,9 +20,6 @@ import java.awt.image.ImageObserver;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import featurecat.lizzie.theme.DefaultTheme;
-import featurecat.lizzie.theme.ITheme;
 
 public class BoardRenderer {
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
@@ -121,7 +118,6 @@ public class BoardRenderer {
             }
         }
 
-        PluginManager.onDraw(g);
 //        timer.lap("leelaz");
 
 //        timer.print();
@@ -606,14 +602,14 @@ public class BoardRenderer {
                         g.setColor(Color.BLACK);
                         if (branch != null && Lizzie.board.getData().blackToPlay)
                             g.setColor(Color.WHITE);
-                        
+
                         String text;
                         if (Lizzie.config.handicapInsteadOfWinrate) {
                             text=String.format("%.2f", Lizzie.leelaz.winrateToHandicap(move.winrate));
                         } else {
                             text=String.format("%.1f", roundedWinrate);
                         }
-                        
+
                         drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, text, stoneRadius, stoneRadius * 1.5, 1);
                         drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, LizzieFrame.OpenSansRegularBase, getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                     }
