@@ -21,7 +21,6 @@ import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import org.json.JSONObject;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -1029,19 +1028,12 @@ public class LizzieFrame extends JFrame {
     private int drawComment(Graphics2D g, int x, int y, int w, int h, boolean full) {
         String comment = (Lizzie.board.getHistory().getData() != null && Lizzie.board.getHistory().getData().comment != null) ? Lizzie.board.getHistory().getData().comment : "";
         int cHeight = full ? h : (int)(h*0.5);
-        int fontSize = (int)(Math.min(getWidth(), getHeight()) * 0.98 * 0.03);
-        try {
-            fontSize = Lizzie.config.uiConfig.getInt("comment-font-size");
-        } catch (JSONException e) {
-            if (fontSize < 16) {
-                fontSize = 16;
-            }
-        }
+        int fontSize = Lizzie.config.commentFontSize > 0 ? Lizzie.config.commentFontSize : (int)(Math.min(getWidth(), getHeight()) * 0.98 * 0.03);
         Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
         commentPane.setFont(font);
         commentPane.setText(comment);
         commentPane.setSize(w, cHeight);
-        createCommentImage((comment != null && !comment.equals(this.cachedComment)) ? true : false, w, cHeight);
+        createCommentImage(comment != null && !comment.equals(this.cachedComment), w, cHeight);
         commentRect = new Rectangle(x, y + (h - cHeight), scrollPane.getWidth(), scrollPane.getHeight());
         g.drawImage(commentImage, commentRect.x, commentRect.y, commentRect.width, commentRect.height, null);
         cachedComment = comment;

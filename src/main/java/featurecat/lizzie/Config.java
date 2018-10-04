@@ -16,6 +16,7 @@ public class Config {
     public boolean showWinrate = true;
     public boolean showVariationGraph = true;
     public boolean showComment = false;
+    public int commentFontSize = 0;
     public boolean showRawBoard = false;
     public boolean showCaptured = true;
     public boolean handicapInsteadOfWinrate = false;
@@ -134,6 +135,7 @@ public class Config {
         showWinrate = uiConfig.getBoolean("show-winrate");
         showVariationGraph = uiConfig.getBoolean("show-variation-graph");
         showComment = uiConfig.optBoolean("show-comment", false);
+        commentFontSize = uiConfig.optInt("comment-font-size", 0);
         showCaptured = uiConfig.getBoolean("show-captured");
         showBestMoves = uiConfig.getBoolean("show-best-moves");
         showNextMoves = uiConfig.getBoolean("show-next-moves");
