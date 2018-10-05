@@ -13,7 +13,7 @@ public class VariationTree {
     private int XSPACING;
     private int DOT_DIAM = 11; // Should be odd number
 
-    private ArrayList<Integer> laneUsageList, laneUsageList1;
+    private ArrayList<Integer> laneUsageList, laneUsageList1; //laneUsageList1 is lane used to cacalate (x,y)
     private BoardHistoryNode curMove, curMove1;
 
 	private int posx1, posy1, width1, height1;   //Reserve a copy of varaition window axis  
@@ -21,7 +21,7 @@ public class VariationTree {
     public VariationTree()
     {
         laneUsageList = new ArrayList<Integer>();
-		laneUsageList1 = new ArrayList<Integer>();  //for mouse click event
+        laneUsageList1 = new ArrayList<Integer>();  //for mouse click event
     }
 
     public void drawTree(Graphics2D g, int posx, int posy, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber, boolean isMain)
@@ -117,7 +117,10 @@ public class VariationTree {
         YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
         XSPACING = YSPACING;
 
-	    posx1=posx;posy1=posy;width1=width;height1=height;  //backup for mouse click event
+        posx1 = posx;
+        posy1 = posy;
+        width1 = width;
+        height1 = height;  //backup for mouse click event
 
         // Draw background
         g.setColor(new Color(0, 0, 0, 60));
@@ -147,8 +150,6 @@ public class VariationTree {
         }
         drawTree(g, posx + xoffset, curposy, 0, posy + height, node, 0,true);
     }
-	
-	 
     //Clone from drawTree() method but draw nothing, just caculate (x,y)->BoardNode
 	public BoardHistoryNode inSubtree(int posx, int posy, int mouseX, int mouseY, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber)
 	{
