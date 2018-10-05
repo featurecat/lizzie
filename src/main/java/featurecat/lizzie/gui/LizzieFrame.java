@@ -807,8 +807,7 @@ public class LizzieFrame extends JFrame {
     public void onClicked(int x, int y) {
         // check for board click
         int[] boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
-        int moveNumber = winrateGraph.moveNumber(x, y);
-		
+        int moveNumber = winrateGraph.moveNumber(x, y);        
         if (boardCoordinates != null) {
             if (Lizzie.board.inAnalysisMode())
                 Lizzie.board.toggleAnalysis();
@@ -824,7 +823,7 @@ public class LizzieFrame extends JFrame {
         }
 
         if (Lizzie.config.showVariationGraph) {
-            Lizzie.frame.variationTree.jumpVariationTree(x,y);	
+            Lizzie.frame.variationTree.jumpVariationTree(x, y);
         }
 		
         repaint();
