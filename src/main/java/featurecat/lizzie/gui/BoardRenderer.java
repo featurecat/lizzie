@@ -16,10 +16,10 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.util.HashMap;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import javax.imageio.ImageIO;
+
+import featurecat.lizzie.theme.Theme;
 
 public class BoardRenderer {
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
@@ -53,6 +53,7 @@ public class BoardRenderer {
 
     private boolean lastInScoreMode = false;
 
+    public Theme theme;
     public List<String> variation;
 
     // special values of displayedBranchLength
@@ -68,6 +69,8 @@ public class BoardRenderer {
 
     public BoardRenderer(boolean isMainBoard) {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
+        // The theme to allow use external image and config file
+        theme = new Theme(uiConfig.optString("theme"));
         uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
         try {
             maxAlpha = uiPersist.getInt("max-alpha");
@@ -453,7 +456,12 @@ public class BoardRenderer {
                 // set color to the opposite color of whatever is on the board
                 g.setColor(Lizzie.board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite() ?
                         Color.BLACK : Color.WHITE);
-                drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
+                if (theme.solidStoneIndicator()) {
+                    // Use a solid circle instead of
+                    fillCircle(g, stoneX, stoneY, (int)(lastMoveMarkerRadius * 0.65));
+                } else {
+                    drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
+                }
             } else if (lastMove == null && Lizzie.board.getData().moveNumber != 0 && !Lizzie.board.inScoreMode()) {
                 g.setColor(Lizzie.board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
                 g.fillOval(x + boardLength / 2 - 4 * stoneRadius, y + boardLength / 2 - 4 * stoneRadius, stoneRadius * 8, stoneRadius * 8);
@@ -643,14 +651,10 @@ public class BoardRenderer {
 
     private void drawWoodenBoard(Graphics2D g) {
         if (uiConfig.getBoolean("fancy-board")) {
+            // fancy version
             if  (cachedBoardImage == null) {
-                try {
-                    cachedBoardImage = ImageIO.read(getClass().getResourceAsStream("/assets/board.png"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                cachedBoardImage = theme.getBoard();
             }
-
             int shadowRadius = (int) (boardLength * MARGIN / 6);
             drawTextureImage(g, cachedBoardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius);
 
@@ -661,6 +665,7 @@ public class BoardRenderer {
             g.setStroke(new BasicStroke(1));
 
         } else {
+            // simple version
             JSONArray boardColor = uiConfig.getJSONArray("board-color");
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             g.setColor(new Color(boardColor.getInt(0), boardColor.getInt(1), boardColor.getInt(2)));
@@ -780,18 +785,12 @@ public class BoardRenderer {
     /**
      * Get scaled stone, if cached then return cached
      */
-    private BufferedImage getScaleStone(boolean isBlack, int size) {
+    public BufferedImage getScaleStone(boolean isBlack, int size) {
         BufferedImage stone = isBlack ? cachedBlackStoneImage : cachedWhiteStoneImage;
-        if (stone == null) {
+        if (stone == null || stone.getWidth() != size || stone.getHeight() != size) {
             stone = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-            String imgPath = isBlack ? "/assets/black0.png" : "/assets/white0.png";
-            Image img = null;
-            try {
-               img = ImageIO.read(getClass().getResourceAsStream(imgPath));
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
             Graphics2D g2 = stone.createGraphics();
+            Image img = isBlack ? theme.getBlackStone(new int[]{x, y}) : theme.getWhiteStone(new int[]{x, y});
             g2.drawImage(img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
             g2.dispose();
             if (isBlack) {
@@ -805,11 +804,7 @@ public class BoardRenderer {
 
     public BufferedImage getWallpaper() {
       if (cachedWallpaperImage == null) {
-        try {
-            cachedWallpaperImage = ImageIO.read(getClass().getResourceAsStream("/assets/background.jpg"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+          cachedWallpaperImage = theme.getBackground();
       }
       return cachedWallpaperImage;
     }

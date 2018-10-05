@@ -130,6 +130,13 @@ public class LizzieFrame extends JFrame {
         JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
         setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
 
+        // Allow change font in the config
+        if (boardRenderer.theme.getFontName() != null) {
+            systemDefaultFontName = boardRenderer.theme.getFontName();
+            OpenSansRegularBase = new Font(systemDefaultFontName, Font.PLAIN, 12);
+            OpenSansSemiboldBase = new Font(systemDefaultFontName, Font.BOLD, 12);
+        }
+
         if (Lizzie.config.startMaximized) {
             setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
         }
@@ -138,8 +145,8 @@ public class LizzieFrame extends JFrame {
         commentPane = new JTextPane();
         commentPane.setEditable(false);
         commentPane.setMargin(new Insets(5, 5, 5, 5));
-        commentPane.setBackground(new Color(0, 0, 0, 200));
-        commentPane.setForeground(Color.WHITE);
+        commentPane.setBackground(boardRenderer.theme.commentBackgroundColor());
+        commentPane.setForeground(boardRenderer.theme.commentFontColor());
         scrollPane = new JScrollPane();
         scrollPane.setViewportView(commentPane);
         scrollPane.setBorder(null);
