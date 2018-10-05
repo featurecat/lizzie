@@ -502,34 +502,34 @@ public class Board implements LeelazListener {
     }
 
 
-	// Jump anywhere in the board history tree.  Written for mouse click navigation
-	public void jumpToAnyPosition(BoardHistoryNode targetNode) {
-		BoardHistoryNode  srcNode, tarNode, prevNode;
-        
+    // Jump anywhere in the board history tree.  Written for mouse click navigation
+    public void jumpToAnyPosition(BoardHistoryNode targetNode) {
+        BoardHistoryNode  srcNode, tarNode, prevNode;
+
         //tar[] to track path from target node to root node
         //src[] to track path from source node to root node
         int[] tar = new int[512], src = new int[512];
 
         int i=0 ,j=0, k=0;  //i is index for target node, j for source node, k is working variable
-        
+
         //find path from target node to root node
         tarNode=targetNode;
-		prevNode=tarNode.previous();
-		while(prevNode != null){
-			for(k=0;k<prevNode.numberOfChildren();k++)
-				if (prevNode.getVariation(k) == tarNode) 
-					tar[i++]=k;		
-			tarNode = prevNode; prevNode=prevNode.previous(); 
-		}
-        
+        prevNode=tarNode.previous();
+        while(prevNode != null){
+            for(k=0;k<prevNode.numberOfChildren();k++)
+                if (prevNode.getVariation(k) == tarNode)
+                    tar[i++]=k;
+            tarNode = prevNode; prevNode=prevNode.previous();
+        }
+
         //find path from source node to root node
 		srcNode=history.getCurrentHistoryNode();
 		prevNode=srcNode.previous();
 		while(prevNode != null){
 			for(k=0;k<prevNode.numberOfChildren();k++)
-				if (prevNode.getVariation(k) == srcNode) 
+				if (prevNode.getVariation(k) == srcNode)
 					src[j++]=k;
-			srcNode = prevNode; prevNode=prevNode.previous(); 
+			srcNode = prevNode; prevNode=prevNode.previous();
 		}
 
 		//Compare tar[]  with src[] , and try to find nearest branch
@@ -537,7 +537,7 @@ public class Board implements LeelazListener {
 			if(tar[i-k-1] == src[j-k-1]) continue;
 			break;
 		}
-        
+
         //Move to the target node from source node
 		if (k==i) {
             //target node is shorter, just move back

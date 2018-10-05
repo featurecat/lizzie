@@ -16,7 +16,7 @@ public class VariationTree {
     private ArrayList<Integer> laneUsageList, laneUsageList1;
     private BoardHistoryNode curMove, curMove1;
 
-	private int posx1, posy1, width1, height1;   //Reserve a copy of varaition window axis  
+	private int posx1, posy1, width1, height1;   //Reserve a copy of varaition window axis
 
     public VariationTree()
     {
@@ -147,11 +147,10 @@ public class VariationTree {
         }
         drawTree(g, posx + xoffset, curposy, 0, posy + height, node, 0,true);
     }
-	
-	 
+
     //Clone from drawTree() method but draw nothing, just caculate (x,y)->BoardNode
-	public BoardHistoryNode inSubtree(int posx, int posy, int mouseX, int mouseY, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber)
-	{
+    public BoardHistoryNode inSubtree(int posx, int posy, int mouseX, int mouseY, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber)
+    {
         // Finds depth on leftmost variation of this tree
         int depth = BoardHistoryList.getDepth(startNode) + 1;
         int lane = startLane;
@@ -176,7 +175,7 @@ public class VariationTree {
         int dotoffset = DOT_DIAM/2;
 
 
-        // Check first node 
+        // Check first node
 		if ( Math.abs(mouseX-curposx-dotoffset) < XSPACING/2 && Math.abs(mouseY-posy-dotoffset) < YSPACING/2)
 			return startNode;
 
@@ -206,18 +205,16 @@ public class VariationTree {
         }
 		return null;
     }
-    
-    //Clone from draw() method but draw nothing, just caculate (x,y)->BoardNode
-	public BoardHistoryNode inVariationTree(int mouseX, int mouseY) {
 
-	    //check if (x,y) is in the variation window
-	    if (mouseX < posx1 || mouseX > posx1+width1 || mouseY < posy1 || mouseY > posy1+height1)
-		    return null;
-	 
+    //Clone from draw() method but draw nothing, just caculate (x,y)->BoardNode
+    public BoardHistoryNode inVariationTree(int mouseX, int mouseY) {
+
+        //check if (x,y) is in the variation window
+        if (mouseX < posx1 || mouseX > posx1+width1 || mouseY < posy1 || mouseY > posy1+height1)
+            return null;
         // Use dense tree for saving space if large-subboard
         YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
         XSPACING = YSPACING;
-
 
         int middleY = posy1 + height1/2;
         int xoffset = 30;
@@ -235,14 +232,13 @@ public class VariationTree {
             curposy -= YSPACING;
         }
         return inSubtree(posx1 + xoffset, curposy, mouseX, mouseY,0, posy1 + height1, node, 0);
-	
     }
-	
-	public int jumpVariationTree(int mouseX, int mouseY){
-		BoardHistoryNode node;
-		node = inVariationTree(mouseX, mouseY);    //check if (x,y) hit proper branch node
+
+    public int jumpVariationTree(int mouseX, int mouseY){
+        BoardHistoryNode node;
+        node = inVariationTree(mouseX, mouseY);    //check if (x,y) hit proper branch node
         if (node==null) return -1;  //check if any error occur
-        Lizzie.board.jumpToAnyPosition(node);  
+        Lizzie.board.jumpToAnyPosition(node);
         return 0;
-	}
+    }
 }
