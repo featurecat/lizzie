@@ -120,7 +120,7 @@ public class BoardHistoryList {
     public List<BoardHistoryNode> getNexts() {
         return head.getNexts();
     }
-  
+
     /**
      * Does not change the pointer position
      *

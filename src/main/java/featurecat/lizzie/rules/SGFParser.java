@@ -1,12 +1,11 @@
 package featurecat.lizzie.rules;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
-import featurecat.lizzie.plugin.PluginManager;
-
 import java.io.*;
 import java.text.SimpleDateFormat;
 
@@ -36,7 +35,6 @@ public class SGFParser {
         }
 
         boolean returnValue = parse(value);
-        PluginManager.onSgfLoaded();
         return returnValue;
     }
 
@@ -66,6 +64,12 @@ public class SGFParser {
             return false;
         }
         int subTreeDepth = 0;
+        // Save the variation step count
+        Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
+        // Comment of the AW/AB (Add White/Add Black) stone
+        String awabComment = null;
+        // Previous Tag
+        String prevTag = null;
         boolean inTag = false, isMultiGo = false, escaping = false;
         String tag = null;
         StringBuilder tagBuilder = new StringBuilder();
@@ -78,13 +82,9 @@ public class SGFParser {
 
         String blackPlayer = "", whitePlayer = "";
 
-        PARSE_LOOP:
-        for (byte b : value.getBytes()) {
-            // Check unicode charactors (UTF-8)
-            char c = (char) b;
-            if (((int) b & 0x80) != 0) {
-                continue;
-            }
+        // Support unicode characters (UTF-8)
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
             if (escaping) {
                 // Any char following "\" is inserted verbatim
                 // (ref) "3.2. Text" in https://www.red-bean.com/sgf/sgf4.html
@@ -96,14 +96,28 @@ public class SGFParser {
                 case '(':
                     if (!inTag) {
                         subTreeDepth += 1;
+                        // Initialize the step count
+                        subTreeStepMap.put(subTreeDepth, 0);
+                    } else {
+                        if (i > 0) {
+                            // Allow the comment tag includes '('
+                            tagContentBuilder.append(c);
+                        }
                     }
                     break;
                 case ')':
                     if (!inTag) {
-                        subTreeDepth -= 1;
                         if (isMultiGo) {
-                            break PARSE_LOOP;
+                            // Restore to the variation node
+                            int varStep = subTreeStepMap.get(subTreeDepth);
+                            for (int s = 0; s < varStep; s++) {
+                                Lizzie.board.previousMove();
+                            }
                         }
+                        subTreeDepth -= 1;
+                    } else {
+                        // Allow the comment tag includes '('
+                        tagContentBuilder.append(c);
                     }
                     break;
                 case '[':
@@ -134,6 +148,8 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.BLACK);
                         } else {
+                            // Save the step count
+                            subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                             Lizzie.board.place(move[0], move[1], Stone.BLACK);
                         }
                     } else if (tag.equals("W")) {
@@ -141,7 +157,16 @@ public class SGFParser {
                         if (move == null) {
                             Lizzie.board.pass(Stone.WHITE);
                         } else {
+                            // Save the step count
+                            subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                             Lizzie.board.place(move[0], move[1], Stone.WHITE);
+                        }
+                    }  else if (tag.equals("C")) {
+                        // Support comment
+                        if ("AW".equals(prevTag) || "AB".equals(prevTag)) {
+                            awabComment = tagContent;
+                        } else {
+                            Lizzie.board.comment(tagContent);
                         }
                     } else if (tag.equals("AB")) {
                         int[] move = convertSgfPosToCoord(tagContent);
@@ -173,6 +198,7 @@ public class SGFParser {
                             e.printStackTrace();
                         }
                     }
+                    prevTag = tag;
                     break;
                 case ';':
                     break;
@@ -198,6 +224,11 @@ public class SGFParser {
 
         // Rewind to game start
         while (Lizzie.board.previousMove()) ;
+
+        // Set AW/AB Comment
+        if (awabComment != null) {
+            Lizzie.board.comment(awabComment);
+        }
 
         return true;
     }
@@ -250,65 +281,93 @@ public class SGFParser {
                     builder.append(String.format("[%c%c]", x, y));
                 }
             }
+        } else {
+            // Process the AW/AB stone
+            Stone[] stones = history.getStones();
+            StringBuilder abStone = new StringBuilder();
+            StringBuilder awStone = new StringBuilder();
+            for (int i = 0; i < stones.length; i++) {
+                Stone stone = stones[i];
+                if (stone.isBlack() || stone.isWhite()) {
+                    // i = x * Board.BOARD_SIZE + y;
+                    int corY = i % Board.BOARD_SIZE;
+                    int corX = (i - corY) / Board.BOARD_SIZE;
+
+                    char x = (char) (corX + 'a');
+                    char y = (char) (corY + 'a');
+
+                    if (stone.isBlack()) {
+                        abStone.append(String.format("[%c%c]", x, y));
+                    } else {
+                        awStone.append(String.format("[%c%c]", x, y));
+                    }
+                }
+            }
+            if (abStone.length() > 0) {
+                builder.append("AB").append(abStone);
+            }
+            if (awStone.length() > 0) {
+                builder.append("AW").append(awStone);
+            }
+        }
+
+        // The AW/AB Comment
+        if (history.getData().comment != null) {
+            builder.append(String.format("C[%s]", history.getData().comment));
         }
 
         // replay moves, and convert them to tags.
         // *  format: ";B[xy]" or ";W[xy]"
         // *  with 'xy' = coordinates ; or 'tt' for pass.
-        BoardData data;
 
-        // TODO: this code comes from cngoodboy's plugin PR #65. It looks like it might be useful for handling
-        //       AB/AW commands for sgfs in general -- we can extend it beyond just handicap. TODO integrate it
-//        data = history.getData();
-//
-//        // For handicap
-//        ArrayList<int[]> abList = new ArrayList<int[]>();
-//        ArrayList<int[]> awList = new ArrayList<int[]>();
-//
-//        for (int i = 0; i < Board.BOARD_SIZE; i++) {
-//            for (int j = 0; j < Board.BOARD_SIZE; j++) {
-//                switch (data.stones[Board.getIndex(i, j)]) {
-//                    case BLACK:
-//                        abList.add(new int[]{i, j});
-//                        break;
-//                    case WHITE:
-//                        awList.add(new int[]{i, j});
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        }
-//
-//        if (!abList.isEmpty()) {
-//            builder.append(";AB");
-//            for (int i = 0; i < abList.size(); i++) {
-//                builder.append(String.format("[%s]", convertCoordToSgfPos(abList.get(i))));
-//            }
-//        }
-//
-//        if (!awList.isEmpty()) {
-//            builder.append(";AW");
-//            for (int i = 0; i < awList.size(); i++) {
-//                builder.append(String.format("[%s]", convertCoordToSgfPos(awList.get(i))));
-//            }
-//        }
-
-        while ((data = history.next()) != null) {
-
-            String stone;
-            if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
-            else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
-            else continue;
-
-            char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-            char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
-
-            builder.append(String.format(";%s[%c%c]", stone, x, y));
-        }
+        // Write variation tree
+        builder.append(generateNode(board, history.getCurrentHistoryNode()));
 
         // close file
         builder.append(')');
         writer.append(builder.toString());
+    }
+
+    /**
+     * Generate node with variations
+     */
+    private static String generateNode(Board board, BoardHistoryNode node) throws IOException {
+        StringBuilder builder = new StringBuilder("");
+
+        if (node != null) {
+
+            BoardData data = node.getData();
+            String stone = "";
+            if (Stone.BLACK.equals(data.lastMoveColor) || Stone.WHITE.equals(data.lastMoveColor)) {
+
+                if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
+                else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
+
+                char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
+                char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+
+                builder.append(String.format(";%s[%c%c]", stone, x, y));
+
+                // Write the comment
+                if (data.comment != null) {
+                    builder.append(String.format("C[%s]", data.comment));
+                }
+            }
+
+            if (node.numberOfChildren() > 1) {
+                // Variation
+                for (BoardHistoryNode sub : node.getNexts()) {
+                    builder.append("(");
+                    builder.append(generateNode(board, sub));
+                    builder.append(")");
+                }
+            } else if (node.numberOfChildren() == 1) {
+                builder.append(generateNode(board, node.next()));
+            } else {
+                return builder.toString();
+            }
+        }
+
+        return builder.toString();
     }
 }

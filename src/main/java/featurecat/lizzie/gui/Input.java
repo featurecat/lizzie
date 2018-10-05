@@ -1,73 +1,43 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
-
 import java.awt.event.*;
-
 import static java.awt.event.KeyEvent.*;
-import featurecat.lizzie.plugin.PluginManager;
-
 import javax.swing.*;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
     @Override
-    public void mouseClicked(MouseEvent e) {
-
-    }
+    public void mouseClicked(MouseEvent e) {}
 
     @Override
     public void mousePressed(MouseEvent e) {
-        PluginManager.onMousePressed(e);
-        int x = e.getX();
-        int y = e.getY();
-
-        if(e.isShiftDown()) {
-            if (e.getButton() == MouseEvent.BUTTON3) // right mouse click + shift 
-                undoToChildOfPreviousWithVariation();
-        }
-
-        if (e.getButton() == MouseEvent.BUTTON1) // left mouse click
-            Lizzie.frame.onClicked(x, y);
-        else if (e.getButton() == MouseEvent.BUTTON3) // right mouse click
+        if (e.getButton() == MouseEvent.BUTTON1) // left click
+            Lizzie.frame.onClicked(e.getX(), e.getY());
+        else if (e.getButton() == MouseEvent.BUTTON3) // right click
             undo();
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {
-        PluginManager.onMouseReleased(e);
-    }
+    public void mouseReleased(MouseEvent e) {}
 
     @Override
-    public void mouseEntered(MouseEvent e) {
-
-    }
+    public void mouseEntered(MouseEvent e) {}
 
     @Override
-    public void mouseExited(MouseEvent e) {
-
-    }
+    public void mouseExited(MouseEvent e) {}
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-
-        Lizzie.frame.onMouseDragged(x, y);
+        Lizzie.frame.onMouseDragged(e.getX(), e.getY());
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        PluginManager.onMouseMoved(e);
-        int x = e.getX();
-        int y = e.getY();
-
-        Lizzie.frame.onMouseMoved(x, y);
+        Lizzie.frame.onMouseMoved(e.getX(), e.getY());
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {
-
-    }
+    public void keyTyped(KeyEvent e) {}
 
     private void undo() {
         undo(1);
@@ -171,9 +141,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void keyPressed(KeyEvent e) {
-
-        PluginManager.onKeyPressed(e);
-
         // If any controls key is pressed, let's disable analysis mode.
         // This is probably the user attempting to exit analysis mode.
         boolean shouldDisableAnalysis = true;
@@ -321,6 +288,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
                 Lizzie.config.toggleShowVariationGraph();
                 break;
 
+            case VK_T:
+                Lizzie.config.toggleShowComment();
+                break;
+
             case VK_C:
                 if (controlIsPressed(e)) {
                     Lizzie.frame.copySgf();
@@ -384,7 +355,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     private boolean wasPonderingWhenControlsShown = false;
     @Override
     public void keyReleased(KeyEvent e) {
-        PluginManager.onKeyReleased(e);
         switch (e.getKeyCode()) {
             case VK_X:
                 if (wasPonderingWhenControlsShown)
@@ -404,6 +374,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
+            return;
+        }
         if (Lizzie.board.inAnalysisMode())
             Lizzie.board.toggleAnalysis();
 

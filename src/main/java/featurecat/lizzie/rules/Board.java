@@ -73,7 +73,7 @@ public class Board implements LeelazListener {
         }
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
         int x = alphabet.indexOf(namedCoordinate.charAt(0));
-        int y = Integer.parseInt(namedCoordinate.substring(1)) - 1;
+        int y = BOARD_SIZE - Integer.parseInt(namedCoordinate.substring(1));
         return new int[]{x, y};
     }
 
@@ -86,7 +86,7 @@ public class Board implements LeelazListener {
      */
     public static String convertCoordinatesToName(int x, int y) {
         // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-        return alphabet.charAt(x) + "" + (y + 1);
+        return alphabet.charAt(x) + "" + (BOARD_SIZE - y);
     }
 
     /**
@@ -98,6 +98,19 @@ public class Board implements LeelazListener {
      */
     public static boolean isValid(int x, int y) {
         return x >= 0 && x < BOARD_SIZE && y >= 0 && y < BOARD_SIZE;
+    }
+
+    /**
+     * The comment. Thread safe
+     * @param comment the comment of stone
+     */
+    public void comment(String comment) {
+        synchronized (this) {
+
+            if (history.getData() != null) {
+                history.getData().comment = comment;
+            }
+        }
     }
 
     /**
@@ -803,6 +816,7 @@ public class Board implements LeelazListener {
             if (inScoreMode()) setScoreMode(false);
             // Update win rate statistics
             Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+
             if (stats.totalPlayouts >= history.getData().playouts) {
                 history.getData().winrate = stats.maxWinrate;
                 history.getData().playouts = stats.totalPlayouts;

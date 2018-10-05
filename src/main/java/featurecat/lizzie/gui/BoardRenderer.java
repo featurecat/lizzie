@@ -6,22 +6,20 @@ import org.json.JSONObject;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Branch;
 import featurecat.lizzie.analysis.MoveData;
-import featurecat.lizzie.plugin.PluginManager;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.rules.Zobrist;
-
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.util.HashMap;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-
-import featurecat.lizzie.theme.DefaultTheme;
-import featurecat.lizzie.theme.ITheme;
+import javax.imageio.ImageIO;
 
 public class BoardRenderer {
     private static final double MARGIN = 0.03; // percentage of the boardLength to offset before drawing black lines
@@ -42,15 +40,19 @@ public class BoardRenderer {
     private int cachedX, cachedY;
 
     private BufferedImage cachedStonesImage = null;
+    private BufferedImage cachedBoardImage = null;
+    private BufferedImage cachedWallpaperImage = null;
     private BufferedImage cachedStonesShadowImage = null;
     private Zobrist cachedZhash = new Zobrist(); // defaults to an empty board
+
+    private BufferedImage cachedBlackStoneImage = null;
+    private BufferedImage cachedWhiteStoneImage = null;
 
     private BufferedImage branchStonesImage = null;
     private BufferedImage branchStonesShadowImage = null;
 
     private boolean lastInScoreMode = false;
 
-    public ITheme theme;
     public List<String> variation;
 
     // special values of displayedBranchLength
@@ -66,10 +68,6 @@ public class BoardRenderer {
 
     public BoardRenderer(boolean isMainBoard) {
         uiConfig = Lizzie.config.config.getJSONObject("ui");
-        theme = ITheme.loadTheme(uiConfig.getString("theme"));
-        if (theme == null) {
-            theme = new DefaultTheme();
-        }
         uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
         try {
             maxAlpha = uiPersist.getInt("max-alpha");
@@ -87,7 +85,7 @@ public class BoardRenderer {
         setupSizeParameters();
 
 //        Stopwatch timer = new Stopwatch();
-        drawBackground(g);
+        drawGoban(g);
 //        timer.lap("background");
         drawStones();
 //        timer.lap("stones");
@@ -117,7 +115,6 @@ public class BoardRenderer {
             }
         }
 
-        PluginManager.onDraw(g);
 //        timer.lap("leelaz");
 
 //        timer.print();
@@ -157,7 +154,7 @@ public class BoardRenderer {
     /**
      * Draw the green background and go board with lines. We cache the image for a performance boost.
      */
-    private void drawBackground(Graphics2D g0) {
+    private void drawGoban(Graphics2D g0) {
         // draw the cached background image if frame size changes
         if (cachedBackgroundImage == null || cachedBackgroundImage.getWidth() != Lizzie.frame.getWidth() ||
                 cachedBackgroundImage.getHeight() != Lizzie.frame.getHeight() ||
@@ -469,10 +466,19 @@ public class BoardRenderer {
 
         int[] moveNumberList = branch == null ? Lizzie.board.getMoveNumberList() : branch.data.moveNumberList;
 
+        // Allow to display only last move number
+        int lastMoveNumber = branch == null ? Lizzie.board.getData().moveNumber : branch.data.moveNumber;
+        int onlyLastMoveNumber = Lizzie.config.uiConfig.optInt("only-last-move-number", 9999);
+
         for (int i = 0; i < Board.BOARD_SIZE; i++) {
             for (int j = 0; j < Board.BOARD_SIZE; j++) {
                 int stoneX = x + scaledMargin + squareLength * i;
                 int stoneY = y + scaledMargin + squareLength * j;
+
+                // Allow to display only last move number
+                if (lastMoveNumber - moveNumberList[Board.getIndex(i, j)] >= onlyLastMoveNumber) {
+                    continue;
+                }
 
                 Stone stoneAtThisPoint = branch == null ? Lizzie.board.getStones()[Board.getIndex(i, j)] :
                         branch.data.stones[Board.getIndex(i, j)];
@@ -593,14 +599,14 @@ public class BoardRenderer {
                         g.setColor(Color.BLACK);
                         if (branch != null && Lizzie.board.getData().blackToPlay)
                             g.setColor(Color.WHITE);
-                        
+
                         String text;
                         if (Lizzie.config.handicapInsteadOfWinrate) {
                             text=String.format("%.2f", Lizzie.leelaz.winrateToHandicap(move.winrate));
                         } else {
                             text=String.format("%.1f", roundedWinrate);
                         }
-                        
+
                         drawString(g, suggestionX, suggestionY, LizzieFrame.OpenSansSemiboldBase, Font.PLAIN, text, stoneRadius, stoneRadius * 1.5, 1);
                         drawString(g, suggestionX, suggestionY + stoneRadius * 2 / 5, LizzieFrame.OpenSansRegularBase, getPlayoutsString(move.playouts), (float) (stoneRadius * 0.8), stoneRadius * 1.4);
                     }
@@ -637,10 +643,17 @@ public class BoardRenderer {
 
     private void drawWoodenBoard(Graphics2D g) {
         if (uiConfig.getBoolean("fancy-board")) {
-            // fancy version
+            if  (cachedBoardImage == null) {
+                try {
+                    cachedBoardImage = ImageIO.read(getClass().getResourceAsStream("/assets/board.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             int shadowRadius = (int) (boardLength * MARGIN / 6);
-            Image boardImage = theme.getBoard();
-            g.drawImage(boardImage == null ? theme.getBoard() : boardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius, null);
+            drawTextureImage(g, cachedBoardImage, x - 2 * shadowRadius, y - 2 * shadowRadius, boardLength + 4 * shadowRadius, boardLength + 4 * shadowRadius);
+
             g.setStroke(new BasicStroke(shadowRadius * 2));
             // draw border
             g.setColor(new Color(0, 0, 0, 50));
@@ -648,7 +661,6 @@ public class BoardRenderer {
             g.setStroke(new BasicStroke(1));
 
         } else {
-            // simple version
             JSONArray boardColor = uiConfig.getJSONArray("board-color");
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
             g.setColor(new Color(boardColor.getInt(0), boardColor.getInt(1), boardColor.getInt(2)));
@@ -746,63 +758,117 @@ public class BoardRenderer {
         if (gShadow == null)
             gShadow = g;
 
-        switch (color) {
-            case BLACK:
-            case BLACK_CAPTURED:
-                if (uiConfig.getBoolean("fancy-stones")) {
-                    drawShadow(gShadow, centerX, centerY, false);
-                    Image stone = theme.getBlackStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
-                } else {
-                    drawShadow(gShadow, centerX, centerY, true);
-                    g.setColor(Color.BLACK);
-                    fillCircle(g, centerX, centerY, stoneRadius);
+        if (color.isBlack() || color.isWhite()) {
+            boolean isBlack = color.isBlack();
+            boolean isGhost = (color == Stone.BLACK_GHOST || color == Stone.WHITE_GHOST);
+            if (uiConfig.getBoolean("fancy-stones")) {
+                drawShadow(gShadow, centerX, centerY, isGhost);
+                int size = stoneRadius * 2 + 1;
+                g.drawImage(getScaleStone(isBlack, size), centerX - stoneRadius, centerY - stoneRadius, size, size, null);
+            } else {
+                drawShadow(gShadow, centerX, centerY, true);
+                g.setColor(isBlack ? (isGhost ? new Color(0, 0, 0) : Color.BLACK) : (isGhost ? new Color(255, 255, 255) : Color.WHITE));
+                fillCircle(g, centerX, centerY, stoneRadius);
+                if (!isBlack) {
+                   g.setColor(isGhost ? new Color(0, 0, 0) : Color.BLACK);
+                   drawCircle(g, centerX, centerY, stoneRadius);
                 }
-                break;
-
-            case WHITE:
-            case WHITE_CAPTURED:
-                if (uiConfig.getBoolean("fancy-stones")) {
-                    drawShadow(gShadow, centerX, centerY, false);
-                    Image stone = theme.getWhiteStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
-                } else {
-                    drawShadow(gShadow, centerX, centerY, true);
-                    g.setColor(Color.WHITE);
-                    fillCircle(g, centerX, centerY, stoneRadius);
-                    g.setColor(Color.BLACK);
-                    drawCircle(g, centerX, centerY, stoneRadius);
-                }
-                break;
-
-            case BLACK_GHOST:
-                if (uiConfig.getBoolean("fancy-stones")) {
-                    drawShadow(gShadow, centerX, centerY, true);
-                    Image stone = theme.getBlackStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
-                } else {
-                    drawShadow(gShadow, centerX, centerY, true);
-                    g.setColor(new Color(0, 0, 0));//, uiConfig.getInt("branch-stone-alpha")));
-                    fillCircle(g, centerX, centerY, stoneRadius);
-                }
-                break;
-
-            case WHITE_GHOST:
-                if (uiConfig.getBoolean("fancy-stones")) {
-                    drawShadow(gShadow, centerX, centerY, true);
-                    Image stone = theme.getWhiteStone(new int[]{x, y});
-                    g.drawImage(stone, centerX - stoneRadius, centerY - stoneRadius, stoneRadius * 2 + 1, stoneRadius * 2 + 1, null);
-                } else {
-                    drawShadow(gShadow, centerX, centerY, true);
-                    g.setColor(new Color(255, 255, 255));//, uiConfig.getInt("branch-stone-alpha")));
-                    fillCircle(g, centerX, centerY, stoneRadius);
-                    g.setColor(new Color(0, 0, 0));//, uiConfig.getInt("branch-stone-alpha")));
-                    drawCircle(g, centerX, centerY, stoneRadius);
-                }
-                break;
-
-            default:
+            }
         }
+    }
+
+    /**
+     * Get scaled stone, if cached then return cached
+     */
+    private BufferedImage getScaleStone(boolean isBlack, int size) {
+        BufferedImage stone = isBlack ? cachedBlackStoneImage : cachedWhiteStoneImage;
+        if (stone == null) {
+            stone = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+            String imgPath = isBlack ? "/assets/black0.png" : "/assets/white0.png";
+            Image img = null;
+            try {
+               img = ImageIO.read(getClass().getResourceAsStream(imgPath));
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+            Graphics2D g2 = stone.createGraphics();
+            g2.drawImage(img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+            g2.dispose();
+            if (isBlack) {
+                cachedBlackStoneImage = stone;
+            } else {
+                cachedWhiteStoneImage = stone;
+            }
+        }
+        return stone;
+    }
+
+    public BufferedImage getWallpaper() {
+      if (cachedWallpaperImage == null) {
+        try {
+            cachedWallpaperImage = ImageIO.read(getClass().getResourceAsStream("/assets/background.jpg"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+      }
+      return cachedWallpaperImage;
+    }
+
+    /**
+     * Draw scale smooth image, enhanced display quality (Not use, for future)
+     * This function use the traditional Image.getScaledInstance() method
+     * to provide the nice quality, but the performance is poor.
+     * Recommended for use in a few drawings
+     */
+//    public void drawScaleSmoothImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
+//        BufferedImage newstone = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+//        Graphics2D g2 = newstone.createGraphics();
+//        g2.drawImage(img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH), 0, 0, observer);
+//        g2.dispose();
+//        g.drawImage(newstone, x, y, width, height, observer);
+//    }
+
+    /**
+     * Draw scale smooth image, enhanced display quality (Not use, for future)
+     * This functions use a multi-step approach to prevent the information loss
+     * and produces a much higher quality that is close to the Image.getScaledInstance()
+     * and faster than Image.getScaledInstance() method.
+     */
+//    public void drawScaleImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height, ImageObserver observer) {
+//        BufferedImage newstone = (BufferedImage)img;
+//        int w = img.getWidth();
+//        int h = img.getHeight();
+//        do {
+//            if (w > width) {
+//                w /= 2;
+//                if (w < width) {
+//                    w = width;
+//                }
+//            }
+//            if (h > height) {
+//                h /= 2;
+//                if (h < height) {
+//                    h = height;
+//                }
+//            }
+//            BufferedImage tmp = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+//            Graphics2D g2 = tmp.createGraphics();
+//            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+//            g2.drawImage(newstone, 0, 0, w, h, null);
+//            g2.dispose();
+//            newstone = tmp;
+//        }
+//        while (w != width || h != height);
+//        g.drawImage(newstone, x, y, width, height, observer);
+//    }
+
+    /**
+     * Draw texture image
+     */
+    public void drawTextureImage(Graphics2D g, BufferedImage img, int x, int y, int width, int height) {
+        TexturePaint paint = new TexturePaint(img, new Rectangle(0, 0, img.getWidth(), img.getHeight()));
+        g.setPaint(paint);
+        g.fill(new Rectangle(x, y, width, height));
     }
 
     /**
