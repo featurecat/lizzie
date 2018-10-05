@@ -15,8 +15,7 @@ public class VariationTree {
 
     private ArrayList<Integer> laneUsageList, laneUsageList1; //laneUsageList1 is lane used to cacalate (x,y)
     private BoardHistoryNode curMove, curMove1;
-
-	private int posx1, posy1, width1, height1;   //Reserve a copy of varaition window axis  
+    private int posx1, posy1, width1, height1;   //Reserve a copy of varaition window axis
 
     public VariationTree()
     {
@@ -151,8 +150,7 @@ public class VariationTree {
         drawTree(g, posx + xoffset, curposy, 0, posy + height, node, 0,true);
     }
     //Clone from drawTree() method but draw nothing, just caculate (x,y)->BoardNode
-	public BoardHistoryNode inSubtree(int posx, int posy, int mouseX, int mouseY, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber)
-	{
+	public BoardHistoryNode inSubtree(int posx, int posy, int mouseX, int mouseY, int startLane, int maxposy, BoardHistoryNode startNode, int variationNumber) {
         // Finds depth on leftmost variation of this tree
         int depth = BoardHistoryList.getDepth(startNode) + 1;
         int lane = startLane;
