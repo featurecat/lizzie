@@ -8,10 +8,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-<<<<<<< HEAD
 import java.util.List;
-=======
->>>>>>> Use mouse to navigate branchs of variation window
 
 public class Config {
 

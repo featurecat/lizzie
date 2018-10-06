@@ -73,14 +73,17 @@ public class VariationTree {
         Color curcolor = g.getColor();
         g.setColor(getWinrateColor(startNode, curcolor));
         if (startNode == curMove) {
-            // g.setColor(getWinrateColor(startNode,curcolor));
             g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
             g.setColor(Color.BLACK);
             g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
+            if(cur.getData().comment != null)  //Does this node have coments?
+                g.drawOval(curposx-3, posy-3, DOT_DIAM+6, DOT_DIAM+6);
         } else {
             g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
             g.setColor(Color.BLACK);
             g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
+            if(cur.getData().comment != null)  //Does this node have coments?
+                g.drawOval(curposx-3, posy-3, DOT_DIAM+6, DOT_DIAM+6);
         }
         g.setColor(curcolor);
 
@@ -91,14 +94,17 @@ public class VariationTree {
             // Choose color for move which winrate rise/fall dramatically
             g.setColor(getWinrateColor(cur, curcolor));
             if (cur == curMove) {
-                g.setColor(getWinrateColor(cur, curcolor));
                 g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
                 g.setColor(Color.BLACK);
                 g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
+                if(cur.getData().comment != null)  //Does this node have coments?
+                    g.drawOval(curposx-3, posy-3, DOT_DIAM+6, DOT_DIAM+6);
             } else {
                 g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
                 g.setColor(Color.BLACK);
                 g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
+                if(cur.getData().comment != null)  //Does this node have coments?
+                    g.drawOval(curposx-3, posy-3, DOT_DIAM+6, DOT_DIAM+6);
             }
             g.setColor(curcolor);
             g.drawLine(curposx + dotoffset, posy - 1, curposx + dotoffset, posy - YSPACING + 2 * dotoffset + 2);
@@ -146,6 +152,10 @@ public class VariationTree {
         int middleY = posy + height / 2;
         int xoffset = 30;
         laneUsageList.clear();
+
+        //Draw mark of current node
+        g.setColor(new Color(0, 255, 0, 255));
+        g.fillOval(posx+10, middleY, DOT_DIAM, DOT_DIAM);
 
         curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
 
@@ -268,15 +278,15 @@ public class VariationTree {
         else if (delta < -10 && delta >= -20)
             return Color.RED;
         else if (delta < -5 && delta >= -10)
-            return Color.magenta;
+            return Color.MAGENTA;
         else if (delta < -2 && delta >= -5)
             return Color.YELLOW;
-        else if (delta < 2 && delta >= -2)
+        else if (delta < 5 && delta >= -2)
             return current; // Do nothing if it is normal move
-        else if (delta >= 2 && delta <= 10)
-            return Color.GREEN;
-        else if (delta >= 10 && delta < 100)
+        else if (delta >= 5 && delta <= 20)
             return Color.BLUE;
+        else if (delta >= 20 && delta < 100)
+            return Color.BLUE.brighter().brighter();
         else
             return current;
     }
