@@ -82,5 +82,12 @@
             <version>4.11</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.jhlabs/filters -->
+        <dependency>
+            <groupId>com.jhlabs</groupId>
+            <artifactId>filters</artifactId>
+            <version>2.0.235</version>
+        </dependency>
     </dependencies>
 </project>
