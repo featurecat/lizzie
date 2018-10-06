@@ -10,6 +10,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,6 +60,15 @@ public class Leelaz {
   private boolean isLoaded = false;
   private boolean isCheckingVersion;
 
+  // for Multiple Engine
+  private String engineCommand = null;
+  private List<String> commands = null;
+  private JSONObject config = null;
+  private String currentWeight = null;
+  private boolean switching = false;
+  private int currentEngineN = -1;
+  private ScheduledExecutorService executor = null;
+
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN, dynamicOppKomi = Float.NaN;
   /**
@@ -73,7 +87,8 @@ public class Leelaz {
     currentCmdNum = 0;
     cmdQueue = new ArrayDeque<>();
 
-    JSONObject config = Lizzie.config.config.getJSONObject("leelaz");
+    // Move config to member for other method call
+    config = Lizzie.config.config.getJSONObject("leelaz");
 
     printCommunication = config.getBoolean("print-comms");
     maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
@@ -82,13 +97,44 @@ public class Leelaz {
       updateToLatestNetwork();
     }
 
+    // command string for starting the engine
+    engineCommand = config.getString("engine-command");
+    // substitute in the weights file
+    engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
+
+    // Initialize current engine number and start engine
+    currentEngineN = 0;
+    startEngine(engineCommand);
+    Lizzie.frame.refreshBackground();
+  }
+
+  public void startEngine(String engineCommand) throws IOException {
+    // Check engine command
+    if (engineCommand == null || engineCommand.trim().isEmpty()) {
+      return;
+    }
+
     File startfolder = new File(config.optString("engine-start-location", "."));
-    String engineCommand = config.getString("engine-command");
     String networkFile = config.getString("network-file");
     // substitute in the weights file
     engineCommand = engineCommand.replaceAll("%network-file", networkFile);
     // create this as a list which gets passed into the processbuilder
-    List<String> commands = Arrays.asList(engineCommand.split(" "));
+    commands = Arrays.asList(engineCommand.split(" "));
+
+    // get weight name
+    if (engineCommand != null) {
+      Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
+      Matcher wMatcher = wPattern.matcher(engineCommand);
+      if (wMatcher.matches()) {
+        currentWeight = wMatcher.group(2);
+        if (currentWeight != null) {
+          String[] names = currentWeight.split("[\\\\|/]");
+          if (names != null && names.length > 1) {
+            currentWeight = names[names.length - 1];
+          }
+        }
+      }
+    }
 
     // Check if engine is present
     File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
@@ -123,8 +169,42 @@ public class Leelaz {
     sendCommand("version");
 
     // start a thread to continuously read Leelaz output
-    new Thread(this::read).start();
-    Lizzie.frame.refreshBackground();
+    // new Thread(this::read).start();
+    // can stop engine for switching weights
+    executor = Executors.newSingleThreadScheduledExecutor();
+    executor.execute(this::read);
+  }
+
+  public void restartEngine(String engineCommand, int index) throws IOException {
+    if (engineCommand == null || engineCommand.trim().isEmpty()) {
+      return;
+    }
+    switching = true;
+    this.engineCommand = engineCommand;
+    // stop the ponder
+    if (Lizzie.leelaz.isPondering()) {
+      Lizzie.leelaz.togglePonder();
+    }
+    normalQuit();
+    startEngine(engineCommand);
+    currentEngineN = index;
+    togglePonder();
+  }
+
+  public void normalQuit() {
+    sendCommand("quit");
+    executor.shutdown();
+    try {
+      while (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
+        executor.shutdownNow();
+      }
+      if (executor.awaitTermination(1, TimeUnit.SECONDS)) {
+        shutdown();
+      }
+    } catch (InterruptedException e) {
+      executor.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
   }
 
   private void updateToLatestNetwork() {
@@ -201,6 +281,10 @@ public class Leelaz {
         // End of response
       } else if (line.startsWith("info")) {
         isLoaded = true;
+        // Clear switching prompt
+        switching = false;
+        // Display engine command in the title
+        if (Lizzie.frame != null) Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
           parseInfo(line.substring(5));
@@ -301,7 +385,8 @@ public class Leelaz {
       System.out.println("Leelaz process ended.");
 
       shutdown();
-      System.exit(-1);
+      // Do no exit for switching weights
+      // System.exit(-1);
     } catch (IOException e) {
       e.printStackTrace();
       System.exit(-1);
@@ -567,5 +652,21 @@ public class Leelaz {
 
   public boolean isLoaded() {
     return isLoaded;
+  }
+
+  public String currentWeight() {
+    return currentWeight;
+  }
+
+  public boolean switching() {
+    return switching;
+  }
+
+  public int currentEngineN() {
+    return currentEngineN;
+  }
+
+  public String engineCommand() {
+    return this.engineCommand;
   }
 }

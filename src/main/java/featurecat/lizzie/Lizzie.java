@@ -6,6 +6,8 @@ import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 /** Main class. */
 public class Lizzie {
@@ -79,5 +81,52 @@ public class Lizzie {
 
     if (leelaz != null) leelaz.shutdown();
     System.exit(0);
+  }
+
+  /**
+   * Switch the Engine by index number
+   *
+   * @param index engine index
+   */
+  public static void switchEngine(int index) {
+
+    String commandLine = null;
+    if (index == 0) {
+      commandLine = Lizzie.config.leelazConfig.getString("engine-command");
+      commandLine =
+          commandLine.replaceAll(
+              "%network-file", Lizzie.config.leelazConfig.getString("network-file"));
+    } else {
+      JSONArray commandList = Lizzie.config.leelazConfig.getJSONArray("engine-command-list");
+      if (commandList != null && commandList.length() >= index) {
+        commandLine = commandList.getString(index - 1);
+      } else {
+        index = -1;
+      }
+    }
+    if (index < 0
+        || commandLine == null
+        || commandLine.trim().isEmpty()
+        || index == Lizzie.leelaz.currentEngineN()) {
+      return;
+    }
+
+    // Workaround for leelaz cannot exit when restarting
+    if (leelaz.isThinking) {
+      if (Lizzie.frame.isPlayingAgainstLeelaz) {
+        Lizzie.frame.isPlayingAgainstLeelaz = false;
+        Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
+        Lizzie.leelaz.isThinking = false;
+      }
+      Lizzie.leelaz.togglePonder();
+    }
+
+    board.saveMoveNumber();
+    try {
+      leelaz.restartEngine(commandLine, index);
+      board.restoreMoveNumber();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }
