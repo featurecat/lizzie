@@ -13,7 +13,7 @@ Just follow the instructions in the provided readme in the
 [release](https://github.com/featurecat/lizzie/releases/tag/0.5).
 
 The first run may take a while because Leela Zero needs to set up the
-OpenCL tunings and download the latest network if it is not present. Just hang tight, and wait for it to finish, then you
+OpenCL tunings. Just hang tight, and wait for it to finish, then you
 will see Leela Zero's analysis displayed on the board. Feel free to supply
 your own tunings, as this will speed up the process. Do this by copying
 any `leelaz_opencl_tuning` file you have into the directory.
@@ -24,14 +24,15 @@ any `leelaz_opencl_tuning` file you have into the directory.
 
 First, you will need to have a version of Leela Zero that
 continually outputs pondering information. You can get this from one
-of the Lizzie releases or build it yourself; just compile from the **next** branch of Leela Zero (see http://github.com/gcp/leela-zero/tree/next for more details).
+of the Lizzie releases or build it yourself; just compile from the **next**
+branch of Leela Zero (see http://github.com/gcp/leela-zero/tree/next for more
+details).
 
-    git clone -b next http://github.com/gcp/leela-zero.git
+    $ git clone --recursive --branch next http://github.com/gcp/leela-zero.git
 
 ### Building Lizzie
 
-The simplest way to build Lizzie is to use
-[Maven](https://maven.apache.org/).
+The simplest way to build Lizzie is to use [Maven](https://maven.apache.org/).
 
 To build the code and package it:
 

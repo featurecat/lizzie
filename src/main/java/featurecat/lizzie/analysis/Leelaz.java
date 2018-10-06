@@ -1,13 +1,11 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.Util;
 import featurecat.lizzie.rules.Stone;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -29,7 +27,6 @@ public class Leelaz {
       ResourceBundle.getBundle("l10n.DisplayStrings");
 
   private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-  private static final String baseURL = "http://zero.sjeng.org";
 
   private long maxAnalyzeTimeMillis; // , maxThinkingTimeMillis;
   private int cmdNumber;
@@ -93,10 +90,6 @@ public class Leelaz {
 
     printCommunication = config.getBoolean("print-comms");
     maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
-
-    if (config.getBoolean("automatically-download-latest-network")) {
-      updateToLatestNetwork();
-    }
 
     // command string for starting the engine
     engineCommand = config.getString("engine-command");
@@ -204,43 +197,6 @@ public class Leelaz {
     } catch (InterruptedException e) {
       executor.shutdownNow();
       Thread.currentThread().interrupt();
-    }
-  }
-
-  private void updateToLatestNetwork() {
-    try {
-      if (needToDownloadLatestNetwork()) {
-        int dialogResult =
-            JOptionPane.showConfirmDialog(
-                null,
-                resourceBundle.getString("LizzieFrame.display.download-latest-network-prompt"));
-        if (dialogResult == JOptionPane.YES_OPTION) {
-          Util.saveAsFile(
-              new URL(baseURL + "/networks/" + getBestNetworkHash() + ".gz"),
-              new File(Lizzie.config.leelazConfig.getString("network-file")));
-        }
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-      // now we're probably still ok. Maybe we're offline -- then it's not a big problem.
-    }
-  }
-
-  private String getBestNetworkHash() throws IOException {
-    return Util.downloadAsString(new URL(baseURL + "/best-network-hash")).split("\n")[0];
-  }
-
-  private boolean needToDownloadLatestNetwork() throws IOException {
-    File networkFile = new File(Lizzie.config.leelazConfig.getString("network-file"));
-    if (!networkFile.exists()) {
-      return true;
-    } else {
-      String currentNetworkHash = Util.getSha256Sum(networkFile);
-      if (currentNetworkHash == null) return true;
-
-      String bestNetworkHash = getBestNetworkHash();
-
-      return !currentNetworkHash.equals(bestNetworkHash);
     }
   }
 
