@@ -1,6 +1,5 @@
 package common;
 
-
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;

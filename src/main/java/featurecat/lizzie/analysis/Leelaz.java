@@ -424,9 +424,8 @@ public class Leelaz {
             + Lizzie.config
                 .config
                 .getJSONObject("leelaz")
-                .getInt(
-                    "analyze-update-interval-centisec")); // until it responds to this, incoming
-                                                          // ponder results are obsolete
+                .getInt("analyze-update-interval-centisec")); // until it responds to this, incoming
+    // ponder results are obsolete
   }
 
   public void togglePonder() {
@@ -484,23 +483,12 @@ public class Leelaz {
       final List<MoveData> moves = new ArrayList<MoveData>(bestMoves);
 
       // get the total number of playouts in moves
-      stats.totalPlayouts =
-          moves
-              .stream()
-              .reduce(
-                  0,
-                  (Integer result, MoveData move) -> result + move.playouts,
-                  (Integer a, Integer b) -> a + b);
+      int totalPlayouts = moves.stream().mapToInt(move -> move.playouts).sum();
+      stats.totalPlayouts = totalPlayouts;
 
       // set maxWinrate to the weighted average winrate of moves
       stats.maxWinrate =
-          moves
-              .stream()
-              .reduce(
-                  0d,
-                  (Double result, MoveData move) ->
-                      result + move.winrate * move.playouts / stats.totalPlayouts,
-                  (Double a, Double b) -> a + b);
+          moves.stream().mapToDouble(move -> move.winrate * move.playouts / totalPlayouts).sum();
     }
 
     return stats;

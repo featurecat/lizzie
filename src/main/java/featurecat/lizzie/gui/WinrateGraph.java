@@ -114,21 +114,19 @@ public class WinrateGraph {
           wr = bwr;
           playouts = stats.totalPlayouts;
         }
-        {
-          // Draw a vertical line at the current move
-          Stroke previousStroke = g.getStroke();
-          int x = posx + (movenum * width / numMoves);
-          g.setStroke(dashed);
-          g.setColor(Color.white);
-          g.drawLine(x, posy, x, posy + height);
-          // Show move number
-          String moveNumString = "" + node.getData().moveNumber;
-          int mw = g.getFontMetrics().stringWidth(moveNumString);
-          int margin = strokeRadius;
-          int mx = x - posx < width / 2 ? x + margin : x - mw - margin;
-          g.drawString(moveNumString, mx, posy + height - margin);
-          g.setStroke(previousStroke);
-        }
+        // Draw a vertical line at the current move
+        Stroke previousStroke = g.getStroke();
+        int x = posx + (movenum * width / numMoves);
+        g.setStroke(dashed);
+        g.setColor(Color.white);
+        g.drawLine(x, posy, x, posy + height);
+        // Show move number
+        String moveNumString = "" + node.getData().moveNumber;
+        int mw = g.getFontMetrics().stringWidth(moveNumString);
+        int margin = strokeRadius;
+        int mx = x - posx < width / 2 ? x + margin : x - mw - margin;
+        g.drawString(moveNumString, mx, posy + height - margin);
+        g.setStroke(previousStroke);
       }
       if (playouts > 0) {
         if (wr < 0) {

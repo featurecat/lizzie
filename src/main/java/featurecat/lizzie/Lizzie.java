@@ -6,7 +6,6 @@ import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
-import org.json.JSONException;
 
 /** Main class. */
 public class Lizzie {
@@ -15,35 +14,48 @@ public class Lizzie {
   public static Board board;
   public static Config config;
   public static String lizzieVersion = "0.5";
+  private static String[] args;
 
   /** Launches the game window, and runs the game. */
-  public static void main(String[] args)
-      throws IOException, JSONException, ClassNotFoundException, UnsupportedLookAndFeelException,
-          InstantiationException, IllegalAccessException, InterruptedException {
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+  public static void main(String[] args) throws IOException {
+    setLookAndFeel();
+    args = args;
     config = new Config();
     board = new Board();
     frame = new LizzieFrame();
+    new Thread(Lizzie::run).start();
+  }
 
-    new Thread(
-            () -> {
-              try {
-                leelaz = new Leelaz();
-                if (config.handicapInsteadOfWinrate) {
-                  leelaz.estimatePassWinrate();
-                }
-                if (args.length == 1) {
-                  frame.loadFile(new File(args[0]));
-                } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-                  board.resumePreviousGame();
-                }
-                leelaz.togglePonder();
-              } catch (IOException e) {
-                e.printStackTrace();
-                System.exit(-1);
-              }
-            })
-        .start();
+  public static void run() {
+    try {
+      leelaz = new Leelaz();
+      if (config.handicapInsteadOfWinrate) {
+        leelaz.estimatePassWinrate();
+      }
+      if (args.length == 1) {
+        frame.loadFile(new File(args[0]));
+      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+        board.resumePreviousGame();
+      }
+      leelaz.togglePonder();
+    } catch (IOException e) {
+      e.printStackTrace();
+      System.exit(-1);
+    }
+  }
+
+  public static void setLookAndFeel() {
+    try {
+      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    } catch (ClassNotFoundException e) {
+      e.printStackTrace();
+    } catch (InstantiationException e) {
+      e.printStackTrace();
+    } catch (UnsupportedLookAndFeelException e) {
+      e.printStackTrace();
+    }
   }
 
   public static void shutdown() {
@@ -61,8 +73,8 @@ public class Lizzie {
 
     try {
       config.persist();
-    } catch (IOException err) {
-      // Failed to save config
+    } catch (IOException e) {
+      e.printStackTrace(); // Failed to save config
     }
 
     if (leelaz != null) leelaz.shutdown();

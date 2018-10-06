@@ -32,28 +32,17 @@ public class Board implements LeelazListener {
   /** Initialize the board completely */
   private void initialize() {
     Stone[] stones = new Stone[BOARD_SIZE * BOARD_SIZE];
-    for (int i = 0; i < stones.length; i++) stones[i] = Stone.EMPTY;
-
-    boolean blackToPlay = true;
-    int[] lastMove = null;
+    for (int i = 0; i < stones.length; i++) {
+      stones[i] = Stone.EMPTY;
+    }
 
     capturedStones = null;
     scoreMode = false;
 
-    history =
-        new BoardHistoryList(
-            new BoardData(
-                stones,
-                lastMove,
-                Stone.EMPTY,
-                blackToPlay,
-                new Zobrist(),
-                0,
-                new int[BOARD_SIZE * BOARD_SIZE],
-                0,
-                0,
-                50,
-                0));
+    int[] boardArray = new int[BOARD_SIZE * BOARD_SIZE];
+    BoardData boardData =
+        new BoardData(stones, null, Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
+    history = new BoardHistoryList(boardData);
   }
 
   /**

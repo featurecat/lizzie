@@ -249,8 +249,8 @@ public class SGFParser {
     // collect game info
     BoardHistoryList history = board.getHistory().shallowCopy();
     GameInfo gameInfo = history.getGameInfo();
-    String playerBlack = gameInfo.getPlayerBlack();
-    String playerWhite = gameInfo.getPlayerWhite();
+    String playerB = gameInfo.getPlayerBlack();
+    String playerW = gameInfo.getPlayerWhite();
     Double komi = gameInfo.getKomi();
     Integer handicap = gameInfo.getHandicap();
     String date = SGF_DATE_FORMAT.format(gameInfo.getDate());
@@ -258,10 +258,8 @@ public class SGFParser {
     // add SGF header
     StringBuilder builder = new StringBuilder("(;");
     if (handicap != 0) builder.append(String.format("HA[%s]", handicap));
-    builder.append(
-        String.format(
-            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
-            komi, playerWhite, playerBlack, date, Lizzie.lizzieVersion));
+    String header = "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]";
+    builder.append(String.format(header, komi, playerW, playerB, date, Lizzie.lizzieVersion));
 
     // move to the first move
     history.toStart();

@@ -126,7 +126,9 @@ public class VariationTree {
   }
 
   public void draw(Graphics2D g, int posx, int posy, int width, int height) {
-    if (width <= 0 || height <= 0) return; // we don't have enough space
+    if (width <= 0 || height <= 0) {
+      return; // we don't have enough space
+    }
 
     // Use dense tree for saving space if large-subboard
     YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);

@@ -124,20 +124,11 @@ public class NewGameDialog extends JDialog {
     okButton.setText("OK");
     okButton.addActionListener(e -> apply());
 
+    int center = GridBagConstraints.CENTER;
+    int both = GridBagConstraints.BOTH;
     buttonBar.add(
         okButton,
-        new GridBagConstraints(
-            1,
-            0,
-            1,
-            1,
-            0.0,
-            0.0,
-            GridBagConstraints.CENTER,
-            GridBagConstraints.BOTH,
-            new Insets(0, 0, 0, 0),
-            0,
-            0));
+        new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, center, both, new Insets(0, 0, 0, 0), 0, 0));
 
     dialogPane.add(buttonBar, BorderLayout.SOUTH);
   }
