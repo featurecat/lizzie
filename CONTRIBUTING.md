@@ -1,4 +1,4 @@
-# Active developmoent is on the next branch! Not master. Please clone next when contributing!
+# Active development is on the next branch! Not master. Please clone next when contributing!
 
 TODO: add more specific contributing guidelines. In general...
 
