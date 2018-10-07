@@ -250,6 +250,7 @@ public class Leelaz {
                     if (Lizzie.frame.isPlayingAgainstLeelaz) {
                         Lizzie.board.place(params[1]);
                         togglePonder();
+                        isPondering = false;
                         isThinking = false;
                     }
                 } else if (isCheckingVersion) {
