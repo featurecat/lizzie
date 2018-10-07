@@ -151,9 +151,9 @@ public class Board implements LeelazListener {
                     int[] moveNumberList = history.getMoveNumberList();
                     moveNumberList[Board.getIndex(data.lastMove[0], data.lastMove[1])] = moveNumber;
                     BoardHistoryNode node = history.getCurrentHistoryNode().previous();
-                    while (node != null) {
+                    while (node != null && node.numberOfChildren() <= 1) {
                         BoardData nodeData = node.getData();
-                        if (nodeData != null && nodeData.lastMove != null && nodeData.moveNumber >= moveNumber && moveNumber > 0) {
+                        if (nodeData != null && nodeData.lastMove != null && nodeData.moveNumber >= moveNumber) {
                             moveNumber = (moveNumber > 1) ? moveNumber - 1 : 0;
                             moveNumberList[Board.getIndex(nodeData.lastMove[0], nodeData.lastMove[1])] = moveNumber;
                         }
@@ -302,6 +302,18 @@ public class Board implements LeelazListener {
      * @param color the type of stone to place
      */
     public void place(int x, int y, Stone color) {
+        place(x, y, color, false);
+    }
+
+    /**
+     * Places a stone onto the board representation. Thread safe
+     *
+     * @param x         x coordinate
+     * @param y         y coordinate
+     * @param color     the type of stone to place
+     * @param newBranch add a new branch
+     */
+    public void place(int x, int y, Stone color, boolean newBranch) {
         synchronized (this) {
             if (scoreMode) {
                 // Mark clicked stone as dead
@@ -310,7 +322,7 @@ public class Board implements LeelazListener {
                 return;
             }
 
-            if (!isValid(x, y) || history.getStones()[getIndex(x, y)] != Stone.EMPTY)
+            if (!isValid(x, y) || (history.getStones()[getIndex(x, y)] != Stone.EMPTY && !newBranch))
                 return;
 
             // Update winrate
@@ -390,7 +402,7 @@ public class Board implements LeelazListener {
             }
 
             // update history with this coordinate
-            history.addOrGoto(newState);
+            history.addOrGoto(newState, newBranch);
 
             Lizzie.frame.repaint();
         }

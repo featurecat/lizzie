@@ -164,12 +164,12 @@ public class SGFParser {
                         moveStart = true;
                         addPassForAwAb = true;
                         int[] move = convertSgfPosToCoord(tagContent);
+                        // Save the step count
+                        subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                         if (move == null) {
                             Lizzie.board.pass(tag.equals("B") ? Stone.BLACK : Stone.WHITE);
                         } else {
-                            // Save the step count
-                            subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
-                            Lizzie.board.place(move[0], move[1], tag.equals("B") ? Stone.BLACK : Stone.WHITE);
+                            Lizzie.board.place(move[0], move[1], tag.equals("B") ? Stone.BLACK : Stone.WHITE, subTreeStepMap.get(subTreeDepth) == 1);
                         }
                     } else if (tag.equals("C")) {
                         // Support comment
