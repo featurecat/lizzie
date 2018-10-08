@@ -197,8 +197,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
           Lizzie.frame.isPlayingAgainstLeelaz = false;
           // It seems does not need
-          //                    Lizzie.leelaz.togglePonder(); // we must toggle twice for it to
-          // restart pondering
+          // Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
           Lizzie.leelaz.isThinking = false;
         }
         Lizzie.leelaz.togglePonder();
