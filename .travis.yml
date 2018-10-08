@@ -1,0 +1,18 @@
+language: java
+jdk: oraclejdk8
+
+# The latest linux image on Travis is too old to build leelaz, what a shame...
+os: osx
+
+cache:
+  directories:
+  - $HOME/.m2
+  - $HOME/.leelaz
+
+install:
+  - sh scripts/make-leelaz.sh
+  - sh scripts/download-network.sh
+
+script:
+  - mvn test
+  - mvn com.coveo:fmt-maven-plugin:check
