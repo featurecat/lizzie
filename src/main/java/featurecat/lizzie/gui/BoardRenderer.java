@@ -14,7 +14,6 @@ import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.rules.Zobrist;
-import featurecat.lizzie.theme.Theme;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
@@ -58,7 +57,6 @@ public class BoardRenderer {
 
   private boolean lastInScoreMode = false;
 
-  public Theme theme;
   public List<String> variation;
 
   // special values of displayedBranchLength
@@ -74,8 +72,6 @@ public class BoardRenderer {
 
   public BoardRenderer(boolean isMainBoard) {
     uiConfig = Lizzie.config.config.getJSONObject("ui");
-    // The theme to allow use external image and config file
-    theme = new Theme(uiConfig.optString("theme"));
     uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
     try {
       maxAlpha = uiPersist.getInt("max-alpha");
@@ -451,7 +447,7 @@ public class BoardRenderer {
         boolean isWhite = board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite();
         g.setColor(isWhite ? Color.BLACK : Color.WHITE);
 
-        if (theme.solidStoneIndicator()) {
+        if (Lizzie.frame.theme.solidStoneIndicator()) {
           // Use a solid circle instead of
           fillCircle(g, stoneX, stoneY, (int) (lastMoveMarkerRadius * 0.65));
         } else {
@@ -683,8 +679,9 @@ public class BoardRenderer {
     if (uiConfig.getBoolean("fancy-board")) {
       // fancy version
       if (cachedBoardImage == null) {
-        cachedBoardImage = theme.getBoard();
+        cachedBoardImage = Lizzie.frame.theme.board();
       }
+
       int shadowRadius = (int) (boardLength * MARGIN / 6);
       drawTextureImage(
           g,
@@ -847,10 +844,9 @@ public class BoardRenderer {
   public BufferedImage getScaleStone(boolean isBlack, int size) {
     BufferedImage stone = isBlack ? cachedBlackStoneImage : cachedWhiteStoneImage;
     if (stone == null || stone.getWidth() != size || stone.getHeight() != size) {
-      stone = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+      stone = new BufferedImage(size, size, TYPE_INT_ARGB);
       Graphics2D g2 = stone.createGraphics();
-      Image img =
-          isBlack ? theme.getBlackStone(new int[] {x, y}) : theme.getWhiteStone(new int[] {x, y});
+      Image img = isBlack ? Lizzie.frame.theme.blackStone() : Lizzie.frame.theme.whiteStone();
       g2.drawImage(img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
       g2.dispose();
       if (isBlack) {
@@ -864,7 +860,7 @@ public class BoardRenderer {
 
   public BufferedImage getWallpaper() {
     if (cachedWallpaperImage == null) {
-      cachedWallpaperImage = theme.getBackground();
+      cachedWallpaperImage = Lizzie.frame.theme.background();
     }
     return cachedWallpaperImage;
   }
@@ -964,7 +960,7 @@ public class BoardRenderer {
     font = font.deriveFont((float) (font.getSize2D() * maximumFontWidth / fm.stringWidth(string)));
     font = font.deriveFont(min(maximumFontHeight, font.getSize()));
     g.setFont(font);
-
+    fm = g.getFontMetrics(font);
     int height = fm.getAscent() - fm.getDescent();
     int verticalOffset;
     if (aboveOrBelow == -1) {

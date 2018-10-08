@@ -9,6 +9,7 @@ import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.theme.Theme;
 import java.awt.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -71,6 +72,7 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
   };
   private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
+  public static Theme theme;
   private static BoardRenderer boardRenderer;
   private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
@@ -121,6 +123,8 @@ public class LizzieFrame extends JFrame {
     } catch (IOException | FontFormatException e) {
       e.printStackTrace();
     }
+    // The theme to allow use external image and config file
+    theme = new Theme(Lizzie.config.config.getJSONObject("ui").optString("theme"));
   }
 
   /** Creates a window */
@@ -138,8 +142,8 @@ public class LizzieFrame extends JFrame {
     setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
 
     // Allow change font in the config
-    if (boardRenderer.theme.getFontName() != null) {
-      systemDefaultFontName = boardRenderer.theme.getFontName();
+    if (theme.fontName() != null) {
+      systemDefaultFontName = theme.fontName();
       OpenSansRegularBase = new Font(systemDefaultFontName, Font.PLAIN, 12);
       OpenSansSemiboldBase = new Font(systemDefaultFontName, Font.BOLD, 12);
     }
@@ -152,8 +156,8 @@ public class LizzieFrame extends JFrame {
     commentPane = new JTextPane();
     commentPane.setEditable(false);
     commentPane.setMargin(new Insets(5, 5, 5, 5));
-    commentPane.setBackground(boardRenderer.theme.commentBackgroundColor());
-    commentPane.setForeground(boardRenderer.theme.commentFontColor());
+    commentPane.setBackground(theme.commentBackgroundColor());
+    commentPane.setForeground(theme.commentFontColor());
     scrollPane = new JScrollPane();
     scrollPane.setViewportView(commentPane);
     scrollPane.setBorder(null);
@@ -447,9 +451,11 @@ public class LizzieFrame extends JFrame {
       if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
         if (Lizzie.config.showStatus) {
           String pondKey = "LizzieFrame.display." + (Lizzie.leelaz.isPondering() ? "on" : "off");
-          String pondText = resourceBundle.getString(pondKey);
+          String pondText =
+              resourceBundle.getString("LizzieFrame.display.pondering")
+                  + resourceBundle.getString(pondKey);
           String switchText = resourceBundle.getString("LizzieFrame.prompt.switching");
-          String weightText = Lizzie.leelaz.currentWeight().toString();
+          String weightText = Lizzie.leelaz.currentWeight();
           String text = pondText + " " + weightText + (Lizzie.leelaz.switching() ? switchText : "");
           drawPonderingState(g, text, ponderingX, ponderingY, ponderingSize);
         }
@@ -962,7 +968,7 @@ public class LizzieFrame extends JFrame {
   public boolean isMouseOver(int x, int y) {
     return mouseOverCoordinate != null
         && mouseOverCoordinate[0] == x
-        && mouseOverCoordinate[1] == x;
+        && mouseOverCoordinate[1] == y;
   }
 
   public void onMouseDragged(int x, int y) {

@@ -42,7 +42,7 @@ public class Theme {
     }
   }
 
-  public BufferedImage getBlackStone(int[] position) {
+  public BufferedImage blackStone() {
     if (blackStoneCached == null) {
       try {
         blackStoneCached =
@@ -62,7 +62,7 @@ public class Theme {
     return blackStoneCached;
   }
 
-  public BufferedImage getWhiteStone(int[] position) {
+  public BufferedImage whiteStone() {
     if (whiteStoneCached == null) {
       try {
         whiteStoneCached =
@@ -82,7 +82,7 @@ public class Theme {
     return whiteStoneCached;
   }
 
-  public BufferedImage getBoard() {
+  public BufferedImage board() {
     if (boardCached == null) {
       try {
         boardCached =
@@ -100,7 +100,7 @@ public class Theme {
     return boardCached;
   }
 
-  public BufferedImage getBackground() {
+  public BufferedImage background() {
     if (backgroundCached == null) {
       try {
         backgroundCached =
@@ -122,7 +122,7 @@ public class Theme {
   }
 
   /** Use custom font */
-  public String getFontName() {
+  public String fontName() {
     return config.optString("font-name", null);
   }
 
@@ -152,6 +152,36 @@ public class Theme {
       return new Color(color.getInt(0), color.getInt(1), color.getInt(2), color.getInt(3));
     } else {
       return Color.WHITE;
+    }
+  }
+
+  /** The color of the winrate line */
+  public Color winrateLineColor() {
+    JSONArray color = config.optJSONArray("winrate-line-color");
+    if (color != null) {
+      return new Color(color.getInt(0), color.getInt(1), color.getInt(2), color.getInt(3));
+    } else {
+      return Color.green;
+    }
+  }
+
+  /** The color of the line that missed the winrate */
+  public Color winrateMissLineColor() {
+    JSONArray color = config.optJSONArray("winrate-miss-line-color");
+    if (color != null) {
+      return new Color(color.getInt(0), color.getInt(1), color.getInt(2), color.getInt(3));
+    } else {
+      return Color.blue.darker();
+    }
+  }
+
+  /** The color of the blunder bar */
+  public Color blunderBarColor() {
+    JSONArray color = config.optJSONArray("blunder-bar-color");
+    if (color != null) {
+      return new Color(color.getInt(0), color.getInt(1), color.getInt(2), color.getInt(3));
+    } else {
+      return new Color(255, 0, 0, 150);
     }
   }
 }
