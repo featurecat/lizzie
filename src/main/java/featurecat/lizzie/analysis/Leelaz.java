@@ -64,6 +64,7 @@ public class Leelaz {
   private String engineCommand = null;
   private List<String> commands = null;
   private JSONObject config = null;
+  private String currentWeightFile = null;
   private String currentWeight = null;
   private boolean switching = false;
   private int currentEngineN = -1;
@@ -114,10 +115,6 @@ public class Leelaz {
       return;
     }
 
-    File startfolder = new File(config.optString("engine-start-location", "."));
-    String networkFile = config.getString("network-file");
-    // substitute in the weights file
-    engineCommand = engineCommand.replaceAll("%network-file", networkFile);
     // create this as a list which gets passed into the processbuilder
     commands = Arrays.asList(engineCommand.split(" "));
 
@@ -126,17 +123,20 @@ public class Leelaz {
       Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
       Matcher wMatcher = wPattern.matcher(engineCommand);
       if (wMatcher.matches()) {
-        currentWeight = wMatcher.group(2);
-        if (currentWeight != null) {
-          String[] names = currentWeight.split("[\\\\|/]");
+        currentWeightFile = wMatcher.group(2);
+        if (currentWeightFile != null) {
+          String[] names = currentWeightFile.split("[\\\\|/]");
           if (names != null && names.length > 1) {
             currentWeight = names[names.length - 1];
+          } else {
+            currentWeight = currentWeightFile;
           }
         }
       }
     }
 
     // Check if engine is present
+    File startfolder = new File(config.optString("engine-start-location", "."));
     File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
     if (!lef.exists()) {
       JOptionPane.showMessageDialog(
@@ -148,7 +148,7 @@ public class Leelaz {
     }
 
     // Check if network file is present
-    File wf = startfolder.toPath().resolve(new File(networkFile).toPath()).toFile();
+    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
     if (!wf.exists()) {
       JOptionPane.showMessageDialog(
           null, resourceBundle.getString("LizzieFrame.display.network-missing"));
