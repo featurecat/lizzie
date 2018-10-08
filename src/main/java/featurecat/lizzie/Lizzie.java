@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 /** Main class. */
 public class Lizzie {
@@ -16,12 +15,12 @@ public class Lizzie {
   public static Board board;
   public static Config config;
   public static String lizzieVersion = "0.5";
-  private static String[] args;
+  private static String[] mainArgs;
 
   /** Launches the game window, and runs the game. */
   public static void main(String[] args) throws IOException {
     setLookAndFeel();
-    args = args;
+    mainArgs = args;
     config = new Config();
     board = new Board();
     frame = new LizzieFrame();
@@ -34,8 +33,8 @@ public class Lizzie {
       if (config.handicapInsteadOfWinrate) {
         leelaz.estimatePassWinrate();
       }
-      if (args.length == 1) {
-        frame.loadFile(new File(args[0]));
+      if (mainArgs.length == 1) {
+        frame.loadFile(new File(mainArgs[0]));
       } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
         board.resumePreviousGame();
       }

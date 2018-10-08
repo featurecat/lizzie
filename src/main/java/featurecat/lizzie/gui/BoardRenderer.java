@@ -842,7 +842,7 @@ public class BoardRenderer {
   /** Get scaled stone, if cached then return cached */
   private BufferedImage getScaleStone(boolean isBlack, int size) {
     BufferedImage stone = isBlack ? cachedBlackStoneImage : cachedWhiteStoneImage;
-    if (stone == null) {
+    if (stone == null || stone.getWidth() != size || stone.getHeight() != size) {
       stone = new BufferedImage(size, size, TYPE_INT_ARGB);
       String imgPath = isBlack ? "/assets/black0.png" : "/assets/white0.png";
       Image img = null;
@@ -970,7 +970,7 @@ public class BoardRenderer {
     font = font.deriveFont((float) (font.getSize2D() * maximumFontWidth / fm.stringWidth(string)));
     font = font.deriveFont(min(maximumFontHeight, font.getSize()));
     g.setFont(font);
-
+    fm = g.getFontMetrics(font);
     int height = fm.getAscent() - fm.getDescent();
     int verticalOffset;
     if (aboveOrBelow == -1) {
