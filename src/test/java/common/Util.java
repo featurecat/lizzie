@@ -110,7 +110,7 @@ public class Util {
   }
 
   public static Stone[] convertStones(String awAb) {
-    Stone[] stones = new Stone[Board.BOARD_SIZE * Board.BOARD_SIZE];
+    Stone[] stones = new Stone[Board.boardSize * Board.boardSize];
     for (int i = 0; i < stones.length; i++) {
       stones[i] = Stone.EMPTY;
     }

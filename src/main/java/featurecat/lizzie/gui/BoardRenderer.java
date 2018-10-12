@@ -184,14 +184,14 @@ public class BoardRenderer {
 
       // draw the lines
       g.setColor(Color.BLACK);
-      for (int i = 0; i < Board.BOARD_SIZE; i++) {
+      for (int i = 0; i < Board.boardSize; i++) {
         g.drawLine(
             x + scaledMargin,
             y + scaledMargin + squareLength * i,
             x + scaledMargin + availableLength - 1,
             y + scaledMargin + squareLength * i);
       }
-      for (int i = 0; i < Board.BOARD_SIZE; i++) {
+      for (int i = 0; i < Board.boardSize; i++) {
         g.drawLine(
             x + scaledMargin + squareLength * i,
             y + scaledMargin,
@@ -206,7 +206,7 @@ public class BoardRenderer {
       if (showCoordinates()) {
         g.setColor(Color.BLACK);
         String alphabet = "ABCDEFGHJKLMNOPQRST";
-        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+        for (int i = 0; i < Board.boardSize; i++) {
           drawString(
               g,
               x + scaledMargin + squareLength * i,
@@ -224,13 +224,13 @@ public class BoardRenderer {
               stoneRadius * 4 / 5,
               stoneRadius);
         }
-        for (int i = 0; i < Board.BOARD_SIZE; i++) {
+        for (int i = 0; i < Board.boardSize; i++) {
           drawString(
               g,
               x + scaledMargin / 2,
               y + scaledMargin + squareLength * i,
               LizzieFrame.OpenSansRegularBase,
-              "" + (Board.BOARD_SIZE - i),
+              "" + (Board.boardSize - i),
               stoneRadius * 4 / 5,
               stoneRadius);
           drawString(
@@ -238,7 +238,7 @@ public class BoardRenderer {
               x - scaledMargin / 2 + +boardLength,
               y + scaledMargin + squareLength * i,
               LizzieFrame.OpenSansRegularBase,
-              "" + (Board.BOARD_SIZE - i),
+              "" + (Board.boardSize - i),
               stoneRadius * 4 / 5,
               stoneRadius);
         }
@@ -259,9 +259,9 @@ public class BoardRenderer {
    * @param g graphics2d object to draw
    */
   private void drawStarPoints(Graphics2D g) {
-    if (Board.BOARD_SIZE == 9) {
+    if (Board.boardSize == 9) {
       drawStarPoints0(2, 2, 4, true, g);
-    } else if (Board.BOARD_SIZE == 13) {
+    } else if (Board.boardSize == 13) {
       drawStarPoints0(2, 3, 6, true, g);
     } else {
       drawStarPoints0(3, 3, 6, false, g);
@@ -308,8 +308,8 @@ public class BoardRenderer {
       g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
       gShadow.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
 
-      for (int i = 0; i < Board.BOARD_SIZE; i++) {
-        for (int j = 0; j < Board.BOARD_SIZE; j++) {
+      for (int i = 0; i < Board.boardSize; i++) {
+        for (int j = 0; j < Board.boardSize; j++) {
           int stoneX = scaledMargin + squareLength * i;
           int stoneY = scaledMargin + squareLength * j;
           drawStone(
@@ -333,8 +333,8 @@ public class BoardRenderer {
     Graphics2D g = cachedStonesImage.createGraphics();
     Stone scorestones[] = Lizzie.board.scoreStones();
     int scoreRadius = stoneRadius / 4;
-    for (int i = 0; i < Board.BOARD_SIZE; i++) {
-      for (int j = 0; j < Board.BOARD_SIZE; j++) {
+    for (int i = 0; i < Board.boardSize; i++) {
+      for (int j = 0; j < Board.boardSize; j++) {
         int stoneX = scaledMargin + squareLength * i;
         int stoneY = scaledMargin + squareLength * j;
         switch (scorestones[Board.getIndex(i, j)]) {
@@ -390,8 +390,8 @@ public class BoardRenderer {
 
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
 
-    for (int i = 0; i < Board.BOARD_SIZE; i++) {
-      for (int j = 0; j < Board.BOARD_SIZE; j++) {
+    for (int i = 0; i < Board.boardSize; i++) {
+      for (int j = 0; j < Board.boardSize; j++) {
         if (Lizzie.board.getData().stones[Board.getIndex(i, j)] != Stone.EMPTY) continue;
         if (branch.data.moveNumberList[Board.getIndex(i, j)] > maxBranchMoves()) continue;
 
@@ -487,8 +487,8 @@ public class BoardRenderer {
     int lastMoveNumber = branch == null ? board.getData().moveNumber : branch.data.moveNumber;
     int onlyLastMoveNumber = Lizzie.config.uiConfig.optInt("only-last-move-number", 9999);
 
-    for (int i = 0; i < Board.BOARD_SIZE; i++) {
-      for (int j = 0; j < Board.BOARD_SIZE; j++) {
+    for (int i = 0; i < Board.boardSize; i++) {
+      for (int j = 0; j < Board.boardSize; j++) {
         int stoneX = x + scaledMargin + squareLength * i;
         int stoneY = y + scaledMargin + squareLength * j;
 
@@ -549,8 +549,8 @@ public class BoardRenderer {
         if (move.winrate > maxWinrate) maxWinrate = move.winrate;
       }
 
-      for (int i = 0; i < Board.BOARD_SIZE; i++) {
-        for (int j = 0; j < Board.BOARD_SIZE; j++) {
+      for (int i = 0; i < Board.boardSize; i++) {
+        for (int j = 0; j < Board.boardSize; j++) {
           MoveData move = null;
 
           // this is inefficient but it looks better with shadows
@@ -741,7 +741,7 @@ public class BoardRenderer {
       boardLength--;
       scaledMargin = (int) (margin * boardLength);
       availableLength = boardLength - 2 * scaledMargin;
-    } while (!((availableLength - 1) % (Board.BOARD_SIZE - 1) == 0));
+    } while (!((availableLength - 1) % (Board.boardSize - 1) == 0));
     // this will be true if BOARD_SIZE - 1 square intersections, plus one line, will fit
 
     return new int[] {boardLength, scaledMargin, availableLength};
@@ -972,25 +972,22 @@ public class BoardRenderer {
                       g.setStroke(new BasicStroke(2));
                       if ("LB".equals(key) && moves.length > 1) {
                         // Label
+                        double labelRadius = stoneRadius * 1.4;
                         drawString(
                             g,
                             moveX,
                             moveY,
                             LizzieFrame.OpenSansRegularBase,
                             moves[1],
-                            (float) (stoneRadius * 1.4),
-                            (int) (stoneRadius * 1.4));
+                            (float) labelRadius,
+                            labelRadius);
                       } else if ("TR".equals(key)) {
-                        // Triangle
                         drawTriangle(g, moveX, moveY, (stoneRadius + 1) * 2 / 3);
                       } else if ("SQ".equals(key)) {
-                        // Square
                         drawSquare(g, moveX, moveY, (stoneRadius + 1) / 2);
                       } else if ("CR".equals(key)) {
-                        // Circle
                         drawCircle(g, moveX, moveY, stoneRadius * 2 / 3);
                       } else if ("MA".equals(key)) {
-                        // Mark (X)
                         drawMarkX(g, moveX, moveY, (stoneRadius + 1) / 2);
                       }
                     }
@@ -1055,7 +1052,7 @@ public class BoardRenderer {
     font = font.deriveFont((float) (font.getSize2D() * maximumFontWidth / fm.stringWidth(string)));
     font = font.deriveFont(min(maximumFontHeight, font.getSize()));
     g.setFont(font);
-
+    fm = g.getFontMetrics(font);
     int height = fm.getAscent() - fm.getDescent();
     int verticalOffset;
     if (aboveOrBelow == -1) {
@@ -1181,7 +1178,7 @@ public class BoardRenderer {
    * @return the board length of each intersection square
    */
   private int calculateSquareLength(int availableLength) {
-    return availableLength / (Board.BOARD_SIZE - 1);
+    return availableLength / (Board.boardSize - 1);
   }
 
   private boolean isShowingRawBoard() {

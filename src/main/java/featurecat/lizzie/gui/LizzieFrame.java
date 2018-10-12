@@ -321,7 +321,7 @@ public class LizzieFrame extends JFrame {
 
       // board
       int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
-      maxSize = Math.max(maxSize, Board.BOARD_SIZE + 5); // don't let maxWidth become too small
+      maxSize = Math.max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
       int boardX = (getWidth() - maxSize) / 2;
       int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
 
@@ -440,9 +440,11 @@ public class LizzieFrame extends JFrame {
       if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
         if (Lizzie.config.showStatus) {
           String pondKey = "LizzieFrame.display." + (Lizzie.leelaz.isPondering() ? "on" : "off");
-          String pondText = resourceBundle.getString(pondKey);
+          String pondText =
+              resourceBundle.getString("LizzieFrame.display.pondering")
+                  + resourceBundle.getString(pondKey);
           String switchText = resourceBundle.getString("LizzieFrame.prompt.switching");
-          String weightText = Lizzie.leelaz.currentWeight().toString();
+          String weightText = Lizzie.leelaz.currentWeight();
           String text = pondText + " " + weightText + (Lizzie.leelaz.switching() ? switchText : "");
           drawPonderingState(g, text, ponderingX, ponderingY, ponderingSize);
         }
@@ -955,7 +957,7 @@ public class LizzieFrame extends JFrame {
   public boolean isMouseOver(int x, int y) {
     return mouseOverCoordinate != null
         && mouseOverCoordinate[0] == x
-        && mouseOverCoordinate[1] == x;
+        && mouseOverCoordinate[1] == y;
   }
 
   public void onMouseDragged(int x, int y) {

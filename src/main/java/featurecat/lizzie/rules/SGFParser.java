@@ -166,14 +166,16 @@ public class SGFParser {
             int[] move = convertSgfPosToCoord(tagContent);
             // Save the step count
             subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
+            Stone color = tag.equals("B") ? Stone.BLACK : Stone.WHITE;
             if (move == null) {
-              Lizzie.board.pass(tag.equals("B") ? Stone.BLACK : Stone.WHITE);
+              Lizzie.board.pass(color);
             } else {
+              boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
               Lizzie.board.place(
                   move[0],
                   move[1],
-                  tag.equals("B") ? Stone.BLACK : Stone.WHITE,
-                  subTreeStepMap.get(subTreeDepth) == 1);
+                  color,
+                  newBranch);
             }
           } else if (tag.equals("C")) {
             // Support comment
@@ -184,22 +186,23 @@ public class SGFParser {
             }
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
+            Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
             if (moveStart) {
               // add to node properties
               Lizzie.board.addNodeProperty(tag, tagContent);
               if (addPassForAwAb) {
-                Lizzie.board.pass(tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                Lizzie.board.pass(color);
                 addPassForAwAb = false;
               }
               if (move != null) {
                 Lizzie.board.addStone(
-                    move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                    move[0], move[1], color);
               }
             } else {
               if (move == null) {
-                Lizzie.board.pass(tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                Lizzie.board.pass(color);
               } else {
-                Lizzie.board.place(move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                Lizzie.board.place(move[0], move[1], color);
               }
               Lizzie.board.flatten();
             }
@@ -322,8 +325,8 @@ public class SGFParser {
         Stone stone = stones[i];
         if (stone.isBlack()) {
           // i = x * Board.BOARD_SIZE + y;
-          int corY = i % Board.BOARD_SIZE;
-          int corX = (i - corY) / Board.BOARD_SIZE;
+          int corY = i % Board.boardSize;
+          int corX = (i - corY) / Board.boardSize;
 
           char x = (char) (corX + 'a');
           char y = (char) (corY + 'a');
@@ -339,8 +342,8 @@ public class SGFParser {
         Stone stone = stones[i];
         if (stone.isBlack() || stone.isWhite()) {
           // i = x * Board.BOARD_SIZE + y;
-          int corY = i % Board.BOARD_SIZE;
-          int corX = (i - corY) / Board.BOARD_SIZE;
+          int corY = i % Board.boardSize;
+          int corX = (i - corY) / Board.boardSize;
 
           char x = (char) (corX + 'a');
           char y = (char) (corY + 'a');
@@ -446,12 +449,12 @@ public class SGFParser {
    * @param defaultValue
    * @return
    */
-  public static String optProperty(Map<String, String> props, String key, String defaultValue) {
+  public static String getOrDefault(Map<String, String> props, String key, String defaultValue) {
     return props.getOrDefault(key, defaultValue);
   }
 
   /**
-   * Add a key and value
+   * Add a key and value to the props
    *
    * @param key
    * @param value
@@ -466,14 +469,12 @@ public class SGFParser {
   }
 
   /**
-   * Add the properties
+   * Add the properties by mutating the props
    *
    * @return
    */
   public static void addProperties(Map<String, String> props, Map<String, String> addProps) {
-    if (addProps != null && addProps.size() > 0) {
-      addProps.forEach((key, value) -> addProperty(props, key, value));
-    }
+    addProps.forEach((key, value) -> addProperty(props, key, value));
   }
 
   /**
@@ -482,66 +483,64 @@ public class SGFParser {
    * @return
    */
   public static void addProperties(Map<String, String> props, String propsStr) {
-    if (propsStr != null) {
-      boolean inTag = false, escaping = false;
-      String tag = null;
-      StringBuilder tagBuilder = new StringBuilder();
-      StringBuilder tagContentBuilder = new StringBuilder();
+    boolean inTag = false, escaping = false;
+    String tag = null;
+    StringBuilder tagBuilder = new StringBuilder();
+    StringBuilder tagContentBuilder = new StringBuilder();
 
-      for (int i = 0; i < propsStr.length(); i++) {
-        char c = propsStr.charAt(i);
-        if (escaping) {
-          tagContentBuilder.append(c);
-          escaping = false;
-          continue;
-        }
-        switch (c) {
-          case '(':
-            if (inTag) {
-              if (i > 0) {
-                tagContentBuilder.append(c);
-              }
-            }
-            break;
-          case ')':
-            if (inTag) {
+    for (int i = 0; i < propsStr.length(); i++) {
+      char c = propsStr.charAt(i);
+      if (escaping) {
+        tagContentBuilder.append(c);
+        escaping = false;
+        continue;
+      }
+      switch (c) {
+        case '(':
+          if (inTag) {
+            if (i > 0) {
               tagContentBuilder.append(c);
             }
-            break;
-          case '[':
-            inTag = true;
-            String tagTemp = tagBuilder.toString();
-            if (!tagTemp.isEmpty()) {
-              tag = tagTemp.replaceAll("[a-z]", "");
+          }
+          break;
+        case ')':
+          if (inTag) {
+            tagContentBuilder.append(c);
+          }
+          break;
+        case '[':
+          inTag = true;
+          String tagTemp = tagBuilder.toString();
+          if (!tagTemp.isEmpty()) {
+            tag = tagTemp.replaceAll("[a-z]", "");
+          }
+          tagContentBuilder = new StringBuilder();
+          break;
+        case ']':
+          inTag = false;
+          tagBuilder = new StringBuilder();
+          addProperty(props, tag, tagContentBuilder.toString());
+          break;
+        case ';':
+          break;
+        default:
+          if (inTag) {
+            if (c == '\\') {
+              escaping = true;
+              continue;
             }
-            tagContentBuilder = new StringBuilder();
-            break;
-          case ']':
-            inTag = false;
-            tagBuilder = new StringBuilder();
-            addProperty(props, tag, tagContentBuilder.toString());
-            break;
-          case ';':
-            break;
-          default:
-            if (inTag) {
-              if (c == '\\') {
-                escaping = true;
-                continue;
-              }
-              tagContentBuilder.append(c);
-            } else {
-              if (c != '\n' && c != '\r' && c != '\t' && c != ' ') {
-                tagBuilder.append(c);
-              }
+            tagContentBuilder.append(c);
+          } else {
+            if (c != '\n' && c != '\r' && c != '\t' && c != ' ') {
+              tagBuilder.append(c);
             }
-        }
+          }
       }
     }
   }
 
   /**
-   * Get properties string
+   * Get properties string by the props
    *
    * @return
    */
@@ -554,7 +553,7 @@ public class SGFParser {
   }
 
   /**
-   * Get node string
+   * Get node string by the key and value
    *
    * @param key
    * @param value

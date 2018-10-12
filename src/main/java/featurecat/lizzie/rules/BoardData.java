@@ -80,8 +80,8 @@ public class BoardData {
    * @param defaultValue
    * @return
    */
-  public String optProperty(String key, String defaultValue) {
-    return SGFParser.optProperty(properties, key, defaultValue);
+  public String getOrDefault(String key, String defaultValue) {
+    return SGFParser.getOrDefault(properties, key, defaultValue);
   }
 
   /**
