@@ -2,6 +2,7 @@ package featurecat.lizzie.rules;
 
 import featurecat.lizzie.analysis.GameInfo;
 import java.util.List;
+import java.util.Optional;
 
 /** Linked list data structure to store board history */
 public class BoardHistoryList {
@@ -58,66 +59,62 @@ public class BoardHistoryList {
   /**
    * moves the pointer to the left, returns the data stored there
    *
-   * @return data of previous node, null if there is no previous node
+   * @return data of previous node, Optional.empty if there is no previous node
    */
-  public BoardData previous() {
-    if (head.previous() == null) return null;
-    else head = head.previous();
+  public Optional<BoardData> previous() {
+    if (!head.previous().isPresent()) return Optional.empty();
+    else head = head.previous().get();
 
-    return head.getData();
+    return Optional.of(head.getData());
   }
 
   public void toStart() {
-    while (previous() != null) ;
+    while (previous().isPresent()) ;
   }
 
   /**
    * moves the pointer to the right, returns the data stored there
    *
-   * @return the data of next node, null if there is no next node
+   * @return the data of next node, Optional.empty if there is no next node
    */
-  public BoardData next() {
-    if (head.next() == null) return null;
-    else head = head.next();
-
-    return head.getData();
+  public Optional<BoardData> next() {
+    Optional<BoardHistoryNode> n = head.next();
+    n.ifPresent(x -> head = x);
+    return n.map(x -> x.getData());
   }
 
   /**
-   * moves the pointer to the variation number idx, returns the data stored there
+   * Moves the pointer to the variation number idx, returns the data stored there.
    *
-   * @return the data of next node, null if there is no variaton with index
+   * @return the data of next node, Optional.empty if there is no variation with index.
    */
-  public BoardData nextVariation(int idx) {
-    if (head.getVariation(idx) == null) return null;
-    else head = head.getVariation(idx);
-
-    return head.getData();
+  public Optional<BoardData> nextVariation(int idx) {
+    Optional<BoardHistoryNode> n = head.getVariation(idx);
+    n.ifPresent(x -> head = x);
+    return n.map(x -> x.getData());
   }
 
   /**
    * Does not change the pointer position
    *
-   * @return the data stored at the next index. null if not present
+   * @return the data stored at the next index, if any, Optional.empty otherwise.
    */
-  public BoardData getNext() {
-    if (head.next() == null) return null;
-    else return head.next().getData();
+  public Optional<BoardData> getNext() {
+    return head.next().map(x -> x.getData());
   }
 
   /** @return nexts for display */
   public List<BoardHistoryNode> getNexts() {
-    return head.getNexts();
+    return head.getVariations();
   }
 
   /**
-   * Does not change the pointer position
+   * Does not change the pointer position.
    *
-   * @return the data stored at the previous index. null if not present
+   * @return the data stored at the previous index, if any, Optional.empty otherwise.
    */
-  public BoardData getPrevious() {
-    if (head.previous() == null) return null;
-    else return head.previous().getData();
+  public Optional<BoardData> getPrevious() {
+    return head.previous().map(p -> p.getData());
   }
 
   /** @return the data of the current node */
@@ -135,14 +132,12 @@ public class BoardHistoryList {
     return head.getData().stones;
   }
 
-  public int[] getLastMove() {
+  public Optional<int[]> getLastMove() {
     return head.getData().lastMove;
   }
 
-  public int[] getNextMove() {
-    BoardData next = getNext();
-    if (next == null) return null;
-    else return next.lastMove;
+  public Optional<int[]> getNextMove() {
+    return getNext().flatMap(n -> n.lastMove);
   }
 
   public Stone getLastMoveColor() {
@@ -177,13 +172,13 @@ public class BoardHistoryList {
     BoardHistoryNode head = this.head;
 
     // check to see if this position has occurred before
-    while (head.previous() != null) {
+    while (head.previous().isPresent()) {
       // if two zobrist hashes are equal, and it's the same player to coordinate, they are the same
       // position
       if (data.zobrist.equals(head.getData().zobrist)
           && data.blackToPlay == head.getData().blackToPlay) return true;
 
-      head = head.previous();
+      head = head.previous().get();
     }
 
     // no position matched this position, so it's valid
@@ -197,8 +192,8 @@ public class BoardHistoryList {
    */
   public BoardHistoryNode root() {
     BoardHistoryNode top = head;
-    while (top.previous() != null) {
-      top = top.previous();
+    while (top.previous().isPresent()) {
+      top = top.previous().get();
     }
     return top;
   }
@@ -209,7 +204,7 @@ public class BoardHistoryList {
    * @return length of current branch
    */
   public int currentBranchLength() {
-    return getMoveNumber() + BoardHistoryList.getDepth(head);
+    return getMoveNumber() + head.getDepth();
   }
 
   /**
@@ -218,106 +213,6 @@ public class BoardHistoryList {
    * @return length of main trunk
    */
   public int mainTrunkLength() {
-    return BoardHistoryList.getDepth(root());
-  }
-
-  /*
-   * Static helper methods
-   */
-
-  /**
-   * Returns the number of moves in a tree (only the left-most (trunk) variation)
-   *
-   * @return number of moves in a tree
-   */
-  public static int getDepth(BoardHistoryNode node) {
-    int c = 0;
-    while (node.next() != null) {
-      c++;
-      node = node.next();
-    }
-    return c;
-  }
-
-  /**
-   * Check if there is a branch that is at least depth deep (at least depth moves)
-   *
-   * @return true if it is deep enough, false otherwise
-   */
-  public static boolean hasDepth(BoardHistoryNode node, int depth) {
-    int c = 0;
-    if (depth <= 0) return true;
-    while (node.next() != null) {
-      if (node.numberOfChildren() > 1) {
-        for (int i = 0; i < node.numberOfChildren(); i++) {
-          if (hasDepth(node.getVariation(i), depth - c - 1)) return true;
-        }
-        return false;
-      } else {
-        node = node.next();
-        c++;
-        if (c >= depth) return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Find top of variation (the first move that is on the main trunk)
-   *
-   * @return top of variaton, if on main trunk, return start move
-   */
-  public static BoardHistoryNode findTop(BoardHistoryNode start) {
-    BoardHistoryNode top = start;
-    while (start.previous() != null) {
-      if (start.previous().next() != start) {
-        top = start.previous();
-      }
-      start = start.previous();
-    }
-    return top;
-  }
-
-  /**
-   * Find first move with variations in tree above node
-   *
-   * @return The child (in the current variation) of the first node with variations
-   */
-  public static BoardHistoryNode findChildOfPreviousWithVariation(BoardHistoryNode node) {
-    while (node.previous() != null) {
-      if (node.previous().numberOfChildren() > 1) {
-        return node;
-      }
-      node = node.previous();
-    }
-    return null;
-  }
-
-  /**
-   * Given a parent node and a child node, find the index of the child node
-   *
-   * @return index of child node, -1 if child node not a child of parent
-   */
-  public static int findIndexOfNode(BoardHistoryNode parentNode, BoardHistoryNode childNode) {
-    if (parentNode.next() == null) return -1;
-    for (int i = 0; i < parentNode.numberOfChildren(); i++) {
-      if (parentNode.getVariation(i) == childNode) return i;
-    }
-    return -1;
-  }
-
-  /**
-   * Check if node is part of the main trunk (rightmost branch)
-   *
-   * @return true if node is part of main trunk, false otherwise
-   */
-  public static boolean isMainTrunk(BoardHistoryNode node) {
-    while (node.previous() != null) {
-      if (node.previous().next() != node) {
-        return false;
-      }
-      node = node.previous();
-    }
-    return true;
+    return root().getDepth();
   }
 }

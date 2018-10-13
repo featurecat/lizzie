@@ -2,10 +2,10 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
-import featurecat.lizzie.rules.BoardHistoryList;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.Optional;
 
 public class WinrateGraph {
 
@@ -76,20 +76,22 @@ public class WinrateGraph {
     g.setColor(Color.green);
     g.setStroke(new BasicStroke(3));
 
-    BoardHistoryNode topOfVariation = null;
+    Optional<BoardHistoryNode> topOfVariation = Optional.empty();
     int numMoves = 0;
-    if (!BoardHistoryList.isMainTrunk(curMove)) {
+    if (!curMove.isMainTrunk()) {
       // We're in a variation, need to draw both main trunk and variation
       // Find top of variation
-      topOfVariation = BoardHistoryList.findTop(curMove);
+      BoardHistoryNode top = curMove.findTop();
+      topOfVariation = Optional.of(top);
       // Find depth of main trunk, need this for plot scaling
-      numMoves =
-          BoardHistoryList.getDepth(topOfVariation) + topOfVariation.getData().moveNumber - 1;
+      numMoves = top.getDepth() + top.getData().moveNumber - 1;
       g.setStroke(dashed);
     }
 
     // Go to end of variation and work our way backwards to the root
-    while (node.next() != null) node = node.next();
+    while (node.next().isPresent()) {
+      node = node.next().get();
+    }
     if (numMoves < node.getData().moveNumber - 1) {
       numMoves = node.getData().moveNumber - 1;
     }
@@ -104,7 +106,8 @@ public class WinrateGraph {
     int movenum = node.getData().moveNumber - 1;
     int lastOkMove = -1;
 
-    while (node.previous() != null) {
+    while (node.previous().isPresent()) {
+      BoardHistoryNode previous = node.previous().get();
       double wr = node.getData().winrate;
       int playouts = node.getData().playouts;
       if (node == curMove) {
@@ -161,14 +164,16 @@ public class WinrateGraph {
         lastWr = wr;
         lastNodeOk = true;
         // Check if we were in a variation and has reached the main trunk
-        if (node == topOfVariation) {
+        if (topOfVariation.isPresent() && topOfVariation.get() == node) {
           // Reached top of variation, go to end of main trunk before continuing
-          while (node.next() != null) node = node.next();
+          while (node.next().isPresent()) {
+            node = node.next().get();
+          }
           movenum = node.getData().moveNumber - 1;
           lastWr = node.getData().winrate;
           if (!node.getData().blackToPlay) lastWr = 100 - lastWr;
           g.setStroke(new BasicStroke(3));
-          topOfVariation = null;
+          topOfVariation = Optional.empty();
           if (node.getData().playouts == 0) {
             lastNodeOk = false;
           }
@@ -179,7 +184,7 @@ public class WinrateGraph {
         lastNodeOk = false;
       }
 
-      node = node.previous();
+      node = previous;
       movenum--;
     }
 

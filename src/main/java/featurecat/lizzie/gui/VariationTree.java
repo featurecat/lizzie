@@ -1,10 +1,10 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.rules.BoardHistoryList;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class VariationTree {
 
@@ -32,7 +32,7 @@ public class VariationTree {
     else g.setColor(Color.gray.brighter());
 
     // Finds depth on leftmost variation of this tree
-    int depth = BoardHistoryList.getDepth(startNode) + 1;
+    int depth = startNode.getDepth() + 1;
     int lane = startLane;
     // Figures out how far out too the right (which lane) we have to go not to collide with other
     // variations
@@ -83,7 +83,7 @@ public class VariationTree {
     if (startNode == curMove) {
       g.setColor(Color.green.brighter().brighter());
     }
-    if (startNode.previous() != null) {
+    if (startNode.previous().isPresent()) {
       g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
       g.setColor(Color.BLACK);
       g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
@@ -95,9 +95,9 @@ public class VariationTree {
     g.setColor(curcolor);
 
     // Draw main line
-    while (cur.next() != null && posy + YSPACING < maxposy) {
+    while (cur.next().isPresent() && posy + YSPACING < maxposy) {
       posy += YSPACING;
-      cur = cur.next();
+      cur = cur.next().get();
       if (cur == curMove) {
         g.setColor(Color.green.brighter().brighter());
       }
@@ -111,15 +111,18 @@ public class VariationTree {
     // Now we have drawn all the nodes in this variation, and has reached the bottom of this
     // variation
     // Move back up, and for each, draw any variations we find
-    while (cur.previous() != null && cur != startNode) {
-      cur = cur.previous();
+    while (cur.previous().isPresent() && cur != startNode) {
+      cur = cur.previous().get();
       int curwidth = lane;
       // Draw each variation, uses recursion
       for (int i = 1; i < cur.numberOfChildren(); i++) {
         curwidth++;
         // Recursion, depth of recursion will normally not be very deep (one recursion level for
         // every variation that has a variation (sort of))
-        drawTree(g, posx, posy, curwidth, maxposy, cur.getVariation(i), i, false);
+        Optional<BoardHistoryNode> variation = cur.getVariation(i);
+        if (variation.isPresent()) {
+          drawTree(g, posx, posy, curwidth, maxposy, variation.get(), i, false);
+        }
       }
       posy -= YSPACING;
     }
@@ -155,12 +158,12 @@ public class VariationTree {
     curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
 
     // Is current move a variation? If so, find top of variation
-    BoardHistoryNode top = BoardHistoryList.findTop(curMove);
+    BoardHistoryNode top = curMove.findTop();
     int curposy = middleY - YSPACING * (curMove.getData().moveNumber - top.getData().moveNumber);
     // Go to very top of tree (visible in assigned area)
     BoardHistoryNode node = top;
-    while (curposy > posy + YSPACING && node.previous() != null) {
-      node = node.previous();
+    while (curposy > posy + YSPACING && node.previous().isPresent()) {
+      node = node.previous().get();
       curposy -= YSPACING;
     }
     drawTree(g, posx + xoffset, curposy, 0, posy + height, node, 0, true);
