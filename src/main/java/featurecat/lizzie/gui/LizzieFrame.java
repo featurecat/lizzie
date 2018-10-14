@@ -1,8 +1,10 @@
 package featurecat.lizzie.gui;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.Util;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.rules.Board;
@@ -320,8 +322,8 @@ public class LizzieFrame extends JFrame {
       int topInset = this.getInsets().top;
 
       // board
-      int maxSize = (int) (Math.min(getWidth(), getHeight() - topInset) * 0.98);
-      maxSize = Math.max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
+      int maxSize = (int) (min(getWidth(), getHeight() - topInset) * 0.98);
+      maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
       int boardX = (getWidth() - maxSize) / 2;
       int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
 
@@ -387,7 +389,7 @@ public class LizzieFrame extends JFrame {
       int subBoardY = gry + grh;
       int subBoardWidth = grw;
       int subBoardHeight = ponderingY - subBoardY;
-      int subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+      int subBoardLength = min(subBoardWidth, subBoardHeight);
 
       if (Lizzie.config.showLargeSubBoard()) {
         boardX = getWidth() - maxSize - panelMargin;
@@ -423,7 +425,7 @@ public class LizzieFrame extends JFrame {
         subBoardY = topInset + panelH;
         subBoardWidth = spaceW;
         subBoardHeight = ponderingY - subBoardY;
-        subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+        subBoardLength = min(subBoardWidth, subBoardHeight);
       }
 
       // initialize
@@ -439,13 +441,13 @@ public class LizzieFrame extends JFrame {
 
       if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
         if (Lizzie.config.showStatus) {
-          String pondKey = "LizzieFrame.display." + (Lizzie.leelaz.isPondering() ? "on" : "off");
-          String pondText =
-              resourceBundle.getString("LizzieFrame.display.pondering")
-                  + resourceBundle.getString(pondKey);
-          String switchText = resourceBundle.getString("LizzieFrame.prompt.switching");
+          String statusKey = "LizzieFrame.display." + (Lizzie.leelaz.isPondering() ? "on" : "off");
+          String statusText = resourceBundle.getString(statusKey);
+          String ponderingText = resourceBundle.getString("LizzieFrame.display.pondering");
+          String switching = resourceBundle.getString("LizzieFrame.prompt.switching");
+          String switchingText = Lizzie.leelaz.switching() ? switching : "";
           String weightText = Lizzie.leelaz.currentWeight();
-          String text = pondText + " " + weightText + (Lizzie.leelaz.switching() ? switchText : "");
+          String text = ponderingText + " " + statusText + " " + weightText + " " + switchingText;
           drawPonderingState(g, text, ponderingX, ponderingY, ponderingSize);
         }
 
@@ -530,8 +532,8 @@ public class LizzieFrame extends JFrame {
     Graphics2D g = cachedBackground.createGraphics();
 
     BufferedImage wallpaper = boardRenderer.getWallpaper();
-    int drawWidth = Math.max(wallpaper.getWidth(), getWidth());
-    int drawHeight = Math.max(wallpaper.getHeight(), getHeight());
+    int drawWidth = max(wallpaper.getWidth(), getWidth());
+    int drawHeight = max(wallpaper.getHeight(), getHeight());
     // Support seamless texture
     boardRenderer.drawTextureImage(g, wallpaper, 0, 0, drawWidth, drawHeight);
 
@@ -549,7 +551,7 @@ public class LizzieFrame extends JFrame {
   }
 
   private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
-    int fontSize = (int) (Math.max(getWidth(), getHeight()) * size);
+    int fontSize = (int) (max(getWidth(), getHeight()) * size);
     Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
     FontMetrics fm = g.getFontMetrics(font);
     int stringWidth = fm.stringWidth(text);
@@ -560,7 +562,7 @@ public class LizzieFrame extends JFrame {
               ? boardRenderer.getLocation().x
               : 0;
       if ((mainBoardX > x) && stringWidth > (mainBoardX - x)) {
-        text = Util.truncateStringByWidth(text, fm, mainBoardX - x);
+        text = truncateStringByWidth(text, fm, mainBoardX - x);
         stringWidth = fm.stringWidth(text);
       }
     }
@@ -583,6 +585,38 @@ public class LizzieFrame extends JFrame {
     g.setFont(font);
     g.drawString(
         text, x + (width - stringWidth) / 2, y + stringHeight + (height - stringHeight) / 2);
+  }
+
+  /**
+   * Truncate text that is too long for the given width
+   *
+   * @param line
+   * @param fm
+   * @param fitWidth
+   * @return fitted
+   */
+  private static String truncateStringByWidth(String line, FontMetrics fm, int fitWidth) {
+    if (line == null || line.length() == 0) {
+      return "";
+    }
+    int width = fm.stringWidth(line);
+    if (width > fitWidth) {
+      int guess = line.length() * fitWidth / width;
+      String before = line.substring(0, guess).trim();
+      width = fm.stringWidth(before);
+      if (width > fitWidth) {
+        int diff = width - fitWidth;
+        int i = 0;
+        for (; (diff > 0 && i < 5); i++) {
+          diff = diff - fm.stringWidth(line.substring(guess - i - 1, guess - i));
+        }
+        return line.substring(0, guess - i).trim();
+      } else {
+        return before;
+      }
+    } else {
+      return line;
+    }
   }
 
   private void drawWinrateGraphContainer(Graphics g, int statx, int staty, int statw, int stath) {
@@ -613,7 +647,7 @@ public class LizzieFrame extends JFrame {
 
     Graphics2D g = cachedImage.createGraphics();
 
-    int maxSize = Math.min(getWidth(), getHeight());
+    int maxSize = min(getWidth(), getHeight());
     Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
     g.setFont(font);
 
@@ -621,11 +655,11 @@ public class LizzieFrame extends JFrame {
     int maxCmdWidth = commandsToShow.stream().mapToInt(c -> metrics.stringWidth(c)).max().orElse(0);
     int lineHeight = (int) (font.getSize() * 1.15);
 
-    int boxWidth = Util.clamp((int) (maxCmdWidth * 1.4), 0, getWidth());
-    int boxHeight = Util.clamp(commandsToShow.size() * lineHeight, 0, getHeight());
+    int boxWidth = min((int) (maxCmdWidth * 1.4), getWidth());
+    int boxHeight = min(commandsToShow.size() * lineHeight, getHeight());
 
-    int commandsX = Util.clamp(getWidth() / 2 - boxWidth / 2, 0, getWidth());
-    int commandsY = Util.clamp(getHeight() / 2 - boxHeight / 2, 0, getHeight());
+    int commandsX = min(getWidth() / 2 - boxWidth / 2, getWidth());
+    int commandsY = min(getHeight() / 2 - boxHeight / 2, getHeight());
 
     BufferedImage result = new BufferedImage(boxWidth, boxHeight, BufferedImage.TYPE_INT_ARGB);
     filter10.filter(
@@ -675,7 +709,7 @@ public class LizzieFrame extends JFrame {
   private void drawCommandString(Graphics2D g) {
     if (userAlreadyKnowsAboutCommandString) return;
 
-    int maxSize = (int) (Math.min(getWidth(), getHeight()) * 0.98);
+    int maxSize = (int) (min(getWidth(), getHeight()) * 0.98);
 
     Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.03));
     String commandString = resourceBundle.getString("LizzieFrame.prompt.showControlsHint");
@@ -758,7 +792,7 @@ public class LizzieFrame extends JFrame {
     strokeRadius = 2;
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g.setColor(Color.WHITE);
-    setPanelFont(g, (int) (Math.min(width, height) * 0.2));
+    setPanelFont(g, (int) (min(width, height) * 0.2));
 
     // Last move
     if (validLastWinrate && validWinrate) {
@@ -1128,7 +1162,7 @@ public class LizzieFrame extends JFrame {
             ? Lizzie.board.getHistory().getData().comment
             : "";
     int cHeight = full ? h : (int) (h * 0.5);
-    int fontSize = (int) (Math.min(getWidth(), getHeight()) * 0.0294);
+    int fontSize = (int) (min(getWidth(), getHeight()) * 0.0294);
     if (Lizzie.config.commentFontSize > 0) {
       fontSize = Lizzie.config.commentFontSize;
     } else if (fontSize < 16) {

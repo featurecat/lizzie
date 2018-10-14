@@ -850,7 +850,7 @@ public class BoardRenderer {
   /** Get scaled stone, if cached then return cached */
   private BufferedImage getScaleStone(boolean isBlack, int size) {
     BufferedImage stone = isBlack ? cachedBlackStoneImage : cachedWhiteStoneImage;
-    if (stone == null) {
+    if (stone == null || stone.getWidth() != size || stone.getHeight() != size) {
       stone = new BufferedImage(size, size, TYPE_INT_ARGB);
       String imgPath = isBlack ? "/assets/black0.png" : "/assets/white0.png";
       Image img = null;
