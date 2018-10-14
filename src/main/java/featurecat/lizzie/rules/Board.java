@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -146,20 +147,18 @@ public class Board implements LeelazListener {
     synchronized (this) {
       BoardData data = history.getData();
       data.moveNumber = moveNumber;
-      if (data.lastMove != null) {
+      if (data.lastMove.isPresent()) {
         int[] moveNumberList = history.getMoveNumberList();
-        moveNumberList[Board.getIndex(data.lastMove[0], data.lastMove[1])] = moveNumber;
-        BoardHistoryNode node = history.getCurrentHistoryNode().previous();
-        while (node != null && node.numberOfChildren() <= 1) {
-          BoardData nodeData = node.getData();
-          if (nodeData != null
-              && nodeData.lastMove != null
-              && nodeData.moveNumber >= moveNumber) {
+        moveNumberList[Board.getIndex(data.lastMove.get()[0], data.lastMove.get()[1])] = moveNumber;
+        Optional<BoardHistoryNode> node = history.getCurrentHistoryNode().previous();
+        while (node.isPresent() && node.get().numberOfChildren() <= 1) {
+          BoardData nodeData = node.get().getData();
+          if (nodeData.lastMove.isPresent() && nodeData.moveNumber >= moveNumber) {
             moveNumber = (moveNumber > 1) ? moveNumber - 1 : 0;
-            moveNumberList[Board.getIndex(nodeData.lastMove[0], nodeData.lastMove[1])] =
+            moveNumberList[Board.getIndex(nodeData.lastMove.get()[0], nodeData.lastMove.get()[1])] =
                 moveNumber;
           }
-          node = node.previous();
+          node = node.get().previous();
         }
       }
     }
@@ -734,9 +733,139 @@ public class Board implements LeelazListener {
     }
   }
 
-  public boolean nextBranch() { return false } // TODO
+  /**
+   * Returns all the nodes at the given depth in the history tree, always including a node from the
+   * main variation (possibly less deep that the given depth).
+   *
+   * @return the list of candidate nodes
+   */
+  private List<BoardHistoryNode> branchCandidates(BoardHistoryNode node) {
+    int targetDepth = node.getData().moveNumber;
+    Stream<BoardHistoryNode> nodes = singletonList(history.root()).stream();
+    for (int i = 0; i < targetDepth; i++) {
+      nodes = nodes.flatMap(n -> n.getVariations().stream());
+    }
+    LinkedList<BoardHistoryNode> result = nodes.collect(Collectors.toCollection(LinkedList::new));
 
-  public boolean previousBranch() { return false } // TODO
+    if (result.isEmpty() || !result.get(0).isMainTrunk()) {
+      BoardHistoryNode endOfMainTrunk = history.root();
+      while (endOfMainTrunk.next().isPresent()) {
+        endOfMainTrunk = endOfMainTrunk.next().get();
+      }
+      result.addFirst(endOfMainTrunk);
+      return result;
+    } else {
+      return result;
+    }
+  }
+
+  /**
+   * Moves to next variation (variation to the right) if possible. The variation must have a move
+   * with the same move number as the current move in it.
+   *
+   * @return true if there exist a target variation
+   */
+  public boolean nextBranch() {
+    synchronized (this) {
+      BoardHistoryNode currentNode = history.getCurrentHistoryNode();
+      Optional<BoardHistoryNode> targetNode = Optional.empty();
+      boolean foundIt = false;
+      for (BoardHistoryNode candidate : branchCandidates(currentNode)) {
+        if (foundIt) {
+          targetNode = Optional.of(candidate);
+          break;
+        } else if (candidate == currentNode) {
+          foundIt = true;
+        }
+      }
+      if (targetNode.isPresent()) {
+        moveToAnyPosition(targetNode.get());
+      }
+      return targetNode.isPresent();
+    }
+  }
+
+  /**
+   * Moves to previous variation (variation to the left) if possible, or back to main trunk To move
+   * to another variation, the variation must have the same number of moves in it.
+   *
+   * <p>Note: This method will always move back to main trunk, even if variation has more moves than
+   * main trunk (if this case it will move to the last move in the trunk).
+   *
+   * @return true if there exist a target variation
+   */
+  public boolean previousBranch() {
+    synchronized (this) {
+      BoardHistoryNode currentNode = history.getCurrentHistoryNode();
+      Optional<BoardHistoryNode> targetNode = Optional.empty();
+      for (BoardHistoryNode candidate : branchCandidates(currentNode)) {
+        if (candidate == currentNode) {
+          break;
+        } else {
+          targetNode = Optional.of(candidate);
+        }
+      }
+      if (targetNode.isPresent()) {
+        moveToAnyPosition(targetNode.get());
+      }
+      return targetNode.isPresent();
+    }
+  }
+
+  /**
+   * Jump anywhere in the board history tree.
+   *
+   * @param targetNode history node to be located
+   * @return void
+   */
+  private void moveToAnyPosition(BoardHistoryNode targetNode) {
+    List<Integer> targetParents = new ArrayList<Integer>();
+    List<Integer> sourceParents = new ArrayList<Integer>();
+
+    BiConsumer<BoardHistoryNode, List<Integer>> populateParent =
+        (node, parentList) -> {
+          Optional<BoardHistoryNode> prevNode = node.previous();
+          while (prevNode.isPresent()) {
+            BoardHistoryNode p = prevNode.get();
+            for (int m = 0; m < p.numberOfChildren(); m++) {
+              if (p.getVariation(m).get() == node) {
+                parentList.add(m);
+              }
+            }
+            node = p;
+            prevNode = p.previous();
+          }
+        };
+
+    // Compute the path from the current node to the root
+    populateParent.accept(history.getCurrentHistoryNode(), sourceParents);
+
+    // Compute the path from the target node to the root
+    populateParent.accept(targetNode, targetParents);
+
+    // Compute the distance from source to the deepest common answer
+    int targetDepth = targetParents.size();
+    int sourceDepth = sourceParents.size();
+    int maxDepth = min(targetParents.size(), sourceParents.size());
+    int depth;
+    for (depth = 0; depth < maxDepth; depth++) {
+      int sourceParent = sourceParents.get(sourceDepth - depth - 1);
+      int targetParent = targetParents.get(targetDepth - depth - 1);
+      if (sourceParent != targetParent) {
+        break;
+      }
+    }
+
+    // Move all the way up to the deepest common ansestor
+    for (int m = 0; m < sourceDepth - depth; m++) {
+      previousMove();
+    }
+
+    // Then all the way down to the target
+    for (int m = targetDepth - depth; m > 0; m--) {
+      nextVariation(targetParents.get(m - 1));
+    }
+  }
 
   public void moveBranchUp() {
     synchronized (this) {
