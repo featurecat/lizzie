@@ -384,7 +384,8 @@ public class BoardRenderer {
 
     for (int i = 0; i < Board.BOARD_SIZE; i++) {
       for (int j = 0; j < Board.BOARD_SIZE; j++) {
-        if (Lizzie.board.getData().stones[Board.getIndex(i, j)] != Stone.EMPTY) continue;
+        // Display latest stone for ghost dead stone
+        // if (Lizzie.board.getData().stones[Board.getIndex(i, j)] != Stone.EMPTY) continue;
         if (branch.data.moveNumberList[Board.getIndex(i, j)] > maxBranchMoves()) continue;
 
         int stoneX = scaledMargin + squareLength * i;
