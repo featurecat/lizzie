@@ -446,7 +446,7 @@ public class LizzieFrame extends JFrame {
           String ponderingText = resourceBundle.getString("LizzieFrame.display.pondering");
           String switching = resourceBundle.getString("LizzieFrame.prompt.switching");
           String switchingText = Lizzie.leelaz.switching() ? switching : "";
-          String weightText = Lizzie.leelaz.currentWeight().toString();
+          String weightText = Lizzie.leelaz.currentWeight();
           String text = ponderingText + " " + statusText + " " + weightText + " " + switchingText;
           drawPonderingState(g, text, ponderingX, ponderingY, ponderingSize);
         }
