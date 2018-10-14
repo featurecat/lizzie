@@ -71,8 +71,8 @@ public class BoardRenderer {
   private int maxAlpha = 240;
 
   public BoardRenderer(boolean isMainBoard) {
-    uiConfig = Lizzie.config.config.getJSONObject("ui");
-    uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
+    uiConfig = Lizzie.config.uiConfig;
+    uiPersist = Lizzie.config.persisted;
     try {
       maxAlpha = uiPersist.getInt("max-alpha");
     } catch (JSONException e) {
@@ -201,7 +201,7 @@ public class BoardRenderer {
               g,
               x + scaledMargin + squareLength * i,
               y + scaledMargin / 2,
-              LizzieFrame.OpenSansRegularBase,
+              LizzieFrame.uiFont,
               "" + alphabet.charAt(i),
               stoneRadius * 4 / 5,
               stoneRadius);
@@ -209,7 +209,7 @@ public class BoardRenderer {
               g,
               x + scaledMargin + squareLength * i,
               y - scaledMargin / 2 + boardLength,
-              LizzieFrame.OpenSansRegularBase,
+              LizzieFrame.uiFont,
               "" + alphabet.charAt(i),
               stoneRadius * 4 / 5,
               stoneRadius);
@@ -219,7 +219,7 @@ public class BoardRenderer {
               g,
               x + scaledMargin / 2,
               y + scaledMargin + squareLength * i,
-              LizzieFrame.OpenSansRegularBase,
+              LizzieFrame.uiFont,
               "" + (Board.BOARD_SIZE - i),
               stoneRadius * 4 / 5,
               stoneRadius);
@@ -227,7 +227,7 @@ public class BoardRenderer {
               g,
               x - scaledMargin / 2 + +boardLength,
               y + scaledMargin + squareLength * i,
-              LizzieFrame.OpenSansRegularBase,
+              LizzieFrame.uiFont,
               "" + (Board.BOARD_SIZE - i),
               stoneRadius * 4 / 5,
               stoneRadius);
@@ -447,7 +447,7 @@ public class BoardRenderer {
         boolean isWhite = board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite();
         g.setColor(isWhite ? Color.BLACK : Color.WHITE);
 
-        if (Lizzie.frame.theme.solidStoneIndicator()) {
+        if (Lizzie.config.solidStoneIndicator) {
           // Use a solid circle instead of
           fillCircle(g, stoneX, stoneY, (int) (lastMoveMarkerRadius * 0.65));
         } else {
@@ -467,7 +467,7 @@ public class BoardRenderer {
             g,
             x + boardLength / 2,
             y + boardLength / 2,
-            LizzieFrame.OpenSansRegularBase,
+            LizzieFrame.uiFont,
             "pass",
             stoneRadius * 4,
             stoneRadius * 6);
@@ -514,7 +514,7 @@ public class BoardRenderer {
               g,
               stoneX,
               stoneY,
-              LizzieFrame.OpenSansRegularBase,
+              LizzieFrame.uiFont,
               moveNumberString,
               (float) (stoneRadius * 1.4),
               (int) (stoneRadius * 1.4));
@@ -630,7 +630,7 @@ public class BoardRenderer {
                 g,
                 suggestionX,
                 suggestionY,
-                LizzieFrame.OpenSansSemiboldBase,
+                LizzieFrame.winrateFont,
                 Font.PLAIN,
                 text,
                 stoneRadius,
@@ -641,7 +641,7 @@ public class BoardRenderer {
                 g,
                 suggestionX,
                 suggestionY + stoneRadius * 2 / 5,
-                LizzieFrame.OpenSansRegularBase,
+                LizzieFrame.uiFont,
                 getPlayoutsString(move.playouts),
                 (float) (stoneRadius * 0.8),
                 stoneRadius * 1.4);
@@ -679,7 +679,7 @@ public class BoardRenderer {
     if (uiConfig.getBoolean("fancy-board")) {
       // fancy version
       if (cachedBoardImage == null) {
-        cachedBoardImage = Lizzie.frame.theme.board();
+        cachedBoardImage = Lizzie.config.theme.board();
       }
 
       int shadowRadius = (int) (boardLength * MARGIN / 6);
@@ -748,8 +748,8 @@ public class BoardRenderer {
       Graphics2D g, int centerX, int centerY, boolean isGhost, float shadowStrength) {
     if (!uiConfig.getBoolean("shadows-enabled")) return;
 
-    final int shadowSize = (int) (stoneRadius * 0.3 * uiConfig.getInt("shadow-size") / 100);
-    final int fartherShadowSize = (int) (stoneRadius * 0.17 * uiConfig.getInt("shadow-size") / 100);
+    final int shadowSize = (int) (stoneRadius * 0.3 * Lizzie.config.shadowSize / 100);
+    final int fartherShadowSize = (int) (stoneRadius * 0.17 * Lizzie.config.shadowSize / 100);
 
     final Paint TOP_GRADIENT_PAINT;
     final Paint LOWER_RIGHT_GRADIENT_PAINT;
@@ -846,7 +846,7 @@ public class BoardRenderer {
     if (stone == null || stone.getWidth() != size || stone.getHeight() != size) {
       stone = new BufferedImage(size, size, TYPE_INT_ARGB);
       Graphics2D g2 = stone.createGraphics();
-      Image img = isBlack ? Lizzie.frame.theme.blackStone() : Lizzie.frame.theme.whiteStone();
+      Image img = isBlack ? Lizzie.config.theme.blackStone() : Lizzie.config.theme.whiteStone();
       g2.drawImage(img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
       g2.dispose();
       if (isBlack) {
@@ -860,7 +860,7 @@ public class BoardRenderer {
 
   public BufferedImage getWallpaper() {
     if (cachedWallpaperImage == null) {
-      cachedWallpaperImage = Lizzie.frame.theme.background();
+      cachedWallpaperImage = Lizzie.config.theme.background();
     }
     return cachedWallpaperImage;
   }

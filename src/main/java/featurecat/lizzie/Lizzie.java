@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.*;
 import org.json.JSONArray;
-import org.json.JSONException;
 
 /** Main class. */
 public class Lizzie {
