@@ -141,15 +141,14 @@ public class LizzieFrame extends JFrame {
     winrateGraph = new WinrateGraph();
 
     setMinimumSize(new Dimension(640, 480));
-    setLocationRelativeTo(null); // Start centered
     JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
-    setSize(windowSize.getInt(0), windowSize.getInt(1)); // Use config file window size
+    setSize(windowSize.getInt(0), windowSize.getInt(1));
+    setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
 
     if (Lizzie.config.startMaximized) {
-      setExtendedState(Frame.MAXIMIZED_BOTH); // Start maximized
+      setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 
-    // Comment Pane
     commentPane = new JTextPane();
     commentPane.setEditable(false);
     commentPane.setMargin(new Insets(5, 5, 5, 5));
@@ -169,10 +168,10 @@ public class LizzieFrame extends JFrame {
 
     Input input = new Input();
 
-    this.addMouseListener(input);
-    this.addKeyListener(input);
-    this.addMouseWheelListener(input);
-    this.addMouseMotionListener(input);
+    addMouseListener(input);
+    addKeyListener(input);
+    addMouseWheelListener(input);
+    addMouseMotionListener(input);
 
     // necessary for Windows users - otherwise Lizzie shows a blank white screen on startup until
     // updates occur.
@@ -331,7 +330,7 @@ public class LizzieFrame extends JFrame {
       int topInset = this.getInsets().top;
 
       // board
-      int maxSize = (int) (min(getWidth(), getHeight() - topInset) * 0.98);
+      int maxSize = (int) (min(getWidth(), getHeight() - topInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
       int boardX = (getWidth() - maxSize) / 2;
       int boardY = topInset + (getHeight() - topInset - maxSize) / 2 + 3;
@@ -470,7 +469,7 @@ public class LizzieFrame extends JFrame {
         // Todo: Make board move over when there is no space beside the board
         if (Lizzie.config.showWinrate) {
           if (backgroundG.isPresent()) {
-            drawWinrateGraphContainer(backgroundG.get(), contx, conty, contw, conth);
+            drawContainer(backgroundG.get(), contx, conty, contw, conth);
           }
           drawMoveStatistics(g, statx, staty, statw, stath);
           winrateGraph.draw(g, grx, gry, grw, grh);
@@ -478,7 +477,7 @@ public class LizzieFrame extends JFrame {
 
         if (Lizzie.config.showVariationGraph) {
           if (backgroundG.isPresent()) {
-            drawVariationTreeContainer(backgroundG.get(), vx, vy, vw, vh);
+            drawContainer(backgroundG.get(), vx, vy, vw, vh);
           }
           int cHeight = 0;
           if (Lizzie.config.showComment) {
@@ -553,7 +552,7 @@ public class LizzieFrame extends JFrame {
     return g;
   }
 
-  private void drawVariationTreeContainer(Graphics2D g, int vx, int vy, int vw, int vh) {
+  private void drawContainer(Graphics g, int vx, int vy, int vw, int vh) {
     if (vx < cachedBackground.getMinX()
         || vx + vw > cachedBackground.getMinX() + cachedBackground.getWidth()
         || vy < cachedBackground.getMinY()
@@ -580,8 +579,8 @@ public class LizzieFrame extends JFrame {
       }
     }
     int stringHeight = fm.getAscent() - fm.getDescent();
-    int width = stringWidth;
-    int height = (int) (stringHeight * 1.2);
+    int width = max(stringWidth, 1);
+    int height = max((int) (stringHeight * 1.2), 1);
 
     BufferedImage result = new BufferedImage(width, height, TYPE_INT_ARGB);
     // commenting this out for now... always causing an exception on startup. will fix in the
@@ -630,13 +629,6 @@ public class LizzieFrame extends JFrame {
     } else {
       return line;
     }
-  }
-
-  private void drawWinrateGraphContainer(Graphics g, int statx, int staty, int statw, int stath) {
-    BufferedImage result = new BufferedImage(statw, stath + statw, TYPE_INT_ARGB);
-    filter20.filter(
-        cachedBackground.getSubimage(statx, staty, result.getWidth(), result.getHeight()), result);
-    g.drawImage(result, statx, staty, null);
   }
 
   private GaussianFilter filter20 = new GaussianFilter(20);
