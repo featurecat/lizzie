@@ -4,6 +4,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import static java.util.Arrays.asList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -171,11 +172,7 @@ public class SGFParser {
               Lizzie.board.pass(color);
             } else {
               boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
-              Lizzie.board.place(
-                  move[0],
-                  move[1],
-                  color,
-                  newBranch);
+              Lizzie.board.place(move[0], move[1], color, newBranch);
             }
           } else if (tag.equals("C")) {
             // Support comment
@@ -195,8 +192,7 @@ public class SGFParser {
                 addPassForAwAb = false;
               }
               if (move != null) {
-                Lizzie.board.addStone(
-                    move[0], move[1], color);
+                Lizzie.board.addStone(move[0], move[1], color);
               }
             } else {
               if (move == null) {
@@ -425,21 +421,11 @@ public class SGFParser {
   }
 
   public static boolean isListProperty(String key) {
-    for (String k : listProps) {
-      if (k.equals(key)) {
-        return true;
-      }
-    }
-    return false;
+    return asList(listProps).contains(key);
   }
 
   public static boolean isMarkupProperty(String key) {
-    for (String k : markupProps) {
-      if (k.equals(key)) {
-        return true;
-      }
-    }
-    return false;
+    return asList(markupProps).contains(key);
   }
 
   /**
