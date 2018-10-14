@@ -9,7 +9,6 @@ import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
-import featurecat.lizzie.theme.Theme;
 import java.awt.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -72,14 +71,13 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
   };
   private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
-  public static Theme theme;
   private static BoardRenderer boardRenderer;
   private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
 
-  public static Font OpenSansRegularBase;
-  public static Font OpenSansSemiboldBase;
+  public static Font uiFont;
+  public static Font winrateFont;
 
   private final BufferStrategy bs;
 
@@ -89,9 +87,6 @@ public class LizzieFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
-
-  // Get the font name in current system locale
-  private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
   private long lastAutosaveTime = System.currentTimeMillis();
 
@@ -108,13 +103,13 @@ public class LizzieFrame extends JFrame {
   static {
     // load fonts
     try {
-      OpenSansRegularBase =
+      uiFont =
           Font.createFont(
               Font.TRUETYPE_FONT,
               Thread.currentThread()
                   .getContextClassLoader()
                   .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
-      OpenSansSemiboldBase =
+      winrateFont =
           Font.createFont(
               Font.TRUETYPE_FONT,
               Thread.currentThread()
@@ -123,8 +118,6 @@ public class LizzieFrame extends JFrame {
     } catch (IOException | FontFormatException e) {
       e.printStackTrace();
     }
-    // The theme to allow use external image and config file
-    theme = new Theme(Lizzie.config.config.getJSONObject("ui").optString("theme"));
   }
 
   /** Creates a window */
@@ -142,10 +135,11 @@ public class LizzieFrame extends JFrame {
     setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
 
     // Allow change font in the config
-    if (theme.fontName() != null) {
-      systemDefaultFontName = theme.fontName();
-      OpenSansRegularBase = new Font(systemDefaultFontName, Font.PLAIN, 12);
-      OpenSansSemiboldBase = new Font(systemDefaultFontName, Font.BOLD, 12);
+    if (Lizzie.config.uiFontName != null) {
+      uiFont = new Font(Lizzie.config.uiFontName, Font.PLAIN, 12);
+    }
+    if (Lizzie.config.winrateFontName != null) {
+      winrateFont = new Font(Lizzie.config.winrateFontName, Font.BOLD, 12);
     }
 
     if (Lizzie.config.startMaximized) {
@@ -156,8 +150,8 @@ public class LizzieFrame extends JFrame {
     commentPane = new JTextPane();
     commentPane.setEditable(false);
     commentPane.setMargin(new Insets(5, 5, 5, 5));
-    commentPane.setBackground(theme.commentBackgroundColor());
-    commentPane.setForeground(theme.commentFontColor());
+    commentPane.setBackground(Lizzie.config.commentBackgroundColor);
+    commentPane.setForeground(Lizzie.config.commentFontColor);
     scrollPane = new JScrollPane();
     scrollPane.setViewportView(commentPane);
     scrollPane.setBorder(null);
@@ -316,6 +310,7 @@ public class LizzieFrame extends JFrame {
   private boolean cachedLargeWinrate = true;
   private boolean cachedShowComment = true;
   private boolean redrawBackgroundAnyway = false;
+  private boolean redrawContainerAnyway = false;
 
   /**
    * Draws the game board and interface
@@ -338,7 +333,8 @@ public class LizzieFrame extends JFrame {
         || cachedShowLargeSubBoard != Lizzie.config.showLargeSubBoard()
         || cachedLargeWinrate != Lizzie.config.showLargeWinrate()
         || cachedShowComment != Lizzie.config.showComment
-        || redrawBackgroundAnyway) {
+        || redrawBackgroundAnyway
+        || redrawContainerAnyway) {
       backgroundG = createBackground();
     }
 
@@ -721,6 +717,7 @@ public class LizzieFrame extends JFrame {
     cachedShowComment = Lizzie.config.showComment;
 
     redrawBackgroundAnyway = false;
+    redrawContainerAnyway = true;
 
     Graphics2D g = cachedBackground.createGraphics();
 
@@ -736,6 +733,7 @@ public class LizzieFrame extends JFrame {
   private void drawVariationTreeContainer(Graphics2D g, int vx, int vy, int vw, int vh) {
     if (g == null || vw <= 0 || vh <= 0) return;
 
+    redrawContainerAnyway = false;
     BufferedImage result = new BufferedImage(vw, vh, BufferedImage.TYPE_INT_ARGB);
     filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
     g.drawImage(result, vx, vy, null);
@@ -743,7 +741,7 @@ public class LizzieFrame extends JFrame {
 
   private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
     int fontSize = (int) (Math.max(getWidth(), getHeight()) * size);
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     FontMetrics fm = g.getFontMetrics(font);
     int stringWidth = fm.stringWidth(text);
     // Truncate too long text when display switching prompt
@@ -785,6 +783,7 @@ public class LizzieFrame extends JFrame {
   private void drawWinrateGraphContainer(Graphics g, int statx, int staty, int statw, int stath) {
     if (g == null || statw <= 0 || stath <= 0) return;
 
+    redrawContainerAnyway = false;
     BufferedImage result = new BufferedImage(statw, stath, BufferedImage.TYPE_INT_ARGB);
     filter20.filter(
         cachedBackground.getSubimage(statx, staty, result.getWidth(), result.getHeight()), result);
@@ -811,7 +810,7 @@ public class LizzieFrame extends JFrame {
     Graphics2D g = cachedImage.createGraphics();
 
     int maxSize = Math.min(getWidth(), getHeight());
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, (int) (maxSize * 0.034));
     g.setFont(font);
 
     FontMetrics metrics = g.getFontMetrics(font);
@@ -874,7 +873,7 @@ public class LizzieFrame extends JFrame {
 
     int maxSize = (int) (Math.min(getWidth(), getHeight()) * 0.98);
 
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.03));
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, (int) (maxSize * 0.03));
     String commandString = resourceBundle.getString("LizzieFrame.prompt.showControlsHint");
     int strokeRadius = 2;
 
@@ -1092,7 +1091,7 @@ public class LizzieFrame extends JFrame {
   }
 
   private void setPanelFont(Graphics2D g, float size) {
-    Font font = OpenSansRegularBase.deriveFont(Font.PLAIN, size);
+    Font font = uiFont.deriveFont(Font.PLAIN, size);
     g.setFont(font);
   }
 
@@ -1328,7 +1327,7 @@ public class LizzieFrame extends JFrame {
     } else if (fontSize < 16) {
       fontSize = 16;
     }
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     commentPane.setFont(font);
     commentPane.setText(comment);
     commentPane.setSize(w, h);
