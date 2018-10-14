@@ -9,8 +9,8 @@ public class Zobrist {
   // initialize zobrist hashing
   static {
     Random random = new Random();
-    blackZobrist = new long[Board.BOARD_SIZE * Board.BOARD_SIZE];
-    whiteZobrist = new long[Board.BOARD_SIZE * Board.BOARD_SIZE];
+    blackZobrist = new long[Board.boardSize * Board.boardSize];
+    whiteZobrist = new long[Board.boardSize * Board.boardSize];
 
     for (int i = 0; i < blackZobrist.length; i++) {
       blackZobrist[i] = random.nextLong();

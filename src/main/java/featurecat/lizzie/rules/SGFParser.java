@@ -4,6 +4,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import static java.util.Arrays.asList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -11,6 +12,10 @@ import java.util.regex.Pattern;
 
 public class SGFParser {
   private static final SimpleDateFormat SGF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+  private static final String[] listProps =
+      new String[] {"LB", "CR", "SQ", "MA", "TR", "AB", "AW", "AE"};
+  private static final String[] markupProps = new String[] {"LB", "CR", "SQ", "MA", "TR"};
 
   public static boolean load(String filename) throws IOException {
     // Clear the board
@@ -62,14 +67,28 @@ public class SGFParser {
     } else {
       return false;
     }
+
+    // Determine the SZ property
+    Pattern szPattern = Pattern.compile("(?s).*?SZ\\[(\\d+)\\](?s).*");
+    Matcher szMatcher = szPattern.matcher(value);
+    if (szMatcher.matches()) {
+      Lizzie.board.reopen(Integer.parseInt(szMatcher.group(1)));
+    } else {
+      Lizzie.board.reopen(19);
+    }
+
     int subTreeDepth = 0;
     // Save the variation step count
     Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
     // Comment of the AW/AB (Add White/Add Black) stone
     String awabComment = null;
-    // Previous Tag
-    String prevTag = null;
-    boolean inTag = false, isMultiGo = false, escaping = false;
+    // Game properties
+    Map<String, String> gameProperties = new HashMap<String, String>();
+    boolean inTag = false,
+        isMultiGo = false,
+        escaping = false,
+        moveStart = false,
+        addPassForAwAb = true;
     String tag = null;
     StringBuilder tagBuilder = new StringBuilder();
     StringBuilder tagContentBuilder = new StringBuilder();
@@ -142,47 +161,47 @@ public class SGFParser {
           tagBuilder = new StringBuilder();
           String tagContent = tagContentBuilder.toString();
           // We got tag, we can parse this tag now.
-          if (tag.equals("B")) {
+          if (tag.equals("B") || tag.equals("W")) {
+            moveStart = true;
+            addPassForAwAb = true;
             int[] move = convertSgfPosToCoord(tagContent);
+            // Save the step count
+            subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
+            Stone color = tag.equals("B") ? Stone.BLACK : Stone.WHITE;
             if (move == null) {
-              Lizzie.board.pass(Stone.BLACK);
+              Lizzie.board.pass(color);
             } else {
-              // Save the step count
-              subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
-              Lizzie.board.place(move[0], move[1], Stone.BLACK);
-            }
-          } else if (tag.equals("W")) {
-            int[] move = convertSgfPosToCoord(tagContent);
-            if (move == null) {
-              Lizzie.board.pass(Stone.WHITE);
-            } else {
-              // Save the step count
-              subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
-              Lizzie.board.place(move[0], move[1], Stone.WHITE);
+              boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
+              Lizzie.board.place(move[0], move[1], color, newBranch);
             }
           } else if (tag.equals("C")) {
             // Support comment
-            if ("AW".equals(prevTag) || "AB".equals(prevTag)) {
+            if (!moveStart) {
               awabComment = tagContent;
             } else {
               Lizzie.board.comment(tagContent);
             }
-          } else if (tag.equals("AB")) {
+          } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
-            if (move == null) {
-              Lizzie.board.pass(Stone.BLACK);
+            Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
+            if (moveStart) {
+              // add to node properties
+              Lizzie.board.addNodeProperty(tag, tagContent);
+              if (addPassForAwAb) {
+                Lizzie.board.pass(color);
+                addPassForAwAb = false;
+              }
+              if (move != null) {
+                Lizzie.board.addStone(move[0], move[1], color);
+              }
             } else {
-              Lizzie.board.place(move[0], move[1], Stone.BLACK);
+              if (move == null) {
+                Lizzie.board.pass(color);
+              } else {
+                Lizzie.board.place(move[0], move[1], color);
+              }
+              Lizzie.board.flatten();
             }
-            Lizzie.board.flatten();
-          } else if (tag.equals("AW")) {
-            int[] move = convertSgfPosToCoord(tagContent);
-            if (move == null) {
-              Lizzie.board.pass(Stone.WHITE);
-            } else {
-              Lizzie.board.place(move[0], move[1], Stone.WHITE);
-            }
-            Lizzie.board.flatten();
           } else if (tag.equals("PB")) {
             blackPlayer = tagContent;
           } else if (tag.equals("PW")) {
@@ -196,8 +215,28 @@ public class SGFParser {
             } catch (NumberFormatException e) {
               e.printStackTrace();
             }
+          } else {
+            if (moveStart) {
+              // Other SGF node properties
+              Lizzie.board.addNodeProperty(tag, tagContent);
+              if ("MN".equals(tag)) {
+                Lizzie.board.moveNumber(Integer.parseInt(tagContent));
+              } else if ("AE".equals(tag)) {
+                // remove a stone
+                if (addPassForAwAb) {
+                  Lizzie.board.pass(tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                  addPassForAwAb = false;
+                }
+                int[] move = convertSgfPosToCoord(tagContent);
+                if (move != null) {
+                  Lizzie.board.removeStone(
+                      move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                }
+              }
+            } else {
+              addProperty(gameProperties, tag, tagContent);
+            }
           }
-          prevTag = tag;
           break;
         case ';':
           break;
@@ -228,6 +267,9 @@ public class SGFParser {
     if (awabComment != null) {
       Lizzie.board.comment(awabComment);
     }
+    if (gameProperties.size() > 0) {
+      Lizzie.board.addNodeProperties(gameProperties);
+    }
 
     return true;
   }
@@ -257,12 +299,19 @@ public class SGFParser {
 
     // add SGF header
     StringBuilder builder = new StringBuilder("(;");
-    if (handicap != 0) builder.append(String.format("HA[%s]", handicap));
-    String header = "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]";
-    builder.append(String.format(header, komi, playerW, playerB, date, Lizzie.lizzieVersion));
+    StringBuilder generalProps = new StringBuilder("");
+    if (handicap != 0) generalProps.append(String.format("HA[%s]", handicap));
+    generalProps.append(
+        String.format(
+            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
+            komi, playerW, playerB, date, Lizzie.lizzieVersion));
 
     // move to the first move
     history.toStart();
+
+    // Game properties
+    history.getData().addProperties(generalProps.toString());
+    builder.append(history.getData().propertiesString());
 
     // add handicap stones to SGF
     if (handicap != 0) {
@@ -272,8 +321,8 @@ public class SGFParser {
         Stone stone = stones[i];
         if (stone.isBlack()) {
           // i = x * Board.BOARD_SIZE + y;
-          int corY = i % Board.BOARD_SIZE;
-          int corX = (i - corY) / Board.BOARD_SIZE;
+          int corY = i % Board.boardSize;
+          int corX = (i - corY) / Board.boardSize;
 
           char x = (char) (corX + 'a');
           char y = (char) (corY + 'a');
@@ -289,8 +338,8 @@ public class SGFParser {
         Stone stone = stones[i];
         if (stone.isBlack() || stone.isWhite()) {
           // i = x * Board.BOARD_SIZE + y;
-          int corY = i % Board.BOARD_SIZE;
-          int corX = (i - corY) / Board.BOARD_SIZE;
+          int corY = i % Board.boardSize;
+          int corX = (i - corY) / Board.boardSize;
 
           char x = (char) (corX + 'a');
           char y = (char) (corY + 'a');
@@ -345,6 +394,9 @@ public class SGFParser {
 
         builder.append(String.format(";%s[%c%c]", stone, x, y));
 
+        // Node properties
+        builder.append(data.propertiesString());
+
         // Write the comment
         if (data.comment != null) {
           builder.append(String.format("C[%s]", data.comment));
@@ -366,5 +418,145 @@ public class SGFParser {
     }
 
     return builder.toString();
+  }
+
+  public static boolean isListProperty(String key) {
+    return asList(listProps).contains(key);
+  }
+
+  public static boolean isMarkupProperty(String key) {
+    return asList(markupProps).contains(key);
+  }
+
+  /**
+   * Get a value with key, or the default if there is no such key
+   *
+   * @param key
+   * @param defaultValue
+   * @return
+   */
+  public static String getOrDefault(Map<String, String> props, String key, String defaultValue) {
+    return props.getOrDefault(key, defaultValue);
+  }
+
+  /**
+   * Add a key and value to the props
+   *
+   * @param key
+   * @param value
+   */
+  public static void addProperty(Map<String, String> props, String key, String value) {
+    if (SGFParser.isListProperty(key)) {
+      // Label and add/remove stones
+      props.merge(key, value, (old, val) -> old + "," + val);
+    } else {
+      props.put(key, value);
+    }
+  }
+
+  /**
+   * Add the properties by mutating the props
+   *
+   * @return
+   */
+  public static void addProperties(Map<String, String> props, Map<String, String> addProps) {
+    addProps.forEach((key, value) -> addProperty(props, key, value));
+  }
+
+  /**
+   * Add the properties from string
+   *
+   * @return
+   */
+  public static void addProperties(Map<String, String> props, String propsStr) {
+    boolean inTag = false, escaping = false;
+    String tag = null;
+    StringBuilder tagBuilder = new StringBuilder();
+    StringBuilder tagContentBuilder = new StringBuilder();
+
+    for (int i = 0; i < propsStr.length(); i++) {
+      char c = propsStr.charAt(i);
+      if (escaping) {
+        tagContentBuilder.append(c);
+        escaping = false;
+        continue;
+      }
+      switch (c) {
+        case '(':
+          if (inTag) {
+            if (i > 0) {
+              tagContentBuilder.append(c);
+            }
+          }
+          break;
+        case ')':
+          if (inTag) {
+            tagContentBuilder.append(c);
+          }
+          break;
+        case '[':
+          inTag = true;
+          String tagTemp = tagBuilder.toString();
+          if (!tagTemp.isEmpty()) {
+            tag = tagTemp.replaceAll("[a-z]", "");
+          }
+          tagContentBuilder = new StringBuilder();
+          break;
+        case ']':
+          inTag = false;
+          tagBuilder = new StringBuilder();
+          addProperty(props, tag, tagContentBuilder.toString());
+          break;
+        case ';':
+          break;
+        default:
+          if (inTag) {
+            if (c == '\\') {
+              escaping = true;
+              continue;
+            }
+            tagContentBuilder.append(c);
+          } else {
+            if (c != '\n' && c != '\r' && c != '\t' && c != ' ') {
+              tagBuilder.append(c);
+            }
+          }
+      }
+    }
+  }
+
+  /**
+   * Get properties string by the props
+   *
+   * @return
+   */
+  public static String propertiesString(Map<String, String> props) {
+    StringBuilder sb = new StringBuilder();
+    if (props != null) {
+      props.forEach((key, value) -> sb.append(nodeString(key, value)));
+    }
+    return sb.toString();
+  }
+
+  /**
+   * Get node string by the key and value
+   *
+   * @param key
+   * @param value
+   * @return
+   */
+  public static String nodeString(String key, String value) {
+    StringBuilder sb = new StringBuilder();
+    if (SGFParser.isListProperty(key)) {
+      // Label and add/remove stones
+      sb.append(key);
+      String[] vals = value.split(",");
+      for (String val : vals) {
+        sb.append("[").append(val).append("]");
+      }
+    } else {
+      sb.append(key).append("[").append(value).append("]");
+    }
+    return sb.toString();
   }
 }

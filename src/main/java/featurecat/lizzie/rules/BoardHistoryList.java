@@ -48,7 +48,11 @@ public class BoardHistoryList {
   }
 
   public void addOrGoto(BoardData data) {
-    head = head.addOrGoto(data);
+    addOrGoto(data, false);
+  }
+
+  public void addOrGoto(BoardData data, boolean newBranch) {
+    head = head.addOrGoto(data, newBranch);
   }
 
   /**
