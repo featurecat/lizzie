@@ -189,6 +189,7 @@ public class LizzieFrame extends JFrame {
     if (newGameDialog.isCancelled()) return;
 
     Lizzie.board.clear();
+    Lizzie.board.getHistory().setGameInfo(gameInfo);
     Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
 
     Lizzie.leelaz.sendCommand(
