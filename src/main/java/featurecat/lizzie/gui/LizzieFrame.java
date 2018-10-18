@@ -78,8 +78,8 @@ public class LizzieFrame extends JFrame {
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
 
-  public static Font OpenSansRegularBase;
-  public static Font OpenSansSemiboldBase;
+  public static Font uiFont;
+  public static Font winrateFont;
 
   private final BufferStrategy bs;
 
@@ -89,9 +89,6 @@ public class LizzieFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
-
-  // Get the font name in current system locale
-  private String systemDefaultFontName = new JLabel().getFont().getFontName();
 
   private long lastAutosaveTime = System.currentTimeMillis();
 
@@ -108,13 +105,13 @@ public class LizzieFrame extends JFrame {
   static {
     // load fonts
     try {
-      OpenSansRegularBase =
+      uiFont =
           Font.createFont(
               Font.TRUETYPE_FONT,
               Thread.currentThread()
                   .getContextClassLoader()
                   .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
-      OpenSansSemiboldBase =
+      winrateFont =
           Font.createFont(
               Font.TRUETYPE_FONT,
               Thread.currentThread()
@@ -139,6 +136,14 @@ public class LizzieFrame extends JFrame {
     JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
     setSize(windowSize.getInt(0), windowSize.getInt(1)); // use config file window size
 
+    // Allow change font in the config
+    if (Lizzie.config.uiFontName != null) {
+      uiFont = new Font(Lizzie.config.uiFontName, Font.PLAIN, 12);
+    }
+    if (Lizzie.config.winrateFontName != null) {
+      winrateFont = new Font(Lizzie.config.winrateFontName, Font.BOLD, 12);
+    }
+
     if (Lizzie.config.startMaximized) {
       setExtendedState(Frame.MAXIMIZED_BOTH); // start maximized
     }
@@ -147,8 +152,8 @@ public class LizzieFrame extends JFrame {
     commentPane = new JTextPane();
     commentPane.setEditable(false);
     commentPane.setMargin(new Insets(5, 5, 5, 5));
-    commentPane.setBackground(new Color(0, 0, 0, 200));
-    commentPane.setForeground(Color.WHITE);
+    commentPane.setBackground(Lizzie.config.commentBackgroundColor);
+    commentPane.setForeground(Lizzie.config.commentFontColor);
     scrollPane = new JScrollPane();
     scrollPane.setViewportView(commentPane);
     scrollPane.setBorder(null);
@@ -553,7 +558,7 @@ public class LizzieFrame extends JFrame {
 
   private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
     int fontSize = (int) (max(getWidth(), getHeight()) * size);
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     FontMetrics fm = g.getFontMetrics(font);
     int stringWidth = fm.stringWidth(text);
     // Truncate too long text when display switching prompt
@@ -649,7 +654,7 @@ public class LizzieFrame extends JFrame {
     Graphics2D g = cachedImage.createGraphics();
 
     int maxSize = min(getWidth(), getHeight());
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.034));
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, (int) (maxSize * 0.034));
     g.setFont(font);
 
     FontMetrics metrics = g.getFontMetrics(font);
@@ -712,7 +717,7 @@ public class LizzieFrame extends JFrame {
 
     int maxSize = (int) (min(getWidth(), getHeight()) * 0.98);
 
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, (int) (maxSize * 0.03));
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, (int) (maxSize * 0.03));
     String commandString = resourceBundle.getString("LizzieFrame.prompt.showControlsHint");
     int strokeRadius = 2;
 
@@ -930,7 +935,7 @@ public class LizzieFrame extends JFrame {
   }
 
   private void setPanelFont(Graphics2D g, float size) {
-    Font font = OpenSansRegularBase.deriveFont(Font.PLAIN, size);
+    Font font = uiFont.deriveFont(Font.PLAIN, size);
     g.setFont(font);
   }
 
@@ -1169,7 +1174,7 @@ public class LizzieFrame extends JFrame {
     } else if (fontSize < 16) {
       fontSize = 16;
     }
-    Font font = new Font(systemDefaultFontName, Font.PLAIN, fontSize);
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     commentPane.setFont(font);
     commentPane.setText(comment);
     commentPane.setSize(w, cHeight);
