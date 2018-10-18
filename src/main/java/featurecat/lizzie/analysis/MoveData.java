@@ -19,16 +19,27 @@ public class MoveData implements Comparable<MoveData> {
      * @param line line of ponder output
      */
     public MoveData(String line) throws ArrayIndexOutOfBoundsException {
+
         String[] data = line.trim().split(" ");
 
-        // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
-        coordinate = data[1];
-        playouts = Integer.parseInt(data[3]);
-        winrate = Integer.parseInt(data[5])/100.0;
-        order = Integer.parseInt(data[7]);
+        for(int i=1; i<data.length; i+=2) {
+            String tag = data[i-1];
+            String value = data[i];
 
-        variation = new ArrayList<>(Arrays.asList(data));
-        variation = variation.subList(9, variation.size());
+            if (tag.equals("move")) {
+                coordinate = value;
+            } else if (tag.equals("visits")) {
+                playouts = Integer.parseInt(value);
+            } else if (tag.equals("winrate")) {
+                winrate = Integer.parseInt(value) / 100.0;
+            } else if (tag.equals("order")) {
+                order = Integer.parseInt(value);
+            } else if (tag.equals("pv")) {
+                variation = new ArrayList<>(Arrays.asList(data));
+                variation = variation.subList(i, variation.size());
+                break;
+            }
+        }
     }
 
     public int compareTo(MoveData b) {
