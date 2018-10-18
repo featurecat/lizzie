@@ -988,7 +988,7 @@ public class LizzieFrame extends JFrame {
 
   public void onMouseMoved(int x, int y) {
     int[] c = boardRenderer.convertScreenToCoordinates(x, y);
-    if (c != null && !isMouseOver(c[0], c[1])) {
+    if (c == null ? boardRenderer.isShowingBranch() : !isMouseOver(c[0], c[1])) {
       repaint();
     }
     mouseOverCoordinate = c;
