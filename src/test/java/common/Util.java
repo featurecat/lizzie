@@ -87,7 +87,7 @@ public class Util {
     if (data.comment != null && data.comment.trim().length() > 0) {
       comment = String.format("C[%s]", data.comment);
     }
-    return String.format(";%s[%c%c]%s", stone, x, y, comment);
+    return String.format(";%s[%c%c]%s%s", stone, x, y, comment, data.propertiesString());
   }
 
   public static String trimGameInfo(String sgf) {
@@ -110,7 +110,7 @@ public class Util {
   }
 
   public static Stone[] convertStones(String awAb) {
-    Stone[] stones = new Stone[Board.BOARD_SIZE * Board.BOARD_SIZE];
+    Stone[] stones = new Stone[Board.boardSize * Board.boardSize];
     for (int i = 0; i < stones.length; i++) {
       stones[i] = Stone.EMPTY;
     }

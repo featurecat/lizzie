@@ -1,13 +1,11 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.Util;
 import featurecat.lizzie.rules.Stone;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -29,7 +27,6 @@ public class Leelaz {
       ResourceBundle.getBundle("l10n.DisplayStrings");
 
   private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
-  private static final String baseURL = "http://zero.sjeng.org";
 
   private long maxAnalyzeTimeMillis; // , maxThinkingTimeMillis;
   private int cmdNumber;
@@ -64,6 +61,7 @@ public class Leelaz {
   private String engineCommand = null;
   private List<String> commands = null;
   private JSONObject config = null;
+  private String currentWeightFile = null;
   private String currentWeight = null;
   private boolean switching = false;
   private int currentEngineN = -1;
@@ -93,10 +91,6 @@ public class Leelaz {
     printCommunication = config.getBoolean("print-comms");
     maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
 
-    if (config.getBoolean("automatically-download-latest-network")) {
-      updateToLatestNetwork();
-    }
-
     // command string for starting the engine
     engineCommand = config.getString("engine-command");
     // substitute in the weights file
@@ -114,10 +108,6 @@ public class Leelaz {
       return;
     }
 
-    File startfolder = new File(config.optString("engine-start-location", "."));
-    String networkFile = config.getString("network-file");
-    // substitute in the weights file
-    engineCommand = engineCommand.replaceAll("%network-file", networkFile);
     // create this as a list which gets passed into the processbuilder
     commands = Arrays.asList(engineCommand.split(" "));
 
@@ -126,17 +116,20 @@ public class Leelaz {
       Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
       Matcher wMatcher = wPattern.matcher(engineCommand);
       if (wMatcher.matches()) {
-        currentWeight = wMatcher.group(2);
-        if (currentWeight != null) {
-          String[] names = currentWeight.split("[\\\\|/]");
+        currentWeightFile = wMatcher.group(2);
+        if (currentWeightFile != null) {
+          String[] names = currentWeightFile.split("[\\\\|/]");
           if (names != null && names.length > 1) {
             currentWeight = names[names.length - 1];
+          } else {
+            currentWeight = currentWeightFile;
           }
         }
       }
     }
 
     // Check if engine is present
+    File startfolder = new File(config.optString("engine-start-location", "."));
     File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
     if (!lef.exists()) {
       JOptionPane.showMessageDialog(
@@ -148,7 +141,7 @@ public class Leelaz {
     }
 
     // Check if network file is present
-    File wf = startfolder.toPath().resolve(new File(networkFile).toPath()).toFile();
+    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
     if (!wf.exists()) {
       JOptionPane.showMessageDialog(
           null, resourceBundle.getString("LizzieFrame.display.network-missing"));
@@ -207,43 +200,6 @@ public class Leelaz {
     }
   }
 
-  private void updateToLatestNetwork() {
-    try {
-      if (needToDownloadLatestNetwork()) {
-        int dialogResult =
-            JOptionPane.showConfirmDialog(
-                null,
-                resourceBundle.getString("LizzieFrame.display.download-latest-network-prompt"));
-        if (dialogResult == JOptionPane.YES_OPTION) {
-          Util.saveAsFile(
-              new URL(baseURL + "/networks/" + getBestNetworkHash() + ".gz"),
-              new File(Lizzie.config.leelazConfig.getString("network-file")));
-        }
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-      // now we're probably still ok. Maybe we're offline -- then it's not a big problem.
-    }
-  }
-
-  private String getBestNetworkHash() throws IOException {
-    return Util.downloadAsString(new URL(baseURL + "/best-network-hash")).split("\n")[0];
-  }
-
-  private boolean needToDownloadLatestNetwork() throws IOException {
-    File networkFile = new File(Lizzie.config.leelazConfig.getString("network-file"));
-    if (!networkFile.exists()) {
-      return true;
-    } else {
-      String currentNetworkHash = Util.getSha256Sum(networkFile);
-      if (currentNetworkHash == null) return true;
-
-      String bestNetworkHash = getBestNetworkHash();
-
-      return !currentNetworkHash.equals(bestNetworkHash);
-    }
-  }
-
   /** Initializes the input and output streams */
   private void initializeStreams() {
     inputStream = new BufferedInputStream(process.getInputStream());
@@ -298,8 +254,10 @@ public class Leelaz {
         }
       } else if (line.contains(" -> ")) {
         isLoaded = true;
-        if (isResponseUpToDate()) {
+        if (isResponseUpToDate()
+            || isThinking && !isPondering && Lizzie.frame.isPlayingAgainstLeelaz) {
           bestMoves.add(MoveData.fromSummary(line));
+          notifyBestMoveListeners();
           if (Lizzie.frame != null) Lizzie.frame.repaint();
         }
       } else if (line.startsWith("play")) {
@@ -321,6 +279,7 @@ public class Leelaz {
         if (line.startsWith("?") || params.length == 1) return;
 
         if (isSettingHandicap) {
+          bestMoves = new ArrayList<>();
           for (int i = 1; i < params.length; i++) {
             int[] coordinates = Lizzie.board.convertNameToCoordinates(params[i]);
             Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
@@ -329,6 +288,8 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.board.place(params[1]);
+            togglePonder();
+            isPondering = false;
             isThinking = false;
           }
         } else if (isCheckingVersion) {

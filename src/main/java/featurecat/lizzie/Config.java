@@ -296,7 +296,6 @@ public class Config {
     leelaz.put("max-game-thinking-time-seconds", 2);
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
-    leelaz.put("automatically-download-latest-network", false);
 
     config.put("leelaz", leelaz);
 

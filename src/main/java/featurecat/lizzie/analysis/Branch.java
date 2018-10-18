@@ -12,7 +12,7 @@ public class Branch {
   public Branch(Board board, List<String> variation) {
     int moveNumber = 0;
     int[] lastMove = board.getLastMove();
-    int[] moveNumberList = new int[Board.BOARD_SIZE * Board.BOARD_SIZE];
+    int[] moveNumberList = new int[Board.boardSize * Board.boardSize];
     boolean blackToPlay = board.getData().blackToPlay;
 
     Stone lastMoveColor = board.getData().lastMoveColor;
