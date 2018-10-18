@@ -196,7 +196,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_SPACE:
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
           Lizzie.frame.isPlayingAgainstLeelaz = false;
-          Lizzie.leelaz.togglePonder(); // we must toggle twice for it to restart pondering
           Lizzie.leelaz.isThinking = false;
         }
         Lizzie.leelaz.togglePonder();

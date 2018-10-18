@@ -663,6 +663,15 @@ public class Board implements LeelazListener {
     if (node == null) {
       return;
     }
+    Stone[] stones = history.getStones();
+    for (int i = 0; i < stones.length; i++) {
+      Stone stone = stones[i];
+      if (stone.isBlack() || stone.isWhite()) {
+        int y = i % Board.BOARD_SIZE;
+        int x = (i - y) / Board.BOARD_SIZE;
+        Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
+      }
+    }
     int moveNumber = node.getData().moveNumber;
     if (moveNumber > 0) {
       if (BoardHistoryList.isMainTrunk(node)) {

@@ -254,8 +254,10 @@ public class Leelaz {
         }
       } else if (line.contains(" -> ")) {
         isLoaded = true;
-        if (isResponseUpToDate()) {
+        if (isResponseUpToDate()
+            || isThinking && !isPondering && Lizzie.frame.isPlayingAgainstLeelaz) {
           bestMoves.add(MoveData.fromSummary(line));
+          notifyBestMoveListeners();
           if (Lizzie.frame != null) Lizzie.frame.repaint();
         }
       } else if (line.startsWith("play")) {
@@ -277,6 +279,7 @@ public class Leelaz {
         if (line.startsWith("?") || params.length == 1) return;
 
         if (isSettingHandicap) {
+          bestMoves = new ArrayList<>();
           for (int i = 1; i < params.length; i++) {
             int[] coordinates = Lizzie.board.convertNameToCoordinates(params[i]);
             Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
@@ -285,6 +288,8 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.board.place(params[1]);
+            togglePonder();
+            isPondering = false;
             isThinking = false;
           }
         } else if (isCheckingVersion) {
