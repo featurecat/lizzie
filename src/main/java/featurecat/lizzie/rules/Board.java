@@ -15,6 +15,7 @@ import org.json.JSONException;
 
 public class Board implements LeelazListener {
   public static int boardSize = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
+  public static int BOARD_SIZE = boardSize;
   private static final String alphabet = "ABCDEFGHJKLMNOPQRST";
 
   private BoardHistoryList history;
@@ -153,12 +154,9 @@ public class Board implements LeelazListener {
         BoardHistoryNode node = history.getCurrentHistoryNode().previous();
         while (node != null && node.numberOfChildren() <= 1) {
           BoardData nodeData = node.getData();
-          if (nodeData != null
-              && nodeData.lastMove != null
-              && nodeData.moveNumber >= moveNumber) {
+          if (nodeData != null && nodeData.lastMove != null && nodeData.moveNumber >= moveNumber) {
             moveNumber = (moveNumber > 1) ? moveNumber - 1 : 0;
-            moveNumberList[Board.getIndex(nodeData.lastMove[0], nodeData.lastMove[1])] =
-                moveNumber;
+            moveNumberList[Board.getIndex(nodeData.lastMove[0], nodeData.lastMove[1])] = moveNumber;
           }
           node = node.previous();
         }

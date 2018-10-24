@@ -20,7 +20,6 @@ import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -968,7 +967,7 @@ public class BoardRenderer {
                             g,
                             moveX,
                             moveY,
-                            LizzieFrame.OpenSansRegularBase,
+                            LizzieFrame.uiFont,
                             moves[1],
                             (float) labelRadius,
                             labelRadius);
