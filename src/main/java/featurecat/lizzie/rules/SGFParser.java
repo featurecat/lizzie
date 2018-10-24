@@ -1,10 +1,11 @@
 package featurecat.lizzie.rules;
 
+import static java.util.Arrays.asList;
+
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import static java.util.Arrays.asList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

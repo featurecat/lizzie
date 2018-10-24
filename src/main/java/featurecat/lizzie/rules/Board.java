@@ -153,12 +153,9 @@ public class Board implements LeelazListener {
         BoardHistoryNode node = history.getCurrentHistoryNode().previous();
         while (node != null && node.numberOfChildren() <= 1) {
           BoardData nodeData = node.getData();
-          if (nodeData != null
-              && nodeData.lastMove != null
-              && nodeData.moveNumber >= moveNumber) {
+          if (nodeData != null && nodeData.lastMove != null && nodeData.moveNumber >= moveNumber) {
             moveNumber = (moveNumber > 1) ? moveNumber - 1 : 0;
-            moveNumberList[Board.getIndex(nodeData.lastMove[0], nodeData.lastMove[1])] =
-                moveNumber;
+            moveNumberList[Board.getIndex(nodeData.lastMove[0], nodeData.lastMove[1])] = moveNumber;
           }
           node = node.previous();
         }
@@ -667,8 +664,8 @@ public class Board implements LeelazListener {
     for (int i = 0; i < stones.length; i++) {
       Stone stone = stones[i];
       if (stone.isBlack() || stone.isWhite()) {
-        int y = i % Board.BOARD_SIZE;
-        int x = (i - y) / Board.BOARD_SIZE;
+        int y = i % Board.boardSize;
+        int x = (i - y) / Board.boardSize;
         Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
       }
     }
