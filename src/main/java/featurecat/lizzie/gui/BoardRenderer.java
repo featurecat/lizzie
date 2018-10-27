@@ -228,7 +228,7 @@ public class BoardRenderer {
               x + scaledMargin / 2,
               y + scaledMargin + squareLength * i,
               LizzieFrame.uiFont,
-              "" + (Board.BOARD_SIZE - i),
+              "" + (Board.boardSize - i),
               stoneRadius * 4 / 5,
               stoneRadius);
           drawString(
@@ -236,7 +236,7 @@ public class BoardRenderer {
               x - scaledMargin / 2 + +boardLength,
               y + scaledMargin + squareLength * i,
               LizzieFrame.uiFont,
-              "" + (Board.BOARD_SIZE - i),
+              "" + (Board.boardSize - i),
               stoneRadius * 4 / 5,
               stoneRadius);
         }
