@@ -349,6 +349,9 @@ public class Config {
 
     config.put("filesystem", filesys);
 
+    // About autosave
+    config.put("autosave", "");
+
     // About User Interface display
     JSONObject ui = new JSONObject();
 
