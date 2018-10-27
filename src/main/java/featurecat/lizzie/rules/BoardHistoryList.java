@@ -190,6 +190,12 @@ public class BoardHistoryList {
     return false;
   }
 
+  public boolean violatesKoRule(BoardData data) {
+    BoardHistoryNode previous = this.head.previous();
+    // check if the current position is identical to the position two moves ago
+    return previous != null && data.zobrist.equals(previous.getData().zobrist);
+  }
+
   /**
    * Returns the root node
    *
