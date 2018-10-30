@@ -498,7 +498,7 @@ public class BoardRenderer {
         // don't write the move number if either: the move number is 0, or there will already be
         // playout information written
         if (moveNumberList[Board.getIndex(i, j)] > 0
-            && (branchOpt.isPresent() || !Lizzie.frame.isMouseOver(i, j))) {
+            && (!branchOpt.isPresent() || !Lizzie.frame.isMouseOver(i, j))) {
           if (lastMoveOpt.isPresent() && lastMoveOpt.get()[0] == i && lastMoveOpt.get()[1] == j)
             g.setColor(Color.RED.brighter()); // stoneHere.isBlack() ? Color.RED.brighter() :
           // Color.BLUE.brighter());
@@ -946,7 +946,7 @@ public class BoardRenderer {
                   if (move != null) {
                     Optional<int[]> lastMove =
                         branchOpt.map(b -> b.data.lastMove).orElse(Lizzie.board.getLastMove());
-                    if (lastMove.isPresent() && !Arrays.equals(move, lastMove.get())) {
+                    if (lastMove.map(m -> !Arrays.equals(move, m)).orElse(true)) {
                       int moveX = x + scaledMargin + squareLength * move[0];
                       int moveY = y + scaledMargin + squareLength * move[1];
                       g.setColor(

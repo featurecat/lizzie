@@ -5,6 +5,7 @@ import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import javax.swing.*;
 import org.json.JSONArray;
 
@@ -84,11 +85,12 @@ public class Lizzie {
       commandLine = Lizzie.config.leelazConfig.getString("engine-command");
       commandLine = commandLine.replaceAll("%network-file", networkFile);
     } else {
-      JSONArray engines = Lizzie.config.leelazConfig.getJSONArray("engine-command-list");
-      if (engines.length() < index) {
+      Optional<JSONArray> enginesOpt =
+          Optional.ofNullable(Lizzie.config.leelazConfig.optJSONArray("engine-command-list"));
+      if (enginesOpt.map(e -> e.length() < index).orElse(true)) {
         return;
       }
-      commandLine = engines.getString(index - 1);
+      commandLine = enginesOpt.get().getString(index - 1);
     }
     if (commandLine.trim().isEmpty() || index == Lizzie.leelaz.currentEngineN()) {
       return;
@@ -98,7 +100,6 @@ public class Lizzie {
     if (leelaz.isThinking) {
       if (Lizzie.frame.isPlayingAgainstLeelaz) {
         Lizzie.frame.isPlayingAgainstLeelaz = false;
-        Lizzie.leelaz.togglePonder(); // Toggle twice for to restart pondering
         Lizzie.leelaz.isThinking = false;
       }
       Lizzie.leelaz.togglePonder();
