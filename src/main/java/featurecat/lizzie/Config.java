@@ -1,5 +1,7 @@
 package featurecat.lizzie;
 
+import featurecat.lizzie.theme.Theme;
+import java.awt.Color;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -13,9 +15,12 @@ public class Config {
 
   public boolean showMoveNumber = false;
   public boolean showWinrate = true;
+  public boolean largeWinrate = false;
+  public boolean showBlunderBar = true;
+  public boolean weightedBlunderBarHeight = false;
+  public boolean dynamicWinrateGraphWidth = false;
   public boolean showVariationGraph = true;
-  public boolean showComment = false;
-  public int commentFontSize = 0;
+  public boolean showComment = true;
   public boolean showRawBoard = false;
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
@@ -36,6 +41,21 @@ public class Config {
 
   private String configFilename = "config.txt";
   private String persistFilename = "persist";
+
+  public Theme theme;
+  public float winrateStrokeWidth = 3;
+  public int minimumBlunderBarWidth = 3;
+  public int shadowSize = 100;
+  public String fontName = null;
+  public String uiFontName = null;
+  public String winrateFontName = null;
+  public int commentFontSize = 0;
+  public Color commentFontColor = null;
+  public Color commentBackgroundColor = null;
+  public Color winrateLineColor = null;
+  public Color winrateMissLineColor = null;
+  public Color blunderBarColor = null;
+  public boolean solidStoneIndicator = false;
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -116,13 +136,18 @@ public class Config {
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
 
+    theme = new Theme(uiConfig);
+
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     showStatus = uiConfig.getBoolean("show-status");
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
     showWinrate = uiConfig.getBoolean("show-winrate");
+    largeWinrate = uiConfig.optBoolean("large-winrate", false);
+    showBlunderBar = uiConfig.optBoolean("show-blunder-bar", true);
+    weightedBlunderBarHeight = uiConfig.optBoolean("weighted-blunder-bar-height", false);
+    dynamicWinrateGraphWidth = uiConfig.optBoolean("dynamic-winrate-graph-width", false);
     showVariationGraph = uiConfig.getBoolean("show-variation-graph");
-    showComment = uiConfig.optBoolean("show-comment", false);
-    commentFontSize = uiConfig.optInt("comment-font-size", 0);
+    showComment = uiConfig.optBoolean("show-comment", true);
     showCaptured = uiConfig.getBoolean("show-captured");
     showBestMoves = uiConfig.getBoolean("show-best-moves");
     showNextMoves = uiConfig.getBoolean("show-next-moves");
@@ -131,6 +156,20 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
+
+    winrateStrokeWidth = theme.winrateStrokeWidth();
+    minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
+    shadowSize = theme.shadowSize();
+    fontName = theme.fontName();
+    uiFontName = theme.uiFontName();
+    winrateFontName = theme.winrateFontName();
+    commentFontSize = theme.commentFontSize();
+    commentFontColor = theme.commentFontColor();
+    commentBackgroundColor = theme.commentBackgroundColor();
+    winrateLineColor = theme.winrateLineColor();
+    winrateMissLineColor = theme.winrateMissLineColor();
+    blunderBarColor = theme.blunderBarColor();
+    solidStoneIndicator = theme.solidStoneIndicator();
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -170,6 +209,10 @@ public class Config {
     this.showWinrate = !this.showWinrate;
   }
 
+  public void toggleLargeWinrate() {
+    this.largeWinrate = !this.largeWinrate;
+  }
+
   public void toggleShowVariationGraph() {
     this.showVariationGraph = !this.showVariationGraph;
   }
@@ -196,6 +239,10 @@ public class Config {
 
   public boolean showLargeSubBoard() {
     return showSubBoard && largeSubBoard;
+  }
+
+  public boolean showLargeWinrate() {
+    return showWinrate && largeWinrate;
   }
 
   /**
@@ -253,6 +300,14 @@ public class Config {
     ui.put("show-status", true);
     ui.put("show-leelaz-variation", true);
     ui.put("show-winrate", true);
+    ui.put("large-winrate", false);
+    ui.put("winrate-stroke-width", 3);
+    ui.put("show-blunder-bar", true);
+    ui.put("minimum-blunder-bar-width", 3);
+    ui.put("weighted-blunder-bar-height", false);
+    ui.put("dynamic-winrate-graph-width", false);
+    ui.put("show-comment", true);
+    ui.put("comment-font-size", 0);
     ui.put("show-variation-graph", true);
     ui.put("show-captured", true);
     ui.put("show-best-moves", true);
@@ -282,6 +337,9 @@ public class Config {
     filesys.put("last-folder", "");
 
     config.put("filesystem", filesys);
+
+    // About autosave
+    config.put("autosave", "");
 
     // About User Interface display
     JSONObject ui = new JSONObject();

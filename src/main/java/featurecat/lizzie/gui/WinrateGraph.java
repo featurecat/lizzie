@@ -73,8 +73,8 @@ public class WinrateGraph {
       g.drawLine(posx, y, posx + width, y);
     }
 
-    g.setColor(Color.green);
-    g.setStroke(new BasicStroke(3));
+    g.setColor(Lizzie.config.winrateLineColor);
+    g.setStroke(new BasicStroke(Lizzie.config.winrateStrokeWidth));
 
     Optional<BoardHistoryNode> topOfVariation = Optional.empty();
     int numMoves = 0;
@@ -142,8 +142,8 @@ public class WinrateGraph {
           wr = lastWr;
         }
 
-        if (lastNodeOk) g.setColor(Color.green);
-        else g.setColor(Color.blue.darker());
+        if (lastNodeOk) g.setColor(Lizzie.config.winrateLineColor);
+        else g.setColor(Lizzie.config.winrateMissLineColor);
 
         if (lastOkMove > 0) {
           g.drawLine(
@@ -154,7 +154,7 @@ public class WinrateGraph {
         }
 
         if (node == curMove) {
-          g.setColor(Color.green);
+          g.setColor(Lizzie.config.winrateLineColor);
           g.fillOval(
               posx + (movenum * width / numMoves) - DOT_RADIUS,
               posy + height - (int) (convertWinrate(wr) * height / 100) - DOT_RADIUS,

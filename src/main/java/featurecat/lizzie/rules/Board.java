@@ -652,6 +652,15 @@ public class Board implements LeelazListener {
 
   /** Restore move number by node */
   public void restoreMoveNumber(BoardHistoryNode node) {
+    Stone[] stones = history.getStones();
+    for (int i = 0; i < stones.length; i++) {
+      Stone stone = stones[i];
+      if (stone.isBlack() || stone.isWhite()) {
+        int y = i % Board.boardSize;
+        int x = (i - y) / Board.boardSize;
+        Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
+      }
+    }
     int moveNumber = node.getData().moveNumber;
     if (moveNumber > 0) {
       if (node.isMainTrunk()) {
