@@ -323,13 +323,7 @@ public class Board implements LeelazListener {
       if (!isValid(x, y) || (history.getStones()[getIndex(x, y)] != Stone.EMPTY && !newBranch))
         return;
 
-      // Update winrate
-      Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-
-      if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().playouts) {
-        history.getData().winrate = stats.maxWinrate;
-        history.getData().playouts = stats.totalPlayouts;
-      }
+      updateWinrate();
       double nextWinrate = -100;
       if (history.getData().winrate >= 0) nextWinrate = 100 - history.getData().winrate;
 
@@ -583,12 +577,7 @@ public class Board implements LeelazListener {
   /** Goes to the next coordinate, thread safe */
   public boolean nextMove() {
     synchronized (this) {
-      // Update win rate statistics
-      Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-      if (stats.totalPlayouts >= history.getData().playouts) {
-        history.getData().winrate = stats.maxWinrate;
-        history.getData().playouts = stats.totalPlayouts;
-      }
+      updateWinrate();
       if (history.next().isPresent()) {
         // update leelaz board position, before updating to next node
         Optional<int[]> lastMoveOpt = history.getData().lastMove;
@@ -614,12 +603,7 @@ public class Board implements LeelazListener {
    */
   public boolean nextMove(int fromBackChildren) {
     synchronized (this) {
-      // Update win rate statistics
-      Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-      if (stats.totalPlayouts >= history.getData().playouts) {
-        history.getData().winrate = stats.maxWinrate;
-        history.getData().playouts = stats.totalPlayouts;
-      }
+      updateWinrate();
       return nextVariation(fromBackChildren);
     }
   }
@@ -944,13 +928,7 @@ public class Board implements LeelazListener {
   public boolean previousMove() {
     synchronized (this) {
       if (inScoreMode()) setScoreMode(false);
-      // Update win rate statistics
-      Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-
-      if (stats.totalPlayouts >= history.getData().playouts) {
-        history.getData().winrate = stats.maxWinrate;
-        history.getData().playouts = stats.totalPlayouts;
-      }
+      updateWinrate();
       if (history.previous().isPresent()) {
         Lizzie.leelaz.undo();
         Lizzie.frame.repaint();
@@ -1283,6 +1261,14 @@ public class Board implements LeelazListener {
       SGFParser.loadFromString(Lizzie.config.persisted.getString("autosave"));
       while (nextMove()) ;
     } catch (JSONException err) {
+    }
+  }
+
+  public void updateWinrate() {
+    Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+    if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().playouts) {
+      history.getData().winrate = stats.maxWinrate;
+      history.getData().playouts = stats.totalPlayouts;
     }
   }
 }

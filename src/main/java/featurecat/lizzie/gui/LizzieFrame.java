@@ -4,6 +4,7 @@ import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static java.lang.Math.round;
 
 import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
@@ -603,6 +604,25 @@ public class LizzieFrame extends JFrame {
     g.setFont(font);
     g.drawString(
         text, x + (width - stringWidth) / 2, y + stringHeight + (height - stringHeight) / 2);
+  }
+
+  /**
+   * @return a shorter, rounded string version of playouts. e.g. 345 -> 345, 1265 -> 1.3k, 44556 ->
+   *     45k, 133523 -> 134k, 1234567 -> 1.2m
+   */
+  public String getPlayoutsString(int playouts) {
+    if (playouts >= 1_000_000) {
+      double playoutsDouble = (double) playouts / 100_000; // 1234567 -> 12.34567
+      return round(playoutsDouble) / 10.0 + "m";
+    } else if (playouts >= 10_000) {
+      double playoutsDouble = (double) playouts / 1_000; // 13265 -> 13.265
+      return round(playoutsDouble) + "k";
+    } else if (playouts >= 1_000) {
+      double playoutsDouble = (double) playouts / 100; // 1265 -> 12.65
+      return round(playoutsDouble) / 10.0 + "k";
+    } else {
+      return String.valueOf(playouts);
+    }
   }
 
   /**

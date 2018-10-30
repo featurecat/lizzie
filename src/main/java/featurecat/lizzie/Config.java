@@ -56,6 +56,7 @@ public class Config {
   public Color winrateMissLineColor = null;
   public Color blunderBarColor = null;
   public boolean solidStoneIndicator = false;
+  public boolean appendWinrateToComment = false;
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -156,6 +157,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
+    appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();

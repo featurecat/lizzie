@@ -72,6 +72,9 @@ public class BoardData {
    */
   public void addProperty(String key, String value) {
     SGFParser.addProperty(properties, key, value);
+    if ("N".equals(key) && comment.isEmpty()) {
+      comment = value;
+    }
   }
 
   /**
