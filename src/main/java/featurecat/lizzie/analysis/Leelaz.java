@@ -58,17 +58,18 @@ public class Leelaz {
   private boolean isCheckingVersion;
 
   // for Multiple Engine
-  private String engineCommand = null;
-  private List<String> commands = null;
-  private JSONObject config = null;
-  private String currentWeightFile = null;
-  private String currentWeight = null;
+  private String engineCommand;
+  private List<String> commands;
+  private JSONObject config;
+  private String currentWeightFile;
+  private String currentWeight;
   private boolean switching = false;
   private int currentEngineN = -1;
-  private ScheduledExecutorService executor = null;
+  private ScheduledExecutorService executor;
 
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
-  private float dynamicKomi = Float.NaN, dynamicOppKomi = Float.NaN;
+  private float dynamicKomi = Float.NaN;
+  private float dynamicOppKomi = Float.NaN;
   /**
    * Initializes the leelaz process and starts reading output
    *
@@ -103,29 +104,20 @@ public class Leelaz {
   }
 
   public void startEngine(String engineCommand) throws IOException {
-    // Check engine command
-    if (engineCommand == null || engineCommand.trim().isEmpty()) {
+    if (engineCommand.trim().isEmpty()) {
       return;
     }
 
-    // create this as a list which gets passed into the processbuilder
+    // Create this as a list which gets passed into the processbuilder
     commands = Arrays.asList(engineCommand.split(" "));
 
-    // get weight name
-    if (engineCommand != null) {
-      Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
-      Matcher wMatcher = wPattern.matcher(engineCommand);
-      if (wMatcher.matches()) {
-        currentWeightFile = wMatcher.group(2);
-        if (currentWeightFile != null) {
-          String[] names = currentWeightFile.split("[\\\\|/]");
-          if (names != null && names.length > 1) {
-            currentWeight = names[names.length - 1];
-          } else {
-            currentWeight = currentWeightFile;
-          }
-        }
-      }
+    // Get weight name
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
+    Matcher wMatcher = wPattern.matcher(engineCommand);
+    if (wMatcher.matches() && wMatcher.groupCount() == 2) {
+      currentWeightFile = wMatcher.group(2);
+      String[] names = currentWeightFile.split("[\\\\|/]");
+      currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
     }
 
     // Check if engine is present
@@ -169,7 +161,7 @@ public class Leelaz {
   }
 
   public void restartEngine(String engineCommand, int index) throws IOException {
-    if (engineCommand == null || engineCommand.trim().isEmpty()) {
+    if (engineCommand.trim().isEmpty()) {
       return;
     }
     switching = true;
@@ -240,12 +232,12 @@ public class Leelaz {
         // Clear switching prompt
         switching = false;
         // Display engine command in the title
-        if (Lizzie.frame != null) Lizzie.frame.updateTitle();
+        Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
           parseInfo(line.substring(5));
           notifyBestMoveListeners();
-          if (Lizzie.frame != null) Lizzie.frame.repaint();
+          Lizzie.frame.repaint();
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
@@ -258,7 +250,7 @@ public class Leelaz {
             || isThinking && !isPondering && Lizzie.frame.isPlayingAgainstLeelaz) {
           bestMoves.add(MoveData.fromSummary(line));
           notifyBestMoveListeners();
-          if (Lizzie.frame != null) Lizzie.frame.repaint();
+          Lizzie.frame.repaint();
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze
@@ -267,7 +259,7 @@ public class Leelaz {
         }
         isThinking = false;
 
-      } else if (Lizzie.frame != null && (line.startsWith("=") || line.startsWith("?"))) {
+      } else if (line.startsWith("=") || line.startsWith("?")) {
         if (printCommunication) {
           System.out.print(line);
         }
@@ -281,8 +273,9 @@ public class Leelaz {
         if (isSettingHandicap) {
           bestMoves = new ArrayList<>();
           for (int i = 1; i < params.length; i++) {
-            int[] coordinates = Lizzie.board.convertNameToCoordinates(params[i]);
-            Lizzie.board.getHistory().setStone(coordinates, Stone.BLACK);
+            Lizzie.board
+                .asCoordinates(params[i])
+                .ifPresent(coords -> Lizzie.board.getHistory().setStone(coords, Stone.BLACK));
           }
           isSettingHandicap = false;
         } else if (isThinking && !isPondering) {
@@ -318,8 +311,7 @@ public class Leelaz {
     line = line.trim();
     // ignore passes, and only accept lines that start with a coordinate letter
     if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
-      if (!(Lizzie.frame != null
-          && Lizzie.frame.isPlayingAgainstLeelaz
+      if (!(Lizzie.frame.isPlayingAgainstLeelaz
           && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
         try {
           bestMovesTemp.add(MoveData.fromInfo(line));
@@ -361,9 +353,8 @@ public class Leelaz {
    */
   public void sendCommand(String command) {
     synchronized (cmdQueue) {
-      String lastCommand = cmdQueue.peekLast();
       // For efficiency, delete unnecessary "lz-analyze" that will be stopped immediately
-      if (lastCommand != null && lastCommand.startsWith("lz-analyze")) {
+      if (!cmdQueue.isEmpty() && cmdQueue.peekLast().startsWith("lz-analyze")) {
         cmdQueue.removeLast();
       }
       cmdQueue.addLast(command);
@@ -380,11 +371,11 @@ public class Leelaz {
     // cmdQueue can be replaced with a mere String variable in this case,
     // but it is kept for future change of our mind.
     synchronized (cmdQueue) {
-      String command = cmdQueue.peekFirst();
-      if (command == null || (command.startsWith("lz-analyze") && !isResponseUpToDate())) {
+      if (cmdQueue.isEmpty()
+          || cmdQueue.peekFirst().startsWith("lz-analyze") && !isResponseUpToDate()) {
         return;
       }
-      cmdQueue.removeFirst();
+      String command = cmdQueue.removeFirst();
       sendCommandToLeelaz(command);
     }
   }
@@ -494,11 +485,12 @@ public class Leelaz {
     }
   }
 
-  public String getDynamicKomi() {
+  public Optional<String> getDynamicKomi() {
     if (Float.isNaN(dynamicKomi) || Float.isNaN(dynamicOppKomi)) {
-      return null;
+      return Optional.empty();
+    } else {
+      return Optional.of(String.format("%.1f / %.1f", dynamicKomi, dynamicOppKomi));
     }
-    return String.format("%.1f / %.1f", dynamicKomi, dynamicOppKomi);
   }
 
   public boolean isPondering() {
@@ -522,7 +514,7 @@ public class Leelaz {
   public WinrateStats getWinrateStats() {
     WinrateStats stats = new WinrateStats(-100, 0);
 
-    if (bestMoves != null && !bestMoves.isEmpty()) {
+    if (!bestMoves.isEmpty()) {
       // we should match the Leelaz UCTNode get_eval, which is a weighted average
       // copy the list to avoid concurrent modification exception... TODO there must be a better way
       // (note the concurrent modification exception is very very rare)

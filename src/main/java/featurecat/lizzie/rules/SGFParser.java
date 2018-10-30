@@ -82,7 +82,7 @@ public class SGFParser {
     // Save the variation step count
     Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
     // Comment of the AW/AB (Add White/Add Black) stone
-    String awabComment = null;
+    String awabComment = "";
     // Game properties
     Map<String, String> gameProperties = new HashMap<String, String>();
     boolean inTag = false,
@@ -90,7 +90,7 @@ public class SGFParser {
         escaping = false,
         moveStart = false,
         addPassForAwAb = true;
-    String tag = null;
+    String tag = "";
     StringBuilder tagBuilder = new StringBuilder();
     StringBuilder tagContentBuilder = new StringBuilder();
     // MultiGo 's branch: (Main Branch (Main Branch) (Branch) )
@@ -265,7 +265,7 @@ public class SGFParser {
     while (Lizzie.board.previousMove()) ;
 
     // Set AW/AB Comment
-    if (awabComment != null) {
+    if (!awabComment.isEmpty()) {
       Lizzie.board.comment(awabComment);
     }
     if (gameProperties.size() > 0) {
@@ -361,7 +361,7 @@ public class SGFParser {
     }
 
     // The AW/AB Comment
-    if (history.getData().comment != null) {
+    if (!history.getData().comment.isEmpty()) {
       builder.append(String.format("C[%s]", history.getData().comment));
     }
 
@@ -390,8 +390,8 @@ public class SGFParser {
         if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
         else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
 
-        char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-        char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+        char x = data.lastMove.isPresent() ? (char) (data.lastMove.get()[0] + 'a') : 't';
+        char y = data.lastMove.isPresent() ? (char) (data.lastMove.get()[1] + 'a') : 't';
 
         builder.append(String.format(";%s[%c%c]", stone, x, y));
 
@@ -399,20 +399,20 @@ public class SGFParser {
         builder.append(data.propertiesString());
 
         // Write the comment
-        if (data.comment != null) {
+        if (!data.comment.isEmpty()) {
           builder.append(String.format("C[%s]", data.comment));
         }
       }
 
       if (node.numberOfChildren() > 1) {
         // Variation
-        for (BoardHistoryNode sub : node.getNexts()) {
+        for (BoardHistoryNode sub : node.getVariations()) {
           builder.append("(");
           builder.append(generateNode(board, sub));
           builder.append(")");
         }
       } else if (node.numberOfChildren() == 1) {
-        builder.append(generateNode(board, node.next()));
+        builder.append(generateNode(board, node.next().orElse(null)));
       } else {
         return builder.toString();
       }
@@ -471,7 +471,7 @@ public class SGFParser {
    */
   public static void addProperties(Map<String, String> props, String propsStr) {
     boolean inTag = false, escaping = false;
-    String tag = null;
+    String tag = "";
     StringBuilder tagBuilder = new StringBuilder();
     StringBuilder tagContentBuilder = new StringBuilder();
 
@@ -533,9 +533,7 @@ public class SGFParser {
    */
   public static String propertiesString(Map<String, String> props) {
     StringBuilder sb = new StringBuilder();
-    if (props != null) {
-      props.forEach((key, value) -> sb.append(nodeString(key, value)));
-    }
+    props.forEach((key, value) -> sb.append(nodeString(key, value)));
     return sb.toString();
   }
 

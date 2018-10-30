@@ -72,15 +72,8 @@ public class Config {
 
     FileInputStream fp = new FileInputStream(file);
 
-    JSONObject mergedcfg = null;
-    boolean modified = false;
-    try {
-      mergedcfg = new JSONObject(new JSONTokener(fp));
-      modified = merge_defaults(mergedcfg, defaultCfg);
-    } catch (JSONException e) {
-      mergedcfg = null;
-      e.printStackTrace();
-    }
+    JSONObject mergedcfg = new JSONObject(new JSONTokener(fp));
+    boolean modified = mergeDefaults(mergedcfg, defaultCfg);
 
     fp.close();
 
@@ -105,10 +98,6 @@ public class Config {
    * @return if any correction has been made.
    */
   private boolean validateAndCorrectSettings(JSONObject config) {
-    if (config == null) {
-      return false;
-    }
-
     boolean madeCorrections = false;
 
     // Check ui configs
@@ -185,22 +174,22 @@ public class Config {
 
   // Modifies config by adding in values from default_config that are missing.
   // Returns whether it added anything.
-  public boolean merge_defaults(JSONObject config, JSONObject defaults_config) {
+  public boolean mergeDefaults(JSONObject config, JSONObject defaultsConfig) {
     boolean modified = false;
-    Iterator<String> keys = defaults_config.keys();
+    Iterator<String> keys = defaultsConfig.keys();
     while (keys.hasNext()) {
       String key = keys.next();
-      Object new_val = defaults_config.get(key);
-      if (new_val instanceof JSONObject) {
+      Object newVal = defaultsConfig.get(key);
+      if (newVal instanceof JSONObject) {
         if (!config.has(key)) {
           config.put(key, new JSONObject());
           modified = true;
         }
-        Object old_val = config.get(key);
-        modified |= merge_defaults((JSONObject) old_val, (JSONObject) new_val);
+        Object oldVal = config.get(key);
+        modified |= mergeDefaults((JSONObject) oldVal, (JSONObject) newVal);
       } else {
         if (!config.has(key)) {
-          config.put(key, new_val);
+          config.put(key, newVal);
           modified = true;
         }
       }

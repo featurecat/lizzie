@@ -2,10 +2,11 @@ package featurecat.lizzie.rules;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class BoardData {
   public int moveNumber;
-  public int[] lastMove;
+  public Optional<int[]> lastMove;
   public int[] moveNumberList;
   public boolean blackToPlay;
 
@@ -19,15 +20,14 @@ public class BoardData {
   public int blackCaptures;
   public int whiteCaptures;
 
-  // Comment in the Sgf move
-  public String comment;
+  public String comment = "";
 
   // Node properties
   private final Map<String, String> properties = new HashMap<String, String>();
 
   public BoardData(
       Stone[] stones,
-      int[] lastMove,
+      Optional<int[]> lastMove,
       Stone lastMoveColor,
       boolean blackToPlay,
       Zobrist zobrist,
@@ -51,6 +51,17 @@ public class BoardData {
     this.playouts = playouts;
     this.blackCaptures = blackCaptures;
     this.whiteCaptures = whiteCaptures;
+  }
+
+  public static BoardData empty(int size) {
+    Stone[] stones = new Stone[size * size];
+    for (int i = 0; i < stones.length; i++) {
+      stones[i] = Stone.EMPTY;
+    }
+
+    int[] boardArray = new int[size * size];
+    return new BoardData(
+        stones, Optional.empty(), Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
   }
 
   /**

@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class SGFParserTest {
 
-  private Lizzie lizzie = null;
+  private Lizzie lizzie;
 
   @Test
   public void run() throws IOException {
@@ -59,9 +59,7 @@ public class SGFParserTest {
     List<String> moveList = new ArrayList<String>();
     Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
-    assertTrue(moveList != null);
     assertEquals(moveList.size(), variationNum);
-
     assertEquals(moveList.get(0), mainBranch);
     assertEquals(moveList.get(1), variation1);
     assertEquals(moveList.get(2), variation2);
@@ -69,7 +67,7 @@ public class SGFParserTest {
 
     // Save correctly
     String saveSgf = SGFParser.saveToString();
-    assertTrue(saveSgf != null && saveSgf.trim().length() > 0);
+    assertTrue(saveSgf.trim().length() > 0);
 
     assertEquals(sgfString, Util.trimGameInfo(saveSgf));
   }
@@ -101,7 +99,6 @@ public class SGFParserTest {
     List<String> moveList = new ArrayList<String>();
     Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
-    assertTrue(moveList != null);
     assertEquals(moveList.size(), variationNum);
     assertEquals(moveList.get(0), mainBranch);
     assertEquals(moveList.get(1), variation1);
@@ -111,7 +108,7 @@ public class SGFParserTest {
 
     // Save correctly
     String saveSgf = SGFParser.saveToString();
-    assertTrue(saveSgf != null && saveSgf.trim().length() > 0);
+    assertTrue(saveSgf.trim().length() > 0);
 
     String sgf = Util.trimGameInfo(saveSgf);
     String[] ret = Util.splitAwAbSgf(sgf);
@@ -153,7 +150,6 @@ public class SGFParserTest {
     List<String> moveList = new ArrayList<String>();
     Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
-    assertTrue(moveList != null);
     assertEquals(moveList.size(), variationNum);
     assertEquals(moveList.get(0), mainBranch);
     assertEquals(moveList.get(1), variation1);
@@ -176,7 +172,7 @@ public class SGFParserTest {
 
     // Save correctly
     String saveSgf = SGFParser.saveToString();
-    assertTrue(saveSgf != null && saveSgf.trim().length() > 0);
+    assertTrue(saveSgf.trim().length() > 0);
 
     String sgf = Util.trimGameInfo(saveSgf);
     String[] ret = Util.splitAwAbSgf(sgf);
