@@ -937,6 +937,7 @@ public class Board implements LeelazListener {
   public void clear() {
     Lizzie.leelaz.sendCommand("clear_board");
     Lizzie.frame.resetTitle();
+    Lizzie.frame.clear();
     initialize();
   }
 

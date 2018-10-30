@@ -275,7 +275,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_W:
-        Lizzie.config.toggleShowWinrate();
+        if (controlIsPressed(e)) {
+          Lizzie.config.toggleLargeWinrate();
+        } else {
+          Lizzie.config.toggleShowWinrate();
+        }
         break;
 
       case VK_G:
