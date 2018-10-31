@@ -11,6 +11,10 @@ public class VariationTree {
   private int YSPACING;
   private int XSPACING;
   private int DOT_DIAM = 11; // Should be odd number
+  private int DOT_DIAM_S = 9; // For small node
+  private int CENTER_DIAM = 5;
+  private int RING_DIAM = 15;
+  private int diam = DOT_DIAM;
 
   private ArrayList<Integer> laneUsageList;
   private int laneCount = 0;
@@ -55,33 +59,42 @@ public class VariationTree {
     BoardHistoryNode cur = startNode;
     int curposx = posx + lane * XSPACING;
     int dotoffset = DOT_DIAM / 2;
+    if (Lizzie.config.nodeColorMode == 1 && cur.getData().blackToPlay
+        || Lizzie.config.nodeColorMode == 2 && !cur.getData().blackToPlay) {
+      diam = DOT_DIAM_S;
+    } else {
+      diam = DOT_DIAM;
+    }
+    int dotoffsety = diam / 2;
+    int diff = (DOT_DIAM - diam) / 2;
 
-    // Draw line back to main branch
     if (lane > 0) {
+
+      // Draw line back to main branch
       if (lane - startLane > 0 || variationNumber > 1) {
         // Need a horizontal and an angled line
         drawLine(
             g,
             curposx + dotoffset,
-            posy + dotoffset,
+            posy + dotoffsety,
             curposx + dotoffset - XSPACING,
-            posy + dotoffset - YSPACING,
+            posy + dotoffsety - YSPACING,
             minposx);
         drawLine(
             g,
             posx + (startLane - variationNumber) * XSPACING + 2 * dotoffset,
-            posy - YSPACING + dotoffset,
+            posy - YSPACING + dotoffsety,
             curposx + dotoffset - XSPACING,
-            posy + dotoffset - YSPACING,
+            posy + dotoffsety - YSPACING,
             minposx);
       } else {
         // Just an angled line
         drawLine(
             g,
             curposx + dotoffset,
-            posy + dotoffset,
+            posy + dotoffsety,
             curposx + 2 * dotoffset - XSPACING,
-            posy + 2 * dotoffset - YSPACING,
+            posy + 2 * dotoffsety - YSPACING,
             minposx);
       }
     }
@@ -89,13 +102,25 @@ public class VariationTree {
     // Draw all the nodes and lines in this lane (not variations)
     Color curcolor = g.getColor();
     if (curposx > minposx && posy > 0) {
-      if (startNode == curMove) {
-        g.setColor(Color.green.brighter().brighter());
-      }
       if (startNode.previous().isPresent()) {
-        g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
-        g.setColor(Color.BLACK);
-        g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
+        if (Lizzie.config.showCommentNodeColor && !cur.getData().comment.isEmpty()) {
+          g.setColor(Lizzie.config.commentNodeColor);
+          g.fillOval(
+              curposx + (DOT_DIAM + diff - RING_DIAM) / 2,
+              posy + (DOT_DIAM + diff - RING_DIAM) / 2,
+              RING_DIAM,
+              RING_DIAM);
+        }
+        g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+        g.fillOval(curposx + diff, posy + diff, diam, diam);
+        if (startNode == curMove) {
+          g.setColor(Color.BLACK);
+          g.fillOval(
+              curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+              posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+              CENTER_DIAM,
+              CENTER_DIAM);
+        }
       } else {
         g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
         g.setColor(Color.BLACK);
@@ -109,18 +134,42 @@ public class VariationTree {
       posy += YSPACING;
       cur = cur.next().get();
       if (curposx > minposx && posy > 0) {
-        if (cur == curMove) {
-          g.setColor(Color.green.brighter().brighter());
+        if (Lizzie.config.nodeColorMode == 1 && cur.getData().blackToPlay
+            || Lizzie.config.nodeColorMode == 2 && !cur.getData().blackToPlay) {
+          diam = DOT_DIAM_S;
+        } else {
+          diam = DOT_DIAM;
         }
-        g.fillOval(curposx, posy, DOT_DIAM, DOT_DIAM);
-        g.setColor(Color.BLACK);
-        g.drawOval(curposx, posy, DOT_DIAM, DOT_DIAM);
+        dotoffsety = diam / 2;
+        diff = (DOT_DIAM - diam) / 2;
+        if (Lizzie.config.showCommentNodeColor && !cur.getData().comment.isEmpty()) {
+          g.setColor(Lizzie.config.commentNodeColor);
+          g.fillOval(
+              curposx + (DOT_DIAM + diff - RING_DIAM) / 2,
+              posy + (DOT_DIAM + diff - RING_DIAM) / 2,
+              RING_DIAM,
+              RING_DIAM);
+        }
+        g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+        g.fillOval(curposx + diff, posy + diff, diam, diam);
+        if (cur == curMove) {
+          g.setColor(Color.BLACK);
+          g.fillOval(
+              curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+              posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+              CENTER_DIAM,
+              CENTER_DIAM);
+        }
         g.setColor(curcolor);
         g.drawLine(
             curposx + dotoffset,
-            posy - 1,
+            posy - 1 + diff,
             curposx + dotoffset,
-            posy - YSPACING + 2 * dotoffset + 2);
+            posy
+                - YSPACING
+                + dotoffset
+                + (diff > 0 ? dotoffset + 1 : dotoffsety)
+                + (Lizzie.config.nodeColorMode == 0 ? 1 : 0));
       }
     }
     // Now we have drawn all the nodes in this variation, and has reached the bottom of this

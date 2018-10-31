@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.json.*;
 
 public class Config {
@@ -56,6 +58,11 @@ public class Config {
   public Color winrateMissLineColor = null;
   public Color blunderBarColor = null;
   public boolean solidStoneIndicator = false;
+  public boolean showCommentNodeColor = true;
+  public Color commentNodeColor = null;
+  public Optional<List<Double>> blunderWinrateThresholds;
+  public Optional<Map<Double, Color>> blunderNodeColors;
+  public int nodeColorMode = 0;
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -170,6 +177,11 @@ public class Config {
     winrateMissLineColor = theme.winrateMissLineColor();
     blunderBarColor = theme.blunderBarColor();
     solidStoneIndicator = theme.solidStoneIndicator();
+    showCommentNodeColor = theme.showCommentNodeColor();
+    commentNodeColor = theme.commentNodeColor();
+    blunderWinrateThresholds = theme.blunderWinrateThresholds();
+    blunderNodeColors = theme.blunderNodeColors();
+    nodeColorMode = theme.nodeColorMode();
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -201,6 +213,10 @@ public class Config {
     this.showMoveNumber = !this.showMoveNumber;
   }
 
+  public void toggleNodeColorMode() {
+    this.nodeColorMode = this.nodeColorMode > 1 ? 0 : this.nodeColorMode + 1;
+  }
+
   public void toggleShowBranch() {
     this.showBranch = !this.showBranch;
   }
@@ -219,6 +235,10 @@ public class Config {
 
   public void toggleShowComment() {
     this.showComment = !this.showComment;
+  }
+
+  public void toggleShowCommentNodeColor() {
+    this.showCommentNodeColor = !this.showCommentNodeColor;
   }
 
   public void toggleShowBestMoves() {
