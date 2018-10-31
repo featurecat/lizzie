@@ -1,6 +1,7 @@
 package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.EncodingDetector;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -20,8 +21,9 @@ public class GIBParser {
       return false;
     }
 
+    String encoding = EncodingDetector.detect(filename);
     FileInputStream fp = new FileInputStream(file);
-    InputStreamReader reader = new InputStreamReader(fp);
+    InputStreamReader reader = new InputStreamReader(fp, encoding);
     StringBuilder builder = new StringBuilder();
     while (reader.ready()) {
       builder.append((char) reader.read());
