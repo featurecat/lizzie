@@ -156,6 +156,10 @@ public class BoardHistoryList {
     return head.getData().moveNumber;
   }
 
+  public int getMoveMNNumber() {
+    return head.getData().moveMNNumber;
+  }
+
   public int[] getMoveNumberList() {
     return head.getData().moveNumberList;
   }

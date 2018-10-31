@@ -85,11 +85,13 @@ public class SGFParser {
     String awabComment = "";
     // Game properties
     Map<String, String> gameProperties = new HashMap<String, String>();
+    Map<String, String> pendingProps = new HashMap<String, String>();
     boolean inTag = false,
         isMultiGo = false,
         escaping = false,
         moveStart = false,
         addPassForAwAb = true;
+    boolean inProp = false;
     String tag = "";
     StringBuilder tagBuilder = new StringBuilder();
     StringBuilder tagContentBuilder = new StringBuilder();
@@ -117,6 +119,8 @@ public class SGFParser {
             subTreeDepth += 1;
             // Initialize the step count
             subTreeStepMap.put(subTreeDepth, 0);
+            addPassForAwAb = true;
+            pendingProps = new HashMap<String, String>();
           } else {
             if (i > 0) {
               // Allow the comment tag includes '('
@@ -140,25 +144,31 @@ public class SGFParser {
           }
           break;
         case '[':
-          if (subTreeDepth > 1 && !isMultiGo) {
-            break;
+          if (!inProp) {
+            inProp = true;
+            if (subTreeDepth > 1 && !isMultiGo) {
+              break;
+            }
+            inTag = true;
+            String tagTemp = tagBuilder.toString();
+            if (!tagTemp.isEmpty()) {
+              // Ignore small letters in tags for the long format Smart-Go file.
+              // (ex) "PlayerBlack" ==> "PB"
+              // It is the default format of mgt, an old SGF tool.
+              // (Mgt is still supported in Debian and Ubuntu.)
+              tag = tagTemp.replaceAll("[a-z]", "");
+            }
+            tagContentBuilder = new StringBuilder();
+          } else {
+            tagContentBuilder.append(c);
           }
-          inTag = true;
-          String tagTemp = tagBuilder.toString();
-          if (!tagTemp.isEmpty()) {
-            // Ignore small letters in tags for the long format Smart-Go file.
-            // (ex) "PlayerBlack" ==> "PB"
-            // It is the default format of mgt, an old SGF tool.
-            // (Mgt is still supported in Debian and Ubuntu.)
-            tag = tagTemp.replaceAll("[a-z]", "");
-          }
-          tagContentBuilder = new StringBuilder();
           break;
         case ']':
           if (subTreeDepth > 1 && !isMultiGo) {
             break;
           }
           inTag = false;
+          inProp = false;
           tagBuilder = new StringBuilder();
           String tagContent = tagContentBuilder.toString();
           // We got tag, we can parse this tag now.
@@ -169,11 +179,14 @@ public class SGFParser {
             // Save the step count
             subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
             Stone color = tag.equals("B") ? Stone.BLACK : Stone.WHITE;
+            boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
             if (move == null) {
-              Lizzie.board.pass(color);
+              Lizzie.board.pass(color, newBranch);
             } else {
-              boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
               Lizzie.board.place(move[0], move[1], color, newBranch);
+            }
+            if (newBranch) {
+              processPendingPros(pendingProps);
             }
           } else if (tag.equals("C")) {
             // Support comment
@@ -189,7 +202,13 @@ public class SGFParser {
               // add to node properties
               Lizzie.board.addNodeProperty(tag, tagContent);
               if (addPassForAwAb) {
-                Lizzie.board.pass(color);
+                // Save the step count
+                subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
+                boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
+                Lizzie.board.pass(color, newBranch);
+                if (newBranch) {
+                  processPendingPros(pendingProps);
+                }
                 addPassForAwAb = false;
               }
               if (move != null) {
@@ -219,19 +238,33 @@ public class SGFParser {
           } else {
             if (moveStart) {
               // Other SGF node properties
-              Lizzie.board.addNodeProperty(tag, tagContent);
-              if ("MN".equals(tag)) {
-                Lizzie.board.moveNumber(Integer.parseInt(tagContent));
-              } else if ("AE".equals(tag)) {
+              if ("AE".equals(tag)) {
                 // remove a stone
                 if (addPassForAwAb) {
-                  Lizzie.board.pass(tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                  // Save the step count
+                  subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
+                  Stone color =
+                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
+                          ? Stone.BLACK
+                          : Stone.WHITE;
+                  boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
+                  Lizzie.board.pass(color, newBranch);
+                  if (newBranch) {
+                    processPendingPros(pendingProps);
+                  }
                   addPassForAwAb = false;
                 }
                 int[] move = convertSgfPosToCoord(tagContent);
                 if (move != null) {
                   Lizzie.board.removeStone(
                       move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                }
+              } else {
+                boolean firstProp = (subTreeStepMap.get(subTreeDepth) == 0);
+                if (firstProp) {
+                  addProperty(pendingProps, tag, tagContent);
+                } else {
+                  processProperties(tag, tagContent);
                 }
               }
             } else {
@@ -557,5 +590,19 @@ public class SGFParser {
       sb.append(key).append("[").append(value).append("]");
     }
     return sb.toString();
+  }
+
+  private static void processProperties(String tag, String tagContent) {
+    Lizzie.board.addNodeProperty(tag, tagContent);
+    if ("MN".equals(tag)) {
+      Lizzie.board.moveNumber(Integer.parseInt(tagContent));
+    }
+  }
+
+  private static void processPendingPros(Map<String, String> props) {
+    if (props.size() > 0) {
+      props.forEach((key, value) -> processProperties(key, value));
+      props = new HashMap<String, String>();
+    }
   }
 }

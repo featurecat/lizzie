@@ -307,6 +307,69 @@ public class BoardHistoryNode {
   }
 
   /**
+   * Given a child node, find the index of that child node in it's parent
+   *
+   * @return index of child node, -1 if child node not a child of parent
+   */
+  public int findIndexOfNode(BoardHistoryNode childNode, boolean allSub) {
+    if (!next().isPresent()) {
+      return -1;
+    }
+    for (int i = 0; i < numberOfChildren(); i++) {
+      Optional<BoardHistoryNode> node = getVariation(i);
+      while (node.isPresent()) {
+        if (node.map(n -> n == childNode).orElse(false)) {
+          return i;
+        }
+        node = node.get().next();
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Given a child node, find the depth of that child node in it's parent
+   *
+   * @return depth of child node, 0 if child node not a child of parent
+   */
+  public int depthOfNode(BoardHistoryNode childNode) {
+    if (!next().isPresent()) {
+      return 0;
+    }
+    for (int i = 0; i < numberOfChildren(); i++) {
+      Optional<BoardHistoryNode> node = getVariation(i);
+      int move = 1;
+      while (node.isPresent()) {
+        if (node.map(n -> n == childNode).orElse(false)) {
+          return move;
+        }
+        move++;
+        node = node.get().next();
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * The move number of that node in it's branch
+   *
+   * @return move number of node, 0 if node not a child of branch
+   */
+  public int moveNumberOfBranch() {
+    Optional<BoardHistoryNode> top = firstParentWithVariations();
+    return top.isPresent() ? top.get().moveNumberOfNode() + top.get().depthOfNode(this) : 0;
+  }
+
+  /**
+   * The move number of that node
+   *
+   * @return move number of node
+   */
+  public int moveNumberOfNode() {
+    return isMainTrunk() ? getData().moveNumber : moveNumberOfBranch();
+  }
+
+  /**
    * Check if node is part of the main trunk (rightmost branch)
    *
    * @return true if node is part of main trunk, false otherwise
