@@ -322,4 +322,56 @@ public class BoardHistoryNode {
     }
     return true;
   }
+
+  public Optional<BoardHistoryNode> findNextNodeWithComment() {
+    BoardHistoryNode node = this;
+    while (node.next().isPresent()) {
+      BoardHistoryNode next = node.next().get();
+      if (!next.getData().comment.isEmpty()) {
+        return Optional.ofNullable(next);
+      }
+      node = next;
+    }
+    return Optional.empty();
+  }
+
+  public Optional<BoardHistoryNode> findPreviousNodeWithComment() {
+    BoardHistoryNode node = this;
+    while (node.previous().isPresent()) {
+      BoardHistoryNode previous = node.previous().get();
+      if (!previous.getData().comment.isEmpty()) {
+        return Optional.ofNullable(previous);
+      }
+      node = previous;
+    }
+    return Optional.empty();
+  }
+
+  public int getNextNodeWithCommentMoves() {
+    BoardHistoryNode node = this;
+    int moves = 0;
+    while (node.next().isPresent()) {
+      moves++;
+      BoardHistoryNode next = node.next().get();
+      if (!next.getData().comment.isEmpty()) {
+        break;
+      }
+      node = next;
+    }
+    return moves;
+  }
+
+  public int getPreviousNodeWithCommentMoves() {
+    BoardHistoryNode node = this;
+    int moves = 0;
+    while (node.previous().isPresent()) {
+      moves++;
+      BoardHistoryNode previous = node.previous().get();
+      if (!previous.getData().comment.isEmpty()) {
+        break;
+      }
+      node = previous;
+    }
+    return moves;
+  }
 }

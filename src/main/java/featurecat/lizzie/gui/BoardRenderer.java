@@ -480,7 +480,6 @@ public class BoardRenderer {
 
     // Allow to display only last move number
     int lastMoveNumber = branchOpt.map(b -> b.data.moveNumber).orElse(board.getData().moveNumber);
-    int onlyLastMoveNumber = Lizzie.config.uiConfig.optInt("only-last-move-number", 9999);
 
     for (int i = 0; i < Board.boardSize; i++) {
       for (int j = 0; j < Board.boardSize; j++) {
@@ -488,7 +487,8 @@ public class BoardRenderer {
         int stoneY = y + scaledMargin + squareLength * j;
 
         // Allow to display only last move number
-        if (lastMoveNumber - moveNumberList[Board.getIndex(i, j)] >= onlyLastMoveNumber) {
+        if (lastMoveNumber - moveNumberList[Board.getIndex(i, j)]
+            >= Lizzie.config.onlyLastMoveNumber) {
           continue;
         }
 
