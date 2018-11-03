@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class SGFParserTest {
 
-  private Lizzie lizzie = null;
+  private Lizzie lizzie;
 
   @Test
   public void run() throws IOException {
@@ -30,6 +30,7 @@ public class SGFParserTest {
 
     testVariaionOnly1();
     testFull1();
+    testMore1();
   }
 
   public void testVariaionOnly1() throws IOException {
@@ -58,9 +59,7 @@ public class SGFParserTest {
     List<String> moveList = new ArrayList<String>();
     Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
-    assertTrue(moveList != null);
     assertEquals(moveList.size(), variationNum);
-
     assertEquals(moveList.get(0), mainBranch);
     assertEquals(moveList.get(1), variation1);
     assertEquals(moveList.get(2), variation2);
@@ -68,7 +67,7 @@ public class SGFParserTest {
 
     // Save correctly
     String saveSgf = SGFParser.saveToString();
-    assertTrue(saveSgf != null && saveSgf.trim().length() > 0);
+    assertTrue(saveSgf.trim().length() > 0);
 
     assertEquals(sgfString, Util.trimGameInfo(saveSgf));
   }
@@ -100,7 +99,6 @@ public class SGFParserTest {
     List<String> moveList = new ArrayList<String>();
     Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
-    assertTrue(moveList != null);
     assertEquals(moveList.size(), variationNum);
     assertEquals(moveList.get(0), mainBranch);
     assertEquals(moveList.get(1), variation1);
@@ -110,7 +108,7 @@ public class SGFParserTest {
 
     // Save correctly
     String saveSgf = SGFParser.saveToString();
-    assertTrue(saveSgf != null && saveSgf.trim().length() > 0);
+    assertTrue(saveSgf.trim().length() > 0);
 
     String sgf = Util.trimGameInfo(saveSgf);
     String[] ret = Util.splitAwAbSgf(sgf);
@@ -121,5 +119,69 @@ public class SGFParserTest {
 
     // Content
     assertEquals("(" + sgfContent, ret[1]);
+  }
+
+  public void testMore1() throws IOException {
+
+    String sgfInfo = "(;CA[gb2312]AP[MultiGo:4.4.4]SZ[19]EV[Question 1 Ko]US[new]CP[newnet]";
+    String headComment = "C[Question 1\r\n" + "Black first]";
+    String sgfAwAb =
+        "AB[pc][pd][pe][nd][qf][rf][pg][ph][rh][sc][sb][rb]AW[sd][qd][qc][qe][re][rc][pf][of][ng][qg][qh][pi][pj][qj][ri]AB[qb]";
+    String sgfContent =
+        "(;B[sg]N[Correct answer Retired tiger]C[Correct answer back tiger](;W[qi];B[se]N[ 1 figure (ko)]C[1 figure (ko)])(;W[se]MN[2];B[sf]LB[rg:A][qi:B]N[5 figure (difference)]C[5 figure (difference)]))(;B[sf];W[rg]N[2 figure (failure)]C[2 figure (failure)])(;B[rg];W[qi]N[3 figure (bad move)]C[3 figure (bad move)];B[sg]MN[1];W[se]N[4 figure (not liberty)]C[4 figure (not liberty)]))";
+    String sgfString = sgfInfo + sgfAwAb + headComment + sgfContent;
+
+    int variationNum = 4;
+    String mainBranch =
+        ";B[sg]C[Correct answer back tiger]N[Correct answer Retired tiger];W[qi];B[se]C[1 figure (ko)]N[ 1 figure (ko)]";
+    String variation1 =
+        ";W[se]MN[2];B[sf]C[5 figure (difference)]LB[rg:A][qi:B]N[5 figure (difference)]";
+    String variation2 = ";B[sf];W[rg]C[2 figure (failure)]N[2 figure (failure)]";
+    String variation3 =
+        ";B[rg];W[qi]C[3 figure (bad move)]N[3 figure (bad move)];B[sg]MN[1];W[se]C[4 figure (not liberty)]N[4 figure (not liberty)]";
+
+    Stone[] expectStones = Util.convertStones(sgfAwAb);
+
+    // Load correctly
+    boolean loaded = SGFParser.loadFromString(sgfString);
+    assertTrue(loaded);
+
+    // Variations
+    List<String> moveList = new ArrayList<String>();
+    Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
+
+    assertEquals(moveList.size(), variationNum);
+    assertEquals(moveList.get(0), mainBranch);
+    assertEquals(moveList.get(1), variation1);
+    assertEquals(moveList.get(2), variation2);
+    assertEquals(moveList.get(3), variation3);
+
+    // AW/AB
+    assertArrayEquals(expectStones, Lizzie.board.getHistory().getStones());
+
+    // MN[2] in variation 2
+    Lizzie.board.nextMove();
+    Lizzie.board.nextMove();
+    Lizzie.board.nextBranch();
+    assertEquals("2", Lizzie.board.getData().getProperty("MN"));
+    assertEquals(2, Lizzie.board.getData().moveNumber);
+
+    // LB[rg:A][qi:B] in variation 2
+    Lizzie.board.nextMove();
+    assertEquals("rg:A,qi:B", Lizzie.board.getData().getProperty("LB"));
+
+    // Save correctly
+    String saveSgf = SGFParser.saveToString();
+    assertTrue(saveSgf.trim().length() > 0);
+
+    String sgf = Util.trimGameInfo(saveSgf);
+    String[] ret = Util.splitAwAbSgf(sgf);
+    Stone[] actualStones = Util.convertStones(ret[0]);
+
+    // AW/AB
+    assertArrayEquals(expectStones, actualStones);
+
+    // Content
+    assertEquals("(" + headComment + sgfContent, ret[1]);
   }
 }

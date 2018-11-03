@@ -3,41 +3,39 @@ package featurecat.lizzie.analysis;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
-import featurecat.lizzie.rules.Zobrist;
 import java.util.List;
+import java.util.Optional;
 
 public class Branch {
   public BoardData data;
 
   public Branch(Board board, List<String> variation) {
+    int[] moveNumberList = new int[Board.boardSize * Board.boardSize];
     int moveNumber = 0;
-    int[] lastMove = board.getLastMove();
-    int[] moveNumberList = new int[Board.BOARD_SIZE * Board.BOARD_SIZE];
-    boolean blackToPlay = board.getData().blackToPlay;
+    double winrate = 0.0;
+    int playouts = 0;
 
-    Stone lastMoveColor = board.getData().lastMoveColor;
-    Stone[] stones = board.getStones().clone();
-    Zobrist zobrist = board.getData().zobrist == null ? null : board.getData().zobrist.clone();
-
-    // Dont care about winrate for branch
     this.data =
         new BoardData(
-            stones,
-            lastMove,
-            lastMoveColor,
-            blackToPlay,
-            zobrist,
+            board.getStones().clone(),
+            board.getLastMove(),
+            board.getData().lastMoveColor,
+            board.getData().blackToPlay,
+            board.getData().zobrist.clone(),
             moveNumber,
             moveNumberList,
             board.getData().blackCaptures,
             board.getData().whiteCaptures,
-            0.0,
-            0);
+            winrate,
+            playouts);
 
     for (int i = 0; i < variation.size(); i++) {
-      int[] coord = Board.convertNameToCoordinates(variation.get(i));
-      if (coord == null) break;
-      data.lastMove = coord;
+      Optional<int[]> coordOpt = Board.asCoordinates(variation.get(i));
+      if (!coordOpt.isPresent()) {
+        break;
+      }
+      int[] coord = coordOpt.get();
+      data.lastMove = coordOpt;
       data.stones[Board.getIndex(coord[0], coord[1])] =
           data.blackToPlay ? Stone.BLACK_GHOST : Stone.WHITE_GHOST;
       data.moveNumberList[Board.getIndex(coord[0], coord[1])] = i + 1;
