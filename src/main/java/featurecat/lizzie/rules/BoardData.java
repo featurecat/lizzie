@@ -10,6 +10,7 @@ public class BoardData {
   public Optional<int[]> lastMove;
   public int[] moveNumberList;
   public boolean blackToPlay;
+  public boolean dummy;
 
   public Stone lastMoveColor;
   public Stone[] stones;
@@ -43,6 +44,7 @@ public class BoardData {
     this.lastMove = lastMove;
     this.moveNumberList = moveNumberList;
     this.blackToPlay = blackToPlay;
+    this.dummy = false;
 
     this.lastMoveColor = lastMoveColor;
     this.stones = stones;

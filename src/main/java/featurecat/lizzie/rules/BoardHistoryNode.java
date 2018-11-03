@@ -1,5 +1,6 @@
 package featurecat.lizzie.rules;
 
+import featurecat.lizzie.Lizzie;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -87,6 +88,16 @@ public class BoardHistoryNode {
           return variations.get(i);
         }
       }
+    }
+    if (Lizzie.config.newMoveNubmerInBranch && !variations.isEmpty()) {
+      if (!newBranch) {
+        data.moveNumberList = new int[Board.boardSize * Board.boardSize];
+      }
+      if (data.moveMNNumber == -1) {
+        data.moveMNNumber = data.dummy ? 0 : 1;
+      }
+      data.lastMove.ifPresent(
+          m -> data.moveNumberList[Board.getIndex(m[0], m[1])] = data.moveMNNumber);
     }
     BoardHistoryNode node = new BoardHistoryNode(data);
     // Add node

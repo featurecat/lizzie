@@ -239,7 +239,7 @@ public class Board implements LeelazListener {
    * @param color the type of pass
    */
   public void pass(Stone color) {
-    pass(color, false);
+    pass(color, false, false);
   }
 
   /**
@@ -248,7 +248,7 @@ public class Board implements LeelazListener {
    * @param color the type of pass
    * @param newBranch add a new branch
    */
-  public void pass(Stone color, boolean newBranch) {
+  public void pass(Stone color, boolean newBranch, boolean dummy) {
     synchronized (this) {
 
       // check to see if this move is being replayed in history
@@ -285,6 +285,7 @@ public class Board implements LeelazListener {
               history.getData().whiteCaptures,
               0,
               0);
+      newState.dummy = dummy;
 
       // update leelaz with pass
       Lizzie.leelaz.playMove(color, "pass");
