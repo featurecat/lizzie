@@ -185,6 +185,14 @@ public class BoardHistoryList {
     return false;
   }
 
+  public boolean violatesKoRule(BoardData data) {
+    // check if the current position is identical to the position two moves ago
+    return this.head
+        .previous()
+        .map(p -> p != null && data.zobrist.equals(p.getData().zobrist))
+        .orElse(false);
+  }
+
   /**
    * Returns the root node
    *
