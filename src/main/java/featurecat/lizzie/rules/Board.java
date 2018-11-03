@@ -24,6 +24,7 @@ import org.json.JSONException;
 
 public class Board implements LeelazListener {
   public static int boardSize = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
+  public static int BOARD_SIZE = boardSize;
   private static final String alphabet = "ABCDEFGHJKLMNOPQRST";
 
   private BoardHistoryList history;
@@ -398,7 +399,7 @@ public class Board implements LeelazListener {
               0);
 
       // don't make this coordinate if it is suicidal or violates superko
-      if (isSuicidal > 0 || history.violatesSuperko(newState)) return;
+      if (isSuicidal > 0 || history.violatesKoRule(newState)) return;
 
       // update leelaz with board position
       if (Lizzie.frame.isPlayingAgainstLeelaz
