@@ -25,6 +25,7 @@ public class Config {
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
+  public boolean showCoordinates = false;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -156,6 +157,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
+    showCoordinates = uiConfig.optBoolean("show-coordinates");
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -235,6 +237,10 @@ public class Config {
 
   public void toggleLargeSubBoard() {
     this.largeSubBoard = !this.largeSubBoard;
+  }
+
+  public void toggleCoordinates() {
+    showCoordinates = !showCoordinates;
   }
 
   public boolean showLargeSubBoard() {

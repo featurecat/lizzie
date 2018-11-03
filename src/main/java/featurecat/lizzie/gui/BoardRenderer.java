@@ -1204,7 +1204,7 @@ public class BoardRenderer {
   }
 
   private boolean showCoordinates() {
-    return isMainBoard && Lizzie.frame.showCoordinates;
+    return isMainBoard && Lizzie.config.showCoordinates;
   }
 
   public void increaseMaxAlpha(int k) {
