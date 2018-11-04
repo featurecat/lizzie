@@ -89,9 +89,13 @@ public class BoardHistoryNode {
         }
       }
     }
+    if (!this.previous.isPresent()) {
+      data.moveMNNumber = 1;
+    }
     if (Lizzie.config.newMoveNubmerInBranch && !variations.isEmpty()) {
       if (!newBranch) {
         data.moveNumberList = new int[Board.boardSize * Board.boardSize];
+        data.moveMNNumber = -1;
       }
       if (data.moveMNNumber == -1) {
         data.moveMNNumber = data.dummy ? 0 : 1;
@@ -167,6 +171,9 @@ public class BoardHistoryNode {
         BoardHistoryNode tmp = variations.get(i - 1);
         variations.set(i - 1, child);
         variations.set(i, tmp);
+        if ((i - 1) == 0) {
+          child.swapMoveNumberList(tmp);
+        }
         return;
       }
     }
@@ -178,8 +185,48 @@ public class BoardHistoryNode {
         BoardHistoryNode tmp = variations.get(i + 1);
         variations.set(i + 1, child);
         variations.set(i, tmp);
+        if (i == 0) {
+          tmp.swapMoveNumberList(child);
+        }
         return;
       }
+    }
+  }
+
+  public void swapMoveNumberList(BoardHistoryNode child) {
+    int childStart = child.getData().moveMNNumber;
+    child.resetMoveNumberListBranch(this.getData().moveMNNumber);
+    this.resetMoveNumberListBranch(childStart);
+  }
+
+  public void resetMoveNumberListBranch(int start) {
+    this.resetMoveNumberList(start);
+    BoardHistoryNode node = this;
+    while (node.next().isPresent()) {
+      node = node.next().get();
+      start++;
+      node.resetMoveNumberList(start);
+    }
+  }
+
+  public void resetMoveNumberList(int start) {
+    BoardData data = this.getData();
+    int[] moveNumberList = data.moveNumberList;
+    data.moveMNNumber = start;
+    if (data.lastMove.isPresent() && !data.dummy) {
+      int[] move = data.lastMove.get();
+      moveNumberList[Board.getIndex(move[0], move[1])] = start;
+    }
+    Optional<BoardHistoryNode> node = this.previous();
+    int moveNumber = start;
+    while (node.isPresent()) {
+      BoardData nodeData = node.get().getData();
+      if (nodeData.lastMove.isPresent()) {
+        int[] move = nodeData.lastMove.get();
+        moveNumber = (moveNumber > 1) ? moveNumber - 1 : 0;
+        moveNumberList[Board.getIndex(move[0], move[1])] = moveNumber;
+      }
+      node = node.get().previous();
     }
   }
 
