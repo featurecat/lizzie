@@ -358,17 +358,17 @@ public class LizzieFrame extends JFrame {
       int maxBound = Math.max(width, height);
 
       // board
-      int maxSize = (int) (min(width, height - topInset));
+      int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
       int boardX = (width - maxSize) / 2;
-      int boardY = topInset + (height - topInset - maxSize) / 2 + 3;
+      int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
 
       int panelMargin = (int) (maxSize * 0.02);
 
       // captured stones
       int capx = leftInset;
       int capy = topInset;
-      int capw = boardX - panelMargin;
+      int capw = boardX - panelMargin - leftInset;
       int caph = boardY + maxSize / 8 - topInset;
 
       // move statistics (winrate bar)
@@ -383,11 +383,12 @@ public class LizzieFrame extends JFrame {
       int gry = staty + stath;
       int grw = statw;
       int grh = maxSize / 3;
+
       // variation tree container
       int vx = boardX + maxSize + panelMargin;
-      int vy = 0;
-      int vw = width - vx;
-      int vh = height;
+      int vy = capy;
+      int vw = width - vx - rightInset;
+      int vh = height - vy - bottomInset;
 
       // pondering message
       double ponderingSize = .02;
@@ -408,18 +409,18 @@ public class LizzieFrame extends JFrame {
       int loadingY = ponderingY - (int) (maxBound * (loadingSize - ponderingSize));
 
       // subboard
-      int subBoardX = statx;
       int subBoardY = gry + grh;
       int subBoardWidth = grw;
       int subBoardHeight = ponderingY - subBoardY;
       int subBoardLength = min(subBoardWidth, subBoardHeight);
+      int subBoardX = statx + (statw - subBoardLength) / 2;
 
       if (width >= height) {
         // Landscape mode
         if (Lizzie.config.showLargeSubBoard()) {
           boardX = width - maxSize - panelMargin;
-          int spaceW = boardX - panelMargin;
-          int spaceH = height - topInset;
+          int spaceW = boardX - panelMargin - leftInset;
+          int spaceH = height - topInset - bottomInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 4;
 
@@ -435,18 +436,19 @@ public class LizzieFrame extends JFrame {
           grw = statw;
           grh = panelH - caph - stath;
           // variation tree container
-          vx = panelW;
+          vx = statx + statw;
           vw = panelW;
-          vh = topInset + panelH;
+          vh = panelH;
           // subboard
           subBoardY = gry + grh;
           subBoardWidth = spaceW;
           subBoardHeight = ponderingY - subBoardY;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+          subBoardX = statx + (statw + vw - subBoardLength) / 2;
         } else if (Lizzie.config.showLargeWinrate()) {
           boardX = width - maxSize - panelMargin;
-          int spaceW = boardX - panelMargin;
-          int spaceH = height - topInset;
+          int spaceW = boardX - panelMargin - leftInset;
+          int spaceH = height - topInset - bottomInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 4;
 
@@ -463,14 +465,15 @@ public class LizzieFrame extends JFrame {
           grw = statw;
           grh = ponderingY - gry;
           // variation tree container
-          vx = panelW;
+          vx = leftInset + panelW;
           vw = panelW;
-          vh = topInset + panelH;
+          vh = panelH;
           // subboard
           subBoardY = topInset;
           subBoardWidth = panelW - leftInset;
           subBoardHeight = panelH;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+          subBoardX = statx + (vw - subBoardLength) / 2;
         }
       } else {
         // Portrait mode
@@ -479,7 +482,7 @@ public class LizzieFrame extends JFrame {
           maxSize = (int) (maxSize * 0.8);
           boardY = height - maxSize - bottomInset;
           int spaceW = width - leftInset - rightInset;
-          int spaceH = boardY - panelMargin;
+          int spaceH = boardY - panelMargin - topInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 2;
           boardX = (spaceW - maxSize) / 2 + leftInset;
@@ -498,13 +501,13 @@ public class LizzieFrame extends JFrame {
           // variation tree container
           vx = capx + capw;
           vw = panelW / 2;
-          vh = topInset + spaceH;
+          vh = spaceH;
           // subboard
           subBoardX = vx + vw;
-          subBoardY = capy;
-          subBoardWidth = spaceW;
-          subBoardHeight = boardY - topInset - 1;
+          subBoardWidth = panelW;
+          subBoardHeight = boardY - topInset;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+          subBoardY = capy + (gry + grh - capy - subBoardLength) / 2;
           // pondering message
           ponderingY = height;
         } else if (Lizzie.config.showLargeWinrate()) {
@@ -512,7 +515,7 @@ public class LizzieFrame extends JFrame {
           maxSize = (int) (maxSize * 0.8);
           boardY = height - maxSize - bottomInset;
           int spaceW = width - leftInset - rightInset;
-          int spaceH = boardY - panelMargin;
+          int spaceH = boardY - panelMargin - topInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 2;
           boardX = (spaceW - maxSize) / 2 + leftInset;
@@ -528,18 +531,18 @@ public class LizzieFrame extends JFrame {
           // winrate graph
           gry = staty + stath;
           grw = spaceW;
-          grh = boardY - capy - caph - 1;
+          grh = boardY - gry - 1;
           // variation tree container
           vx = statx + statw;
           vy = capy;
           vw = panelW / 2;
           vh = caph;
           // subboard
-          subBoardX = vx + vw;
-          subBoardY = topInset / 2;
+          subBoardY = topInset;
           subBoardWidth = panelW / 2;
-          subBoardHeight = gry - 2;
+          subBoardHeight = gry - topInset;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+          subBoardX = vx + vw;
           // pondering message
           ponderingY = height;
         } else {
@@ -547,7 +550,7 @@ public class LizzieFrame extends JFrame {
           // board
           boardY = (height - maxSize + topInset - bottomInset) / 2;
           int spaceW = width - leftInset - rightInset;
-          int spaceH = boardY - panelMargin;
+          int spaceH = boardY - panelMargin - topInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 2;
 
@@ -566,15 +569,15 @@ public class LizzieFrame extends JFrame {
           grh = boardY - gry;
           // subboard
           subBoardX = grx + grw;
-          subBoardY = capy;
           subBoardWidth = panelW / 2;
           subBoardHeight = boardY - topInset;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
+          subBoardY = capy + (boardY - topInset - subBoardLength) / 2;
           // variation tree container
-          vx = panelW;
+          vx = leftInset + panelW;
           vy = boardY + maxSize;
           vw = panelW;
-          vh = height - vy;
+          vh = height - vy - bottomInset;
         }
       }
 
@@ -583,43 +586,17 @@ public class LizzieFrame extends JFrame {
       int conty = staty;
       int contw = statw;
       int conth = stath + grh;
-      if (width < height && Lizzie.config.showLargeWinrate()) {
-        contx = grx;
-        conty = gry;
+      if (width < height) {
         contw = grw;
-        conth = grh;
-      }
-
-      // comment panel
-      int cx = 0, cy = 0, cw = 0, ch = 0;
-      if (Lizzie.config.showComment) {
-        if (width >= height) {
-          cx = vx;
-          if (Lizzie.config.showVariationGraph) {
-            vh = vh / 2;
-            cy = vy + vh;
-            ch = vh;
-          } else {
-            cy = topInset;
-            ch = vh - topInset;
-          }
+        if (Lizzie.config.showLargeWinrate()) {
+          contx = grx;
+          conty = gry;
+          conth = grh;
         } else {
-          cy = vy;
-          if (Lizzie.config.showVariationGraph) {
-            if (Lizzie.config.showLargeSubBoard()) {
-              vh = vh / 2;
-              cx = vx;
-              cy = vy + vh;
-            } else {
-              vw = vw / 2;
-              cx = vx + vw;
-            }
-          } else {
-            cx = vx;
-          }
-          ch = vh;
+          contx = capx;
+          conty = capy;
+          conth = stath + grh;
         }
-        cw = vw;
       }
 
       // variation tree
@@ -627,6 +604,30 @@ public class LizzieFrame extends JFrame {
       int treey = vy;
       int treew = vw;
       int treeh = vh;
+
+      // comment panel
+      int cx = vx, cy = vy, cw = vw, ch = vh;
+      if (Lizzie.config.showComment) {
+        if (width >= height) {
+          if (Lizzie.config.showVariationGraph) {
+            treeh = vh / 2;
+            cy = vy + treeh;
+            ch = treeh;
+          }
+        } else {
+          if (Lizzie.config.showVariationGraph) {
+            if (Lizzie.config.showLargeSubBoard()) {
+              treeh = vh / 2;
+              cy = vy + treeh;
+              ch = treeh;
+            } else {
+              treew = vw / 2;
+              cx = vx + treew;
+              cw = treew;
+            }
+          }
+        }
+      }
 
       // initialize
 
@@ -667,16 +668,16 @@ public class LizzieFrame extends JFrame {
           winrateGraph.draw(g, grx, gry, grw, grh);
         }
 
-        if (Lizzie.config.showVariationGraph) {
+        if (Lizzie.config.showVariationGraph || Lizzie.config.showComment) {
           if (backgroundG.isPresent()) {
             drawContainer(backgroundG.get(), vx, vy, vw, vh);
           }
-          variationTree.draw(g, treex, treey, treew, treeh);
-        }
-
-        if (Lizzie.config.showComment) {
-          // Draw the Comment of the Sgf
-          drawComment(g, cx, cy, cw, ch);
+          if (Lizzie.config.showVariationGraph) {
+            variationTree.draw(g, treex, treey, treew, treeh);
+          }
+          if (Lizzie.config.showComment) {
+            drawComment(g, cx, cy, cw, ch);
+          }
         }
 
         if (Lizzie.config.showSubBoard) {
