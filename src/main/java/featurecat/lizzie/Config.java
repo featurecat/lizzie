@@ -13,6 +13,7 @@ import org.json.*;
 
 public class Config {
 
+  public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public boolean showWinrate = true;
   public boolean largeWinrate = false;
@@ -138,6 +139,7 @@ public class Config {
 
     theme = new Theme(uiConfig);
 
+    showBorder = uiConfig.optBoolean("show-border", false);
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     showStatus = uiConfig.getBoolean("show-status");
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
