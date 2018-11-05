@@ -72,11 +72,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     }
   }
 
-  private void goCommentNode(int direction) {
-    if (direction > 0) {
-      redo(Lizzie.board.getHistory().getCurrentHistoryNode().getNextNodeWithCommentMoves());
+  private void goCommentNode(boolean moveForward) {
+    if (moveForward) {
+      redo(Lizzie.board.getHistory().getCurrentHistoryNode().goToNextNodeWithComment());
     } else {
-      undo(Lizzie.board.getHistory().getCurrentHistoryNode().getPreviousNodeWithCommentMoves());
+      undo(Lizzie.board.getHistory().getCurrentHistoryNode().goToPreviousNodeWithComment());
     }
   }
 
@@ -180,7 +180,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_UP:
         if (controlIsPressed(e) && e.isShiftDown()) {
-          goCommentNode(-1);
+          goCommentNode(false);
         } else if (e.isShiftDown()) {
           undoToChildOfPreviousWithVariation();
         } else if (controlIsPressed(e)) {
@@ -200,7 +200,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_DOWN:
         if (controlIsPressed(e) && e.isShiftDown()) {
-          goCommentNode(1);
+          goCommentNode(true);
         } else if (controlIsPressed(e)) {
           redo(10);
         } else {
@@ -274,7 +274,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_HOME:
-        while (Lizzie.board.previousMove()) ;
+        if (controlIsPressed(e)) {
+          Lizzie.board.clear();
+        } else {
+          while (Lizzie.board.previousMove()) ;
+        }
         break;
 
       case VK_END:
