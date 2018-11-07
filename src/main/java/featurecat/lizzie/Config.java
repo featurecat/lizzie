@@ -278,7 +278,7 @@ public class Config {
     leelaz.put(
         "engine-command",
         String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file --threads 2",
+            "%s --gtp --lagbuffer 0 --weights %%network-file",
             getBestDefaultLeelazPath()));
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);

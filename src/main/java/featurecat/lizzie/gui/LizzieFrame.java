@@ -446,6 +446,7 @@ public class LizzieFrame extends JFrame {
 
       cachedImage = new BufferedImage(getWidth(), getHeight(), TYPE_INT_ARGB);
       Graphics2D g = (Graphics2D) cachedImage.getGraphics();
+      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
       if (Lizzie.config.showStatus) drawCommandString(g);
 
@@ -520,6 +521,7 @@ public class LizzieFrame extends JFrame {
 
     // draw the image
     Graphics2D bsGraphics = (Graphics2D) bs.getDrawGraphics();
+    bsGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     bsGraphics.drawImage(cachedBackground, 0, 0, null);
     bsGraphics.drawImage(cachedImage, 0, 0, null);
 
@@ -548,6 +550,7 @@ public class LizzieFrame extends JFrame {
     redrawBackgroundAnyway = false;
 
     Graphics2D g = cachedBackground.createGraphics();
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     BufferedImage wallpaper = boardRenderer.getWallpaper();
     int drawWidth = max(wallpaper.getWidth(), getWidth());

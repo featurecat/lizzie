@@ -15,7 +15,7 @@ public class Lizzie {
   public static LizzieFrame frame;
   public static Board board;
   public static Leelaz leelaz;
-  public static String lizzieVersion = "0.5";
+  public static String lizzieVersion = "0.6";
   private static String[] mainArgs;
 
   /** Launches the game window, and runs the game. */
