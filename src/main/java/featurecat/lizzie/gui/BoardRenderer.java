@@ -433,7 +433,7 @@ public class BoardRenderer {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
     Board board = Lizzie.board;
     Optional<int[]> lastMoveOpt = branchOpt.map(b -> b.data.lastMove).orElse(board.getLastMove());
-    if (!Lizzie.config.showMoveNumber && !branchOpt.isPresent()) {
+    if (Lizzie.config.allowMoveNumber == 0 && !branchOpt.isPresent()) {
       if (lastMoveOpt.isPresent()) {
         int[] lastMove = lastMoveOpt.get();
 
@@ -485,14 +485,14 @@ public class BoardRenderer {
       for (int j = 0; j < Board.boardSize; j++) {
         int stoneX = x + scaledMargin + squareLength * i;
         int stoneY = y + scaledMargin + squareLength * j;
+        int here = Board.getIndex(i, j);
 
         // Allow to display only last move number
-        if (lastMoveNumber - moveNumberList[Board.getIndex(i, j)]
-            >= Lizzie.config.onlyLastMoveNumber) {
+        if (Lizzie.config.allowMoveNumber > -1
+            && lastMoveNumber - moveNumberList[here] >= Lizzie.config.allowMoveNumber) {
           continue;
         }
 
-        int here = Board.getIndex(i, j);
         Stone stoneHere = branchOpt.map(b -> b.data.stones[here]).orElse(board.getStones()[here]);
 
         // don't write the move number if either: the move number is 0, or there will already be

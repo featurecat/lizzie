@@ -15,6 +15,8 @@ public class Config {
 
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
+  // 0: Do not show; -1: Show all move number; other: Show last move number
+  public int allowMoveNumber = -1;
   public boolean showWinrate = true;
   public boolean largeWinrate = false;
   public boolean showBlunderBar = true;
@@ -140,7 +142,8 @@ public class Config {
     theme = new Theme(uiConfig);
 
     showMoveNumber = uiConfig.getBoolean("show-move-number");
-    onlyLastMoveNumber = uiConfig.optInt("only-last-move-number", 9999);
+    onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
+    allowMoveNumber = showMoveNumber ? (onlyLastMoveNumber > 0 ? onlyLastMoveNumber : -1) : 0;
     showStatus = uiConfig.getBoolean("show-status");
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
     showWinrate = uiConfig.getBoolean("show-winrate");
@@ -200,15 +203,11 @@ public class Config {
   }
 
   public void toggleShowMoveNumber() {
-    if (this.showMoveNumber && uiConfig.has("only-last-move-number")) {
-      if (this.onlyLastMoveNumber == 9999) {
-        this.onlyLastMoveNumber = uiConfig.optInt("only-last-move-number", 9999);
-      } else {
-        this.showMoveNumber = !this.showMoveNumber;
-        this.onlyLastMoveNumber = 9999;
-      }
+    if (this.onlyLastMoveNumber > 0) {
+      allowMoveNumber =
+          (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
     } else {
-      this.showMoveNumber = !this.showMoveNumber;
+      allowMoveNumber = (allowMoveNumber == 0 ? -1 : 0);
     }
   }
 
