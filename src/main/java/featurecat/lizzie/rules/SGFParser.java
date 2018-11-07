@@ -211,7 +211,7 @@ public class SGFParser {
                 }
                 addPassForMove = false;
               }
-              processProperties(tag, tagContent);
+              Lizzie.board.addNodeProperty(tag, tagContent);
               if (move != null) {
                 Lizzie.board.addStone(move[0], move[1], color);
               }
@@ -255,7 +255,7 @@ public class SGFParser {
                   }
                   addPassForMove = false;
                 }
-                processProperties(tag, tagContent);
+                Lizzie.board.addNodeProperty(tag, tagContent);
                 int[] move = convertSgfPosToCoord(tagContent);
                 if (move != null) {
                   Lizzie.board.removeStone(
@@ -266,7 +266,7 @@ public class SGFParser {
                 if (firstProp) {
                   addProperty(pendingProps, tag, tagContent);
                 } else {
-                  processProperties(tag, tagContent);
+                  Lizzie.board.addNodeProperty(tag, tagContent);
                 }
               }
             } else {
@@ -596,17 +596,8 @@ public class SGFParser {
     return sb.toString();
   }
 
-  private static void processProperties(String tag, String tagContent) {
-    Lizzie.board.addNodeProperty(tag, tagContent);
-    if ("MN".equals(tag)) {
-      Lizzie.board.moveNumber(Integer.parseInt(tagContent));
-    }
-  }
-
   private static void processPendingPros(Map<String, String> props) {
-    if (props.size() > 0) {
-      props.forEach((key, value) -> processProperties(key, value));
-      props = new HashMap<String, String>();
-    }
+    props.forEach((key, value) -> Lizzie.board.addNodeProperty(key, value));
+    props = new HashMap<String, String>();
   }
 }

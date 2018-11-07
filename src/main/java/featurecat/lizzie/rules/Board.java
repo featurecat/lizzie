@@ -219,6 +219,9 @@ public class Board implements LeelazListener {
   public void addNodeProperty(String key, String value) {
     synchronized (this) {
       history.getData().addProperty(key, value);
+      if ("MN".equals(key)) {
+        moveNumber(Integer.parseInt(value));
+      }
     }
   }
 
@@ -924,7 +927,7 @@ public class Board implements LeelazListener {
       if (currentNode.previous().isPresent()) {
         BoardHistoryNode pre = currentNode.previous().get();
         previousMove();
-        int idx = pre.findIndexOfNode(currentNode);
+        int idx = pre.indexOfNode(currentNode);
         pre.deleteChild(idx);
       } else {
         clear(); // Clear the board if we're at the top

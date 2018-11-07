@@ -64,7 +64,7 @@ public class BoardHistoryNode {
     // If you play a hand and immediately return it, it is most likely that you have made a mistake.
     // Ask whether to delete the previous node.
     //        if (!variations.isEmpty() && !variations.get(0).data.zobrist.equals(data.zobrist)) {
-    //            // You may just mark this hand, so it's not necessarily wrong. Answer when the
+    //            // You may just mark this hand, so its not necessarily wrong. Answer when the
     // first query is wrong or it will not ask whether the move is wrong.
     //            if (!variations.get(0).data.verify) {
     //                int ret = JOptionPane.showConfirmDialog(null, "Do you want undo?", "Undo",
@@ -92,7 +92,7 @@ public class BoardHistoryNode {
     if (!this.previous.isPresent()) {
       data.moveMNNumber = 1;
     }
-    if (Lizzie.config.newMoveNubmerInBranch && !variations.isEmpty()) {
+    if (Lizzie.config.newMoveNumberInBranch && !variations.isEmpty()) {
       if (!newBranch) {
         data.moveNumberList = new int[Board.boardSize * Board.boardSize];
         data.moveMNNumber = -1;
@@ -348,11 +348,11 @@ public class BoardHistoryNode {
   }
 
   /**
-   * Given a child node, find the index of that child node in it's parent
+   * Given a child node, find the index of that child node in its parent
    *
    * @return index of child node, -1 if child node not a child of parent
    */
-  public int findIndexOfNode(BoardHistoryNode childNode) {
+  public int indexOfNode(BoardHistoryNode childNode) {
     if (!next().isPresent()) {
       return -1;
     }
@@ -365,7 +365,7 @@ public class BoardHistoryNode {
   }
 
   /**
-   * Given a child node, find the index of that child node in it's parent
+   * Given a child node, find the index of that child node in its parent
    *
    * @return index of child node, -1 if child node not a child of parent
    */
@@ -386,7 +386,7 @@ public class BoardHistoryNode {
   }
 
   /**
-   * Given a child node, find the depth of that child node in it's parent
+   * Given a child node, find the depth of that child node in its parent
    *
    * @return depth of child node, 0 if child node not a child of parent
    */
@@ -409,11 +409,11 @@ public class BoardHistoryNode {
   }
 
   /**
-   * The move number of that node in it's branch
+   * The move number of that node in its branch
    *
    * @return move number of node, 0 if node not a child of branch
    */
-  public int moveNumberOfBranch() {
+  public int moveNumberInBranch() {
     Optional<BoardHistoryNode> top = firstParentWithVariations();
     return top.isPresent() ? top.get().moveNumberOfNode() + top.get().depthOfNode(this) : 0;
   }
@@ -424,7 +424,7 @@ public class BoardHistoryNode {
    * @return move number of node
    */
   public int moveNumberOfNode() {
-    return isMainTrunk() ? getData().moveNumber : moveNumberOfBranch();
+    return isMainTrunk() ? getData().moveNumber : moveNumberInBranch();
   }
 
   /**
