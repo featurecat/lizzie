@@ -66,6 +66,20 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     if (!Lizzie.board.undoToChildOfPreviousWithVariation()) Lizzie.board.previousMove();
   }
 
+  private void undoToFirstParentWithVariations() {
+    if (Lizzie.board.undoToChildOfPreviousWithVariation()) {
+      Lizzie.board.previousMove();
+    }
+  }
+
+  private void goCommentNode(boolean moveForward) {
+    if (moveForward) {
+      redo(Lizzie.board.getHistory().getCurrentHistoryNode().goToNextNodeWithComment());
+    } else {
+      undo(Lizzie.board.getHistory().getCurrentHistoryNode().goToPreviousNodeWithComment());
+    }
+  }
+
   private void redo() {
     redo(1);
   }
@@ -157,13 +171,17 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_LEFT:
         if (e.isShiftDown()) {
           moveBranchUp();
+        } else if (controlIsPressed(e)) {
+          undoToFirstParentWithVariations();
         } else {
           previousBranch();
         }
         break;
 
       case VK_UP:
-        if (e.isShiftDown()) {
+        if (controlIsPressed(e) && e.isShiftDown()) {
+          goCommentNode(false);
+        } else if (e.isShiftDown()) {
           undoToChildOfPreviousWithVariation();
         } else if (controlIsPressed(e)) {
           undo(10);
@@ -181,7 +199,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_DOWN:
-        if (controlIsPressed(e)) {
+        if (controlIsPressed(e) && e.isShiftDown()) {
+          goCommentNode(true);
+        } else if (controlIsPressed(e)) {
           redo(10);
         } else {
           redo();
@@ -254,7 +274,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_HOME:
-        while (Lizzie.board.previousMove()) ;
+        if (controlIsPressed(e)) {
+          Lizzie.board.clear();
+        } else {
+          while (Lizzie.board.previousMove()) ;
+        }
         break;
 
       case VK_END:

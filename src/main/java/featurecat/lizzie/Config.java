@@ -16,6 +16,9 @@ import org.json.*;
 public class Config {
 
   public boolean showMoveNumber = false;
+  public int onlyLastMoveNumber = 0;
+  // 0: Do not show; -1: Show all move number; other: Show last move number
+  public int allowMoveNumber = -1;
   public boolean newMoveNumberInBranch = true;
   public boolean showWinrate = true;
   public boolean largeWinrate = false;
@@ -148,6 +151,8 @@ public class Config {
     theme = new Theme(uiConfig);
 
     showMoveNumber = uiConfig.getBoolean("show-move-number");
+    onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
+    allowMoveNumber = showMoveNumber ? (onlyLastMoveNumber > 0 ? onlyLastMoveNumber : -1) : 0;
     newMoveNumberInBranch = uiConfig.optBoolean("new-move-number-in-branch", true);
     showStatus = uiConfig.getBoolean("show-status");
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
@@ -214,7 +219,12 @@ public class Config {
   }
 
   public void toggleShowMoveNumber() {
-    this.showMoveNumber = !this.showMoveNumber;
+    if (this.onlyLastMoveNumber > 0) {
+      allowMoveNumber =
+          (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
+    } else {
+      allowMoveNumber = (allowMoveNumber == 0 ? -1 : 0);
+    }
   }
 
   public void toggleNodeColorMode() {
@@ -348,6 +358,9 @@ public class Config {
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
+    ui.put("blunder-winrate-thresholds", "[-30,-20,-10,-5,5,10]");
+    ui.put("blunder-node-colors", "[[255,0,0],[0,255,0],[0,0,255],[255,255,0],[0,255,255],[255,0,255]]");
+    ui.put("comment-node-color", "[0,0,255,255]");
 
     config.put("ui", ui);
     return config;

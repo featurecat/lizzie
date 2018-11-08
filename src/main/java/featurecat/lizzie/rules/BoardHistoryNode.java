@@ -443,4 +443,42 @@ public class BoardHistoryNode {
     }
     return true;
   }
+
+  /**
+   * Go to the next node with the comment.
+   *
+   * @return the move count to the next node with comment, 0 otherwise
+   */
+  public int goToNextNodeWithComment() {
+    BoardHistoryNode node = this;
+    int moves = 0;
+    while (node.next().isPresent()) {
+      moves++;
+      BoardHistoryNode next = node.next().get();
+      if (!next.getData().comment.isEmpty()) {
+        break;
+      }
+      node = next;
+    }
+    return moves;
+  }
+
+  /**
+   * Go to the previous node with the comment.
+   *
+   * @return the move count to the previous node with comment, 0 otherwise
+   */
+  public int goToPreviousNodeWithComment() {
+    BoardHistoryNode node = this;
+    int moves = 0;
+    while (node.previous().isPresent()) {
+      moves++;
+      BoardHistoryNode previous = node.previous().get();
+      if (!previous.getData().comment.isEmpty()) {
+        break;
+      }
+      node = previous;
+    }
+    return moves;
+  }
 }
