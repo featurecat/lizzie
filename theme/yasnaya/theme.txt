@@ -1,0 +1,18 @@
+{
+  "background-image" : "background2.png",
+  "board-image" : "board7.jpg",
+  "black-stone-image" : "black1.png",
+  "white-stone-image" : "white1.png",
+  "shadow-size": 55,
+  "solid-stone-indicator": true,
+  "winrate-stroke-width": 2,
+  "minimum-blunder-bar-width": 3,
+  "comment-background-color": [0, 0, 0, 200],
+  "comment-font-color": [255, 255, 255, 200],
+  "comment-node-color": [0, 0, 255, 200],
+  "winrate-line-color": [0, 255, 0, 200],
+  "winrate-miss-line-color": [0, 0, 255, 200],
+  "blunder-bar-color": [255, 0, 0, 200],
+  "blunder-winrate-thresholds":[-30,-20,-10,-5,5,10],
+  "blunder-node-colors":[[255,0,0,200],[0,255,0,200],[0,0,255],[255,255,0],[0,255,255],[255,0,255]]
+}

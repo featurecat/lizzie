@@ -15,6 +15,7 @@ import org.json.*;
 
 public class Config {
 
+  public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
   // 0: Do not show; -1: Show all move number; other: Show last move number
@@ -71,7 +72,7 @@ public class Config {
   public boolean appendWinrateToComment = false;
 
   private JSONObject loadAndMergeConfig(
-      JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
+          JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
     File file = new File(fileName);
     if (!file.canRead()) {
       System.err.printf("Creating config file %s\n", fileName);
@@ -129,7 +130,7 @@ public class Config {
     // Checks for startup directory. It should exist and should be a directory.
     String engineStartLocation = getBestDefaultLeelazPath();
     if (!(Files.exists(Paths.get(engineStartLocation))
-        && Files.isDirectory(Paths.get(engineStartLocation)))) {
+            && Files.isDirectory(Paths.get(engineStartLocation)))) {
       leelaz.put("engine-start-location", ".");
       madeCorrections = true;
     }
@@ -151,6 +152,7 @@ public class Config {
 
     theme = new Theme(uiConfig);
 
+    showBorder = uiConfig.optBoolean("show-border", false);
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
     allowMoveNumber = showMoveNumber ? (onlyLastMoveNumber > 0 ? onlyLastMoveNumber : -1) : 0;
@@ -223,7 +225,7 @@ public class Config {
   public void toggleShowMoveNumber() {
     if (this.onlyLastMoveNumber > 0) {
       allowMoveNumber =
-          (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
+              (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
     } else {
       allowMoveNumber = (allowMoveNumber == 0 ? -1 : 0);
     }
@@ -316,10 +318,10 @@ public class Config {
     JSONObject leelaz = new JSONObject();
     leelaz.put("network-file", "network.gz");
     leelaz.put(
-        "engine-command",
-        String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file",
-            getBestDefaultLeelazPath()));
+            "engine-command",
+            String.format(
+                    "%s --gtp --lagbuffer 0 --weights %%network-file",
+                    getBestDefaultLeelazPath()));
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
     leelaz.put("max-game-thinking-time-seconds", 2);
@@ -364,6 +366,7 @@ public class Config {
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
+    ui.put("theme", "default");
     config.put("ui", ui);
     return config;
   }
