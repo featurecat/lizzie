@@ -287,7 +287,15 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_T:
-        Lizzie.config.toggleShowComment();
+        if (controlIsPressed(e)) {
+          Lizzie.config.toggleShowCommentNodeColor();
+        } else {
+          Lizzie.config.toggleShowComment();
+        }
+        break;
+
+      case VK_Y:
+        Lizzie.config.toggleNodeColorMode();
         break;
 
       case VK_C:
