@@ -885,7 +885,7 @@ public class LizzieFrame extends JFrame {
     int lineHeight = (int) (font.getSize() * 1.15);
 
     int boxWidth = min((int) (maxCmdWidth * 1.4), getWidth());
-    int boxHeight = min(commandsToShow.size() * lineHeight, getHeight());
+    int boxHeight = min(commandsToShow.size() * lineHeight, getHeight() - getInsets().top - getInsets().bottom);
 
     int commandsX = min(getWidth() / 2 - boxWidth / 2, getWidth());
     int top = this.getInsets().top;
