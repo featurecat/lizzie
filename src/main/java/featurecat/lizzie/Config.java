@@ -57,6 +57,7 @@ public class Config {
   public Color winrateMissLineColor = null;
   public Color blunderBarColor = null;
   public boolean solidStoneIndicator = false;
+  public boolean appendWinrateToComment = false;
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -158,6 +159,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
+    appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -280,7 +282,7 @@ public class Config {
     leelaz.put(
         "engine-command",
         String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file --threads 2",
+            "%s --gtp --lagbuffer 0 --weights %%network-file",
             getBestDefaultLeelazPath()));
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
