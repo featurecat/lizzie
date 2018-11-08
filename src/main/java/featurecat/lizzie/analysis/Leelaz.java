@@ -119,30 +119,32 @@ public class Leelaz {
       String[] names = currentWeightFile.split("[\\\\|/]");
       currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
     }
+//
+//    // Check if engine is present
+//    File startfolder = new File(config.optString("engine-start-location", "."));
+//    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
+//    System.out.println(lef.getPath());
+//    if (!lef.exists()) {
+//      JOptionPane.showMessageDialog(
+//          null,
+//          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
+//          "Lizzie - Error!",
+//          JOptionPane.ERROR_MESSAGE);
+//      throw new IOException("engine not present");
+//    }
+//
+//    // Check if network file is present
+//    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
+//    if (!wf.exists()) {
+//      JOptionPane.showMessageDialog(
+//          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+//      throw new IOException("network-file not present");
+//    }
 
-    // Check if engine is present
-    File startfolder = new File(config.optString("engine-start-location", "."));
-    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
-    if (!lef.exists()) {
-      JOptionPane.showMessageDialog(
-          null,
-          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
-          "Lizzie - Error!",
-          JOptionPane.ERROR_MESSAGE);
-      throw new IOException("engine not present");
-    }
-
-    // Check if network file is present
-    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
-    if (!wf.exists()) {
-      JOptionPane.showMessageDialog(
-          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
-      throw new IOException("network-file not present");
-    }
-
+    // todo enable
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory(startfolder);
+//    processBuilder.directory(startfolder); // todo enable
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
 

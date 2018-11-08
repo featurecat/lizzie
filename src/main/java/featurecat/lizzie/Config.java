@@ -16,6 +16,7 @@ import org.json.*;
 public class Config {
 
   public boolean showMoveNumber = false;
+  public boolean newMoveNumberInBranch = true;
   public boolean showWinrate = true;
   public boolean largeWinrate = false;
   public boolean showBlunderBar = true;
@@ -63,6 +64,7 @@ public class Config {
   public Optional<List<Double>> blunderWinrateThresholds;
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
+  public boolean appendWinrateToComment = false;
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -146,6 +148,7 @@ public class Config {
     theme = new Theme(uiConfig);
 
     showMoveNumber = uiConfig.getBoolean("show-move-number");
+    newMoveNumberInBranch = uiConfig.optBoolean("new-move-number-in-branch", true);
     showStatus = uiConfig.getBoolean("show-status");
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
     showWinrate = uiConfig.getBoolean("show-winrate");
@@ -163,6 +166,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
+    appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -298,7 +302,7 @@ public class Config {
     leelaz.put(
         "engine-command",
         String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file --threads 2",
+            "%s --gtp --lagbuffer 0 --weights %%network-file",
             getBestDefaultLeelazPath()));
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
