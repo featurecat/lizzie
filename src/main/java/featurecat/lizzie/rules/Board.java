@@ -146,7 +146,6 @@ public class Board implements LeelazListener {
   public void moveNumber(int moveNumber) {
     synchronized (this) {
       BoardData data = history.getData();
-      data.moveNumber = moveNumber;
       if (data.lastMove.isPresent()) {
         int[] moveNumberList = history.getMoveNumberList();
         moveNumberList[Board.getIndex(data.lastMove.get()[0], data.lastMove.get()[1])] = moveNumber;
@@ -205,7 +204,6 @@ public class Board implements LeelazListener {
       Stone oriColor = stones[getIndex(x, y)];
       stones[getIndex(x, y)] = Stone.EMPTY;
       zobrist.toggleStone(x, y, oriColor);
-      data.moveNumber = 0;
       data.moveNumberList[Board.getIndex(x, y)] = 0;
 
       Lizzie.frame.repaint();
@@ -221,6 +219,9 @@ public class Board implements LeelazListener {
   public void addNodeProperty(String key, String value) {
     synchronized (this) {
       history.getData().addProperty(key, value);
+      if ("MN".equals(key)) {
+        moveNumber(Integer.parseInt(value));
+      }
     }
   }
 
@@ -241,10 +242,20 @@ public class Board implements LeelazListener {
    * @param color the type of pass
    */
   public void pass(Stone color) {
+    pass(color, false, false);
+  }
+
+  /**
+   * The pass. Thread safe
+   *
+   * @param color the type of pass
+   * @param newBranch add a new branch
+   */
+  public void pass(Stone color, boolean newBranch, boolean dummy) {
     synchronized (this) {
 
       // check to see if this move is being replayed in history
-      if (history.getNext().map(n -> !n.lastMove.isPresent()).orElse(false)) {
+      if (history.getNext().map(n -> !n.lastMove.isPresent()).orElse(false) && !newBranch) {
         // this is the next move in history. Just increment history so that we don't erase the
         // redo's
         history.next();
@@ -258,7 +269,10 @@ public class Board implements LeelazListener {
       Stone[] stones = history.getStones().clone();
       Zobrist zobrist = history.getZobrist();
       int moveNumber = history.getMoveNumber() + 1;
-      int[] moveNumberList = history.getMoveNumberList().clone();
+      int[] moveNumberList =
+          newBranch && history.getNext().isPresent()
+              ? new int[Board.boardSize * Board.boardSize]
+              : history.getMoveNumberList().clone();
 
       // build the new game state
       BoardData newState =
@@ -274,6 +288,7 @@ public class Board implements LeelazListener {
               history.getData().whiteCaptures,
               0,
               0);
+      newState.dummy = dummy;
 
       // update leelaz with pass
       Lizzie.leelaz.playMove(color, "pass");
@@ -281,7 +296,7 @@ public class Board implements LeelazListener {
         Lizzie.leelaz.genmove((history.isBlacksTurn() ? "W" : "B"));
 
       // update history with pass
-      history.addOrGoto(newState);
+      history.addOrGoto(newState, newBranch);
 
       Lizzie.frame.repaint();
     }
@@ -329,7 +344,7 @@ public class Board implements LeelazListener {
 
       // check to see if this coordinate is being replayed in history
       Optional<int[]> nextLast = history.getNext().flatMap(n -> n.lastMove);
-      if (nextLast.isPresent() && nextLast.get()[0] == x && nextLast.get()[1] == y) {
+      if (nextLast.isPresent() && nextLast.get()[0] == x && nextLast.get()[1] == y && !newBranch) {
         // this is the next coordinate in history. Just increment history so that we don't erase the
         // redo's
         history.next();
@@ -349,9 +364,14 @@ public class Board implements LeelazListener {
       Zobrist zobrist = history.getZobrist();
       Optional<int[]> lastMove = Optional.of(new int[] {x, y});
       int moveNumber = history.getMoveNumber() + 1;
-      int[] moveNumberList = history.getMoveNumberList().clone();
+      int moveMNNumber =
+          history.getMoveMNNumber() > -1 && !newBranch ? history.getMoveMNNumber() + 1 : -1;
+      int[] moveNumberList =
+          newBranch && history.getNext().isPresent()
+              ? new int[Board.boardSize * Board.boardSize]
+              : history.getMoveNumberList().clone();
 
-      moveNumberList[Board.getIndex(x, y)] = moveNumber;
+      moveNumberList[Board.getIndex(x, y)] = moveMNNumber > -1 ? moveMNNumber : moveNumber;
 
       // set the stone at (x, y) to color
       stones[getIndex(x, y)] = color;
@@ -390,6 +410,7 @@ public class Board implements LeelazListener {
               wc,
               nextWinrate,
               0);
+      newState.moveMNNumber = moveMNNumber;
 
       // don't make this coordinate if it is suicidal or violates superko
       if (isSuicidal > 0 || history.violatesKoRule(newState)) return;
@@ -890,7 +911,7 @@ public class Board implements LeelazListener {
       if (currentNode.previous().isPresent()) {
         BoardHistoryNode pre = currentNode.previous().get();
         previousMove();
-        int idx = pre.findIndexOfNode(currentNode);
+        int idx = pre.indexOfNode(currentNode);
         pre.deleteChild(idx);
       } else {
         clear(); // Clear the board if we're at the top

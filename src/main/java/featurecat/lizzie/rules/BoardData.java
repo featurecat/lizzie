@@ -6,9 +6,11 @@ import java.util.Optional;
 
 public class BoardData {
   public int moveNumber;
+  public int moveMNNumber;
   public Optional<int[]> lastMove;
   public int[] moveNumberList;
   public boolean blackToPlay;
+  public boolean dummy;
 
   public Stone lastMoveColor;
   public Stone[] stones;
@@ -37,10 +39,12 @@ public class BoardData {
       int whiteCaptures,
       double winrate,
       int playouts) {
+    this.moveMNNumber = -1;
     this.moveNumber = moveNumber;
     this.lastMove = lastMove;
     this.moveNumberList = moveNumberList;
     this.blackToPlay = blackToPlay;
+    this.dummy = false;
 
     this.lastMoveColor = lastMoveColor;
     this.stones = stones;
@@ -74,6 +78,8 @@ public class BoardData {
     SGFParser.addProperty(properties, key, value);
     if ("N".equals(key) && comment.isEmpty()) {
       comment = value;
+    } else if ("MN".equals(key)) {
+      moveMNNumber = Integer.parseInt(getOrDefault("MN", "-1"));
     }
   }
 
