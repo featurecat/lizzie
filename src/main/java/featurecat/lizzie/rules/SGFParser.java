@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
+import featurecat.lizzie.util.EncodingDetector;
 import featurecat.lizzie.analysis.Leelaz;
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -29,8 +30,9 @@ public class SGFParser {
       return false;
     }
 
+    String encoding = EncodingDetector.detect(filename);
     FileInputStream fp = new FileInputStream(file);
-    InputStreamReader reader = new InputStreamReader(fp);
+    InputStreamReader reader = new InputStreamReader(fp, encoding);
     StringBuilder builder = new StringBuilder();
     while (reader.ready()) {
       builder.append((char) reader.read());
