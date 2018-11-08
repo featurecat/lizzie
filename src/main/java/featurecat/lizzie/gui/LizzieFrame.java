@@ -96,7 +96,6 @@ public class LizzieFrame extends JFrame {
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
   public int[] mouseOverCoordinate = outOfBoundCoordinate;
   public boolean showControls = false;
-  public boolean showCoordinates = false;
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
@@ -1280,10 +1279,6 @@ public class LizzieFrame extends JFrame {
       Lizzie.board.autosave();
       lastAutosaveTime = currentTime;
     }
-  }
-
-  public void toggleCoordinates() {
-    showCoordinates = !showCoordinates;
   }
 
   public void setPlayers(String whitePlayer, String blackPlayer) {

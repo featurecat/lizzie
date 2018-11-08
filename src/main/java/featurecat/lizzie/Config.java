@@ -31,6 +31,7 @@ public class Config {
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
+  public boolean showCoordinates = false;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -172,6 +173,7 @@ public class Config {
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
+    showCoordinates = uiConfig.optBoolean("show-coordinates");
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -271,6 +273,10 @@ public class Config {
     this.largeSubBoard = !this.largeSubBoard;
   }
 
+  public void toggleCoordinates() {
+    showCoordinates = !showCoordinates;
+  }
+
   public boolean showLargeSubBoard() {
     return showSubBoard && largeSubBoard;
   }
@@ -358,10 +364,6 @@ public class Config {
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
-    ui.put("blunder-winrate-thresholds", "[-30,-20,-10,-5,5,10]");
-    ui.put("blunder-node-colors", "[[255,0,0],[0,255,0],[0,0,255],[255,255,0],[0,255,255],[255,0,255]]");
-    ui.put("comment-node-color", "[0,0,255,255]");
-
     config.put("ui", ui);
     return config;
   }
