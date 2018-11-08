@@ -9,11 +9,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.json.*;
 
 public class Config {
 
   public boolean showMoveNumber = false;
+  public int onlyLastMoveNumber = 0;
+  // 0: Do not show; -1: Show all move number; other: Show last move number
+  public int allowMoveNumber = -1;
+  public boolean newMoveNumberInBranch = true;
   public boolean showWinrate = true;
   public boolean largeWinrate = false;
   public boolean showBlunderBar = true;
@@ -57,6 +63,12 @@ public class Config {
   public Color winrateMissLineColor = null;
   public Color blunderBarColor = null;
   public boolean solidStoneIndicator = false;
+  public boolean showCommentNodeColor = true;
+  public Color commentNodeColor = null;
+  public Optional<List<Double>> blunderWinrateThresholds;
+  public Optional<Map<Double, Color>> blunderNodeColors;
+  public int nodeColorMode = 0;
+  public boolean appendWinrateToComment = false;
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -140,6 +152,9 @@ public class Config {
     theme = new Theme(uiConfig);
 
     showMoveNumber = uiConfig.getBoolean("show-move-number");
+    onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
+    allowMoveNumber = showMoveNumber ? (onlyLastMoveNumber > 0 ? onlyLastMoveNumber : -1) : 0;
+    newMoveNumberInBranch = uiConfig.optBoolean("new-move-number-in-branch", true);
     showStatus = uiConfig.getBoolean("show-status");
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
     showWinrate = uiConfig.getBoolean("show-winrate");
@@ -157,6 +172,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
+    appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
@@ -172,6 +188,11 @@ public class Config {
     winrateMissLineColor = theme.winrateMissLineColor();
     blunderBarColor = theme.blunderBarColor();
     solidStoneIndicator = theme.solidStoneIndicator();
+    showCommentNodeColor = theme.showCommentNodeColor();
+    commentNodeColor = theme.commentNodeColor();
+    blunderWinrateThresholds = theme.blunderWinrateThresholds();
+    blunderNodeColors = theme.blunderNodeColors();
+    nodeColorMode = theme.nodeColorMode();
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -200,7 +221,16 @@ public class Config {
   }
 
   public void toggleShowMoveNumber() {
-    this.showMoveNumber = !this.showMoveNumber;
+    if (this.onlyLastMoveNumber > 0) {
+      allowMoveNumber =
+          (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
+    } else {
+      allowMoveNumber = (allowMoveNumber == 0 ? -1 : 0);
+    }
+  }
+
+  public void toggleNodeColorMode() {
+    this.nodeColorMode = this.nodeColorMode > 1 ? 0 : this.nodeColorMode + 1;
   }
 
   public void toggleShowBranch() {
@@ -221,6 +251,10 @@ public class Config {
 
   public void toggleShowComment() {
     this.showComment = !this.showComment;
+  }
+
+  public void toggleShowCommentNodeColor() {
+    this.showCommentNodeColor = !this.showCommentNodeColor;
   }
 
   public void toggleShowBestMoves() {
@@ -284,7 +318,7 @@ public class Config {
     leelaz.put(
         "engine-command",
         String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file --threads 2",
+            "%s --gtp --lagbuffer 0 --weights %%network-file",
             getBestDefaultLeelazPath()));
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
@@ -330,7 +364,6 @@ public class Config {
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
-
     config.put("ui", ui);
     return config;
   }

@@ -7,6 +7,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import org.json.JSONArray;
@@ -26,6 +32,7 @@ public class Theme {
   private String path = null;
   private JSONObject config = new JSONObject();
   private JSONObject uiConfig = null;
+  private Optional<List<Double>> blunderWinrateThresholds = Optional.empty();
 
   public Theme(JSONObject uiConfig) {
     this.uiConfig = uiConfig;
@@ -96,6 +103,12 @@ public class Theme {
     return config.optBoolean(key, uiConfig.optBoolean(key));
   }
 
+  /** Show the node with the comment color */
+  public boolean showCommentNodeColor() {
+    String key = "show-comment-node-color";
+    return config.optBoolean(key, uiConfig.optBoolean(key, true));
+  }
+
   /** The size of the shadow */
   public int shadowSize() {
     return getIntByKey("shadow-size", 100);
@@ -116,6 +129,11 @@ public class Theme {
     return getIntByKey("comment-font-size", 3);
   }
 
+  /** The size of the shadow */
+  public int nodeColorMode() {
+    return getIntByKey("node-color-mode", 0);
+  }
+
   /**
    * The background color of the comment panel
    *
@@ -128,6 +146,11 @@ public class Theme {
   /** The font color of the comment */
   public Color commentFontColor() {
     return getColorByKey("comment-font-color", Color.WHITE);
+  }
+
+  /** The color of the node with the comment */
+  public Color commentNodeColor() {
+    return getColorByKey("comment-node-color", Color.BLUE.brighter());
   }
 
   /** The color of the winrate line */
@@ -143,6 +166,41 @@ public class Theme {
   /** The color of the blunder bar */
   public Color blunderBarColor() {
     return getColorByKey("blunder-bar-color", new Color(255, 0, 0, 150));
+  }
+
+  /** The threshold list of the blunder winrate */
+  public Optional<List<Double>> blunderWinrateThresholds() {
+    String key = "blunder-winrate-thresholds";
+    Optional<JSONArray> array = Optional.ofNullable(config.optJSONArray(key));
+    if (!array.isPresent()) {
+      array = Optional.ofNullable(uiConfig.optJSONArray(key));
+    }
+    array.ifPresent(
+        m -> {
+          blunderWinrateThresholds = Optional.of(new ArrayList<Double>());
+          m.forEach(a -> blunderWinrateThresholds.get().add(new Double(a.toString())));
+        });
+    return blunderWinrateThresholds;
+  }
+
+  /** The color list of the blunder node */
+  public Optional<Map<Double, Color>> blunderNodeColors() {
+    Optional<Map<Double, Color>> map = Optional.of(new HashMap<Double, Color>());
+    String key = "blunder-node-colors";
+    Optional<JSONArray> array = Optional.ofNullable(config.optJSONArray(key));
+    if (!array.isPresent()) {
+      array = Optional.ofNullable(uiConfig.optJSONArray(key));
+    }
+    array.ifPresent(
+        a -> {
+          IntStream.range(0, a.length())
+              .forEach(
+                  i -> {
+                    Color color = array2Color((JSONArray) a.get(i), null);
+                    blunderWinrateThresholds.map(l -> l.get(i)).map(t -> map.get().put(t, color));
+                  });
+        });
+    return map;
   }
 
   private Color getColorByKey(String key, Color defaultColor) {
