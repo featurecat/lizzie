@@ -20,9 +20,11 @@ import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -487,7 +489,7 @@ public class BoardRenderer {
         branchOpt.map(b -> b.data.moveNumberList).orElse(board.getMoveNumberList());
 
     // Allow to display only last move number
-    int lastMoveNumber = Arrays.stream(moveNumberList).max().getAsInt();
+    int lastMoveNumber = branchOpt.map(b -> b.data.moveNumber).orElse(Arrays.stream(moveNumberList).max().getAsInt());
 
     for (int i = 0; i < Board.boardSize; i++) {
       for (int j = 0; j < Board.boardSize; j++) {
