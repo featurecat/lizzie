@@ -38,6 +38,7 @@ public class BoardRenderer {
 
   private int x, y;
   private int boardLength;
+  private int shadowRadius;
 
   private JSONObject uiConfig, uiPersist;
   private int scaledMargin, availableLength, squareLength, stoneRadius;
@@ -696,7 +697,6 @@ public class BoardRenderer {
         cachedBoardImage = Lizzie.config.theme.board();
       }
 
-      int shadowRadius = (int) (boardLength * MARGIN / 6);
       drawTextureImage(
           g,
           cachedBoardImage,
@@ -705,15 +705,16 @@ public class BoardRenderer {
           boardLength + 4 * shadowRadius,
           boardLength + 4 * shadowRadius);
 
-      g.setStroke(new BasicStroke(shadowRadius * 2));
-
-      // draw border
-      g.setColor(new Color(0, 0, 0, 50));
-      g.drawRect(
-          x - shadowRadius,
-          y - shadowRadius,
-          boardLength + 2 * shadowRadius,
-          boardLength + 2 * shadowRadius);
+      if (Lizzie.config.showBorder) {
+        g.setStroke(new BasicStroke(shadowRadius * 2));
+        // draw border
+        g.setColor(new Color(0, 0, 0, 50));
+        g.drawRect(
+            x - shadowRadius,
+            y - shadowRadius,
+            boardLength + 2 * shadowRadius,
+            boardLength + 2 * shadowRadius);
+      }
       g.setStroke(new BasicStroke(1));
 
     } else {
@@ -1107,7 +1108,10 @@ public class BoardRenderer {
    * @param boardLength the boardLength of the board
    */
   public void setBoardLength(int boardLength) {
-    this.boardLength = boardLength;
+    this.shadowRadius = Lizzie.config.showBorder ? (int) (boardLength * MARGIN / 6) : 0;
+    this.boardLength = boardLength - 4 * shadowRadius;
+    this.x = x + 2 * shadowRadius;
+    this.y = y + 2 * shadowRadius;
   }
 
   /**
