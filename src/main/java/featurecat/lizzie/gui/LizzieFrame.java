@@ -1187,6 +1187,9 @@ public class LizzieFrame extends JFrame {
     if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
       Lizzie.config.toggleLargeSubBoard();
     }
+    if (Lizzie.config.showVariationGraph) {
+      variationTree.onClicked(x, y);
+    }
     repaint();
   }
 
