@@ -2,16 +2,17 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
-import featurecat.lizzie.rules.BoardHistoryList;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.*;
 import java.awt.geom.Point2D;
+import java.util.Optional;
 
 public class WinrateGraph {
 
   private int DOT_RADIUS = 6;
   private int[] origParams = {0, 0, 0, 0};
   private int[] params = {0, 0, 0, 0, 0};
+  private int numMovesOfPlayed = 0;
 
   public void draw(Graphics2D g, int posx, int posy, int width, int height) {
     BoardHistoryNode curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
@@ -67,29 +68,40 @@ public class WinrateGraph {
 
     g.setColor(Color.white);
     int winRateGridLines = Lizzie.frame.winRateGridLines;
+    int midline = 0;
+    int midy = 0;
+    if (Lizzie.config.showBlunderBar) {
+      midline = (int) Math.ceil(winRateGridLines / 2.0);
+      midy = posy + height / 2;
+    }
     for (int i = 1; i <= winRateGridLines; i++) {
       double percent = i * 100.0 / (winRateGridLines + 1);
       int y = posy + height - (int) (height * convertWinrate(percent) / 100);
+      if (Lizzie.config.showBlunderBar && i == midline) {
+        midy = y;
+      }
       g.drawLine(posx, y, posx + width, y);
     }
 
     g.setColor(Lizzie.config.winrateLineColor);
     g.setStroke(new BasicStroke(Lizzie.config.winrateStrokeWidth));
 
-    BoardHistoryNode topOfVariation = null;
+    Optional<BoardHistoryNode> topOfVariation = Optional.empty();
     int numMoves = 0;
-    if (!BoardHistoryList.isMainTrunk(curMove)) {
+    if (!curMove.isMainTrunk()) {
       // We're in a variation, need to draw both main trunk and variation
       // Find top of variation
-      topOfVariation = BoardHistoryList.findTop(curMove);
+      BoardHistoryNode top = curMove.findTop();
+      topOfVariation = Optional.of(top);
       // Find depth of main trunk, need this for plot scaling
-      numMoves =
-          BoardHistoryList.getDepth(topOfVariation) + topOfVariation.getData().moveNumber - 1;
+      numMoves = top.getDepth() + top.getData().moveNumber - 1;
       g.setStroke(dashed);
     }
 
     // Go to end of variation and work our way backwards to the root
-    while (node.next() != null) node = node.next();
+    while (node.next().isPresent()) {
+      node = node.next().get();
+    }
     if (numMoves < node.getData().moveNumber - 1) {
       numMoves = node.getData().moveNumber - 1;
     }
@@ -103,11 +115,19 @@ public class WinrateGraph {
     boolean inFirstPath = true;
     int movenum = node.getData().moveNumber - 1;
     int lastOkMove = -1;
+    if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
+      numMoves = this.numMovesOfPlayed;
+    }
 
-    while (node.previous() != null) {
+    while (node.previous().isPresent()) {
       double wr = node.getData().winrate;
       int playouts = node.getData().playouts;
       if (node == curMove) {
+        if (Lizzie.config.dynamicWinrateGraphWidth
+            && node.getData().moveNumber - 1 > this.numMovesOfPlayed) {
+          this.numMovesOfPlayed = node.getData().moveNumber - 1;
+          numMoves = this.numMovesOfPlayed;
+        }
         Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
         double bwr = stats.maxWinrate;
         if (bwr >= 0 && stats.totalPlayouts > playouts) {
@@ -143,6 +163,30 @@ public class WinrateGraph {
         else g.setColor(Lizzie.config.winrateMissLineColor);
 
         if (lastOkMove > 0) {
+          if (Lizzie.config.showBlunderBar) {
+            Color lineColor = g.getColor();
+            g.setColor(Lizzie.config.blunderBarColor);
+            double lastMoveRate = convertWinrate(lastWr) - convertWinrate(wr);
+            int lastHeight = 0;
+            if (Lizzie.config.weightedBlunderBarHeight) {
+              // Weighted display: <= 50% will use 75% of height, >= 50% will use 25% of height
+              if (Math.abs(lastMoveRate) <= 50) {
+                lastHeight = Math.abs((int) (lastMoveRate) * height * 3 / 400);
+              } else {
+                lastHeight = height / 4 + Math.abs((int) (Math.abs(lastMoveRate)) * height / 400);
+              }
+            } else {
+              lastHeight = Math.abs((int) (lastMoveRate) * height / 200);
+            }
+            int lastWidth = Math.abs((movenum - lastOkMove) * width / numMoves);
+            int rectWidth = Math.max(lastWidth / 10, Lizzie.config.minimumBlunderBarWidth);
+            g.fillRect(
+                posx + (movenum * width / numMoves) + (lastWidth - rectWidth) / 2,
+                midy + (!node.getData().blackToPlay && lastMoveRate > 0 ? lastHeight * -1 : 0),
+                rectWidth,
+                lastHeight);
+            g.setColor(lineColor);
+          }
           g.drawLine(
               posx + (lastOkMove * width / numMoves),
               posy + height - (int) (convertWinrate(lastWr) * height / 100),
@@ -161,14 +205,16 @@ public class WinrateGraph {
         lastWr = wr;
         lastNodeOk = true;
         // Check if we were in a variation and has reached the main trunk
-        if (node == topOfVariation) {
+        if (topOfVariation.isPresent() && topOfVariation.get() == node) {
           // Reached top of variation, go to end of main trunk before continuing
-          while (node.next() != null) node = node.next();
+          while (node.next().isPresent()) {
+            node = node.next().get();
+          }
           movenum = node.getData().moveNumber - 1;
           lastWr = node.getData().winrate;
           if (!node.getData().blackToPlay) lastWr = 100 - lastWr;
           g.setStroke(new BasicStroke(3));
-          topOfVariation = null;
+          topOfVariation = Optional.empty();
           if (node.getData().playouts == 0) {
             lastNodeOk = false;
           }
@@ -179,7 +225,7 @@ public class WinrateGraph {
         lastNodeOk = false;
       }
 
-      node = node.previous();
+      node = node.previous().get();
       movenum--;
     }
 
@@ -224,5 +270,10 @@ public class WinrateGraph {
     } else {
       return -1;
     }
+  }
+
+  /** Clears winrate status from empty board. */
+  public void clear() {
+    this.numMovesOfPlayed = 0;
   }
 }

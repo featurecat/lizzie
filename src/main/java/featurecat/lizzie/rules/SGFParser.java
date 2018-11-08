@@ -1,12 +1,15 @@
 package featurecat.lizzie.rules;
 
+import static java.util.Arrays.asList;
+
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
+import featurecat.lizzie.analysis.Leelaz;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import static java.util.Arrays.asList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -81,7 +84,7 @@ public class SGFParser {
     // Save the variation step count
     Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
     // Comment of the AW/AB (Add White/Add Black) stone
-    String awabComment = null;
+    String awabComment = "";
     // Game properties
     Map<String, String> gameProperties = new HashMap<String, String>();
     boolean inTag = false,
@@ -89,7 +92,7 @@ public class SGFParser {
         escaping = false,
         moveStart = false,
         addPassForAwAb = true;
-    String tag = null;
+    String tag = "";
     StringBuilder tagBuilder = new StringBuilder();
     StringBuilder tagContentBuilder = new StringBuilder();
     // MultiGo 's branch: (Main Branch (Main Branch) (Branch) )
@@ -264,7 +267,7 @@ public class SGFParser {
     while (Lizzie.board.previousMove()) ;
 
     // Set AW/AB Comment
-    if (awabComment != null) {
+    if (!awabComment.isEmpty()) {
       Lizzie.board.comment(awabComment);
     }
     if (gameProperties.size() > 0) {
@@ -305,6 +308,11 @@ public class SGFParser {
         String.format(
             "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
             komi, playerW, playerB, date, Lizzie.lizzieVersion));
+
+    // To append the winrate to the comment of sgf we might need to update the Winrate
+    if (Lizzie.config.appendWinrateToComment) {
+      Lizzie.board.updateWinrate();
+    }
 
     // move to the first move
     history.toStart();
@@ -360,7 +368,7 @@ public class SGFParser {
     }
 
     // The AW/AB Comment
-    if (history.getData().comment != null) {
+    if (!history.getData().comment.isEmpty()) {
       builder.append(String.format("C[%s]", history.getData().comment));
     }
 
@@ -389,35 +397,93 @@ public class SGFParser {
         if (Stone.BLACK.equals(data.lastMoveColor)) stone = "B";
         else if (Stone.WHITE.equals(data.lastMoveColor)) stone = "W";
 
-        char x = data.lastMove == null ? 't' : (char) (data.lastMove[0] + 'a');
-        char y = data.lastMove == null ? 't' : (char) (data.lastMove[1] + 'a');
+        char x = data.lastMove.isPresent() ? (char) (data.lastMove.get()[0] + 'a') : 't';
+        char y = data.lastMove.isPresent() ? (char) (data.lastMove.get()[1] + 'a') : 't';
 
         builder.append(String.format(";%s[%c%c]", stone, x, y));
 
         // Node properties
         builder.append(data.propertiesString());
 
+        if (Lizzie.config.appendWinrateToComment) {
+          // Append the winrate to the comment of sgf
+          data.comment = formatComment(node);
+        }
+
         // Write the comment
-        if (data.comment != null) {
+        if (!data.comment.isEmpty()) {
           builder.append(String.format("C[%s]", data.comment));
         }
       }
 
       if (node.numberOfChildren() > 1) {
         // Variation
-        for (BoardHistoryNode sub : node.getNexts()) {
+        for (BoardHistoryNode sub : node.getVariations()) {
           builder.append("(");
           builder.append(generateNode(board, sub));
           builder.append(")");
         }
       } else if (node.numberOfChildren() == 1) {
-        builder.append(generateNode(board, node.next()));
+        builder.append(generateNode(board, node.next().orElse(null)));
       } else {
         return builder.toString();
       }
     }
 
     return builder.toString();
+  }
+
+  /**
+   * Format Comment with following format: Move <Move number> <Winrate> (<Last Move Rate
+   * Difference>) (<Weight name> / <Playouts>)
+   */
+  private static String formatComment(BoardHistoryNode node) {
+    BoardData data = node.getData();
+    String engine = Lizzie.leelaz.currentWeight();
+
+    // Playouts
+    String playouts = Lizzie.frame.getPlayoutsString(data.playouts);
+
+    // Last winrate
+    Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
+    boolean validLastWinrate = lastNode.map(d -> d.playouts > 0).orElse(false);
+    double lastWR = validLastWinrate ? lastNode.get().winrate : 50;
+
+    // Current winrate
+    boolean validWinrate = (data.playouts > 0);
+    double curWR = validWinrate ? data.winrate : 100 - lastWR;
+    String curWinrate = "";
+    if (Lizzie.config.handicapInsteadOfWinrate) {
+      curWinrate = String.format("%.2f", Leelaz.winrateToHandicap(100 - curWR));
+    } else {
+      curWinrate = String.format("%.1f%%", 100 - curWR);
+    }
+
+    // Last move difference winrate
+    String lastMoveDiff = "";
+    if (validLastWinrate && validWinrate) {
+      if (Lizzie.config.handicapInsteadOfWinrate) {
+        double currHandicapedWR = Leelaz.winrateToHandicap(100 - curWR);
+        double lastHandicapedWR = Leelaz.winrateToHandicap(lastWR);
+        lastMoveDiff = String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
+      } else {
+        lastMoveDiff = String.format("(%.1f%%)", 100 - lastWR - curWR);
+      }
+    }
+
+    String wf = "Move %d\n%s %s\n(%s / %s playouts)";
+    String nc = String.format(wf, data.moveNumber, curWinrate, lastMoveDiff, engine, playouts);
+
+    if (!data.comment.isEmpty()) {
+      String wp =
+          "Move [0-9]+\n[0-9\\.\\-]+%* \\(*[0-9\\.\\-]*%*\\)*\n\\([^\\(\\)/]* \\/ [0-9\\.]*[kmKM]* playouts\\)";
+      if (data.comment.matches("(?s).*" + wp + "(?s).*")) {
+        nc = data.comment.replaceAll(wp, nc);
+      } else {
+        nc = String.format("%s\n\n%s", nc, data.comment);
+      }
+    }
+    return nc;
   }
 
   public static boolean isListProperty(String key) {
@@ -470,7 +536,7 @@ public class SGFParser {
    */
   public static void addProperties(Map<String, String> props, String propsStr) {
     boolean inTag = false, escaping = false;
-    String tag = null;
+    String tag = "";
     StringBuilder tagBuilder = new StringBuilder();
     StringBuilder tagContentBuilder = new StringBuilder();
 
@@ -532,9 +598,7 @@ public class SGFParser {
    */
   public static String propertiesString(Map<String, String> props) {
     StringBuilder sb = new StringBuilder();
-    if (props != null) {
-      props.forEach((key, value) -> sb.append(nodeString(key, value)));
-    }
+    props.forEach((key, value) -> sb.append(nodeString(key, value)));
     return sb.toString();
   }
 
