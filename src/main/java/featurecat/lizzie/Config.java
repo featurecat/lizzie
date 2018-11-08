@@ -367,6 +367,8 @@ public class Config {
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
     ui.put("theme", "default");
+    ui.put("only-last-move-number", 1);
+    ui.put("new-move-number-in-branch", true);
     config.put("ui", ui);
     return config;
   }
