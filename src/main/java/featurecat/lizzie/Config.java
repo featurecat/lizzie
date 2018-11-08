@@ -369,6 +369,7 @@ public class Config {
     ui.put("theme", "default");
     ui.put("only-last-move-number", 1);
     ui.put("new-move-number-in-branch", true);
+    ui.put("append-winrate-to-comment", true);
     config.put("ui", ui);
     return config;
   }
