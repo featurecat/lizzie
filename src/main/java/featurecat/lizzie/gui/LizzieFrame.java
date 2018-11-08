@@ -1204,6 +1204,9 @@ public class LizzieFrame extends JFrame {
     Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
     coords.filter(c -> !isMouseOver(c[0], c[1])).ifPresent(c -> repaint());
     coords.ifPresent(c -> mouseOverCoordinate = c);
+    if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
+      repaint();
+    }
   }
 
   public boolean isMouseOver(int x, int y) {
