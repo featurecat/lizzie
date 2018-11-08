@@ -95,6 +95,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- https://code.google.com/archive/p/juniversalchardet -->
+        <dependency>
+            <groupId>com.googlecode.juniversalchardet</groupId>
+            <artifactId>juniversalchardet</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.jhlabs/filters -->
         <dependency>
             <groupId>com.jhlabs</groupId>

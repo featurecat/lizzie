@@ -172,6 +172,7 @@ public class BoardRenderer {
 
       cachedBackgroundImage = new BufferedImage(width, height, TYPE_INT_ARGB);
       Graphics2D g = cachedBackgroundImage.createGraphics();
+      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
       // Draw the wooden background
       drawWoodenBoard(g);
@@ -294,7 +295,9 @@ public class BoardRenderer {
       cachedStonesImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
       cachedStonesShadowImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
       Graphics2D g = cachedStonesImage.createGraphics();
+      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
       Graphics2D gShadow = cachedStonesShadowImage.createGraphics();
+      gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
       // we need antialiasing to make the stones pretty. Java is a bit slow at antialiasing; that's
       // why we want the cache
@@ -324,6 +327,7 @@ public class BoardRenderer {
    */
   private void drawScore(Graphics2D go) {
     Graphics2D g = cachedStonesImage.createGraphics();
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     Stone scorestones[] = Lizzie.board.scoreStones();
     int scoreRadius = stoneRadius / 4;
     for (int i = 0; i < Board.boardSize; i++) {
@@ -370,7 +374,9 @@ public class BoardRenderer {
     }
 
     Graphics2D g = (Graphics2D) branchStonesImage.getGraphics();
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
+    gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
     if (!suggestedMove.isPresent()) {
@@ -437,7 +443,7 @@ public class BoardRenderer {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
     Board board = Lizzie.board;
     Optional<int[]> lastMoveOpt = branchOpt.map(b -> b.data.lastMove).orElse(board.getLastMove());
-    if (!Lizzie.config.showMoveNumber && !branchOpt.isPresent()) {
+    if (Lizzie.config.allowMoveNumber == 0 && !branchOpt.isPresent()) {
       if (lastMoveOpt.isPresent()) {
         int[] lastMove = lastMoveOpt.get();
 
@@ -484,19 +490,19 @@ public class BoardRenderer {
 
     // Allow to display only last move number
     int lastMoveNumber = branchOpt.map(b -> b.data.moveNumber).orElse(board.getData().moveNumber);
-    int onlyLastMoveNumber = Lizzie.config.uiConfig.optInt("only-last-move-number", 9999);
 
     for (int i = 0; i < Board.boardSize; i++) {
       for (int j = 0; j < Board.boardSize; j++) {
         int stoneX = x + scaledMargin + squareLength * i;
         int stoneY = y + scaledMargin + squareLength * j;
+        int here = Board.getIndex(i, j);
 
         // Allow to display only last move number
-        if (lastMoveNumber - moveNumberList[Board.getIndex(i, j)] >= onlyLastMoveNumber) {
+        if (Lizzie.config.allowMoveNumber > -1
+            && lastMoveNumber - moveNumberList[here] >= Lizzie.config.allowMoveNumber) {
           continue;
         }
 
-        int here = Board.getIndex(i, j);
         Stone stoneHere = branchOpt.map(b -> b.data.stones[here]).orElse(board.getStones()[here]);
 
         // don't write the move number if either: the move number is 0, or there will already be
@@ -653,7 +659,7 @@ public class BoardRenderer {
                 suggestionX,
                 suggestionY + stoneRadius * 2 / 5,
                 LizzieFrame.uiFont,
-                getPlayoutsString(move.playouts),
+                Lizzie.frame.getPlayoutsString(move.playouts),
                 (float) (stoneRadius * 0.8),
                 stoneRadius * 1.4);
           }
@@ -853,6 +859,7 @@ public class BoardRenderer {
       stoneImage = new BufferedImage(size, size, TYPE_INT_ARGB);
       Image img = isBlack ? Lizzie.config.theme.blackStone() : Lizzie.config.theme.whiteStone();
       Graphics2D g2 = stoneImage.createGraphics();
+      g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
       g2.drawImage(img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
       g2.dispose();
       if (isBlack) {
@@ -1076,25 +1083,6 @@ public class BoardRenderer {
     return font.deriveFont(atts);
   }
 
-  /**
-   * @return a shorter, rounded string version of playouts. e.g. 345 -> 345, 1265 -> 1.3k, 44556 ->
-   *     45k, 133523 -> 134k, 1234567 -> 1.2m
-   */
-  private String getPlayoutsString(int playouts) {
-    if (playouts >= 1_000_000) {
-      double playoutsDouble = (double) playouts / 100_000; // 1234567 -> 12.34567
-      return round(playoutsDouble) / 10.0 + "m";
-    } else if (playouts >= 10_000) {
-      double playoutsDouble = (double) playouts / 1_000; // 13265 -> 13.265
-      return round(playoutsDouble) + "k";
-    } else if (playouts >= 1_000) {
-      double playoutsDouble = (double) playouts / 100; // 1265 -> 12.65
-      return round(playoutsDouble) / 10.0 + "k";
-    } else {
-      return String.valueOf(playouts);
-    }
-  }
-
   private int[] calculatePixelMargins() {
     return calculatePixelMargins(boardLength);
   }
@@ -1211,7 +1199,7 @@ public class BoardRenderer {
   }
 
   private boolean showCoordinates() {
-    return isMainBoard && Lizzie.frame.showCoordinates;
+    return isMainBoard && Lizzie.config.showCoordinates;
   }
 
   public void increaseMaxAlpha(int k) {
