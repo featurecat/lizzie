@@ -156,6 +156,10 @@ public class BoardHistoryList {
     return head.getData().moveNumber;
   }
 
+  public int getMoveMNNumber() {
+    return head.getData().moveMNNumber;
+  }
+
   public int[] getMoveNumberList() {
     return head.getData().moveNumberList;
   }
@@ -183,6 +187,14 @@ public class BoardHistoryList {
 
     // no position matched this position, so it's valid
     return false;
+  }
+
+  public boolean violatesKoRule(BoardData data) {
+    // check if the current position is identical to the position two moves ago
+    return this.head
+        .previous()
+        .map(p -> p != null && data.zobrist.equals(p.getData().zobrist))
+        .orElse(false);
   }
 
   /**

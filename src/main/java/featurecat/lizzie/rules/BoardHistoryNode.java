@@ -1,5 +1,6 @@
 package featurecat.lizzie.rules;
 
+import featurecat.lizzie.Lizzie;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public class BoardHistoryNode {
     // If you play a hand and immediately return it, it is most likely that you have made a mistake.
     // Ask whether to delete the previous node.
     //        if (!variations.isEmpty() && !variations.get(0).data.zobrist.equals(data.zobrist)) {
-    //            // You may just mark this hand, so it's not necessarily wrong. Answer when the
+    //            // You may just mark this hand, so its not necessarily wrong. Answer when the
     // first query is wrong or it will not ask whether the move is wrong.
     //            if (!variations.get(0).data.verify) {
     //                int ret = JOptionPane.showConfirmDialog(null, "Do you want undo?", "Undo",
@@ -87,6 +88,20 @@ public class BoardHistoryNode {
           return variations.get(i);
         }
       }
+    }
+    if (!this.previous.isPresent()) {
+      data.moveMNNumber = 1;
+    }
+    if (Lizzie.config.newMoveNumberInBranch && !variations.isEmpty()) {
+      if (!newBranch) {
+        data.moveNumberList = new int[Board.boardSize * Board.boardSize];
+        data.moveMNNumber = -1;
+      }
+      if (data.moveMNNumber == -1) {
+        data.moveMNNumber = data.dummy ? 0 : 1;
+      }
+      data.lastMove.ifPresent(
+          m -> data.moveNumberList[Board.getIndex(m[0], m[1])] = data.moveMNNumber);
     }
     BoardHistoryNode node = new BoardHistoryNode(data);
     // Add node
@@ -156,6 +171,9 @@ public class BoardHistoryNode {
         BoardHistoryNode tmp = variations.get(i - 1);
         variations.set(i - 1, child);
         variations.set(i, tmp);
+        if ((i - 1) == 0) {
+          child.swapMoveNumberList(tmp);
+        }
         return;
       }
     }
@@ -167,8 +185,48 @@ public class BoardHistoryNode {
         BoardHistoryNode tmp = variations.get(i + 1);
         variations.set(i + 1, child);
         variations.set(i, tmp);
+        if (i == 0) {
+          tmp.swapMoveNumberList(child);
+        }
         return;
       }
+    }
+  }
+
+  public void swapMoveNumberList(BoardHistoryNode child) {
+    int childStart = child.getData().moveMNNumber;
+    child.resetMoveNumberListBranch(this.getData().moveMNNumber);
+    this.resetMoveNumberListBranch(childStart);
+  }
+
+  public void resetMoveNumberListBranch(int start) {
+    this.resetMoveNumberList(start);
+    BoardHistoryNode node = this;
+    while (node.next().isPresent()) {
+      node = node.next().get();
+      start++;
+      node.resetMoveNumberList(start);
+    }
+  }
+
+  public void resetMoveNumberList(int start) {
+    BoardData data = this.getData();
+    int[] moveNumberList = data.moveNumberList;
+    data.moveMNNumber = start;
+    if (data.lastMove.isPresent() && !data.dummy) {
+      int[] move = data.lastMove.get();
+      moveNumberList[Board.getIndex(move[0], move[1])] = start;
+    }
+    Optional<BoardHistoryNode> node = this.previous();
+    int moveNumber = start;
+    while (node.isPresent()) {
+      BoardData nodeData = node.get().getData();
+      if (nodeData.lastMove.isPresent()) {
+        int[] move = nodeData.lastMove.get();
+        moveNumber = (moveNumber > 1) ? moveNumber - 1 : 0;
+        moveNumberList[Board.getIndex(move[0], move[1])] = moveNumber;
+      }
+      node = node.get().previous();
     }
   }
 
@@ -290,11 +348,11 @@ public class BoardHistoryNode {
   }
 
   /**
-   * Given a child node, find the index of that child node in it's parent
+   * Given a child node, find the index of that child node in its parent
    *
    * @return index of child node, -1 if child node not a child of parent
    */
-  public int findIndexOfNode(BoardHistoryNode childNode) {
+  public int indexOfNode(BoardHistoryNode childNode) {
     if (!next().isPresent()) {
       return -1;
     }
@@ -304,6 +362,69 @@ public class BoardHistoryNode {
       }
     }
     return -1;
+  }
+
+  /**
+   * Given a child node, find the index of that child node in its parent
+   *
+   * @return index of child node, -1 if child node not a child of parent
+   */
+  public int findIndexOfNode(BoardHistoryNode childNode, boolean allSub) {
+    if (!next().isPresent()) {
+      return -1;
+    }
+    for (int i = 0; i < numberOfChildren(); i++) {
+      Optional<BoardHistoryNode> node = getVariation(i);
+      while (node.isPresent()) {
+        if (node.map(n -> n == childNode).orElse(false)) {
+          return i;
+        }
+        node = node.get().next();
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Given a child node, find the depth of that child node in its parent
+   *
+   * @return depth of child node, 0 if child node not a child of parent
+   */
+  public int depthOfNode(BoardHistoryNode childNode) {
+    if (!next().isPresent()) {
+      return 0;
+    }
+    for (int i = 0; i < numberOfChildren(); i++) {
+      Optional<BoardHistoryNode> node = getVariation(i);
+      int move = 1;
+      while (node.isPresent()) {
+        if (node.map(n -> n == childNode).orElse(false)) {
+          return move;
+        }
+        move++;
+        node = node.get().next();
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * The move number of that node in its branch
+   *
+   * @return move number of node, 0 if node not a child of branch
+   */
+  public int moveNumberInBranch() {
+    Optional<BoardHistoryNode> top = firstParentWithVariations();
+    return top.isPresent() ? top.get().moveNumberOfNode() + top.get().depthOfNode(this) : 0;
+  }
+
+  /**
+   * The move number of that node
+   *
+   * @return move number of node
+   */
+  public int moveNumberOfNode() {
+    return isMainTrunk() ? getData().moveNumber : moveNumberInBranch();
   }
 
   /**
