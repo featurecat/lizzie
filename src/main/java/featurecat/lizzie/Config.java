@@ -348,9 +348,6 @@ public class Config {
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
-    ui.put("blunder-winrate-thresholds", "[-30,-20,-10,-5,5,10]");
-    ui.put("blunder-node-colors", "[[255,0,0],[0,255,0],[0,0,255],[255,255,0],[0,255,255],[255,0,255]]");
-    ui.put("comment-node-color", "[0,0,255,255]");
 
     config.put("ui", ui);
     return config;
