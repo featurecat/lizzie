@@ -832,7 +832,7 @@ public class Board implements LeelazListener {
    * @param targetNode history node to be located
    * @return void
    */
-  private void moveToAnyPosition(BoardHistoryNode targetNode) {
+  public void moveToAnyPosition(BoardHistoryNode targetNode) {
     List<Integer> targetParents = new ArrayList<Integer>();
     List<Integer> sourceParents = new ArrayList<Integer>();
 

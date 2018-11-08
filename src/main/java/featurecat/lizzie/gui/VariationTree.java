@@ -18,12 +18,16 @@ public class VariationTree {
 
   private ArrayList<Integer> laneUsageList;
   private BoardHistoryNode curMove;
+  private Rectangle area;
+  private Point clickPoint;
 
   public VariationTree() {
     laneUsageList = new ArrayList<Integer>();
+    area = new Rectangle(0, 0, 0, 0);
+    clickPoint = new Point(0, 0);
   }
 
-  public void drawTree(
+  public Optional<BoardHistoryNode> drawTree(
       Graphics2D g,
       int posx,
       int posy,
@@ -32,9 +36,13 @@ public class VariationTree {
       int minposx,
       BoardHistoryNode startNode,
       int variationNumber,
-      boolean isMain) {
-    if (isMain) g.setColor(Color.white);
-    else g.setColor(Color.gray.brighter());
+      boolean isMain,
+      boolean calc) {
+    Optional<BoardHistoryNode> node = Optional.empty();
+    if (!calc) {
+      if (isMain) g.setColor(Color.white);
+      else g.setColor(Color.gray.brighter());
+    }
 
     // Finds depth on leftmost variation of this tree
     int depth = startNode.getDepth() + 1;
@@ -67,7 +75,11 @@ public class VariationTree {
     int dotoffsety = diam / 2;
     int diff = (DOT_DIAM - diam) / 2;
 
-    if (lane > 0) {
+    if (calc) {
+      if (inNode(curposx + dotoffset, posy + dotoffset)) {
+        return Optional.of(startNode);
+      }
+    } else if (lane > 0) {
 
       // Draw line back to main branch
       if (lane - startLane > 0 || variationNumber > 1) {
@@ -99,40 +111,47 @@ public class VariationTree {
     }
 
     // Draw all the nodes and lines in this lane (not variations)
-    Color curcolor = g.getColor();
-    if (curposx > minposx && posy > 0) {
-      if (startNode.previous().isPresent()) {
-        if (Lizzie.config.showCommentNodeColor && !cur.getData().comment.isEmpty()) {
-          g.setColor(Lizzie.config.commentNodeColor);
-          g.fillOval(
-              curposx + (DOT_DIAM + diff - RING_DIAM) / 2,
-              posy + (DOT_DIAM + diff - RING_DIAM) / 2,
-              RING_DIAM,
-              RING_DIAM);
-        }
-        g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
-        g.fillOval(curposx + diff, posy + diff, diam, diam);
-        if (startNode == curMove) {
+    Color curcolor = null;
+    if (!calc) {
+      curcolor = g.getColor();
+      if (curposx > minposx && posy > 0) {
+        if (startNode.previous().isPresent()) {
+          if (Lizzie.config.showCommentNodeColor && !cur.getData().comment.isEmpty()) {
+            g.setColor(Lizzie.config.commentNodeColor);
+            g.fillOval(
+                curposx + (DOT_DIAM + diff - RING_DIAM) / 2,
+                posy + (DOT_DIAM + diff - RING_DIAM) / 2,
+                RING_DIAM,
+                RING_DIAM);
+          }
+          g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+          g.fillOval(curposx + diff, posy + diff, diam, diam);
+          if (startNode == curMove) {
+            g.setColor(Color.BLACK);
+            g.fillOval(
+                curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+                posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+                CENTER_DIAM,
+                CENTER_DIAM);
+          }
+        } else {
+          g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
           g.setColor(Color.BLACK);
-          g.fillOval(
-              curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
-              posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
-              CENTER_DIAM,
-              CENTER_DIAM);
+          g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
         }
-      } else {
-        g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
-        g.setColor(Color.BLACK);
-        g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
       }
+      g.setColor(curcolor);
     }
-    g.setColor(curcolor);
 
     // Draw main line
     while (cur.next().isPresent() && posy + YSPACING < maxposy) {
       posy += YSPACING;
       cur = cur.next().get();
-      if (curposx > minposx && posy > 0) {
+      if (calc) {
+        if (inNode(curposx + dotoffset, posy + dotoffset)) {
+          return Optional.of(cur);
+        }
+      } else if (curposx > minposx && posy > 0) {
         if (Lizzie.config.nodeColorMode == 1 && cur.getData().blackToPlay
             || Lizzie.config.nodeColorMode == 2 && !cur.getData().blackToPlay) {
           diam = DOT_DIAM_S;
@@ -184,16 +203,26 @@ public class VariationTree {
         // every variation that has a variation (sort of))
         Optional<BoardHistoryNode> variation = cur.getVariation(i);
         if (variation.isPresent()) {
-          drawTree(g, posx, posy, curwidth, maxposy, minposx, variation.get(), i, false);
+          Optional<BoardHistoryNode> subNode =
+              drawTree(g, posx, posy, curwidth, maxposy, minposx, variation.get(), i, false, calc);
+          if (calc && subNode.isPresent()) {
+            return subNode;
+          }
         }
       }
       posy -= YSPACING;
     }
+    return node;
   }
 
   public void draw(Graphics2D g, int posx, int posy, int width, int height) {
+    draw(g, posx, posy, width, height, false);
+  }
+
+  public Optional<BoardHistoryNode> draw(
+      Graphics2D g, int posx, int posy, int width, int height, boolean calc) {
     if (width <= 0 || height <= 0) {
-      return; // we don't have enough space
+      return Optional.empty(); // we don't have enough space
     }
 
     // Use dense tree for saving space if large-subboard
@@ -201,19 +230,22 @@ public class VariationTree {
     XSPACING = YSPACING;
 
     int strokeRadius = Lizzie.config.showBorder ? 2 : 0;
-    // Draw background
-    g.setColor(new Color(0, 0, 0, 60));
-    g.fillRect(posx, posy, width, height);
+    if (!calc) {
+      // Draw background
+      area.setBounds(posx, posy, width, height);
+      g.setColor(new Color(0, 0, 0, 60));
+      g.fillRect(posx, posy, width, height);
 
-    if (Lizzie.config.showBorder) {
-      // draw edge of panel
-      g.setStroke(new BasicStroke(2 * strokeRadius));
-      g.drawLine(
-          posx + strokeRadius,
-          posy + strokeRadius,
-          posx + strokeRadius,
-          posy - strokeRadius + height);
-      g.setStroke(new BasicStroke(1));
+      if (Lizzie.config.showBorder) {
+        // draw edge of panel
+        g.setStroke(new BasicStroke(2 * strokeRadius));
+        g.drawLine(
+            posx + strokeRadius,
+            posy + strokeRadius,
+            posx + strokeRadius,
+            posy - strokeRadius + height);
+        g.setStroke(new BasicStroke(1));
+      }
     }
 
     int middleY = posy + height / 2;
@@ -236,7 +268,7 @@ public class VariationTree {
     if (((lane + 1) * XSPACING + xoffset + DOT_DIAM + strokeRadius - width) > 0) {
       startx = startx - ((lane + 1) * XSPACING + xoffset + DOT_DIAM + strokeRadius - width);
     }
-    drawTree(g, startx, curposy, 0, posy + height, posx + strokeRadius, node, 0, true);
+    return drawTree(g, startx, curposy, 0, posy + height, posx + strokeRadius, node, 0, true, calc);
   }
 
   private void drawLine(Graphics g, int x1, int y1, int x2, int y2, int minx) {
@@ -252,6 +284,18 @@ public class VariationTree {
       nx1 = minx;
     }
     g.drawLine(nx1, ny1, nx2, ny2);
+  }
+
+  public boolean inNode(int x, int y) {
+    return Math.abs(clickPoint.x - x) < XSPACING / 2 && Math.abs(clickPoint.y - y) < YSPACING / 2;
+  }
+
+  public void onClicked(int x, int y) {
+    if (area.contains(x, y)) {
+      clickPoint.setLocation(x, y);
+      Optional<BoardHistoryNode> node = draw(null, area.x, area.y, area.width, area.height, true);
+      node.ifPresent(n -> Lizzie.board.moveToAnyPosition(n));
+    }
   }
 
   private int getCurLane(
