@@ -81,6 +81,8 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyHome"),
     resourceBundle.getString("LizzieFrame.commands.keyEnd"),
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
+    resourceBundle.getString("LizzieFrame.commands.keyDelete"),
+    resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
   };
   private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
   private static BoardRenderer boardRenderer;
@@ -876,7 +878,7 @@ public class LizzieFrame extends JFrame {
     Graphics2D g = cachedImage.createGraphics();
 
     int maxSize = min(getWidth(), getHeight());
-    int fontSize = (int) (maxSize * min(0.034, 0.86 / commandsToShow.size()));
+    int fontSize = (int) (maxSize * min(0.034, 0.80 / commandsToShow.size()));
     Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     g.setFont(font);
 
