@@ -6,14 +6,19 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -119,32 +124,31 @@ public class Leelaz {
       String[] names = currentWeightFile.split("[\\\\|/]");
       currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
     }
-//
-//    // Check if engine is present
-//    File startfolder = new File(config.optString("engine-start-location", "."));
-//    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
-//    System.out.println(lef.getPath());
-//    if (!lef.exists()) {
-//      JOptionPane.showMessageDialog(
-//          null,
-//          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
-//          "Lizzie - Error!",
-//          JOptionPane.ERROR_MESSAGE);
-//      throw new IOException("engine not present");
-//    }
-//
-//    // Check if network file is present
-//    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
-//    if (!wf.exists()) {
-//      JOptionPane.showMessageDialog(
-//          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
-//      throw new IOException("network-file not present");
-//    }
 
-    // todo enable
+    // Check if engine is present
+    File startfolder = new File(config.optString("engine-start-location", "."));
+    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
+    System.out.println(lef.getPath());
+    if (!lef.exists()) {
+      JOptionPane.showMessageDialog(
+          null,
+          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
+          "Lizzie - Error!",
+          JOptionPane.ERROR_MESSAGE);
+      throw new IOException("engine not present");
+    }
+
+    // Check if network file is present
+    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
+    if (!wf.exists()) {
+      JOptionPane.showMessageDialog(
+          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+      throw new IOException("network-file not present");
+    }
+
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
-//    processBuilder.directory(startfolder); // todo enable
+    processBuilder.directory(startfolder); // todo enable
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
 
