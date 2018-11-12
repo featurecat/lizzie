@@ -489,7 +489,10 @@ public class BoardRenderer {
         branchOpt.map(b -> b.data.moveNumberList).orElse(board.getMoveNumberList());
 
     // Allow to display only last move number
-    int lastMoveNumber = branchOpt.map(b -> b.data.moveNumber).orElse(Arrays.stream(moveNumberList).max().getAsInt());
+    int lastMoveNumber =
+        branchOpt
+            .map(b -> b.data.moveNumber)
+            .orElse(Arrays.stream(moveNumberList).max().getAsInt());
 
     for (int i = 0; i < Board.boardSize; i++) {
       for (int j = 0; j < Board.boardSize; j++) {
@@ -509,13 +512,15 @@ public class BoardRenderer {
         // playout information written
         if (moveNumberList[Board.getIndex(i, j)] > 0
             && (!branchOpt.isPresent() || !Lizzie.frame.isMouseOver(i, j))) {
-          if (lastMoveOpt.isPresent() && lastMoveOpt.get()[0] == i && lastMoveOpt.get()[1] == j)
+          boolean reverse = (moveNumberList[Board.getIndex(i, j)] > maxBranchMoves());
+          if (lastMoveOpt.isPresent() && lastMoveOpt.get()[0] == i && lastMoveOpt.get()[1] == j) {
+            if (reverse) continue;
             g.setColor(Color.RED.brighter()); // stoneHere.isBlack() ? Color.RED.brighter() :
-          // Color.BLUE.brighter());
-          else {
+            // Color.BLUE.brighter());
+          } else {
             // Draw white letters on black stones nomally.
             // But use black letters for showing black moves without stones.
-            boolean reverse = (moveNumberList[Board.getIndex(i, j)] > maxBranchMoves());
+            if (reverse) continue;
             g.setColor(stoneHere.isBlack() ^ reverse ? Color.WHITE : Color.BLACK);
           }
 
@@ -1180,6 +1185,14 @@ public class BoardRenderer {
 
   public void setDisplayedBranchLength(int n) {
     displayedBranchLength = n;
+  }
+
+  public int getDisplayedBranchLength() {
+    return displayedBranchLength;
+  }
+
+  public int getReplayBranch() {
+    return mouseOveredMove().isPresent() ? mouseOveredMove().get().variation.size() : 0;
   }
 
   public boolean incrementDisplayedBranchLength(int n) {

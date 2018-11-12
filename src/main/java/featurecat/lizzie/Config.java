@@ -32,6 +32,7 @@ public class Config {
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
+  public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
 
   public boolean showStatus = true;
@@ -72,7 +73,7 @@ public class Config {
   public boolean appendWinrateToComment = false;
 
   private JSONObject loadAndMergeConfig(
-          JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
+      JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
     File file = new File(fileName);
     if (!file.canRead()) {
       System.err.printf("Creating config file %s\n", fileName);
@@ -130,7 +131,7 @@ public class Config {
     // Checks for startup directory. It should exist and should be a directory.
     String engineStartLocation = getBestDefaultLeelazPath();
     if (!(Files.exists(Paths.get(engineStartLocation))
-            && Files.isDirectory(Paths.get(engineStartLocation)))) {
+        && Files.isDirectory(Paths.get(engineStartLocation)))) {
       leelaz.put("engine-start-location", ".");
       madeCorrections = true;
     }
@@ -176,6 +177,7 @@ public class Config {
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
+    replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -225,7 +227,7 @@ public class Config {
   public void toggleShowMoveNumber() {
     if (this.onlyLastMoveNumber > 0) {
       allowMoveNumber =
-              (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
+          (allowMoveNumber == -1 ? onlyLastMoveNumber : (allowMoveNumber == 0 ? -1 : 0));
     } else {
       allowMoveNumber = (allowMoveNumber == 0 ? -1 : 0);
     }
@@ -318,10 +320,9 @@ public class Config {
     JSONObject leelaz = new JSONObject();
     leelaz.put("network-file", "network.gz");
     leelaz.put(
-            "engine-command",
-            String.format(
-                    "%s --gtp --lagbuffer 0 --weights %%network-file",
-                    getBestDefaultLeelazPath()));
+        "engine-command",
+        String.format(
+            "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
     leelaz.put("max-game-thinking-time-seconds", 2);
@@ -370,6 +371,7 @@ public class Config {
     ui.put("only-last-move-number", 0);
     ui.put("new-move-number-in-branch", true);
     ui.put("append-winrate-to-comment", false);
+    ui.put("replay-branch-interval-seconds", 1.0);
     config.put("ui", ui);
     return config;
   }
