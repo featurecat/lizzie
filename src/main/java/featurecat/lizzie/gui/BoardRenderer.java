@@ -78,7 +78,7 @@ public class BoardRenderer {
 
   public BoardRenderer(boolean isMainBoard) {
     uiConfig = Lizzie.config.uiConfig;
-    uiPersist = Lizzie.config.persisted;
+    uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
     try {
       maxAlpha = uiPersist.getInt("max-alpha");
     } catch (JSONException e) {
