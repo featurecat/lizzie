@@ -377,6 +377,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         toggleShowDynamicKomi();
         break;
 
+      case VK_OPEN_BRACKET:
+        if (Lizzie.frame.BoardPositionProportion > 0) Lizzie.frame.BoardPositionProportion--;
+        break;
+
+      case VK_CLOSE_BRACKET:
+        if (Lizzie.frame.BoardPositionProportion < 8) Lizzie.frame.BoardPositionProportion++;
+        break;
+
         // Use Ctrl+Num to switching multiple engine
       case VK_0:
       case VK_1:

@@ -75,6 +75,7 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyW"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlW"),
     resourceBundle.getString("LizzieFrame.commands.keyG"),
+    resourceBundle.getString("LizzieFrame.commands.keyBracket"),
     resourceBundle.getString("LizzieFrame.commands.keyT"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlT"),
     resourceBundle.getString("LizzieFrame.commands.keyY"),
@@ -101,6 +102,7 @@ public class LizzieFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
+  public int BoardPositionProportion = 4;
 
   private long lastAutosaveTime = System.currentTimeMillis();
 
@@ -326,6 +328,7 @@ public class LizzieFrame extends JFrame {
   private boolean cachedShowComment = true;
   private boolean redrawBackgroundAnyway = false;
   private boolean redrawContainerAnyway = false;
+  private int cachedBoardPositionProportion = BoardPositionProportion;
 
   /**
    * Draws the game board and interface
@@ -347,6 +350,7 @@ public class LizzieFrame extends JFrame {
         || cachedShowLargeSubBoard != Lizzie.config.showLargeSubBoard()
         || cachedLargeWinrate != Lizzie.config.showLargeWinrate()
         || cachedShowComment != Lizzie.config.showComment
+        || cachedBoardPositionProportion != BoardPositionProportion
         || redrawBackgroundAnyway
         || redrawContainerAnyway) {
       backgroundG = Optional.of(createBackground());
@@ -366,7 +370,7 @@ public class LizzieFrame extends JFrame {
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
-      int boardX = (width - maxSize) / 2;
+      int boardX = (width - maxSize) / 8 * BoardPositionProportion;
       int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
 
       int panelMargin = (int) (maxSize * 0.02);
@@ -737,6 +741,7 @@ public class LizzieFrame extends JFrame {
     cachedShowLargeSubBoard = Lizzie.config.showLargeSubBoard();
     cachedLargeWinrate = Lizzie.config.showLargeWinrate();
     cachedShowComment = Lizzie.config.showComment;
+    cachedBoardPositionProportion = BoardPositionProportion;
 
     redrawBackgroundAnyway = false;
     redrawContainerAnyway = true;
@@ -887,7 +892,8 @@ public class LizzieFrame extends JFrame {
     int lineHeight = (int) (font.getSize() * 1.15);
 
     int boxWidth = min((int) (maxCmdWidth * 1.4), getWidth());
-    int boxHeight = min(commandsToShow.size() * lineHeight, getHeight() - getInsets().top - getInsets().bottom);
+    int boxHeight =
+        min(commandsToShow.size() * lineHeight, getHeight() - getInsets().top - getInsets().bottom);
 
     int commandsX = min(getWidth() / 2 - boxWidth / 2, getWidth());
     int top = this.getInsets().top;
