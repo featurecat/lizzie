@@ -327,7 +327,6 @@ public class LizzieFrame extends JFrame {
   private boolean cachedLargeWinrate = true;
   private boolean cachedShowComment = true;
   private boolean redrawBackgroundAnyway = false;
-  private boolean redrawContainerAnyway = false;
   private int cachedBoardPositionProportion = BoardPositionProportion;
 
   /**
@@ -344,15 +343,7 @@ public class LizzieFrame extends JFrame {
     Optional<Graphics2D> backgroundG;
     if (cachedBackgroundWidth != width
         || cachedBackgroundHeight != height
-        || cachedBackgroundShowControls != showControls
-        || cachedShowWinrate != Lizzie.config.showWinrate
-        || cachedShowVariationGraph != Lizzie.config.showVariationGraph
-        || cachedShowLargeSubBoard != Lizzie.config.showLargeSubBoard()
-        || cachedLargeWinrate != Lizzie.config.showLargeWinrate()
-        || cachedShowComment != Lizzie.config.showComment
-        || cachedBoardPositionProportion != BoardPositionProportion
-        || redrawBackgroundAnyway
-        || redrawContainerAnyway) {
+        || redrawBackgroundAnyway) {
       backgroundG = Optional.of(createBackground());
     } else {
       backgroundG = Optional.empty();
@@ -744,7 +735,6 @@ public class LizzieFrame extends JFrame {
     cachedBoardPositionProportion = BoardPositionProportion;
 
     redrawBackgroundAnyway = false;
-    redrawContainerAnyway = true;
 
     Graphics2D g = cachedBackground.createGraphics();
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -768,7 +758,6 @@ public class LizzieFrame extends JFrame {
       return;
     }
 
-    redrawContainerAnyway = false;
     BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
     filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
     g.drawImage(result, vx, vy, null);
