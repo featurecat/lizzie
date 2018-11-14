@@ -489,7 +489,10 @@ public class BoardRenderer {
         branchOpt.map(b -> b.data.moveNumberList).orElse(board.getMoveNumberList());
 
     // Allow to display only last move number
-    int lastMoveNumber = branchOpt.map(b -> b.data.moveNumber).orElse(Arrays.stream(moveNumberList).max().getAsInt());
+    int lastMoveNumber =
+        branchOpt
+            .map(b -> b.data.moveNumber)
+            .orElse(Arrays.stream(moveNumberList).max().getAsInt());
 
     for (int i = 0; i < Board.boardSize; i++) {
       for (int j = 0; j < Board.boardSize; j++) {
