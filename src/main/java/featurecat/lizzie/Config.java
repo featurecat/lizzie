@@ -29,6 +29,7 @@ public class Config {
   public boolean showVariationGraph = true;
   public boolean showComment = true;
   public boolean showRawBoard = false;
+  public boolean showBestMovesTemporarily = false;
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;

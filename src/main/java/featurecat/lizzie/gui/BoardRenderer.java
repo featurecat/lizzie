@@ -113,7 +113,7 @@ public class BoardRenderer {
     if (!isShowingRawBoard()) {
       drawMoveNumbers(g);
       //        timer.lap("movenumbers");
-      if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
+      if (!Lizzie.frame.isPlayingAgainstLeelaz && showBestMoves())
         drawLeelazSuggestions(g);
 
       if (Lizzie.config.showNextMoves) {
@@ -369,7 +369,7 @@ public class BoardRenderer {
     bestMoves = Lizzie.leelaz.getBestMoves();
     variationOpt = Optional.empty();
 
-    if (isMainBoard && (isShowingRawBoard() || !Lizzie.config.showBranch)) {
+    if (isMainBoard && (isShowingRawBoard() || !showBranch())) {
       return;
     }
 
@@ -429,11 +429,11 @@ public class BoardRenderer {
   private void renderImages(Graphics2D g) {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
     g.drawImage(cachedStonesShadowImage, x, y, null);
-    if (Lizzie.config.showBranch) {
+    if (showBranch()) {
       g.drawImage(branchStonesShadowImage, x, y, null);
     }
     g.drawImage(cachedStonesImage, x, y, null);
-    if (Lizzie.config.showBranch) {
+    if (showBranch()) {
       g.drawImage(branchStonesImage, x, y, null);
     }
   }
@@ -1203,6 +1203,14 @@ public class BoardRenderer {
 
   private boolean showCoordinates() {
     return isMainBoard && Lizzie.config.showCoordinates;
+  }
+
+  private boolean showBestMoves() {
+    return Lizzie.config.showBestMoves || Lizzie.config.showBestMovesTemporarily;
+  }
+
+  private boolean showBranch() {
+    return Lizzie.config.showBranch || Lizzie.config.showBestMovesTemporarily;
   }
 
   public void increaseMaxAlpha(int k) {
