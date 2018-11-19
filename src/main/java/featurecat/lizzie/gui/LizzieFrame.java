@@ -1275,6 +1275,7 @@ public class LizzieFrame extends JFrame {
             new BufferedImage(scrollPane.getWidth(), scrollPane.getHeight(), TYPE_INT_ARGB);
         Graphics2D g2 = cachedCommentImage.createGraphics();
         scrollPane.doLayout();
+        scrollPane.addNotify();
         scrollPane.validate();
         scrollPane.printAll(g2);
         g2.dispose();
