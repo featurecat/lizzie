@@ -288,6 +288,14 @@ public class Config {
     return showWinrate && largeWinrate;
   }
 
+  public boolean showBestMovesNow() {
+    return showBestMoves || showBestMovesTemporarily;
+  }
+
+  public boolean showBranchNow() {
+    return showBranch || showBestMovesTemporarily;
+  }
+
   /**
    * Scans the current directory as well as the current PATH to find a reasonable default leelaz
    * binary.
