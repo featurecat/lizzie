@@ -547,6 +547,7 @@ public class BoardRenderer {
    */
   private void drawLeelazSuggestions(Graphics2D g) {
     int minAlpha = 32;
+    float winrateHueFactor = 2.0f;
     float alphaFactor = 5.0f;
     float redHue = Color.RGBtoHSB(255, 0, 0, null)[0];
     float greenHue = Color.RGBtoHSB(0, 255, 0, null)[0];
@@ -612,6 +613,7 @@ public class BoardRenderer {
               if (flipWinrate) {
                 fraction = 1 - fraction;
               }
+              fraction = 1 / (Math.pow(1 / fraction - 1, winrateHueFactor) + 1);
             } else {
               fraction = percentPlayouts;
             }
