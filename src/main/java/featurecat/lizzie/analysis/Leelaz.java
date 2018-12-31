@@ -66,8 +66,8 @@ public class Leelaz {
   private String engineCommand;
   private List<String> commands;
   private JSONObject config;
-  private String currentWeightFile;
-  private String currentWeight;
+  private String currentWeightFile = "";
+  private String currentWeight = "";
   private boolean switching = false;
   private int currentEngineN = -1;
   private ScheduledExecutorService executor;
@@ -113,8 +113,19 @@ public class Leelaz {
       return;
     }
 
+    // Simple fixed the ssh command line
+    boolean isSsh = false;
+    Pattern sPattern = Pattern.compile("(?s).*?(SSH)(?s).*(@)(?s).*", Pattern.CASE_INSENSITIVE);
+    Matcher sMatcher = sPattern.matcher(engineCommand);
+    if (sMatcher.matches()) {
+      isSsh = true;
+    }
     // Create this as a list which gets passed into the processbuilder
-    commands = Arrays.asList(engineCommand.split(" "));
+    if (isSsh) {
+      commands = Arrays.asList(engineCommand.split(" ", 3));
+    } else {
+      commands = Arrays.asList(engineCommand.split(" "));
+    }
 
     // Get weight name
     Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
@@ -127,28 +138,34 @@ public class Leelaz {
 
     // Check if engine is present
     File startfolder = new File(config.optString("engine-start-location", "."));
-    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
-    System.out.println(lef.getPath());
-    if (!lef.exists()) {
-      JOptionPane.showMessageDialog(
-          null,
-          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
-          "Lizzie - Error!",
-          JOptionPane.ERROR_MESSAGE);
-      throw new IOException("engine not present");
+    if (!isSsh) {
+      File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
+      System.out.println(lef.getPath());
+      if (!lef.exists()) {
+        JOptionPane.showMessageDialog(
+            null,
+            resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
+            "Lizzie - Error!",
+            JOptionPane.ERROR_MESSAGE);
+        throw new IOException("engine not present");
+      }
     }
 
     // Check if network file is present
-    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
-    if (!wf.exists()) {
-      JOptionPane.showMessageDialog(
-          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
-      throw new IOException("network-file not present");
+    if (!isSsh) {
+      File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
+      if (!wf.exists()) {
+        JOptionPane.showMessageDialog(
+            null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+        throw new IOException("network-file not present");
+      }
     }
 
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory(startfolder); // todo enable
+    if (!isSsh) {
+      processBuilder.directory(startfolder);
+    }
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
 
