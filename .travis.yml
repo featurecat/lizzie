@@ -1,5 +1,5 @@
 language: java
-jdk: oraclejdk8
+jdk: openjdk8
 
 # The latest linux image on Travis is too old to build leelaz, what a shame...
 os: osx
