@@ -15,3 +15,6 @@ target
 leelaz_opencl_tuning
 lizzie.sh
 lizzie.jar
+.classpath
+.project
+.settings
