@@ -135,7 +135,7 @@ public class Leelaz {
           resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
           "Lizzie - Error!",
           JOptionPane.ERROR_MESSAGE);
-      throw new IOException("engine not present");
+      throw new IOException("Engine not present. Was trying to execute '"+lef.getPath()+"'");
     }
 
     // Check if network file is present
