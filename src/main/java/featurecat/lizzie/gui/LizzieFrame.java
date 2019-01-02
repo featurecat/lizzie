@@ -642,7 +642,7 @@ public class LizzieFrame extends JFrame {
       boardRenderer.setBoardLength(maxSize);
       boardRenderer.draw(g);
 
-      if (Lizzie.leelaz.isLoaded()) {
+      if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
         if (Lizzie.config.showStatus) {
           String statusKey = "LizzieFrame.display." + (Lizzie.leelaz.isPondering() ? "on" : "off");
           String statusText = resourceBundle.getString(statusKey);
@@ -769,7 +769,7 @@ public class LizzieFrame extends JFrame {
     FontMetrics fm = g.getFontMetrics(font);
     int stringWidth = fm.stringWidth(text);
     // Truncate too long text when display switching prompt
-    if (Lizzie.leelaz.isLoaded()) {
+    if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       int mainBoardX = boardRenderer.getLocation().x;
       if (getWidth() > getHeight() && (mainBoardX > x) && stringWidth > (mainBoardX - x)) {
         text = truncateStringByWidth(text, fm, mainBoardX - x);
