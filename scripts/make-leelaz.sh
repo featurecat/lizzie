@@ -25,8 +25,6 @@ if ! test -f "$TARGET"; then
     brew install cmake || true
   fi
 
-  exit;
-
   # Get next, on a stable commit
   git clone https://github.com/gcp/leela-zero || true
   cd leela-zero
