@@ -1,8 +1,6 @@
 language: java
 jdk: openjdk8
-
-# The latest linux image on Travis is too old to build leelaz, what a shame...
-os: osx
+dist: xenial
 
 cache:
   directories:
