@@ -5,7 +5,8 @@ Lizzie is a graphical interface allowing the user to analyze games in
 real time using [Leela Zero](https://github.com/gcp/leela-zero). You
 need Java 8 or higher to run this program.
 
-<img src="https://travis-ci.org/featurecat/lizzie.svg?branch=master">
+[![Build Status](https://travis-ci.org/featurecat/lizzie.svg?branch=master)](https://travis-ci.org/featurecat/lizzie?branch=master)
+
 
 ## Running a release
 
