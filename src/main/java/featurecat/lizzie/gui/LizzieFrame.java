@@ -1168,7 +1168,7 @@ public class LizzieFrame extends JFrame {
   }
 
   private void setPanelFont(Graphics2D g, float size) {
-    Font font = uiFont.deriveFont(Font.PLAIN, size);
+    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, (int) size);
     g.setFont(font);
   }
 
