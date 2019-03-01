@@ -85,7 +85,7 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyDelete"),
     resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
   };
-  private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
+  private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
   private static BoardRenderer boardRenderer;
   private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
