@@ -343,8 +343,8 @@ public class SGFParser {
     if (handicap != 0) generalProps.append(String.format("HA[%s]", handicap));
     generalProps.append(
         String.format(
-            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
-            komi, playerW, playerB, date, Lizzie.lizzieVersion));
+            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]SZ[%d]",
+            komi, playerW, playerB, date, Lizzie.lizzieVersion, Board.boardSize));
 
     // To append the winrate to the comment of sgf we might need to update the Winrate
     if (Lizzie.config.appendWinrateToComment) {

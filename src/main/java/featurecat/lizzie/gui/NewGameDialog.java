@@ -8,6 +8,7 @@ import featurecat.lizzie.analysis.GameInfo;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.ResourceBundle;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
@@ -40,10 +41,13 @@ public class NewGameDialog extends JDialog {
     initComponents();
   }
 
+  private static final ResourceBundle resourceBundle =
+      ResourceBundle.getBundle("l10n.DisplayStrings");
+
   private void initComponents() {
     setMinimumSize(new Dimension(100, 100));
     setResizable(false);
-    setTitle("New Game");
+    setTitle(resourceBundle.getString("NewGameDialog.title"));
     setModal(true);
 
     Container contentPane = getContentPane();
@@ -69,7 +73,8 @@ public class NewGameDialog extends JDialog {
     GridLayout gridLayout = new GridLayout(5, 2, 4, 4);
     contentPanel.setLayout(gridLayout);
 
-    checkBoxPlayerIsBlack = new JCheckBox("Play black?", true);
+    checkBoxPlayerIsBlack =
+        new JCheckBox(resourceBundle.getString("NewGameDialog.PlayBlack"), true);
     checkBoxPlayerIsBlack.addChangeListener(evt -> togglePlayerIsBlack());
     textFieldWhite = new JTextField();
     textFieldBlack = new JTextField();
@@ -79,13 +84,13 @@ public class NewGameDialog extends JDialog {
 
     contentPanel.add(checkBoxPlayerIsBlack);
     contentPanel.add(PLACEHOLDER);
-    contentPanel.add(new JLabel("Black"));
+    contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.Black")));
     contentPanel.add(textFieldBlack);
-    contentPanel.add(new JLabel("White"));
+    contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.White")));
     contentPanel.add(textFieldWhite);
-    contentPanel.add(new JLabel("Komi"));
+    contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.Komi")));
     contentPanel.add(textFieldKomi);
-    contentPanel.add(new JLabel("Handicap"));
+    contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.Handicap")));
     contentPanel.add(textFieldHandicap);
 
     textFieldKomi.setEnabled(false);

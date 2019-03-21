@@ -25,17 +25,22 @@ public class Lizzie {
     config = new Config();
     board = new Board();
     frame = new LizzieFrame();
-    leelaz = new Leelaz();
+    try {
+      leelaz = new Leelaz();
 
-    if (config.handicapInsteadOfWinrate) {
-      leelaz.estimatePassWinrate();
+      if (config.handicapInsteadOfWinrate) {
+        leelaz.estimatePassWinrate();
+      }
+      if (mainArgs.length == 1) {
+        frame.loadFile(new File(mainArgs[0]));
+      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+        board.resumePreviousGame();
+      }
+      leelaz.togglePonder();
+    } catch (IOException e) {
+      frame.openConfigDialog();
+      System.exit(1);
     }
-    if (mainArgs.length == 1) {
-      frame.loadFile(new File(mainArgs[0]));
-    } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-      board.resumePreviousGame();
-    }
-    leelaz.togglePonder();
   }
 
   public static void setLookAndFeel() {
