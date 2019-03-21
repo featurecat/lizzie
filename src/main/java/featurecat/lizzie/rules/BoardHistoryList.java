@@ -56,6 +56,10 @@ public class BoardHistoryList {
     head = head.addOrGoto(data, newBranch);
   }
 
+  public void addOrGoto(BoardData data, boolean newBranch, boolean changeMove) {
+    head = head.addOrGoto(data, newBranch, changeMove);
+  }
+
   /**
    * moves the pointer to the left, returns the data stored there
    *
@@ -227,5 +231,13 @@ public class BoardHistoryList {
    */
   public int mainTrunkLength() {
     return root().getDepth();
+  }
+
+  public BoardHistoryNode getEnd() {
+    BoardHistoryNode e = head;
+    while (e.next().isPresent()) {
+      e = e.next().get();
+    }
+    return e;
   }
 }

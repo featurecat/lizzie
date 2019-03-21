@@ -208,6 +208,11 @@ public class LizzieFrame extends JFrame {
     }
   }
 
+  public static void openChangeMoveDialog() {
+    ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
+    changeMoveDialog.setVisible(true);
+  }
+
   public static void openConfigDialog() {
     ConfigDialog configDialog = new ConfigDialog();
     configDialog.setVisible(true);
