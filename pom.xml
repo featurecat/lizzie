@@ -62,6 +62,7 @@
                 <configuration>
                     <!-- Required to get the test failure reports in stdout -->
                     <useFile>false</useFile>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
