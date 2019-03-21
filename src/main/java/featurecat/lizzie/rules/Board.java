@@ -1007,7 +1007,7 @@ public class Board implements LeelazListener {
 
   /** Clears all history and starts over from empty board. */
   public void clear() {
-    Lizzie.leelaz.sendCommand("clear_board");
+    Lizzie.leelaz.clear();
     Lizzie.frame.resetTitle();
     Lizzie.frame.clear();
     initialize();
