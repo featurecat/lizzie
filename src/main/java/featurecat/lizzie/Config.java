@@ -120,7 +120,7 @@ public class Config {
 
     // Check board-size. We support only 9x9, 13x13 or 19x19
     int boardSize = ui.optInt("board-size", 19);
-    if (boardSize != 19 && boardSize != 13 && boardSize != 9) {
+    if (boardSize < 2) {
       // Correct it to default 19x19
       ui.put("board-size", 19);
       madeCorrections = true;

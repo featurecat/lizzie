@@ -148,7 +148,7 @@ public class Leelaz {
 
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory(startfolder); // todo enable
+    processBuilder.directory(startfolder);
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
 
@@ -158,6 +158,7 @@ public class Leelaz {
     // Response handled in parseLine
     isCheckingVersion = true;
     sendCommand("version");
+    sendCommand("boardsize " + Lizzie.config.uiConfig.optInt("board-size", 19));
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();

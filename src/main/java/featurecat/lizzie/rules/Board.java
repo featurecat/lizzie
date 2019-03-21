@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
@@ -24,7 +26,7 @@ import org.json.JSONException;
 
 public class Board implements LeelazListener {
   public static int boardSize = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
-  private static final String alphabet = "ABCDEFGHJKLMNOPQRST";
+  private static final String alphabet = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
   private BoardHistoryList history;
   private Stone[] capturedStones;
@@ -77,9 +79,52 @@ public class Board implements LeelazListener {
       return Optional.empty();
     }
     // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-    int x = alphabet.indexOf(namedCoordinate.charAt(0));
-    int y = boardSize - Integer.parseInt(namedCoordinate.substring(1));
-    return Optional.of(new int[] {x, y});
+    String reg = "(\\D+)(\\d+)";
+    Pattern p = Pattern.compile(reg);
+    Matcher m = p.matcher(namedCoordinate);
+    if (m.find() && m.groupCount() == 2) {
+      int x = asDigit(m.group(1));
+      int y = boardSize - Integer.parseInt(m.group(2));
+      return Optional.of(new int[] {x, y});
+    }
+    return Optional.empty();
+  }
+
+  public static int asDigit(String name) {
+    // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
+    int base = alphabet.length();
+    char names[] = name.toCharArray();
+    int length = names.length;
+    if (length > 0) {
+      int x = 0;
+      for (int i = length - 1; i >= 0; i--) {
+        int index = alphabet.indexOf(names[i]);
+        if (index == -1) {
+          return index;
+        }
+        x += index * Math.pow(base, length - i - 1);
+      }
+      return x;
+    } else {
+      return -1;
+    }
+  }
+
+  public static String asName(int c) {
+    StringBuilder name = new StringBuilder();
+    int base = alphabet.length();
+    int n = c;
+    ArrayDeque<Integer> ad = new ArrayDeque<Integer>();
+    if (n > 0) {
+      while (n > 0) {
+        ad.addFirst(n < 25 && c >= 25 ? n % base - 1 : n % base);
+        n /= base;
+      }
+    } else {
+      ad.addFirst(n);
+    }
+    ad.forEach(i -> name.append(alphabet.charAt(i)));
+    return name.toString();
   }
 
   /**
@@ -91,7 +136,7 @@ public class Board implements LeelazListener {
    */
   public static String convertCoordinatesToName(int x, int y) {
     // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-    return alphabet.charAt(x) + "" + (boardSize - y);
+    return asName(x) + (boardSize - y);
   }
 
   /**
@@ -111,10 +156,12 @@ public class Board implements LeelazListener {
    * @param size
    */
   public void reopen(int size) {
-    size = (size == 13 || size == 9) ? size : 19;
+    size = (size >= 2) ? size : 19;
     if (size != boardSize) {
       boardSize = size;
-      initialize();
+      Zobrist.init();
+      clear();
+      Lizzie.leelaz.sendCommand("boardsize " + boardSize);
       forceRefresh = true;
     }
   }
