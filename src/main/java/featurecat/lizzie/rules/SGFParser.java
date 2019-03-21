@@ -4,8 +4,8 @@ import static java.util.Arrays.asList;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
-import featurecat.lizzie.util.EncodingDetector;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.util.EncodingDetector;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
@@ -343,8 +343,8 @@ public class SGFParser {
     if (handicap != 0) generalProps.append(String.format("HA[%s]", handicap));
     generalProps.append(
         String.format(
-            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]",
-            komi, playerW, playerB, date, Lizzie.lizzieVersion));
+            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]SZ[%d]",
+            komi, playerW, playerB, date, Lizzie.lizzieVersion, Board.boardSize));
 
     // To append the winrate to the comment of sgf we might need to update the Winrate
     if (Lizzie.config.appendWinrateToComment) {
@@ -406,7 +406,7 @@ public class SGFParser {
 
     // The AW/AB Comment
     if (!history.getData().comment.isEmpty()) {
-      builder.append(String.format("C[%s]", history.getData().comment));
+      builder.append(String.format("C[%s]", Escaping(history.getData().comment)));
     }
 
     // replay moves, and convert them to tags.
@@ -451,7 +451,7 @@ public class SGFParser {
 
         // Write the comment
         if (!data.comment.isEmpty()) {
-          builder.append(String.format("C[%s]", data.comment));
+          builder.append(String.format("C[%s]", Escaping(data.comment)));
         }
       }
 
@@ -666,5 +666,10 @@ public class SGFParser {
   private static void processPendingPros(Map<String, String> props) {
     props.forEach((key, value) -> Lizzie.board.addNodeProperty(key, value));
     props = new HashMap<String, String>();
+  }
+
+  public static String Escaping(String in) {
+    String out = in.replaceAll("\\\\", "\\\\\\\\");
+    return out.replaceAll("\\]", "\\\\]");
   }
 }

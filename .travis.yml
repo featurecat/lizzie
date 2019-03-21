@@ -1,8 +1,6 @@
 language: java
-jdk: oraclejdk8
-
-# The latest linux image on Travis is too old to build leelaz, what a shame...
 os: osx
+osx_image: xcode9.3
 
 cache:
   directories:

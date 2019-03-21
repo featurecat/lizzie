@@ -1,6 +1,7 @@
 package featurecat.lizzie;
 
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.gui.GtpConsolePane;
 import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.rules.Board;
 import java.io.File;
@@ -12,6 +13,7 @@ import org.json.JSONArray;
 /** Main class. */
 public class Lizzie {
   public static Config config;
+  public static GtpConsolePane gtpConsole;
   public static LizzieFrame frame;
   public static Board board;
   public static Leelaz leelaz;
@@ -25,17 +27,24 @@ public class Lizzie {
     config = new Config();
     board = new Board();
     frame = new LizzieFrame();
-    leelaz = new Leelaz();
+    gtpConsole = new GtpConsolePane(frame);
+    gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
+    try {
+      leelaz = new Leelaz();
 
-    if (config.handicapInsteadOfWinrate) {
-      leelaz.estimatePassWinrate();
+      if (config.handicapInsteadOfWinrate) {
+        leelaz.estimatePassWinrate();
+      }
+      if (mainArgs.length == 1) {
+        frame.loadFile(new File(mainArgs[0]));
+      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+        board.resumePreviousGame();
+      }
+      leelaz.togglePonder();
+    } catch (IOException e) {
+      frame.openConfigDialog();
+      System.exit(1);
     }
-    if (mainArgs.length == 1) {
-      frame.loadFile(new File(mainArgs[0]));
-    } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-      board.resumePreviousGame();
-    }
-    leelaz.togglePonder();
   }
 
   public static void setLookAndFeel() {

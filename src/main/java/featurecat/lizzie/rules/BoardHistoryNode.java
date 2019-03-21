@@ -52,6 +52,10 @@ public class BoardHistoryNode {
     return addOrGoto(data, false);
   }
 
+  public BoardHistoryNode addOrGoto(BoardData data, boolean newBranch) {
+    return addOrGoto(data, false, false);
+  }
+
   /**
    * If we already have a next node with the same BoardData, move to it, otherwise add it and move
    * to it.
@@ -60,7 +64,7 @@ public class BoardHistoryNode {
    * @param newBranch add a new branch
    * @return the node that was just set
    */
-  public BoardHistoryNode addOrGoto(BoardData data, boolean newBranch) {
+  public BoardHistoryNode addOrGoto(BoardData data, boolean newBranch, boolean changeMove) {
     // If you play a hand and immediately return it, it is most likely that you have made a mistake.
     // Ask whether to delete the previous node.
     //        if (!variations.isEmpty() && !variations.get(0).data.zobrist.equals(data.zobrist)) {
@@ -92,7 +96,7 @@ public class BoardHistoryNode {
     if (!this.previous.isPresent()) {
       data.moveMNNumber = 1;
     }
-    if (Lizzie.config.newMoveNumberInBranch && !variations.isEmpty()) {
+    if (Lizzie.config.newMoveNumberInBranch && !variations.isEmpty() && !changeMove) {
       if (!newBranch) {
         data.moveNumberList = new int[Board.boardSize * Board.boardSize];
         data.moveMNNumber = -1;
@@ -104,8 +108,19 @@ public class BoardHistoryNode {
           m -> data.moveNumberList[Board.getIndex(m[0], m[1])] = data.moveMNNumber);
     }
     BoardHistoryNode node = new BoardHistoryNode(data);
-    // Add node
-    variations.add(node);
+    if (changeMove) {
+      Optional<BoardHistoryNode> next = next();
+      next.ifPresent(
+          n -> {
+            node.variations = n.variations;
+            n.previous = null;
+            n.variations.stream().forEach(v -> v.previous = Optional.of(node));
+            variations.set(0, node);
+          });
+    } else {
+      // Add node
+      variations.add(node);
+    }
     node.previous = Optional.of(this);
 
     return node;

@@ -76,16 +76,19 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyCtrlW"),
     resourceBundle.getString("LizzieFrame.commands.keyG"),
     resourceBundle.getString("LizzieFrame.commands.keyR"),
+    resourceBundle.getString("LizzieFrame.commands.keyBracket"),
     resourceBundle.getString("LizzieFrame.commands.keyT"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlT"),
     resourceBundle.getString("LizzieFrame.commands.keyY"),
+    resourceBundle.getString("LizzieFrame.commands.keyZ"),
+    resourceBundle.getString("LizzieFrame.commands.keyShiftZ"),
     resourceBundle.getString("LizzieFrame.commands.keyHome"),
     resourceBundle.getString("LizzieFrame.commands.keyEnd"),
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
     resourceBundle.getString("LizzieFrame.commands.keyDelete"),
     resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
   };
-  private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
+  private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
   private static BoardRenderer boardRenderer;
   private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
@@ -102,6 +105,7 @@ public class LizzieFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
+  public int BoardPositionProportion = 4;
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
@@ -203,6 +207,26 @@ public class LizzieFrame extends JFrame {
   public void clear() {
     if (winrateGraph != null) {
       winrateGraph.clear();
+    }
+  }
+
+  public static void openConfigDialog() {
+    ConfigDialog configDialog = new ConfigDialog();
+    configDialog.setVisible(true);
+  }
+
+  public static void openChangeMoveDialog() {
+    ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
+    changeMoveDialog.setVisible(true);
+  }
+
+  public void toggleGtpConsole() {
+    Lizzie.leelaz.toggleGtpConsole();
+    if (Lizzie.gtpConsole != null) {
+      Lizzie.gtpConsole.setVisible(!Lizzie.gtpConsole.isVisible());
+    } else {
+      Lizzie.gtpConsole = new GtpConsolePane(this);
+      Lizzie.gtpConsole.setVisible(true);
     }
   }
 
@@ -327,7 +351,7 @@ public class LizzieFrame extends JFrame {
   private boolean cachedLargeWinrate = true;
   private boolean cachedShowComment = true;
   private boolean redrawBackgroundAnyway = false;
-  private boolean redrawContainerAnyway = false;
+  private int cachedBoardPositionProportion = BoardPositionProportion;
 
   /**
    * Draws the game board and interface
@@ -343,14 +367,7 @@ public class LizzieFrame extends JFrame {
     Optional<Graphics2D> backgroundG;
     if (cachedBackgroundWidth != width
         || cachedBackgroundHeight != height
-        || cachedBackgroundShowControls != showControls
-        || cachedShowWinrate != Lizzie.config.showWinrate
-        || cachedShowVariationGraph != Lizzie.config.showVariationGraph
-        || cachedShowLargeSubBoard != Lizzie.config.showLargeSubBoard()
-        || cachedLargeWinrate != Lizzie.config.showLargeWinrate()
-        || cachedShowComment != Lizzie.config.showComment
-        || redrawBackgroundAnyway
-        || redrawContainerAnyway) {
+        || redrawBackgroundAnyway) {
       backgroundG = Optional.of(createBackground());
     } else {
       backgroundG = Optional.empty();
@@ -368,7 +385,7 @@ public class LizzieFrame extends JFrame {
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
-      int boardX = (width - maxSize) / 2;
+      int boardX = (width - maxSize) / 8 * BoardPositionProportion;
       int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
 
       int panelMargin = (int) (maxSize * 0.02);
@@ -739,9 +756,9 @@ public class LizzieFrame extends JFrame {
     cachedShowLargeSubBoard = Lizzie.config.showLargeSubBoard();
     cachedLargeWinrate = Lizzie.config.showLargeWinrate();
     cachedShowComment = Lizzie.config.showComment;
+    cachedBoardPositionProportion = BoardPositionProportion;
 
     redrawBackgroundAnyway = false;
-    redrawContainerAnyway = true;
 
     Graphics2D g = cachedBackground.createGraphics();
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -765,7 +782,6 @@ public class LizzieFrame extends JFrame {
       return;
     }
 
-    redrawContainerAnyway = false;
     BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
     filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
     g.drawImage(result, vx, vy, null);
@@ -1287,7 +1303,6 @@ public class LizzieFrame extends JFrame {
             new BufferedImage(scrollPane.getWidth(), scrollPane.getHeight(), TYPE_INT_ARGB);
         Graphics2D g2 = cachedCommentImage.createGraphics();
         scrollPane.doLayout();
-        scrollPane.addNotify();
         scrollPane.validate();
         scrollPane.printAll(g2);
         g2.dispose();

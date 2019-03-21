@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.*;
@@ -24,7 +26,7 @@ import org.json.JSONException;
 
 public class Board implements LeelazListener {
   public static int boardSize = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
-  private static final String alphabet = "ABCDEFGHJKLMNOPQRST";
+  private static final String alphabet = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
   private BoardHistoryList history;
   private Stone[] capturedStones;
@@ -77,9 +79,52 @@ public class Board implements LeelazListener {
       return Optional.empty();
     }
     // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-    int x = alphabet.indexOf(namedCoordinate.charAt(0));
-    int y = boardSize - Integer.parseInt(namedCoordinate.substring(1));
-    return Optional.of(new int[] {x, y});
+    String reg = "(\\D+)(\\d+)";
+    Pattern p = Pattern.compile(reg);
+    Matcher m = p.matcher(namedCoordinate);
+    if (m.find() && m.groupCount() == 2) {
+      int x = asDigit(m.group(1));
+      int y = boardSize - Integer.parseInt(m.group(2));
+      return Optional.of(new int[] {x, y});
+    }
+    return Optional.empty();
+  }
+
+  public static int asDigit(String name) {
+    // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
+    int base = alphabet.length();
+    char names[] = name.toCharArray();
+    int length = names.length;
+    if (length > 0) {
+      int x = 0;
+      for (int i = length - 1; i >= 0; i--) {
+        int index = alphabet.indexOf(names[i]);
+        if (index == -1) {
+          return index;
+        }
+        x += index * Math.pow(base, length - i - 1);
+      }
+      return x;
+    } else {
+      return -1;
+    }
+  }
+
+  public static String asName(int c) {
+    StringBuilder name = new StringBuilder();
+    int base = alphabet.length();
+    int n = c;
+    ArrayDeque<Integer> ad = new ArrayDeque<Integer>();
+    if (n > 0) {
+      while (n > 0) {
+        ad.addFirst(n < 25 && c >= 25 ? n % base - 1 : n % base);
+        n /= base;
+      }
+    } else {
+      ad.addFirst(n);
+    }
+    ad.forEach(i -> name.append(alphabet.charAt(i)));
+    return name.toString();
   }
 
   /**
@@ -91,7 +136,7 @@ public class Board implements LeelazListener {
    */
   public static String convertCoordinatesToName(int x, int y) {
     // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-    return alphabet.charAt(x) + "" + (boardSize - y);
+    return asName(x) + (boardSize - y);
   }
 
   /**
@@ -105,16 +150,22 @@ public class Board implements LeelazListener {
     return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
   }
 
+  public static boolean isValid(int[] c) {
+    return c != null && c.length == 2 && isValid(c[0], c[1]);
+  }
+
   /**
    * Open board again when the SZ property is setup by sgf
    *
    * @param size
    */
   public void reopen(int size) {
-    size = (size == 13 || size == 9) ? size : 19;
+    size = (size >= 2) ? size : 19;
     if (size != boardSize) {
       boardSize = size;
-      initialize();
+      Zobrist.init();
+      clear();
+      Lizzie.leelaz.sendCommand("boardsize " + boardSize);
       forceRefresh = true;
     }
   }
@@ -242,7 +293,15 @@ public class Board implements LeelazListener {
    * @param color the type of pass
    */
   public void pass(Stone color) {
-    pass(color, false, false);
+    pass(color, false, false, false);
+  }
+
+  public void pass(Stone color, boolean newBranch) {
+    pass(color, newBranch, false, false);
+  }
+
+  public void pass(Stone color, boolean newBranch, boolean dummy) {
+    pass(color, newBranch, dummy, false);
   }
 
   /**
@@ -251,7 +310,7 @@ public class Board implements LeelazListener {
    * @param color the type of pass
    * @param newBranch add a new branch
    */
-  public void pass(Stone color, boolean newBranch, boolean dummy) {
+  public void pass(Stone color, boolean newBranch, boolean dummy, boolean changeMove) {
     synchronized (this) {
 
       // check to see if this move is being replayed in history
@@ -291,12 +350,12 @@ public class Board implements LeelazListener {
       newState.dummy = dummy;
 
       // update leelaz with pass
-      Lizzie.leelaz.playMove(color, "pass");
+      if (!Lizzie.leelaz.isInputCommand) Lizzie.leelaz.playMove(color, "pass");
       if (Lizzie.frame.isPlayingAgainstLeelaz)
         Lizzie.leelaz.genmove((history.isBlacksTurn() ? "W" : "B"));
 
       // update history with pass
-      history.addOrGoto(newState, newBranch);
+      history.addOrGoto(newState, newBranch, changeMove);
 
       Lizzie.frame.repaint();
     }
@@ -318,6 +377,10 @@ public class Board implements LeelazListener {
     place(x, y, color, false);
   }
 
+  public void place(int x, int y, Stone color, boolean newBranch) {
+    place(x, y, color, false, false);
+  }
+
   /**
    * Places a stone onto the board representation. Thread safe
    *
@@ -326,7 +389,7 @@ public class Board implements LeelazListener {
    * @param color the type of stone to place
    * @param newBranch add a new branch
    */
-  public void place(int x, int y, Stone color, boolean newBranch) {
+  public void place(int x, int y, Stone color, boolean newBranch, boolean changeMove) {
     synchronized (this) {
       if (scoreMode) {
         // Mark clicked stone as dead
@@ -344,7 +407,11 @@ public class Board implements LeelazListener {
 
       // check to see if this coordinate is being replayed in history
       Optional<int[]> nextLast = history.getNext().flatMap(n -> n.lastMove);
-      if (nextLast.isPresent() && nextLast.get()[0] == x && nextLast.get()[1] == y && !newBranch) {
+      if (nextLast.isPresent()
+          && nextLast.get()[0] == x
+          && nextLast.get()[1] == y
+          && !newBranch
+          && !changeMove) {
         // this is the next coordinate in history. Just increment history so that we don't erase the
         // redo's
         history.next();
@@ -420,12 +487,12 @@ public class Board implements LeelazListener {
           && Lizzie.frame.playerIsBlack == getData().blackToPlay) {
         Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
         Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "W" : "B"));
-      } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
+      } else if (!Lizzie.frame.isPlayingAgainstLeelaz && !Lizzie.leelaz.isInputCommand) {
         Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
       }
 
       // update history with this coordinate
-      history.addOrGoto(newState, newBranch);
+      history.addOrGoto(newState, newBranch, changeMove);
 
       Lizzie.frame.repaint();
     }
@@ -1292,5 +1359,97 @@ public class Board implements LeelazListener {
       history.getData().winrate = stats.maxWinrate;
       history.getData().playouts = stats.totalPlayouts;
     }
+  }
+
+  public boolean changeMove(int moveNumber, String changeMove) {
+    Optional<int[]> changeCoord = asCoordinates(changeMove);
+    if ("pass".equalsIgnoreCase(changeMove)) {
+      changeMove(moveNumber, (int[]) null);
+      return true;
+    } else if ("swap".equalsIgnoreCase(changeMove)) {
+      changeMove(moveNumber, null, true);
+      return true;
+    } else if (changeCoord.isPresent()
+        && Board.isValid(changeCoord.get()[0], changeCoord.get()[1])) {
+      changeCoord.map(c -> changeMove(moveNumber, c, false));
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public boolean changeMove(int moveNumber, int[] coords) {
+    return changeMove(moveNumber, coords, false);
+  }
+
+  public boolean changeMove(int moveNumber, int[] coords, boolean swapColorOnly) {
+    if (moveNumber <= 0) {
+      return false;
+    }
+
+    int endMoveNumber = history.getEnd().moveNumberOfNode();
+    if (moveNumber > endMoveNumber) {
+      return false;
+    }
+
+    int currentMoveNumber = history.getMoveNumber();
+
+    goToMoveNumber(moveNumber - 1);
+
+    Optional<BoardHistoryNode> changeNode = history.getCurrentHistoryNode().next();
+    Optional<BoardHistoryNode> relink = changeNode.flatMap(n -> n.next());
+
+    // Change Move
+    if (swapColorOnly) {
+      if (changeNode.isPresent()) {
+        Optional<int[]> c = changeNode.get().getData().lastMove;
+        if (c.isPresent() && isValid(c.get())) {
+          changeNode
+              .map(n -> n.getData())
+              .map(d -> d.lastMoveColor)
+              .ifPresent(s -> place(c.get()[0], c.get()[1], s.opposite(), false, true));
+        } else {
+          pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE, false, false, true);
+        }
+      }
+    } else {
+      if (coords != null && Board.isValid(coords[0], coords[1])) {
+        place(
+            coords[0], coords[1], history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE, false, true);
+      } else {
+        pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE, false, false, true);
+      }
+    }
+
+    Optional<BoardHistoryNode> node = relink;
+    while (node.isPresent()) {
+      Optional<int[]> lastMove = node.get().getData().lastMove;
+      if (lastMove.isPresent()) {
+        int[] m = lastMove.get();
+        if (Board.isValid(m[0], m[1])) {
+          place(
+              m[0],
+              m[1],
+              swapColorOnly
+                  ? node.get().getData().lastMoveColor
+                  : history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE,
+              false,
+              true);
+        } else {
+          pass(
+              swapColorOnly
+                  ? node.get().getData().lastMoveColor
+                  : history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE,
+              false,
+              false,
+              true);
+        }
+        node = node.get().next();
+      }
+    }
+
+    goToMoveNumber(currentMoveNumber);
+
+    return true;
   }
 }
