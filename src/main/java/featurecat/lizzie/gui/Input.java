@@ -111,9 +111,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     Lizzie.config.showRawBoard = true;
   }
 
-  private void stopTemporaryBoard() {
+  private void stopRawBoard() {
     Lizzie.frame.stopRawBoard();
     Lizzie.config.showRawBoard = false;
+  }
+
+  private void stopTemporaryBoard() {
+    stopRawBoard();
     Lizzie.config.showBestMovesTemporarily = false;
   }
 
