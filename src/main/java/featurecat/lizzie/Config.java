@@ -33,6 +33,7 @@ public class Config {
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
+  public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
 
   public boolean showStatus = true;
@@ -182,6 +183,7 @@ public class Config {
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
+    replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -385,6 +387,7 @@ public class Config {
     ui.put("only-last-move-number", 0);
     ui.put("new-move-number-in-branch", true);
     ui.put("append-winrate-to-comment", false);
+    ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
     config.put("ui", ui);
     return config;

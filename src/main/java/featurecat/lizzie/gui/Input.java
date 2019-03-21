@@ -401,6 +401,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         toggleShowDynamicKomi();
         break;
 
+      case VK_R:
+        Lizzie.frame.replayBranch();
+        break;
+
       case VK_OPEN_BRACKET:
         if (Lizzie.frame.BoardPositionProportion > 0) Lizzie.frame.BoardPositionProportion--;
         break;
