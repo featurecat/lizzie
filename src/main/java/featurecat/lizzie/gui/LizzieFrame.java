@@ -79,6 +79,8 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyT"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlT"),
     resourceBundle.getString("LizzieFrame.commands.keyY"),
+    resourceBundle.getString("LizzieFrame.commands.keyZ"),
+    resourceBundle.getString("LizzieFrame.commands.keyShiftZ"),
     resourceBundle.getString("LizzieFrame.commands.keyHome"),
     resourceBundle.getString("LizzieFrame.commands.keyEnd"),
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
@@ -204,6 +206,16 @@ public class LizzieFrame extends JFrame {
     if (winrateGraph != null) {
       winrateGraph.clear();
     }
+  }
+
+  public static void openConfigDialog() {
+    ConfigDialog configDialog = new ConfigDialog();
+    configDialog.setVisible(true);
+  }
+
+  public static void openChangeMoveDialog() {
+    ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
+    changeMoveDialog.setVisible(true);
   }
 
   public void toggleGtpConsole() {

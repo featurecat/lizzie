@@ -56,6 +56,10 @@ public class BoardHistoryList {
     head = head.addOrGoto(data, newBranch);
   }
 
+  public void addOrGoto(BoardData data, boolean newBranch, boolean changeMove) {
+    head = head.addOrGoto(data, newBranch, changeMove);
+  }
+
   /**
    * moves the pointer to the left, returns the data stored there
    *
@@ -123,6 +127,7 @@ public class BoardHistoryList {
   }
 
   public void setStone(int[] coordinates, Stone stone) {
+    if (!Board.isValid(coordinates[0], coordinates[1])) return;
     int index = Board.getIndex(coordinates[0], coordinates[1]);
     head.getData().stones[index] = stone;
     head.getData().zobrist.toggleStone(coordinates[0], coordinates[1], stone);
@@ -226,5 +231,13 @@ public class BoardHistoryList {
    */
   public int mainTrunkLength() {
     return root().getDepth();
+  }
+
+  public BoardHistoryNode getEnd() {
+    BoardHistoryNode e = head;
+    while (e.next().isPresent()) {
+      e = e.next().get();
+    }
+    return e;
   }
 }

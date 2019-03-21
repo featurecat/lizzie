@@ -29,6 +29,7 @@ public class Config {
   public boolean showVariationGraph = true;
   public boolean showComment = true;
   public boolean showRawBoard = false;
+  public boolean showBestMovesTemporarily = false;
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
@@ -123,7 +124,7 @@ public class Config {
 
     // Check board-size. We support only 9x9, 13x13 or 19x19
     int boardSize = ui.optInt("board-size", 19);
-    if (boardSize != 19 && boardSize != 13 && boardSize != 9) {
+    if (boardSize < 2) {
       // Correct it to default 19x19
       ui.put("board-size", 19);
       madeCorrections = true;
@@ -294,6 +295,14 @@ public class Config {
     return showWinrate && largeWinrate;
   }
 
+  public boolean showBestMovesNow() {
+    return showBestMoves || showBestMovesTemporarily;
+  }
+
+  public boolean showBranchNow() {
+    return showBranch || showBestMovesTemporarily;
+  }
+
   /**
    * Scans the current directory as well as the current PATH to find a reasonable default leelaz
    * binary.
@@ -421,5 +430,9 @@ public class Config {
 
   public void persist() throws IOException {
     writeConfig(this.persisted, new File(persistFilename));
+  }
+
+  public void save() throws IOException {
+    writeConfig(this.config, new File(configFilename));
   }
 }

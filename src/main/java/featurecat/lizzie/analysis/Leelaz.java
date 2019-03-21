@@ -4,14 +4,13 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Stone;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -117,11 +116,10 @@ public class Leelaz {
       return;
     }
 
-    // Create this as a list which gets passed into the processbuilder
-    commands = Arrays.asList(engineCommand.split(" "));
+    commands = splitCommand(engineCommand);
 
     // Get weight name
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^ ]+)(?s).*");
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^'\" ]+)(?s).*");
     Matcher wMatcher = wPattern.matcher(engineCommand);
     if (wMatcher.matches() && wMatcher.groupCount() == 2) {
       currentWeightFile = wMatcher.group(2);
@@ -130,29 +128,31 @@ public class Leelaz {
     }
 
     // Check if engine is present
-    File startfolder = new File(config.optString("engine-start-location", "."));
-    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
-    System.out.println(lef.getPath());
-    if (!lef.exists()) {
-      JOptionPane.showMessageDialog(
-          null,
-          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
-          "Lizzie - Error!",
-          JOptionPane.ERROR_MESSAGE);
-      throw new IOException("engine not present");
-    }
+    // Comment for remote ssh
+    //    File startfolder = new File(config.optString("engine-start-location", "."));
+    //    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
+    //    System.out.println(lef.getPath());
+    //    if (!lef.exists()) {
+    //      JOptionPane.showMessageDialog(
+    //          null,
+    //          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
+    //          "Lizzie - Error!",
+    //          JOptionPane.ERROR_MESSAGE);
+    //      throw new IOException("engine not present");
+    //    }
 
     // Check if network file is present
-    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
-    if (!wf.exists()) {
-      JOptionPane.showMessageDialog(
-          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
-      throw new IOException("network-file not present");
-    }
+    //    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
+    //    if (!wf.exists()) {
+    //      JOptionPane.showMessageDialog(
+    //          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
+    //      throw new IOException("network-file not present");
+    //    }
 
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory(startfolder); // todo enable
+    // Comment for remote ssh
+    //    processBuilder.directory(startfolder);
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
 
@@ -162,6 +162,7 @@ public class Leelaz {
     // Response handled in parseLine
     isCheckingVersion = true;
     sendCommand("version");
+    sendCommand("boardsize " + Lizzie.config.uiConfig.optInt("board-size", 19));
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -651,6 +652,65 @@ public class Leelaz {
     for (LeelazListener listener : listeners) {
       listener.bestMoveNotification(bestMoves);
     }
+  }
+
+  private static enum ParamState {
+    NORMAL,
+    QUOTE,
+    DOUBLE_QUOTE
+  }
+
+  public List<String> splitCommand(String commandLine) {
+    if (commandLine == null || commandLine.length() == 0) {
+      return new ArrayList<String>();
+    }
+
+    final ArrayList<String> commandList = new ArrayList<String>();
+    final StringBuilder param = new StringBuilder();
+    final StringTokenizer tokens = new StringTokenizer(commandLine, " '\"", true);
+    boolean lastTokenQuoted = false;
+    ParamState state = ParamState.NORMAL;
+
+    while (tokens.hasMoreTokens()) {
+      String nextToken = tokens.nextToken();
+      switch (state) {
+        case QUOTE:
+          if ("'".equals(nextToken)) {
+            state = ParamState.NORMAL;
+            lastTokenQuoted = true;
+          } else {
+            param.append(nextToken);
+          }
+          break;
+        case DOUBLE_QUOTE:
+          if ("\"".equals(nextToken)) {
+            state = ParamState.NORMAL;
+            lastTokenQuoted = true;
+          } else {
+            param.append(nextToken);
+          }
+          break;
+        default:
+          if ("'".equals(nextToken)) {
+            state = ParamState.QUOTE;
+          } else if ("\"".equals(nextToken)) {
+            state = ParamState.DOUBLE_QUOTE;
+          } else if (" ".equals(nextToken)) {
+            if (lastTokenQuoted || param.length() != 0) {
+              commandList.add(param.toString());
+              param.delete(0, param.length());
+            }
+          } else {
+            param.append(nextToken);
+          }
+          lastTokenQuoted = false;
+          break;
+      }
+    }
+    if (lastTokenQuoted || param.length() != 0) {
+      commandList.add(param.toString());
+    }
+    return commandList;
   }
 
   public boolean isLoaded() {
