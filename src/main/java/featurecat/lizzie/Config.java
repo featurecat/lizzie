@@ -29,6 +29,7 @@ public class Config {
   public boolean showVariationGraph = true;
   public boolean showComment = true;
   public boolean showRawBoard = false;
+  public boolean showBestMovesTemporarily = false;
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
@@ -285,6 +286,14 @@ public class Config {
 
   public boolean showLargeWinrate() {
     return showWinrate && largeWinrate;
+  }
+
+  public boolean showBestMovesNow() {
+    return showBestMoves || showBestMovesTemporarily;
+  }
+
+  public boolean showBranchNow() {
+    return showBranch || showBestMovesTemporarily;
   }
 
   /**

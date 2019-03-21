@@ -113,7 +113,7 @@ public class BoardRenderer {
     if (!isShowingRawBoard()) {
       drawMoveNumbers(g);
       //        timer.lap("movenumbers");
-      if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMoves)
+      if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMovesNow())
         drawLeelazSuggestions(g);
 
       if (Lizzie.config.showNextMoves) {
@@ -369,7 +369,7 @@ public class BoardRenderer {
     bestMoves = Lizzie.leelaz.getBestMoves();
     variationOpt = Optional.empty();
 
-    if (isMainBoard && (isShowingRawBoard() || !Lizzie.config.showBranch)) {
+    if (isMainBoard && (isShowingRawBoard() || !Lizzie.config.showBranchNow())) {
       return;
     }
 
@@ -429,11 +429,11 @@ public class BoardRenderer {
   private void renderImages(Graphics2D g) {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
     g.drawImage(cachedStonesShadowImage, x, y, null);
-    if (Lizzie.config.showBranch) {
+    if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesShadowImage, x, y, null);
     }
     g.drawImage(cachedStonesImage, x, y, null);
-    if (Lizzie.config.showBranch) {
+    if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesImage, x, y, null);
     }
   }
