@@ -42,12 +42,12 @@ public class ChangeMoveDialog extends JDialog {
     setTitle(resourceBundle.getString("LizzieChangeMove.title.config"));
     setModalityType(ModalityType.APPLICATION_MODAL);
     setType(Type.POPUP);
-    setBounds(100, 100, 385, 233);
+    setBounds(100, 100, 414, 207);
     getContentPane().setLayout(new BorderLayout());
     JPanel buttonPane = new JPanel();
     getContentPane().add(buttonPane, BorderLayout.CENTER);
     JButton okButton = new JButton(resourceBundle.getString("LizzieChangeMove.button.ok"));
-    okButton.setBounds(90, 138, 65, 23);
+    okButton.setBounds(103, 138, 74, 29);
     okButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -63,7 +63,7 @@ public class ChangeMoveDialog extends JDialog {
     getRootPane().setDefaultButton(okButton);
 
     JButton cancelButton = new JButton(resourceBundle.getString("LizzieChangeMove.button.cancel"));
-    cancelButton.setBounds(207, 138, 65, 23);
+    cancelButton.setBounds(231, 138, 74, 29);
     cancelButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -82,13 +82,13 @@ public class ChangeMoveDialog extends JDialog {
     nf.setGroupingUsed(false);
 
     txtChangeCoord = new JFormattedTextField();
-    txtChangeCoord.setBounds(117, 92, 47, 20);
+    txtChangeCoord.setBounds(117, 92, 60, 20);
     buttonPane.add(txtChangeCoord);
     txtChangeCoord.setColumns(10);
 
     ButtonGroup group = new ButtonGroup();
     rdoChangeCoord = new JRadioButton("");
-    rdoChangeCoord.setBounds(90, 91, 21, 21);
+    rdoChangeCoord.setBounds(90, 91, 28, 21);
     rdoChangeCoord.setSelected(true);
     buttonPane.add(rdoChangeCoord);
     rdoChangeCoord.addChangeListener(
@@ -104,18 +104,18 @@ public class ChangeMoveDialog extends JDialog {
     group.add(rdoChangeCoord);
 
     rdoSwap = new JRadioButton(resourceBundle.getString("LizzieChangeMove.rdoSwap.text"));
-    rdoSwap.setBounds(290, 91, 55, 23);
+    rdoSwap.setBounds(290, 91, 82, 23);
     buttonPane.add(rdoSwap);
     group.add(rdoSwap);
 
     rdoPass = new JRadioButton(resourceBundle.getString("LizzieChangeMove.rdoPass.text"));
-    rdoPass.setBounds(189, 91, 55, 23);
+    rdoPass.setBounds(189, 91, 83, 23);
     buttonPane.add(rdoPass);
     group.add(rdoPass);
 
     JLabel lblMoveNumber =
         new JLabel(resourceBundle.getString("LizzieChangeMove.title.moveNumber"));
-    lblMoveNumber.setBounds(10, 67, 74, 14);
+    lblMoveNumber.setBounds(10, 67, 95, 14);
     buttonPane.add(lblMoveNumber);
 
     txtMoveNumber =
@@ -127,16 +127,16 @@ public class ChangeMoveDialog extends JDialog {
 
               private DocumentFilter filter = new DigitOnlyFilter();
             });
-    txtMoveNumber.setBounds(117, 64, 47, 20);
+    txtMoveNumber.setBounds(117, 64, 60, 20);
     buttonPane.add(txtMoveNumber);
     txtMoveNumber.setColumns(10);
 
     JLabel lblPrompt1 = new JLabel(resourceBundle.getString("LizzieChangeMove.lblPrompt1.text"));
-    lblPrompt1.setBounds(10, 11, 349, 14);
+    lblPrompt1.setBounds(10, 11, 398, 14);
     buttonPane.add(lblPrompt1);
 
     JLabel lblPrompt2 = new JLabel(resourceBundle.getString("LizzieChangeMove.lblPrompt2.text"));
-    lblPrompt2.setBounds(10, 28, 349, 14);
+    lblPrompt2.setBounds(10, 28, 398, 14);
     buttonPane.add(lblPrompt2);
 
     JLabel lblPrompt3 = new JLabel(resourceBundle.getString("LizzieChangeMove.lblPrompt3.text"));
