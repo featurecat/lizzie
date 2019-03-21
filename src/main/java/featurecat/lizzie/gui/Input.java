@@ -96,6 +96,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     for (int i = 0; i < movesToAdvance; i++) Lizzie.board.nextMove();
   }
 
+  private void startTemporaryBoard() {
+    if (Lizzie.config.showBestMoves) {
+      startRawBoard();
+    } else {
+      Lizzie.config.showBestMovesTemporarily = true;
+    }
+  }
+
   private void startRawBoard() {
     if (!Lizzie.config.showRawBoard) {
       Lizzie.frame.startRawBoard();
@@ -106,6 +114,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   private void stopRawBoard() {
     Lizzie.frame.stopRawBoard();
     Lizzie.config.showRawBoard = false;
+  }
+
+  private void stopTemporaryBoard() {
+    stopRawBoard();
+    Lizzie.config.showBestMovesTemporarily = false;
   }
 
   private void toggleHints() {
@@ -362,7 +375,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (e.isShiftDown()) {
           toggleHints();
         } else {
-          startRawBoard();
+          startTemporaryBoard();
         }
         break;
 
@@ -425,7 +438,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_Z:
-        stopRawBoard();
+        stopTemporaryBoard();
         Lizzie.frame.repaint();
         break;
 

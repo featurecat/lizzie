@@ -9,7 +9,7 @@ TARGET="$CACHE/leelaz-$COMMIT"
 mkdir -p "$CACHE"
 
 if ! test -f "$TARGET"; then
-  if test "$(uname)" == "Linux"; then
+  if test "$(uname)" = "Linux"; then
     sudo apt install -y            \
       cmake                        \
       libboost-dev                 \
@@ -20,7 +20,7 @@ if ! test -f "$TARGET"; then
       ocl-icd-libopencl1           \
       ocl-icd-opencl-dev           \
       zlib1g-dev
-  elif test "$(uname)" == "FreeBSD"; then
+  elif test "$(uname)" = "FreeBSD"; then
     brew install boost || true
     brew install cmake || true
   fi
