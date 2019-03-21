@@ -4,18 +4,12 @@ import java.util.Random;
 
 /** Used to maintain zobrist hashes for ko detection */
 public class Zobrist {
-  private static final long[] blackZobrist, whiteZobrist;
+  private static long[] blackZobrist;
+  private static long[] whiteZobrist;
 
   // initialize zobrist hashing
   static {
-    Random random = new Random();
-    blackZobrist = new long[Board.boardSize * Board.boardSize];
-    whiteZobrist = new long[Board.boardSize * Board.boardSize];
-
-    for (int i = 0; i < blackZobrist.length; i++) {
-      blackZobrist[i] = random.nextLong();
-      whiteZobrist[i] = random.nextLong();
-    }
+    init();
   }
 
   // hash to be used to compare two board states
@@ -34,6 +28,17 @@ public class Zobrist {
     return new Zobrist(zhash);
   }
 
+  public static void init() {
+
+    Random random = new Random();
+    blackZobrist = new long[Board.boardSize * Board.boardSize];
+    whiteZobrist = new long[Board.boardSize * Board.boardSize];
+
+    for (int i = 0; i < blackZobrist.length; i++) {
+      blackZobrist[i] = random.nextLong();
+      whiteZobrist[i] = random.nextLong();
+    }
+  }
   /**
    * Call this method to alter the current zobrist hash for this stone
    *
