@@ -105,7 +105,7 @@ public class LizzieFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
-  public int BoardPositionProportion = 4;
+  public int BoardPositionProportion = Lizzie.config.boardPositionProportion;
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
@@ -150,9 +150,20 @@ public class LizzieFrame extends JFrame {
     winrateGraph = new WinrateGraph();
 
     setMinimumSize(new Dimension(640, 400));
-    JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
-    setSize(windowSize.getInt(0), windowSize.getInt(1));
-    setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
+    boolean persisted =
+        Lizzie.config.persistedUi != null
+            && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
+            && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4;
+    if (persisted) {
+      JSONArray pos = Lizzie.config.persistedUi.getJSONArray("main-window-position");
+      this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
+      this.BoardPositionProportion =
+          Lizzie.config.persistedUi.optInt("board-postion-propotion", this.BoardPositionProportion);
+    } else {
+      JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
+      setSize(windowSize.getInt(0), windowSize.getInt(1));
+      setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
+    }
 
     // Allow change font in the config
     if (Lizzie.config.uiFontName != null) {
@@ -162,7 +173,7 @@ public class LizzieFrame extends JFrame {
       winrateFont = new Font(Lizzie.config.winrateFontName, Font.BOLD, 12);
     }
 
-    if (Lizzie.config.startMaximized) {
+    if (Lizzie.config.startMaximized && !persisted) {
       setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 
