@@ -423,4 +423,8 @@ public class Config {
   public void persist() throws IOException {
     writeConfig(this.persisted, new File(persistFilename));
   }
+
+  public void save() throws IOException {
+    writeConfig(this.config, new File(configFilename));
+  }
 }

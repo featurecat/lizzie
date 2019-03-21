@@ -208,6 +208,11 @@ public class LizzieFrame extends JFrame {
     }
   }
 
+  public static void openConfigDialog() {
+    ConfigDialog configDialog = new ConfigDialog();
+    configDialog.setVisible(true);
+  }
+
   public static void startNewGame() {
     GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
 
