@@ -350,7 +350,7 @@ public class Board implements LeelazListener {
       newState.dummy = dummy;
 
       // update leelaz with pass
-      Lizzie.leelaz.playMove(color, "pass");
+      if (!Lizzie.leelaz.isInputCommand) Lizzie.leelaz.playMove(color, "pass");
       if (Lizzie.frame.isPlayingAgainstLeelaz)
         Lizzie.leelaz.genmove((history.isBlacksTurn() ? "W" : "B"));
 
@@ -487,7 +487,7 @@ public class Board implements LeelazListener {
           && Lizzie.frame.playerIsBlack == getData().blackToPlay) {
         Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
         Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "W" : "B"));
-      } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
+      } else if (!Lizzie.frame.isPlayingAgainstLeelaz && !Lizzie.leelaz.isInputCommand) {
         Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
       }
 

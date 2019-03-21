@@ -208,14 +208,24 @@ public class LizzieFrame extends JFrame {
     }
   }
 
+  public static void openConfigDialog() {
+    ConfigDialog configDialog = new ConfigDialog();
+    configDialog.setVisible(true);
+  }
+
   public static void openChangeMoveDialog() {
     ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
     changeMoveDialog.setVisible(true);
   }
 
-  public static void openConfigDialog() {
-    ConfigDialog configDialog = new ConfigDialog();
-    configDialog.setVisible(true);
+  public void toggleGtpConsole() {
+    Lizzie.leelaz.toggleGtpConsole();
+    if (Lizzie.gtpConsole != null) {
+      Lizzie.gtpConsole.setVisible(!Lizzie.gtpConsole.isVisible());
+    } else {
+      Lizzie.gtpConsole = new GtpConsolePane(this);
+      Lizzie.gtpConsole.setVisible(true);
+    }
   }
 
   public static void startNewGame() {

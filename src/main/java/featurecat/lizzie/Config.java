@@ -47,6 +47,7 @@ public class Config {
   public JSONObject leelazConfig;
   public JSONObject uiConfig;
   public JSONObject persisted;
+  public JSONObject persistedUi;
 
   private String configFilename = "config.txt";
   private String persistFilename = "persist";
@@ -71,6 +72,9 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = false;
+  public String gtpConsoleStyle = "";
+  private final String defaultGtpConsoleStyle =
+      "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -150,6 +154,7 @@ public class Config {
 
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
+    persistedUi = persisted.getJSONObject("ui-persist");
 
     theme = new Theme(uiConfig);
 
@@ -196,6 +201,8 @@ public class Config {
     blunderWinrateThresholds = theme.blunderWinrateThresholds();
     blunderNodeColors = theme.blunderNodeColors();
     nodeColorMode = theme.nodeColorMode();
+
+    gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -378,6 +385,7 @@ public class Config {
     ui.put("only-last-move-number", 0);
     ui.put("new-move-number-in-branch", true);
     ui.put("append-winrate-to-comment", false);
+    ui.put("gtp-console-style", defaultGtpConsoleStyle);
     config.put("ui", ui);
     return config;
   }

@@ -43,6 +43,7 @@ public class Leelaz {
   private BufferedOutputStream outputStream;
 
   private boolean printCommunication;
+  public boolean gtpConsole;
 
   private List<MoveData> bestMoves;
   private List<MoveData> bestMovesTemp;
@@ -57,6 +58,7 @@ public class Leelaz {
 
   // genmove
   public boolean isThinking = false;
+  public boolean isInputCommand = false;
 
   private boolean isLoaded = false;
   private boolean isCheckingVersion;
@@ -74,6 +76,7 @@ public class Leelaz {
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN;
   private float dynamicOppKomi = Float.NaN;
+
   /**
    * Initializes the leelaz process and starts reading output
    *
@@ -94,6 +97,7 @@ public class Leelaz {
     config = Lizzie.config.config.getJSONObject("leelaz");
 
     printCommunication = config.getBoolean("print-comms");
+    gtpConsole = printCommunication;
     maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
 
     // command string for starting the engine
@@ -220,6 +224,9 @@ public class Leelaz {
    */
   private void parseLine(String line) {
     synchronized (this) {
+      if (printCommunication || gtpConsole) {
+        Lizzie.gtpConsole.addLine(line);
+      }
       if (line.startsWith("komi=")) {
         try {
           dynamicKomi = Float.parseFloat(line.substring("komi=".length()).trim());
@@ -254,7 +261,8 @@ public class Leelaz {
       } else if (line.contains(" -> ")) {
         isLoaded = true;
         if (isResponseUpToDate()
-            || isThinking && !isPondering && Lizzie.frame.isPlayingAgainstLeelaz) {
+            || isThinking
+                && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
           bestMoves.add(MoveData.fromSummary(line));
           notifyBestMoveListeners();
           Lizzie.frame.repaint();
@@ -267,8 +275,9 @@ public class Leelaz {
         isThinking = false;
 
       } else if (line.startsWith("=") || line.startsWith("?")) {
-        if (printCommunication) {
+        if (printCommunication || gtpConsole) {
           System.out.print(line);
+          Lizzie.gtpConsole.addLine(line);
         }
         String[] params = line.trim().split(" ");
         currentCmdNum = Integer.parseInt(params[0].substring(1).trim());
@@ -286,11 +295,16 @@ public class Leelaz {
           }
           isSettingHandicap = false;
         } else if (isThinking && !isPondering) {
-          if (Lizzie.frame.isPlayingAgainstLeelaz) {
+          if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
             Lizzie.board.place(params[1]);
             togglePonder();
-            isPondering = false;
+            if (!isInputCommand) {
+              isPondering = false;
+            }
             isThinking = false;
+            if (isInputCommand) {
+              isInputCommand = false;
+            }
           }
         } else if (isCheckingVersion) {
           String[] ver = params[1].split("\\.");
@@ -394,11 +408,12 @@ public class Leelaz {
    */
   private void sendCommandToLeelaz(String command) {
     if (command.startsWith("fixed_handicap")) isSettingHandicap = true;
+    if (printCommunication) {
+      System.out.printf("> %d %s\n", cmdNumber, command);
+    }
+    Lizzie.gtpConsole.addCommand(command, cmdNumber);
     command = cmdNumber + " " + command;
     cmdNumber++;
-    if (printCommunication) {
-      System.out.printf("> %s\n", command);
-    }
     try {
       outputStream.write((command + "\n").getBytes());
       outputStream.flush();
@@ -449,6 +464,35 @@ public class Leelaz {
     sendCommand(command);
     isThinking = true;
     isPondering = false;
+  }
+
+  public void genmove_analyze(String color) {
+    String command =
+        "lz-genmove_analyze "
+            + color
+            + " "
+            + Lizzie.config
+                .config
+                .getJSONObject("leelaz")
+                .getInt("analyze-update-interval-centisec");
+    sendCommand(command);
+    isThinking = true;
+    isPondering = false;
+  }
+
+  public void time_settings() {
+    Lizzie.leelaz.sendCommand(
+        "time_settings 0 "
+            + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds")
+            + " 1");
+  }
+
+  public void clear() {
+    synchronized (this) {
+      sendCommand("clear_board");
+      bestMoves = new ArrayList<>();
+      if (isPondering) ponder();
+    }
   }
 
   public void undo() {
@@ -677,6 +721,13 @@ public class Leelaz {
     return currentWeight;
   }
 
+  public String currentShortWeight() {
+    if (currentWeight != null && currentWeight.length() > 18) {
+      return currentWeight.substring(0, 16) + "..";
+    }
+    return currentWeight;
+  }
+
   public boolean switching() {
     return switching;
   }
@@ -687,5 +738,9 @@ public class Leelaz {
 
   public String engineCommand() {
     return this.engineCommand;
+  }
+
+  public void toggleGtpConsole() {
+    gtpConsole = !gtpConsole;
   }
 }
