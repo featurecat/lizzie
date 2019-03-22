@@ -112,7 +112,7 @@ public class Config {
   /**
    * Check settings to ensure its consistency, especially for those whose types are not <code>
    * boolean</code>. If any inconsistency is found, try to correct it or to report it. <br>
-   * For example, we only support 9x9, 13x13 or 19x19(default) sized boards. If the configured board
+   * For example, we only support square boards of size >= 2x2. If the configured board
    * size is not in the list above, we should correct it.
    *
    * @param config The config json object to check
@@ -124,7 +124,7 @@ public class Config {
     // Check ui configs
     JSONObject ui = config.getJSONObject("ui");
 
-    // Check board-size. We support only 9x9, 13x13 or 19x19
+    // Check board-size
     int boardSize = ui.optInt("board-size", 19);
     if (boardSize < 2) {
       // Correct it to default 19x19
