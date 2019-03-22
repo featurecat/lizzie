@@ -640,7 +640,6 @@ public class BoardRenderer {
 
           float saturation = 1.0f;
           float brightness = 0.85f;
-
           float alpha = minAlpha
                       + (maxAlpha - minAlpha)
                           * max(0, (float) log(Lizzie.config.colorByWinrateInsteadOfVisits? percentWinrate : percentPlayouts) / alphaFactor + 1);
