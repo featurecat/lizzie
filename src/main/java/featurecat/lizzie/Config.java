@@ -74,6 +74,7 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = false;
+  public int boardPositionProportion = 4;
   public String gtpConsoleStyle = "";
   private final String defaultGtpConsoleStyle =
       "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
@@ -112,7 +113,7 @@ public class Config {
   /**
    * Check settings to ensure its consistency, especially for those whose types are not <code>
    * boolean</code>. If any inconsistency is found, try to correct it or to report it. <br>
-   * For example, we only support 9x9, 13x13 or 19x19(default) sized boards. If the configured board
+   * For example, we only support square boards of size >= 2x2. If the configured board
    * size is not in the list above, we should correct it.
    *
    * @param config The config json object to check
@@ -124,7 +125,7 @@ public class Config {
     // Check ui configs
     JSONObject ui = config.getJSONObject("ui");
 
-    // Check board-size. We support only 9x9, 13x13 or 19x19
+    // Check board-size
     int boardSize = ui.optInt("board-size", 19);
     if (boardSize < 2) {
       // Correct it to default 19x19
@@ -186,6 +187,7 @@ public class Config {
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
+    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -418,6 +420,12 @@ public class Config {
     // ui.put("window-width", 687);
     // ui.put("max-alpha", 240);
 
+    // Main Window Position & Size
+    ui.put("main-window-position", new JSONArray("[]"));
+    ui.put("gtp-console-position", new JSONArray("[]"));
+
+    config.put("filesystem", filesys);
+
     // Avoid the key "ui" because it was used to distinguish "config" and "persist"
     // in old version of validateAndCorrectSettings().
     // If we use "ui" here, we will have trouble to run old lizzie.
@@ -438,6 +446,19 @@ public class Config {
   }
 
   public void persist() throws IOException {
+    JSONArray mainPos = new JSONArray();
+    mainPos.put(Lizzie.frame.getX());
+    mainPos.put(Lizzie.frame.getY());
+    mainPos.put(Lizzie.frame.getWidth());
+    mainPos.put(Lizzie.frame.getHeight());
+    persistedUi.put("main-window-position", mainPos);
+    JSONArray gtpPos = new JSONArray();
+    gtpPos.put(Lizzie.gtpConsole.getX());
+    gtpPos.put(Lizzie.gtpConsole.getY());
+    gtpPos.put(Lizzie.gtpConsole.getWidth());
+    gtpPos.put(Lizzie.gtpConsole.getHeight());
+    persistedUi.put("gtp-console-position", gtpPos);
+    persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
     writeConfig(this.persisted, new File(persistFilename));
   }
 
