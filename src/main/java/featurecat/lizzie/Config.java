@@ -29,9 +29,11 @@ public class Config {
   public boolean showVariationGraph = true;
   public boolean showComment = true;
   public boolean showRawBoard = false;
+  public boolean showBestMovesTemporarily = false;
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
+  public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
 
   public boolean showStatus = true;
@@ -46,6 +48,7 @@ public class Config {
   public JSONObject leelazConfig;
   public JSONObject uiConfig;
   public JSONObject persisted;
+  public JSONObject persistedUi;
 
   private String configFilename = "config.txt";
   private String persistFilename = "persist";
@@ -70,6 +73,10 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = false;
+  public int boardPositionProportion = 4;
+  public String gtpConsoleStyle = "";
+  private final String defaultGtpConsoleStyle =
+      "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
 
   private JSONObject loadAndMergeConfig(
       JSONObject defaultCfg, String fileName, boolean needValidation) throws IOException {
@@ -119,7 +126,7 @@ public class Config {
 
     // Check board-size. We support only 9x9, 13x13 or 19x19
     int boardSize = ui.optInt("board-size", 19);
-    if (boardSize != 19 && boardSize != 13 && boardSize != 9) {
+    if (boardSize < 2) {
       // Correct it to default 19x19
       ui.put("board-size", 19);
       madeCorrections = true;
@@ -149,6 +156,7 @@ public class Config {
 
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
+    persistedUi = persisted.getJSONObject("ui-persist");
 
     theme = new Theme(uiConfig);
 
@@ -176,6 +184,8 @@ public class Config {
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
+    replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
+    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -195,6 +205,8 @@ public class Config {
     blunderWinrateThresholds = theme.blunderWinrateThresholds();
     blunderNodeColors = theme.blunderNodeColors();
     nodeColorMode = theme.nodeColorMode();
+
+    gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -287,6 +299,14 @@ public class Config {
     return showWinrate && largeWinrate;
   }
 
+  public boolean showBestMovesNow() {
+    return showBestMoves || showBestMovesTemporarily;
+  }
+
+  public boolean showBranchNow() {
+    return showBranch || showBestMovesTemporarily;
+  }
+
   /**
    * Scans the current directory as well as the current PATH to find a reasonable default leelaz
    * binary.
@@ -369,6 +389,8 @@ public class Config {
     ui.put("only-last-move-number", 0);
     ui.put("new-move-number-in-branch", true);
     ui.put("append-winrate-to-comment", false);
+    ui.put("replay-branch-interval-seconds", 1.0);
+    ui.put("gtp-console-style", defaultGtpConsoleStyle);
     config.put("ui", ui);
     return config;
   }
@@ -392,6 +414,12 @@ public class Config {
     // ui.put("window-width", 687);
     // ui.put("max-alpha", 240);
 
+    // Main Window Position & Size
+    ui.put("main-window-position", new JSONArray("[]"));
+    ui.put("gtp-console-position", new JSONArray("[]"));
+
+    config.put("filesystem", filesys);
+
     // Avoid the key "ui" because it was used to distinguish "config" and "persist"
     // in old version of validateAndCorrectSettings().
     // If we use "ui" here, we will have trouble to run old lizzie.
@@ -412,6 +440,23 @@ public class Config {
   }
 
   public void persist() throws IOException {
+    JSONArray mainPos = new JSONArray();
+    mainPos.put(Lizzie.frame.getX());
+    mainPos.put(Lizzie.frame.getY());
+    mainPos.put(Lizzie.frame.getWidth());
+    mainPos.put(Lizzie.frame.getHeight());
+    persistedUi.put("main-window-position", mainPos);
+    JSONArray gtpPos = new JSONArray();
+    gtpPos.put(Lizzie.gtpConsole.getX());
+    gtpPos.put(Lizzie.gtpConsole.getY());
+    gtpPos.put(Lizzie.gtpConsole.getWidth());
+    gtpPos.put(Lizzie.gtpConsole.getHeight());
+    persistedUi.put("gtp-console-position", gtpPos);
+    persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
     writeConfig(this.persisted, new File(persistFilename));
+  }
+
+  public void save() throws IOException {
+    writeConfig(this.config, new File(configFilename));
   }
 }

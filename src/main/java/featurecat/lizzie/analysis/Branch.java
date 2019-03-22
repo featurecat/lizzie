@@ -31,7 +31,7 @@ public class Branch {
 
     for (int i = 0; i < variation.size(); i++) {
       Optional<int[]> coordOpt = Board.asCoordinates(variation.get(i));
-      if (!coordOpt.isPresent()) {
+      if (!coordOpt.isPresent() || !Board.isValid(coordOpt.get()[0], coordOpt.get()[1])) {
         break;
       }
       int[] coord = coordOpt.get();

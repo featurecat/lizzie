@@ -41,6 +41,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -75,17 +78,20 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyW"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlW"),
     resourceBundle.getString("LizzieFrame.commands.keyG"),
+    resourceBundle.getString("LizzieFrame.commands.keyR"),
     resourceBundle.getString("LizzieFrame.commands.keyBracket"),
     resourceBundle.getString("LizzieFrame.commands.keyT"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlT"),
     resourceBundle.getString("LizzieFrame.commands.keyY"),
+    resourceBundle.getString("LizzieFrame.commands.keyZ"),
+    resourceBundle.getString("LizzieFrame.commands.keyShiftZ"),
     resourceBundle.getString("LizzieFrame.commands.keyHome"),
     resourceBundle.getString("LizzieFrame.commands.keyEnd"),
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
     resourceBundle.getString("LizzieFrame.commands.keyDelete"),
     resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
   };
-  private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
+  private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
   private static BoardRenderer boardRenderer;
   private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
@@ -102,9 +108,10 @@ public class LizzieFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
-  public int BoardPositionProportion = 4;
+  public int BoardPositionProportion = Lizzie.config.boardPositionProportion;
 
   private long lastAutosaveTime = System.currentTimeMillis();
+  private boolean isReplayVariation = false;
 
   // Save the player title
   private String playerTitle = "";
@@ -115,6 +122,12 @@ public class LizzieFrame extends JFrame {
   private BufferedImage cachedCommentImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
   private String cachedComment;
   private Rectangle commentRect;
+
+  // Show the playouts in the title
+  private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
+  private long lastPlayouts = 0;
+  private String visitsString = "";
+  public boolean isDrawVisitsInTitle = true;
 
   static {
     // load fonts
@@ -146,9 +159,20 @@ public class LizzieFrame extends JFrame {
     winrateGraph = new WinrateGraph();
 
     setMinimumSize(new Dimension(640, 400));
-    JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
-    setSize(windowSize.getInt(0), windowSize.getInt(1));
-    setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
+    boolean persisted =
+        Lizzie.config.persistedUi != null
+            && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
+            && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4;
+    if (persisted) {
+      JSONArray pos = Lizzie.config.persistedUi.getJSONArray("main-window-position");
+      this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
+      this.BoardPositionProportion =
+          Lizzie.config.persistedUi.optInt("board-postion-propotion", this.BoardPositionProportion);
+    } else {
+      JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
+      setSize(windowSize.getInt(0), windowSize.getInt(1));
+      setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
+    }
 
     // Allow change font in the config
     if (Lizzie.config.uiFontName != null) {
@@ -158,7 +182,7 @@ public class LizzieFrame extends JFrame {
       winrateFont = new Font(Lizzie.config.winrateFontName, Font.BOLD, 12);
     }
 
-    if (Lizzie.config.startMaximized) {
+    if (Lizzie.config.startMaximized && !persisted) {
       setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 
@@ -197,12 +221,61 @@ public class LizzieFrame extends JFrame {
             Lizzie.shutdown();
           }
         });
+
+    // Show the playouts in the title
+    showPlayouts.scheduleAtFixedRate(
+        new Runnable() {
+          @Override
+          public void run() {
+            if (!isDrawVisitsInTitle) {
+              visitsString = "";
+              return;
+            }
+            if (Lizzie.leelaz == null) return;
+            try {
+              Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
+              if (stats.totalPlayouts <= 0) return;
+              visitsString =
+                  String.format(
+                      " %d visits/second",
+                      (stats.totalPlayouts > lastPlayouts)
+                          ? stats.totalPlayouts - lastPlayouts
+                          : 0);
+              updateTitle();
+              lastPlayouts = stats.totalPlayouts;
+            } catch (Exception e) {
+            }
+          }
+        },
+        1,
+        1,
+        TimeUnit.SECONDS);
   }
 
   /** Clears related status from empty board. */
   public void clear() {
     if (winrateGraph != null) {
       winrateGraph.clear();
+    }
+  }
+
+  public static void openConfigDialog() {
+    ConfigDialog configDialog = new ConfigDialog();
+    configDialog.setVisible(true);
+  }
+
+  public static void openChangeMoveDialog() {
+    ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
+    changeMoveDialog.setVisible(true);
+  }
+
+  public void toggleGtpConsole() {
+    Lizzie.leelaz.toggleGtpConsole();
+    if (Lizzie.gtpConsole != null) {
+      Lizzie.gtpConsole.setVisible(!Lizzie.gtpConsole.isVisible());
+    } else {
+      Lizzie.gtpConsole = new GtpConsolePane(this);
+      Lizzie.gtpConsole.setVisible(true);
     }
   }
 
@@ -1218,7 +1291,11 @@ public class LizzieFrame extends JFrame {
     mouseOverCoordinate = outOfBoundCoordinate;
     Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
     coords.filter(c -> !isMouseOver(c[0], c[1])).ifPresent(c -> repaint());
-    coords.ifPresent(c -> mouseOverCoordinate = c);
+    coords.ifPresent(
+        c -> {
+          mouseOverCoordinate = c;
+          isReplayVariation = false;
+        });
     if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
       repaint();
     }
@@ -1275,6 +1352,7 @@ public class LizzieFrame extends JFrame {
             new BufferedImage(scrollPane.getWidth(), scrollPane.getHeight(), TYPE_INT_ARGB);
         Graphics2D g2 = cachedCommentImage.createGraphics();
         scrollPane.doLayout();
+        scrollPane.addNotify();
         scrollPane.validate();
         scrollPane.printAll(g2);
         g2.dispose();
@@ -1301,6 +1379,7 @@ public class LizzieFrame extends JFrame {
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
     sb.append(playerTitle);
     sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
+    sb.append(visitsString);
     setTitle(sb.toString());
   }
 
@@ -1451,5 +1530,35 @@ public class LizzieFrame extends JFrame {
     } else {
       return Color.WHITE;
     }
+  }
+
+  public void replayBranch() {
+    if (isReplayVariation) return;
+    int replaySteps = boardRenderer.getReplayBranch();
+    if (replaySteps <= 0) return; // Bad steps or no branch
+    int oriBranchLength = boardRenderer.getDisplayedBranchLength();
+    isReplayVariation = true;
+    if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+    Runnable runnable =
+        new Runnable() {
+          public void run() {
+            int secs = (int) (Lizzie.config.replayBranchIntervalSeconds * 1000);
+            for (int i = 1; i < replaySteps + 1; i++) {
+              if (!isReplayVariation) break;
+              setDisplayedBranchLength(i);
+              repaint();
+              try {
+                Thread.sleep(secs);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+            }
+            boardRenderer.setDisplayedBranchLength(oriBranchLength);
+            isReplayVariation = false;
+            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+          }
+        };
+    Thread thread = new Thread(runnable);
+    thread.start();
   }
 }
