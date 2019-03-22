@@ -369,6 +369,11 @@ public class BoardRenderer {
     if (Lizzie.frame.isPlayingAgainstLeelaz) {
       return;
     }
+    
+    // Leela Zero isn't connected yet
+    if (Lizzie.leelaz == null)
+      return;
+    
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
     variationOpt = Optional.empty();
@@ -552,7 +557,7 @@ public class BoardRenderer {
     float greenHue = Color.RGBtoHSB(0, 1, 0, null)[0];
     float cyanHue = Color.RGBtoHSB(0, 1, 1, null)[0];
 
-    if (!bestMoves.isEmpty()) {
+    if (bestMoves != null && !bestMoves.isEmpty()) {
 
       int maxPlayouts = 0;
       double maxWinrate = 0;
