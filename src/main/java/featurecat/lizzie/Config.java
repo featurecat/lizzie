@@ -381,7 +381,7 @@ public class Config {
     ui.put("autosave-interval-seconds", -1);
     ui.put("handicap-instead-of-winrate", false);
     ui.put("board-size", 19);
-    ui.put("window-size", new JSONArray("[1229, 768]"));
+    ui.put("window-size", new JSONArray("[1024, 768]"));
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
