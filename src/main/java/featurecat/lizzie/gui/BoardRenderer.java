@@ -601,7 +601,6 @@ public class BoardRenderer {
 
           float percentPlayouts = (float) move.playouts / maxPlayouts;
           double percentWinrate = Math.min(1, Math.max(0.01, move.winrate - minWinrate) / Math.max(0.01, maxWinrate - minWinrate));
-          System.out.println(percentWinrate + " -> " + move.winrate + " " + minWinrate + "/" + maxWinrate);
 
           Optional<int[]> coordsOpt = Board.asCoordinates(move.coordinate);
           if (!coordsOpt.isPresent()) {
