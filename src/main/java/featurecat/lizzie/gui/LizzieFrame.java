@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
@@ -198,6 +199,12 @@ public class LizzieFrame extends JFrame {
     scrollPane.setVerticalScrollBarPolicy(
         javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
     commentRect = new Rectangle(0, 0, 0, 0);
+
+    try {
+      this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/assets/logo.png")));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
     setVisible(true);
 
