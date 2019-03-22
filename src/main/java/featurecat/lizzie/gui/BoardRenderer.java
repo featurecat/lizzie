@@ -552,10 +552,11 @@ public class BoardRenderer {
    */
   private void drawLeelazSuggestions(Graphics2D g) {
     int minAlpha = 32;
-    float hueFactor = 3.0f;
+    float winrateHueFactor = 2.0f;
     float alphaFactor = 5.0f;
-    float greenHue = Color.RGBtoHSB(0, 1, 0, null)[0];
-    float cyanHue = Color.RGBtoHSB(0, 1, 1, null)[0];
+    float redHue = Color.RGBtoHSB(255, 0, 0, null)[0];
+    float greenHue = Color.RGBtoHSB(0, 255, 0, null)[0];
+    float cyanHue = Color.RGBtoHSB(0, 255, 255, null)[0];
 
     if (bestMoves != null && !bestMoves.isEmpty()) {
 
@@ -589,6 +590,8 @@ public class BoardRenderer {
 
           boolean isBestMove = bestMoves.get(0) == move;
           boolean hasMaxWinrate = move.winrate == maxWinrate;
+          boolean flipWinrate =
+              uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay;
 
           if (move.playouts == 0) {
             continue; // This actually can happen
@@ -605,17 +608,44 @@ public class BoardRenderer {
           int suggestionX = x + scaledMargin + squareLength * coords[0];
           int suggestionY = y + scaledMargin + squareLength * coords[1];
 
-          // 0 = Reddest hue
-          float logPlayouts = (float) log(percentPlayouts);
-          float otherHue = -greenHue * max(0, logPlayouts / hueFactor + 1);
-          float hue = isBestMove ? cyanHue : otherHue;
-          float saturation = 0.75f;
+          float hue;
+          if (isBestMove && !Lizzie.config.colorByWinrateInsteadOfVisits) {
+            hue = cyanHue;
+          } else {
+            double fraction;
+            if (Lizzie.config.colorByWinrateInsteadOfVisits) {
+              fraction = move.winrate / 100;
+              if (flipWinrate) {
+                fraction = 1 - fraction;
+              }
+              fraction = 1 / (Math.pow(1 / fraction - 1, winrateHueFactor) + 1);
+            } else {
+              fraction = percentPlayouts;
+            }
+
+            // Correction to make differences between colors more perceptually linear
+            fraction *= 2;
+            if (fraction < 1) { // red to yellow
+              fraction = Math.cbrt(fraction * fraction) / 2;
+            } else { // yellow to green
+              fraction = 1 - Math.sqrt(2 - fraction) / 2;
+            }
+
+            hue = redHue + (greenHue - redHue) * (float) fraction;
+          }
+
+          float saturation = 1.0f;
           float brightness = 0.85f;
-          float alpha = (minAlpha + (maxAlpha - minAlpha) * max(0, logPlayouts / alphaFactor + 1));
+          float alpha =
+              Lizzie.config.colorByWinrateInsteadOfVisits
+                  ? maxAlpha
+                  : minAlpha
+                      + (maxAlpha - minAlpha)
+                          * max(0, (float) log(percentPlayouts) / alphaFactor + 1);
 
           Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
           Color color =
-              new Color(hsbColor.getRed(), hsbColor.getBlue(), hsbColor.getGreen(), (int) alpha);
+              new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
 
           boolean isMouseOver = Lizzie.frame.isMouseOver(coords[0], coords[1]);
           if (!branchOpt.isPresent()) {
@@ -624,11 +654,20 @@ public class BoardRenderer {
             fillCircle(g, suggestionX, suggestionY, stoneRadius);
           }
 
-          if (!branchOpt.isPresent() || isBestMove && isMouseOver) {
+          boolean ringedMove = isBestMove || hasMaxWinrate;
+          if (!branchOpt.isPresent() || (ringedMove && isMouseOver)) {
             int strokeWidth = 1;
-            if (isBestMove != hasMaxWinrate) {
+            if (ringedMove) {
               strokeWidth = 2;
-              g.setColor(isBestMove ? Color.RED : Color.BLUE);
+              if (isBestMove) {
+                if (hasMaxWinrate) {
+                  g.setColor(Color.CYAN);
+                } else {
+                  g.setColor(Color.MAGENTA);
+                }
+              } else {
+                g.setColor(Color.BLUE);
+              }
               g.setStroke(new BasicStroke(strokeWidth));
             } else {
               g.setColor(color.darker());
@@ -642,8 +681,7 @@ public class BoardRenderer {
                       || percentPlayouts >= uiConfig.getDouble("min-playout-ratio-for-stats"))
               || isMouseOver) {
             double roundedWinrate = round(move.winrate * 10) / 10.0;
-            if (uiConfig.getBoolean("win-rate-always-black")
-                && !Lizzie.board.getData().blackToPlay) {
+            if (flipWinrate) {
               roundedWinrate = 100.0 - roundedWinrate;
             }
             g.setColor(Color.BLACK);
