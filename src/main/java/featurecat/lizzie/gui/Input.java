@@ -413,7 +413,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (Lizzie.frame.BoardPositionProportion < 8) Lizzie.frame.BoardPositionProportion++;
         break;
 
-      case VK_E:
+      case VK_K:
         Lizzie.config.toggleEvaluationColoring();
         break;
 
