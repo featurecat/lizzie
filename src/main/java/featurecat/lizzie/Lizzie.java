@@ -78,7 +78,8 @@ public class Lizzie {
       e.printStackTrace(); // Failed to save config
     }
 
-    leelaz.shutdown();
+    if (leelaz != null)
+      leelaz.shutdown();
     System.exit(0);
   }
 

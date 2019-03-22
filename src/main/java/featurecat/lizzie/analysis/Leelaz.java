@@ -128,7 +128,7 @@ public class Leelaz {
     }
 
     // Check if engine is present
-    // Comment for remote ssh
+    // Commented for remote ssh. TODO keep or remove this code?
     //    File startfolder = new File(config.optString("engine-start-location", "."));
     //    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
     //    System.out.println(lef.getPath());
@@ -151,7 +151,7 @@ public class Leelaz {
 
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    // Comment for remote ssh
+    // Commented for remote ssh
     //    processBuilder.directory(startfolder);
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
