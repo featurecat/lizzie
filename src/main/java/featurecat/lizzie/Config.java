@@ -73,6 +73,7 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = false;
+  public int boardPositionProportion = 4;
   public String gtpConsoleStyle = "";
   private final String defaultGtpConsoleStyle =
       "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
@@ -184,6 +185,7 @@ public class Config {
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
+    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -379,7 +381,7 @@ public class Config {
     ui.put("autosave-interval-seconds", -1);
     ui.put("handicap-instead-of-winrate", false);
     ui.put("board-size", 19);
-    ui.put("window-size", new JSONArray("[1024, 768]"));
+    ui.put("window-size", new JSONArray("[1229, 768]"));
     ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
@@ -412,6 +414,12 @@ public class Config {
     // ui.put("window-width", 687);
     // ui.put("max-alpha", 240);
 
+    // Main Window Position & Size
+    ui.put("main-window-position", new JSONArray("[]"));
+    ui.put("gtp-console-position", new JSONArray("[]"));
+
+    config.put("filesystem", filesys);
+
     // Avoid the key "ui" because it was used to distinguish "config" and "persist"
     // in old version of validateAndCorrectSettings().
     // If we use "ui" here, we will have trouble to run old lizzie.
@@ -432,6 +440,19 @@ public class Config {
   }
 
   public void persist() throws IOException {
+    JSONArray mainPos = new JSONArray();
+    mainPos.put(Lizzie.frame.getX());
+    mainPos.put(Lizzie.frame.getY());
+    mainPos.put(Lizzie.frame.getWidth());
+    mainPos.put(Lizzie.frame.getHeight());
+    persistedUi.put("main-window-position", mainPos);
+    JSONArray gtpPos = new JSONArray();
+    gtpPos.put(Lizzie.gtpConsole.getX());
+    gtpPos.put(Lizzie.gtpConsole.getY());
+    gtpPos.put(Lizzie.gtpConsole.getWidth());
+    gtpPos.put(Lizzie.gtpConsole.getHeight());
+    persistedUi.put("gtp-console-position", gtpPos);
+    persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
     writeConfig(this.persisted, new File(persistFilename));
   }
 
