@@ -199,6 +199,11 @@ public class SGFParser {
             } else {
               Lizzie.board.comment(tagContent);
             }
+          } else if (tag.equals("LZ")) {
+            // Content contains data for Lizzie to read
+            String[] data = tagContent.split(" ");
+            Lizzie.board.getData().winrate = 100 - Double.parseDouble(data[0]);
+            Lizzie.board.getData().playouts = Integer.parseInt(data[1]);
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
             Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
@@ -560,13 +565,9 @@ public class SGFParser {
     boolean validWinrate = (data.playouts > 0);
     double curWR = validWinrate ? data.winrate : 100 - lastWR;
     String curWinrate = "";
-    if (Lizzie.config.handicapInsteadOfWinrate) {
-      curWinrate = String.format("%.2f", Leelaz.winrateToHandicap(100 - curWR));
-    } else {
-      curWinrate = String.format("%.1f%%", 100 - curWR);
-    }
+    curWinrate = String.format("%.1f", 100 - curWR);
 
-    String wf = "%s %s)";
+    String wf = "%s %s";
 
     return String.format(wf, curWinrate, playouts);
   }
