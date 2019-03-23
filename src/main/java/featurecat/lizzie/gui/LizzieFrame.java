@@ -162,17 +162,15 @@ public class LizzieFrame extends JFrame {
 
     setMinimumSize(new Dimension(640, 400));
     boolean persisted =
-        Lizzie.config.persistedUi != null
-            && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
-            && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4;
-    if (persisted) {
+        Lizzie.config.persistedUi != null;
+    if (persisted && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
+            && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4) {
       JSONArray pos = Lizzie.config.persistedUi.getJSONArray("main-window-position");
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
       this.BoardPositionProportion =
           Lizzie.config.persistedUi.optInt("board-postion-propotion", this.BoardPositionProportion);
     } else {
-      JSONArray windowSize = Lizzie.config.uiConfig.getJSONArray("window-size");
-      setSize(windowSize.getInt(0), windowSize.getInt(1));
+      setSize(960, 600);
       setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
     }
 
@@ -185,6 +183,8 @@ public class LizzieFrame extends JFrame {
     }
 
     if (Lizzie.config.startMaximized && !persisted) {
+      setExtendedState(Frame.MAXIMIZED_BOTH);
+    } else if (persisted && Lizzie.config.persistedUi.getBoolean("window-maximized")) {
       setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 

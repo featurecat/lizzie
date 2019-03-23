@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import org.json.*;
 
+import javax.swing.*;
+
 public class Config {
 
   public boolean showBorder = false;
@@ -181,7 +183,6 @@ public class Config {
     showSubBoard = uiConfig.getBoolean("show-subboard");
     largeSubBoard = uiConfig.getBoolean("large-subboard");
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
-    startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
@@ -387,8 +388,6 @@ public class Config {
     ui.put("autosave-interval-seconds", -1);
     ui.put("handicap-instead-of-winrate", false);
     ui.put("board-size", 19);
-    ui.put("window-size", new JSONArray("[1024, 768]"));
-    ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
     ui.put("theme", "default");
@@ -423,6 +422,7 @@ public class Config {
     // Main Window Position & Size
     ui.put("main-window-position", new JSONArray("[]"));
     ui.put("gtp-console-position", new JSONArray("[]"));
+    ui.put("window-maximized", false);
 
     config.put("filesystem", filesys);
 
@@ -446,11 +446,15 @@ public class Config {
   }
 
   public void persist() throws IOException {
+    boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
+
     JSONArray mainPos = new JSONArray();
-    mainPos.put(Lizzie.frame.getX());
-    mainPos.put(Lizzie.frame.getY());
-    mainPos.put(Lizzie.frame.getWidth());
-    mainPos.put(Lizzie.frame.getHeight());
+    if (!windowIsMaximized) {
+      mainPos.put(Lizzie.frame.getX());
+      mainPos.put(Lizzie.frame.getY());
+      mainPos.put(Lizzie.frame.getWidth());
+      mainPos.put(Lizzie.frame.getHeight());
+    }
     persistedUi.put("main-window-position", mainPos);
     JSONArray gtpPos = new JSONArray();
     gtpPos.put(Lizzie.gtpConsole.getX());
@@ -459,6 +463,7 @@ public class Config {
     gtpPos.put(Lizzie.gtpConsole.getHeight());
     persistedUi.put("gtp-console-position", gtpPos);
     persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
+    persistedUi.put("window-maximized", windowIsMaximized);
     writeConfig(this.persisted, new File(persistFilename));
   }
 
