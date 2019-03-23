@@ -1061,6 +1061,10 @@ public class LizzieFrame extends JFrame {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     double curWR = stats.maxWinrate; // winrate on this move
     boolean validWinrate = (stats.totalPlayouts > 0); // and whether it was actually calculated
+    if (!validWinrate) {
+      curWR = Lizzie.board.getHistory().getData().winrate;
+      validWinrate = Lizzie.board.getHistory().getData().playouts > 0;
+    }
     if (isPlayingAgainstLeelaz
         && playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
       validWinrate = false;
