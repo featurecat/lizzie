@@ -453,6 +453,9 @@ public class SGFParser {
         if (!data.comment.isEmpty()) {
           builder.append(String.format("C[%s]", Escaping(data.comment)));
         }
+
+        // Add LZ specific data to restore on next load
+        builder.append(String.format("LZ[%s]", formatNodeData(node)));
       }
 
       if (node.numberOfChildren() > 1) {
@@ -486,11 +489,17 @@ public class SGFParser {
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
     boolean validLastWinrate = lastNode.map(d -> d.playouts > 0).orElse(false);
-    double lastWR = validLastWinrate ? lastNode.get().winrate : 50;
+    double lastWR = validLastWinrate ? lastNode.get().getWinrate() : 50;
 
     // Current winrate
     boolean validWinrate = (data.playouts > 0);
-    double curWR = validWinrate ? data.winrate : 100 - lastWR;
+    double curWR;
+    if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black")) {
+      curWR = validWinrate ? data.getWinrate() : lastWR;
+    } else {
+      curWR = validWinrate ? data.getWinrate() : 100 - lastWR;
+    }
+
     String curWinrate = "";
     if (Lizzie.config.handicapInsteadOfWinrate) {
       curWinrate = String.format("%.2f", Leelaz.winrateToHandicap(100 - curWR));
@@ -506,16 +515,23 @@ public class SGFParser {
         double lastHandicapedWR = Leelaz.winrateToHandicap(lastWR);
         lastMoveDiff = String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
       } else {
-        lastMoveDiff = String.format("(%.1f%%)", 100 - lastWR - curWR);
+        double diff;
+        if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black")) {
+          diff = lastWR - curWR;
+        } else {
+          diff = 100 - lastWR - curWR;
+        }
+        lastMoveDiff = String.format("(%s%.1f%%)", diff >= 0? "+" : "-", Math.abs(diff));
       }
     }
 
-    String wf = "Move %d\n%s %s\n(%s / %s playouts)";
-    String nc = String.format(wf, data.moveNumber, curWinrate, lastMoveDiff, engine, playouts);
+    String wf = "%s's winrate: %s %s\n(%s / %s playouts)";
+    boolean blackWinrate = !node.getData().blackToPlay || Lizzie.config.uiConfig.getBoolean("win-rate-always-black");
+    String nc = String.format(wf, blackWinrate? "Black" : "White", curWinrate, lastMoveDiff, engine, playouts);
 
     if (!data.comment.isEmpty()) {
       String wp =
-          "Move [0-9]+\n[0-9\\.\\-]+%* \\(*[0-9\\.\\-]*%*\\)*\n\\([^\\(\\)/]* \\/ [0-9\\.]*[kmKM]* playouts\\)";
+          "(Black's |White's )winrate: [0-9\\.\\-]+%* \\(*[0-9.\\-+]*%*\\)*\n\\([^\\(\\)/]* \\/ [0-9\\.]*[kmKM]* playouts\\)";
       if (data.comment.matches("(?s).*" + wp + "(?s).*")) {
         nc = data.comment.replaceAll(wp, nc);
       } else {
@@ -523,6 +539,36 @@ public class SGFParser {
       }
     }
     return nc;
+  }
+
+
+  /**
+   * Format Comment with following format: <Winrate> <Playouts>
+   */
+  private static String formatNodeData(BoardHistoryNode node) {
+    BoardData data = node.getData();
+
+    // Playouts
+    String playouts = Lizzie.frame.getPlayoutsString(data.playouts);
+
+    // Last winrate
+    Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
+    boolean validLastWinrate = lastNode.map(d -> d.playouts > 0).orElse(false);
+    double lastWR = validLastWinrate ? lastNode.get().winrate : 50;
+
+    // Current winrate
+    boolean validWinrate = (data.playouts > 0);
+    double curWR = validWinrate ? data.winrate : 100 - lastWR;
+    String curWinrate = "";
+    if (Lizzie.config.handicapInsteadOfWinrate) {
+      curWinrate = String.format("%.2f", Leelaz.winrateToHandicap(100 - curWR));
+    } else {
+      curWinrate = String.format("%.1f%%", 100 - curWR);
+    }
+
+    String wf = "%s %s)";
+
+    return String.format(wf, curWinrate, playouts);
   }
 
   public static boolean isListProperty(String key) {

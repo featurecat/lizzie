@@ -1,5 +1,7 @@
 package featurecat.lizzie.rules;
 
+import featurecat.lizzie.Lizzie;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -138,5 +140,13 @@ public class BoardData {
    */
   public String propertiesString() {
     return SGFParser.propertiesString(properties);
+  }
+
+  public double getWinrate() {
+    if (!blackToPlay || !Lizzie.config.uiConfig.getBoolean("win-rate-always-black")) {
+      return winrate;
+    } else {
+      return 100 - winrate;
+    }
   }
 }

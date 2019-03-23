@@ -75,7 +75,7 @@ public class Config {
   public Optional<List<Double>> blunderWinrateThresholds;
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
-  public boolean appendWinrateToComment = false;
+  public boolean appendWinrateToComment = true;
   public int boardPositionProportion = 4;
   public String gtpConsoleStyle = "";
   private final String defaultGtpConsoleStyle =
