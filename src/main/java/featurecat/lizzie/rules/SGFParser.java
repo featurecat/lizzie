@@ -203,7 +203,7 @@ public class SGFParser {
             // Content contains data for Lizzie to read
             String[] data = tagContent.split(" ");
             Lizzie.board.getData().winrate = 100 - Double.parseDouble(data[0]);
-            Lizzie.board.getData().playouts = Integer.parseInt(data[1]);
+            Lizzie.board.getData().playouts = Integer.parseInt(data[1].replaceAll("k","000").replaceAll("m", "000000").replaceAll("[^0-9]", ""));
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
             Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
