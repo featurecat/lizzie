@@ -376,6 +376,12 @@ public class BoardRenderer {
     
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
+    Lizzie.board.getData().tryToSetBestMoves(bestMoves);
+    System.out.println(Lizzie.board.getData().bestMoves.size());
+    if (MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().playouts) {
+      bestMoves = Lizzie.board.getData().bestMoves;
+    }
+
     variationOpt = Optional.empty();
 
     if (isMainBoard && (isShowingRawBoard() || !Lizzie.config.showBranchNow())) {

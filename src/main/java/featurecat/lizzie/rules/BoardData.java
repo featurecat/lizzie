@@ -1,10 +1,9 @@
 package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.MoveData;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class BoardData {
   public int moveNumber;
@@ -21,6 +20,7 @@ public class BoardData {
 
   public double winrate;
   public int playouts;
+  public List<MoveData> bestMoves;
   public int blackCaptures;
   public int whiteCaptures;
 
@@ -57,6 +57,7 @@ public class BoardData {
     this.playouts = playouts;
     this.blackCaptures = blackCaptures;
     this.whiteCaptures = whiteCaptures;
+    this.bestMoves = new ArrayList<>();
   }
 
   public static BoardData empty(int size) {
@@ -148,5 +149,19 @@ public class BoardData {
     } else {
       return 100 - winrate;
     }
+  }
+
+  public void tryToSetBestMoves(List<MoveData> moves) {
+    if (MoveData.getPlayouts(moves) > playouts) {
+      bestMoves = moves;
+    }
+  }
+
+  public String bestMovesToString() {
+    StringBuilder sb = new StringBuilder();
+    for (MoveData move : bestMoves) {
+      // info move R5 visits 38 winrate 5404 order 0 pv R5 Q5 R6 S4 Q10 C3 D3 C4 C6 C5 D5
+    }
+    return "";
   }
 }

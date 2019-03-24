@@ -36,11 +36,8 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -134,12 +131,12 @@ public class LizzieFrame extends JFrame {
   static {
     // load fonts
     try {
-      uiFont =
-          Font.createFont(
-              Font.TRUETYPE_FONT,
-              Thread.currentThread()
-                  .getContextClassLoader()
-                  .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
+      uiFont = new Font("SansSerif", Font.TRUETYPE_FONT, 12);
+//          Font.createFont(
+//              Font.TRUETYPE_FONT,
+//              Thread.currentThread()
+//                  .getContextClassLoader()
+//                  .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
       winrateFont =
           Font.createFont(
               Font.TRUETYPE_FONT,

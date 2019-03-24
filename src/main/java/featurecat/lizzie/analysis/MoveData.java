@@ -55,7 +55,7 @@ public class MoveData {
    *
    * <p>P16 -> 4 (V: 50.94%) (N: 5.79%) PV: P16 N18 R5 Q5
    *
-   * @param line line of summary output
+   * @param summary line of summary output
    */
   public static MoveData fromSummary(String summary) {
     Matcher match = summaryPattern.matcher(summary.trim());
@@ -73,4 +73,12 @@ public class MoveData {
 
   private static Pattern summaryPattern =
       Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+
+  public static int getPlayouts(List<MoveData> moves) {
+    int playouts = 0;
+    for (MoveData move : moves) {
+      playouts += move.playouts;
+    }
+    return playouts;
+  }
 }

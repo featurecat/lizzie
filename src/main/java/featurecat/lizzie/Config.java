@@ -60,8 +60,8 @@ public class Config {
   public float winrateStrokeWidth = 3;
   public int minimumBlunderBarWidth = 3;
   public int shadowSize = 100;
-  public String fontName = null;
-  public String uiFontName = null;
+  public String fontName = "Malgun Gothic";
+  public String uiFontName = "Malgun Gothic";
   public String winrateFontName = null;
   public int commentFontSize = 0;
   public Color commentFontColor = null;
@@ -193,9 +193,9 @@ public class Config {
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
-    fontName = theme.fontName();
-    uiFontName = theme.uiFontName();
-    winrateFontName = theme.winrateFontName();
+//    fontName = theme.fontName();
+//    uiFontName = theme.uiFontName();
+//    winrateFontName = theme.winrateFontName();
     commentFontSize = theme.commentFontSize();
     commentFontColor = theme.commentFontColor();
     commentBackgroundColor = theme.commentBackgroundColor();
