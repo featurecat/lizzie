@@ -82,7 +82,7 @@ public class Theme {
   /** Use custom font for general text */
   public String fontName() {
     String key = "font-name";
-    return config.optString(key, uiConfig.optString(key, new JLabel().getFont().getFontName()));
+    return config.optString(key, uiConfig.optString(key, null));
   }
 
   /** Use custom font for the UI */

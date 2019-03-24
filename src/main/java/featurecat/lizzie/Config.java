@@ -5,17 +5,14 @@ import java.awt.Color;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 import org.json.*;
 
 import javax.swing.*;
 
 public class Config {
+  public String language = "en";
 
   public boolean showBorder = false;
   public boolean showMoveNumber = false;
@@ -60,8 +57,8 @@ public class Config {
   public float winrateStrokeWidth = 3;
   public int minimumBlunderBarWidth = 3;
   public int shadowSize = 100;
-  public String fontName = "Malgun Gothic";
-  public String uiFontName = "Malgun Gothic";
+  public String fontName = null;
+  public String uiFontName = null;
   public String winrateFontName = null;
   public int commentFontSize = 0;
   public Color commentFontColor = null;
@@ -193,9 +190,16 @@ public class Config {
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
-//    fontName = theme.fontName();
-//    uiFontName = theme.uiFontName();
-//    winrateFontName = theme.winrateFontName();
+
+    if (theme.fontName() != null)
+      fontName = theme.fontName();
+
+    if (theme.uiFontName() != null)
+      uiFontName = theme.uiFontName();
+
+    if (theme.winrateFontName() != null)
+      winrateFontName = theme.winrateFontName();
+
     commentFontSize = theme.commentFontSize();
     commentFontColor = theme.commentFontColor();
     commentBackgroundColor = theme.commentBackgroundColor();
@@ -210,6 +214,9 @@ public class Config {
     nodeColorMode = theme.nodeColorMode();
 
     gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
+
+    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
+    setLanguage(Locale.getDefault().getLanguage());
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -469,5 +476,19 @@ public class Config {
 
   public void save() throws IOException {
     writeConfig(this.config, new File(configFilename));
+  }
+
+  public void setLanguage(String code) {
+    // currently will not set the resource bundle. TODO.
+    if (code.equals("ko")) {
+      // korean
+      if (fontName == null) {
+        fontName = "Malgun Gothic";
+      }
+      if (uiFontName == null) {
+        uiFontName = "Malgun Gothic";
+      }
+      winrateFontName = null;
+    }
   }
 }
