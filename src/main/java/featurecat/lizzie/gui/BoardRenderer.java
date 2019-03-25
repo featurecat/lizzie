@@ -377,8 +377,7 @@ public class BoardRenderer {
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
     Lizzie.board.getData().tryToSetBestMoves(bestMoves);
-    System.out.println(Lizzie.board.getData().bestMoves.size());
-    if (MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().playouts) {
+    if (MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
       bestMoves = Lizzie.board.getData().bestMoves;
     }
 

@@ -209,12 +209,15 @@ public class Leelaz {
     outputStream = new BufferedOutputStream(process.getOutputStream());
   }
 
-  private void parseInfo(String line) {
-    bestMoves = new ArrayList<>();
+  public static List<MoveData> parseInfo(String line) {
+    List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
     for (String var : variations) {
-      bestMoves.add(MoveData.fromInfo(var));
+      if (!var.trim().isEmpty()){
+        bestMoves.add(MoveData.fromInfo(var));
+      }
     }
+    return bestMoves;
   }
 
   /**
@@ -249,7 +252,7 @@ public class Leelaz {
         Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
-          parseInfo(line.substring(5));
+          this.bestMoves = parseInfo(line.substring(5));
           notifyBestMoveListeners();
           Lizzie.frame.repaint();
           // don't follow the maxAnalyzeTime rule if we are in analysis mode

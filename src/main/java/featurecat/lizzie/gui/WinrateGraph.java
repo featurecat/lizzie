@@ -127,7 +127,7 @@ public class WinrateGraph {
 
     while (node.previous().isPresent()) {
       double wr = node.getData().winrate;
-      int playouts = node.getData().playouts;
+      int playouts = node.getData().getPlayouts();
       if (node == curMove) {
         if (Lizzie.config.dynamicWinrateGraphWidth
             && node.getData().moveNumber - 1 > this.numMovesOfPlayed) {
@@ -221,7 +221,7 @@ public class WinrateGraph {
           if (!node.getData().blackToPlay) lastWr = 100 - lastWr;
           g.setStroke(new BasicStroke(3));
           topOfVariation = Optional.empty();
-          if (node.getData().playouts == 0) {
+          if (node.getData().getPlayouts() == 0) {
             lastNodeOk = false;
           }
           inFirstPath = false;

@@ -279,7 +279,7 @@ public class Board implements LeelazListener {
   /**
    * Add a keys and values to node
    *
-   * @param map
+   * @param properties
    */
   public void addNodeProperties(Map<String, String> properties) {
     synchronized (this) {
@@ -1355,9 +1355,9 @@ public class Board implements LeelazListener {
 
   public void updateWinrate() {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-    if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().playouts) {
+    if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().getPlayouts()) {
       history.getData().winrate = stats.maxWinrate;
-      history.getData().playouts = stats.totalPlayouts;
+      // we won't set playouts here. but setting winrate is ok... it shows the user that we are computing. i think its fine.
     }
   }
 

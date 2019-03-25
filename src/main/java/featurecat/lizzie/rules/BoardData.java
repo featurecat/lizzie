@@ -19,7 +19,7 @@ public class BoardData {
   public boolean verify;
 
   public double winrate;
-  public int playouts;
+  private int playouts;
   public List<MoveData> bestMoves;
   public int blackCaptures;
   public int whiteCaptures;
@@ -151,17 +151,34 @@ public class BoardData {
     }
   }
 
+  public static int bestMovesPlayoutThreshold = 0;
   public void tryToSetBestMoves(List<MoveData> moves) {
-    if (MoveData.getPlayouts(moves) > playouts) {
+    if (MoveData.getPlayouts(moves) > playouts - bestMovesPlayoutThreshold) {
       bestMoves = moves;
+      setPlayouts(MoveData.getPlayouts(moves));
     }
   }
 
   public String bestMovesToString() {
     StringBuilder sb = new StringBuilder();
     for (MoveData move : bestMoves) {
-      // info move R5 visits 38 winrate 5404 order 0 pv R5 Q5 R6 S4 Q10 C3 D3 C4 C6 C5 D5
+      // eg: info move R5 visits 38 winrate 5404 pv R5 Q5 R6 S4 Q10 C3 D3 C4 C6 C5 D5
+      sb.append("move ").append(move.coordinate);
+      sb.append(" visits ").append(move.playouts);
+      sb.append(" winrate ").append((int)(move.winrate*100));
+      sb.append(" pv ").append(move.variation.stream().reduce((a, b) -> a + " " + b).get());
+      sb.append(" info "); // this order is just because of how the MoveData info parser works
     }
-    return "";
+    return sb.toString();
+  }
+
+  public void setPlayouts(int playouts) {
+    if (playouts > this.playouts) {
+      this.playouts = playouts;
+    }
+  }
+
+  public int getPlayouts() {
+    return playouts;
   }
 }

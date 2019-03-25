@@ -201,10 +201,19 @@ public class SGFParser {
             }
           } else if (tag.equals("LZ")) {
             // Content contains data for Lizzie to read
-            String[] data = tagContent.split(" ");
-            String versionNumber = data[0];
-            Lizzie.board.getData().winrate = 100 - Double.parseDouble(data[1]);
-            Lizzie.board.getData().playouts = Integer.parseInt(data[2].replaceAll("k","000").replaceAll("m", "000000").replaceAll("[^0-9]", ""));
+            String[] lines = tagContent.split("\n");
+            String[] line1 = lines[0].split(" ");
+            String line2 = "";
+            if (lines.length > 1) {
+              line2 = lines[1];
+            }
+            String versionNumber = line1[0];
+            Lizzie.board.getData().winrate = 100 - Double.parseDouble(line1[1]);
+            int numPlayouts = Integer.parseInt(line1[2].replaceAll("k","000").replaceAll("m", "000000").replaceAll("[^0-9]", ""));
+            Lizzie.board.getData().setPlayouts(numPlayouts);
+            if (numPlayouts > 0 && !line2.isEmpty()) {
+              Lizzie.board.getData().bestMoves = Leelaz.parseInfo(line2);
+            }
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
             Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
@@ -490,15 +499,15 @@ public class SGFParser {
     String engine = Lizzie.leelaz.currentWeight();
 
     // Playouts
-    String playouts = Lizzie.frame.getPlayoutsString(data.playouts);
+    String playouts = Lizzie.frame.getPlayoutsString(data.getPlayouts());
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-    boolean validLastWinrate = lastNode.map(d -> d.playouts > 0).orElse(false);
+    boolean validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
     double lastWR = validLastWinrate ? lastNode.get().getWinrate() : 50;
 
     // Current winrate
-    boolean validWinrate = (data.playouts > 0);
+    boolean validWinrate = (data.getPlayouts() > 0);
     double curWR;
     if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black")) {
       curWR = validWinrate ? data.getWinrate() : lastWR;
@@ -555,22 +564,22 @@ public class SGFParser {
     BoardData data = node.getData();
 
     // Playouts
-    String playouts = Lizzie.frame.getPlayoutsString(data.playouts);
+    String playouts = Lizzie.frame.getPlayoutsString(data.getPlayouts());
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-    boolean validLastWinrate = lastNode.map(d -> d.playouts > 0).orElse(false);
+    boolean validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
     double lastWR = validLastWinrate ? lastNode.get().winrate : 50;
 
     // Current winrate
-    boolean validWinrate = (data.playouts > 0);
+    boolean validWinrate = (data.getPlayouts() > 0);
     double curWR = validWinrate ? data.winrate : 100 - lastWR;
     String curWinrate = "";
     curWinrate = String.format("%.1f", 100 - curWR);
 
     String wf = "%s %s %s\n%s";
 
-    return String.format(wf, Lizzie.lizzieVersion, curWinrate, playouts, Lizzie.board.getData().bestMoves);
+    return String.format(wf, Lizzie.lizzieVersion, curWinrate, playouts, node.getData().bestMovesToString());
   }
 
   public static boolean isListProperty(String key) {

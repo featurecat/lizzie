@@ -1050,7 +1050,7 @@ public class LizzieFrame extends JFrame {
     double lastWR = 50; // winrate the previous move
     boolean validLastWinrate = false; // whether it was actually calculated
     Optional<BoardData> previous = Lizzie.board.getHistory().getPrevious();
-    if (previous.isPresent() && previous.get().playouts > 0) {
+    if (previous.isPresent() && previous.get().getPlayouts() > 0) {
       lastWR = previous.get().winrate;
       validLastWinrate = true;
     }
@@ -1060,7 +1060,7 @@ public class LizzieFrame extends JFrame {
     boolean validWinrate = (stats.totalPlayouts > 0); // and whether it was actually calculated
     if (!validWinrate) {
       curWR = Lizzie.board.getHistory().getData().winrate;
-      validWinrate = Lizzie.board.getHistory().getData().playouts > 0;
+      validWinrate = Lizzie.board.getHistory().getData().getPlayouts() > 0;
     }
     if (isPlayingAgainstLeelaz
         && playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
@@ -1494,7 +1494,7 @@ public class LizzieFrame extends JFrame {
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
-    boolean validLastWinrate = lastNode.map(d -> d.playouts > 0).orElse(false);
+    boolean validLastWinrate = lastNode.map(d -> d.getPlayouts() > 0).orElse(false);
     double lastWR = validLastWinrate ? lastNode.get().winrate : 50;
 
     // Current winrate
@@ -1510,7 +1510,7 @@ public class LizzieFrame extends JFrame {
         validWinrate = false;
       }
     } else {
-      validWinrate = (data.playouts > 0);
+      validWinrate = (data.getPlayouts() > 0);
       curWR = validWinrate ? data.winrate : 100 - lastWR;
     }
 
