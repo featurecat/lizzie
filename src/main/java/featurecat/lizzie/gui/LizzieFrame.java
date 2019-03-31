@@ -132,11 +132,11 @@ public class LizzieFrame extends JFrame {
     // load fonts
     try {
       uiFont = new Font("SansSerif", Font.TRUETYPE_FONT, 12);
-//          Font.createFont(
-//              Font.TRUETYPE_FONT,
-//              Thread.currentThread()
-//                  .getContextClassLoader()
-//                  .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
+      //          Font.createFont(
+      //              Font.TRUETYPE_FONT,
+      //              Thread.currentThread()
+      //                  .getContextClassLoader()
+      //                  .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
       winrateFont =
           Font.createFont(
               Font.TRUETYPE_FONT,
@@ -158,10 +158,10 @@ public class LizzieFrame extends JFrame {
     winrateGraph = new WinrateGraph();
 
     setMinimumSize(new Dimension(640, 400));
-    boolean persisted =
-        Lizzie.config.persistedUi != null;
-    if (persisted && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
-            && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4) {
+    boolean persisted = Lizzie.config.persistedUi != null;
+    if (persisted
+        && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
+        && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4) {
       JSONArray pos = Lizzie.config.persistedUi.getJSONArray("main-window-position");
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
       this.BoardPositionProportion =

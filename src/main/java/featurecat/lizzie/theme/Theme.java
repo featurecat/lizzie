@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
-import javax.swing.JLabel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

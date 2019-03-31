@@ -213,7 +213,7 @@ public class Leelaz {
     List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
     for (String var : variations) {
-      if (!var.trim().isEmpty()){
+      if (!var.trim().isEmpty()) {
         bestMoves.add(MoveData.fromInfo(var));
       }
     }
@@ -249,7 +249,7 @@ public class Leelaz {
         // Clear switching prompt
         switching = false;
         // Display engine command in the title
-        Lizzie.frame.updateTitle();
+        Lizzie.main.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
           this.bestMoves = parseInfo(line.substring(5));

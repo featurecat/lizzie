@@ -232,7 +232,7 @@ public class Board implements LeelazListener {
       stones[getIndex(x, y)] = color;
       zobrist.toggleStone(x, y, color);
 
-      Lizzie.frame.repaint();
+      Lizzie.main.refresh(true);
     }
   }
 
@@ -257,7 +257,7 @@ public class Board implements LeelazListener {
       zobrist.toggleStone(x, y, oriColor);
       data.moveNumberList[Board.getIndex(x, y)] = 0;
 
-      Lizzie.frame.repaint();
+      Lizzie.main.refresh(true);
     }
   }
 
@@ -357,7 +357,7 @@ public class Board implements LeelazListener {
       // update history with pass
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.frame.repaint();
+      Lizzie.main.refresh(true);
     }
   }
 
@@ -494,7 +494,7 @@ public class Board implements LeelazListener {
       // update history with this coordinate
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.frame.repaint();
+      Lizzie.main.refresh(true);
     }
   }
 
@@ -676,7 +676,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.frame.repaint();
+        Lizzie.main.refresh(true);
         return true;
       }
       return false;
@@ -807,7 +807,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.frame.repaint();
+        Lizzie.main.refresh(true);
         return true;
       }
       return false;
@@ -1008,7 +1008,7 @@ public class Board implements LeelazListener {
   /** Clears all history and starts over from empty board. */
   public void clear() {
     Lizzie.leelaz.clear();
-    Lizzie.frame.resetTitle();
+    Lizzie.main.resetTitle();
     Lizzie.frame.clear();
     initialize();
   }
@@ -1020,7 +1020,7 @@ public class Board implements LeelazListener {
       updateWinrate();
       if (history.previous().isPresent()) {
         Lizzie.leelaz.undo();
-        Lizzie.frame.repaint();
+        Lizzie.main.refresh(true);
         return true;
       }
       return false;
@@ -1115,7 +1115,7 @@ public class Board implements LeelazListener {
         x++;
       }
     }
-    Lizzie.frame.repaint();
+    Lizzie.main.refresh(true);
   }
 
   /*
@@ -1357,7 +1357,8 @@ public class Board implements LeelazListener {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().getPlayouts()) {
       history.getData().winrate = stats.maxWinrate;
-      // we won't set playouts here. but setting winrate is ok... it shows the user that we are computing. i think its fine.
+      // we won't set playouts here. but setting winrate is ok... it shows the user that we are
+      // computing. i think its fine.
     }
   }
 

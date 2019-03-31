@@ -8,15 +8,15 @@ import javax.swing.*;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
-  public void mouseClicked(MouseEvent e) {}
-
-  @Override
-  public void mousePressed(MouseEvent e) {
+  public void mouseClicked(MouseEvent e) {
     if (e.getButton() == MouseEvent.BUTTON1) // left click
     Lizzie.frame.onClicked(e.getX(), e.getY());
     else if (e.getButton() == MouseEvent.BUTTON3) // right click
     undo();
   }
+
+  @Override
+  public void mousePressed(MouseEvent e) {}
 
   @Override
   public void mouseReleased(MouseEvent e) {}
@@ -29,12 +29,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    Lizzie.frame.onMouseDragged(e.getX(), e.getY());
+    //    Lizzie.frame.onMouseDragged(e.getX(), e.getY());
   }
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    Lizzie.frame.onMouseMoved(e.getX(), e.getY());
+    //    Lizzie.frame.onMouseMoved(e.getX(), e.getY());
   }
 
   @Override
@@ -174,7 +174,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     switch (e.getKeyCode()) {
       case VK_E:
-        Lizzie.frame.toggleGtpConsole();
+        Lizzie.main.toggleGtpConsole();
         break;
       case VK_RIGHT:
         if (e.isShiftDown()) {
@@ -227,7 +227,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_N:
         // stop the ponder
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        LizzieFrame.startNewGame();
+        Lizzie.main.startNewGame();
         break;
       case VK_SPACE:
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
@@ -247,7 +247,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_M:
         if (e.isAltDown()) {
-          Lizzie.frame.openChangeMoveDialog();
+          Lizzie.main.openChangeMoveDialog();
         } else {
           Lizzie.config.toggleShowMoveNumber();
         }
@@ -272,7 +272,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_I:
         // stop the ponder
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        Lizzie.frame.editGameInfo();
+        Lizzie.main.editGameInfo();
         break;
       case VK_S:
         // stop the ponder
@@ -307,7 +307,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_X:
         if (controlIsPressed(e)) {
-          Lizzie.frame.openConfigDialog();
+          Lizzie.main.openConfigDialog();
         } else {
           if (!Lizzie.frame.showControls) {
             if (Lizzie.leelaz.isPondering()) {
@@ -325,13 +325,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_W:
         if (controlIsPressed(e)) {
           Lizzie.config.toggleLargeWinrate();
+          Lizzie.main.invalidLayout();
+        } else if (e.isAltDown()) {
+          Lizzie.main.toggleDesignMode();
         } else {
           Lizzie.config.toggleShowWinrate();
+          Lizzie.main.invalidLayout();
         }
         break;
 
       case VK_G:
         Lizzie.config.toggleShowVariationGraph();
+        Lizzie.main.invalidLayout();
         break;
 
       case VK_T:
@@ -339,6 +344,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.config.toggleShowCommentNodeColor();
         } else {
           Lizzie.config.toggleShowComment();
+          Lizzie.main.invalidLayout();
         }
         break;
 
@@ -406,11 +412,17 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_OPEN_BRACKET:
-        if (Lizzie.frame.BoardPositionProportion > 0) Lizzie.frame.BoardPositionProportion--;
+        if (Lizzie.main.BoardPositionProportion > 0) {
+          Lizzie.main.BoardPositionProportion--;
+          Lizzie.main.invalidLayout();
+        }
         break;
 
       case VK_CLOSE_BRACKET:
-        if (Lizzie.frame.BoardPositionProportion < 8) Lizzie.frame.BoardPositionProportion++;
+        if (Lizzie.main.BoardPositionProportion < 8) {
+          Lizzie.main.BoardPositionProportion++;
+          Lizzie.main.invalidLayout();
+        }
         break;
 
       case VK_K:
@@ -463,15 +475,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
-    if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
-      return;
-    }
     if (Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
     if (e.getWheelRotation() > 0) {
       redo();
     } else if (e.getWheelRotation() < 0) {
       undo();
     }
-    Lizzie.frame.repaint();
+    Lizzie.main.refresh(true);
   }
 }

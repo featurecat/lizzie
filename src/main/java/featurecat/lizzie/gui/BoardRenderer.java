@@ -369,11 +369,10 @@ public class BoardRenderer {
     if (Lizzie.frame.isPlayingAgainstLeelaz) {
       return;
     }
-    
+
     // Leela Zero isn't connected yet
-    if (Lizzie.leelaz == null)
-      return;
-    
+    if (Lizzie.leelaz == null) return;
+
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
     Lizzie.board.getData().tryToSetBestMoves(bestMoves);
@@ -605,7 +604,11 @@ public class BoardRenderer {
           }
 
           float percentPlayouts = (float) move.playouts / maxPlayouts;
-          double percentWinrate = Math.min(1, Math.max(0.01, move.winrate - minWinrate) / Math.max(0.01, maxWinrate - minWinrate));
+          double percentWinrate =
+              Math.min(
+                  1,
+                  Math.max(0.01, move.winrate - minWinrate)
+                      / Math.max(0.01, maxWinrate - minWinrate));
 
           Optional<int[]> coordsOpt = Board.asCoordinates(move.coordinate);
           if (!coordsOpt.isPresent()) {
@@ -644,9 +647,18 @@ public class BoardRenderer {
 
           float saturation = 1.0f;
           float brightness = 0.85f;
-          float alpha = minAlpha
-                      + (maxAlpha - minAlpha)
-                          * max(0, (float) log(Lizzie.config.colorByWinrateInsteadOfVisits? percentWinrate : percentPlayouts) / alphaFactor + 1);
+          float alpha =
+              minAlpha
+                  + (maxAlpha - minAlpha)
+                      * max(
+                          0,
+                          (float)
+                                      log(
+                                          Lizzie.config.colorByWinrateInsteadOfVisits
+                                              ? percentWinrate
+                                              : percentPlayouts)
+                                  / alphaFactor
+                              + 1);
 
           Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
           Color color =
@@ -659,7 +671,8 @@ public class BoardRenderer {
             fillCircle(g, suggestionX, suggestionY, stoneRadius);
           }
 
-          boolean ringedMove = !Lizzie.config.colorByWinrateInsteadOfVisits && (isBestMove || hasMaxWinrate);
+          boolean ringedMove =
+              !Lizzie.config.colorByWinrateInsteadOfVisits && (isBestMove || hasMaxWinrate);
           if (!branchOpt.isPresent() || (ringedMove && isMouseOver)) {
             int strokeWidth = 1;
             if (ringedMove) {

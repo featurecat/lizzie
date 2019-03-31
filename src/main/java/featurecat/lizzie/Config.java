@@ -6,10 +6,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-
-import org.json.*;
-
 import javax.swing.*;
+import org.json.*;
 
 public class Config {
   public String language = "en";
@@ -112,8 +110,8 @@ public class Config {
   /**
    * Check settings to ensure its consistency, especially for those whose types are not <code>
    * boolean</code>. If any inconsistency is found, try to correct it or to report it. <br>
-   * For example, we only support square boards of size >= 2x2. If the configured board
-   * size is not in the list above, we should correct it.
+   * For example, we only support square boards of size >= 2x2. If the configured board size is not
+   * in the list above, we should correct it.
    *
    * @param config The config json object to check
    * @return if any correction has been made.
@@ -191,14 +189,11 @@ public class Config {
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
 
-    if (theme.fontName() != null)
-      fontName = theme.fontName();
+    if (theme.fontName() != null) fontName = theme.fontName();
 
-    if (theme.uiFontName() != null)
-      uiFontName = theme.uiFontName();
+    if (theme.uiFontName() != null) uiFontName = theme.uiFontName();
 
-    if (theme.winrateFontName() != null)
-      winrateFontName = theme.winrateFontName();
+    if (theme.winrateFontName() != null) winrateFontName = theme.winrateFontName();
 
     commentFontSize = theme.commentFontSize();
     commentFontColor = theme.commentFontColor();
@@ -453,14 +448,14 @@ public class Config {
   }
 
   public void persist() throws IOException {
-    boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
+    boolean windowIsMaximized = Lizzie.main.getExtendedState() == JFrame.MAXIMIZED_BOTH;
 
     JSONArray mainPos = new JSONArray();
     if (!windowIsMaximized) {
-      mainPos.put(Lizzie.frame.getX());
-      mainPos.put(Lizzie.frame.getY());
-      mainPos.put(Lizzie.frame.getWidth());
-      mainPos.put(Lizzie.frame.getHeight());
+      mainPos.put(Lizzie.main.getX());
+      mainPos.put(Lizzie.main.getY());
+      mainPos.put(Lizzie.main.getWidth());
+      mainPos.put(Lizzie.main.getHeight());
     }
     persistedUi.put("main-window-position", mainPos);
     JSONArray gtpPos = new JSONArray();
@@ -469,7 +464,7 @@ public class Config {
     gtpPos.put(Lizzie.gtpConsole.getWidth());
     gtpPos.put(Lizzie.gtpConsole.getHeight());
     persistedUi.put("gtp-console-position", gtpPos);
-    persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
+    persistedUi.put("board-postion-propotion", Lizzie.main.BoardPositionProportion);
     persistedUi.put("window-maximized", windowIsMaximized);
     writeConfig(this.persisted, new File(persistFilename));
   }
