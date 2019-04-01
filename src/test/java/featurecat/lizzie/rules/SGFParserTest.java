@@ -23,7 +23,7 @@ public class SGFParserTest {
     lizzie = new Lizzie();
     lizzie.config = new Config();
     lizzie.board = new Board();
-    lizzie.frame = new LizzieFrame();
+    //    lizzie.frame = new LizzieFrame();
     // new Thread( () -> {
     lizzie.leelaz = new Leelaz();
     // }).start();
