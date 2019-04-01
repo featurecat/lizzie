@@ -136,7 +136,8 @@ public class LizzieMain extends JFrame {
   public LizzieMain() {
     super(DEFAULT_TITLE);
 
-    setMinimumSize(new Dimension(640, 400));
+    // TODO
+    //    setMinimumSize(new Dimension(640, 400));
     boolean persisted =
         Lizzie.config.persistedUi != null
             && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
@@ -361,6 +362,7 @@ public class LizzieMain extends JFrame {
   public void invalidLayout() {
     // TODO
     layout.layoutContainer(getContentPane());
+    layout.invalidateLayout(getContentPane());
   }
 
   public void refresh(boolean all) {

@@ -436,6 +436,8 @@ public class LizziePane extends JPanel {
       lm = new LizzieLayout();
     }
 
+    /** @deprecated replaced by <code>addLayoutComponent(Component, Object)</code>. */
+    @Deprecated
     public void addLayoutComponent(String name, Component comp) {
       lm.addLayoutComponent(name, comp);
     }

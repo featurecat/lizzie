@@ -83,7 +83,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     installDefaults();
     installComponents();
     installListeners();
-    installKeyboardActions();
+    //    installKeyboardActions();
 
     // Initialize instance vars
     dockingSensitivity = 0;
@@ -104,7 +104,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     uninstallDefaults();
     uninstallComponents();
     uninstallListeners();
-    uninstallKeyboardActions();
+    //    uninstallKeyboardActions();
 
     // Clear instance vars
     if (isFloating()) setFloating(false, null);

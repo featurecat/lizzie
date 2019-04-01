@@ -305,6 +305,15 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       int bottomInset = insets.bottom;
       int maxBound = Math.max(width, height);
 
+      boolean ltr = target.getComponentOrientation().isLeftToRight();
+      Component c = null;
+      boolean noWinrate = (getChild(WINRATE, ltr) == null || !Lizzie.config.showWinrate);
+      boolean noVariation = (getChild(VARIATION, ltr) == null || !Lizzie.config.showVariationGraph);
+      boolean noBasic = (getChild(BASIC_INFO, ltr) == null || !Lizzie.config.showCaptured);
+      boolean noSubBoard = (getChild(SUB_BOARD, ltr) == null || !Lizzie.config.showSubBoard);
+      boolean noComment = (getChild(COMMENT, ltr) == null || !Lizzie.config.showComment);
+      boolean onlyMainBoard = noWinrate && noVariation && noBasic && noSubBoard && noComment;
+
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
@@ -314,6 +323,11 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
               * (Lizzie.main == null
                   ? Lizzie.config.boardPositionProportion
                   : Lizzie.main.BoardPositionProportion);
+      if (noBasic && noWinrate && noSubBoard) {
+        boardX = leftInset;
+      } else if (noVariation && noComment) {
+        boardX = (width - maxSize);
+      }
       int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
 
       int panelMargin = (int) (maxSize * 0.02);
@@ -582,8 +596,6 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
         }
       }
 
-      boolean ltr = target.getComponentOrientation().isLeftToRight();
-      Component c = null;
       if ((c = getChild(MAIN_BOARD, ltr)) != null) {
         c.setBounds(x + boardX, y + boardY, maxSize, maxSize);
       }
