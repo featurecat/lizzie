@@ -13,7 +13,6 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.FocusEvent;
@@ -38,8 +37,6 @@ import javax.swing.UIManager;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
-import sun.swing.DefaultLookup;
-import sun.swing.UIAction;
 
 public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
   protected LizziePane lizziePane;
@@ -220,7 +217,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
 
   InputMap getInputMap(int condition) {
     if (condition == JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT) {
-      return (InputMap) DefaultLookup.get(lizziePane, this, "LizziePane.ancestorInputMap");
+      return (InputMap) UIManager.get("LizziePane.ancestorInputMap", lizziePane.getLocale());
     }
     return null;
   }
@@ -246,7 +243,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
           if (j >= nComp) j = 0;
           Component comp = lizziePane.getComponentAtIndex(j++);
 
-          if (comp != null && comp.isFocusTraversable() && comp.isEnabled()) {
+          if (comp != null && comp.isFocusable() && comp.isEnabled()) {
             comp.requestFocus();
             break;
           }
@@ -264,7 +261,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
           if (j < 0) j = nComp - 1;
           Component comp = lizziePane.getComponentAtIndex(j--);
 
-          if (comp != null && comp.isFocusTraversable() && comp.isEnabled()) {
+          if (comp != null && comp.isFocusable() && comp.isEnabled()) {
             comp.requestFocus();
             break;
           }
@@ -632,34 +629,34 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     g.setColor(dragWindow.getBorderColor());
     g.drawRect(0, 0, w - 1, h - 1);
   }
-
-  private static class Actions extends UIAction {
-    private static final String NAVIGATE_RIGHT = "navigateRight";
-    private static final String NAVIGATE_LEFT = "navigateLeft";
-    private static final String NAVIGATE_UP = "navigateUp";
-    private static final String NAVIGATE_DOWN = "navigateDown";
-
-    public Actions(String name) {
-      super(name);
-    }
-
-    public void actionPerformed(ActionEvent evt) {
-      String key = getName();
-      LizziePane lizziePane = (LizziePane) evt.getSource();
-      //      LizziePaneUI ui = (LizziePaneUI) BasicLookAndFeel.getUIOfType(lizziePane.getUI(),
-      // LizziePaneUI.class);
-      //
-      //      if (NAVIGATE_RIGHT == key) {
-      //        ui.navigateFocusedComp(EAST);
-      //      } else if (NAVIGATE_LEFT == key) {
-      //        ui.navigateFocusedComp(WEST);
-      //      } else if (NAVIGATE_UP == key) {
-      //        ui.navigateFocusedComp(NORTH);
-      //      } else if (NAVIGATE_DOWN == key) {
-      //        ui.navigateFocusedComp(SOUTH);
-      //      }
-    }
-  }
+  //
+  //  private static class Actions extends UIAction {
+  //    private static final String NAVIGATE_RIGHT = "navigateRight";
+  //    private static final String NAVIGATE_LEFT = "navigateLeft";
+  //    private static final String NAVIGATE_UP = "navigateUp";
+  //    private static final String NAVIGATE_DOWN = "navigateDown";
+  //
+  //    public Actions(String name) {
+  //      super(name);
+  //    }
+  //
+  //    public void actionPerformed(ActionEvent evt) {
+  //      String key = getName();
+  //      LizziePane lizziePane = (LizziePane) evt.getSource();
+  //      LizziePaneUI ui = (LizziePaneUI) BasicLookAndFeel.getUIOfType(lizziePane.getUI(),
+  // LizziePaneUI.class);
+  //
+  //      if (NAVIGATE_RIGHT == key) {
+  //        ui.navigateFocusedComp(EAST);
+  //      } else if (NAVIGATE_LEFT == key) {
+  //        ui.navigateFocusedComp(WEST);
+  //      } else if (NAVIGATE_UP == key) {
+  //        ui.navigateFocusedComp(NORTH);
+  //      } else if (NAVIGATE_DOWN == key) {
+  //        ui.navigateFocusedComp(SOUTH);
+  //      //      }
+  //    }
+  //  }
 
   private class Handler
       implements ContainerListener, FocusListener, MouseInputListener, PropertyChangeListener {
