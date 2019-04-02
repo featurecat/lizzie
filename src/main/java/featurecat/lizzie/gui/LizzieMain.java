@@ -13,6 +13,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Frame;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -263,44 +264,45 @@ public class LizzieMain extends JFrame {
    * @param g0 not used
    */
   // TODO Need Better Background
-  //    public void paint(Graphics g0) {
-  ////      super.paintComponents(g0);
-  //
-  //      int width = getWidth();
-  //      int height = getHeight();
-  //
-  //      originX = getX();
-  //      originY = getY();
-  //      originW = width;
-  //      originH = height;
-  //
-  //      Optional<Graphics2D> backgroundG;
-  //      if (cachedBackgroundWidth != width
-  //          || cachedBackgroundHeight != height
-  //          || redrawBackgroundAnyway) {
-  //        backgroundG = Optional.of(createBackground());
-  //      } else {
-  //        backgroundG = Optional.empty();
-  //      }
-  //
-  ////      cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
-  ////      Graphics2D g = (Graphics2D) cachedImage.getGraphics();
-  ////      g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-  //
-  //      // cleanup
-  ////      g.dispose();
-  //
-  //      // draw the image
-  //      Graphics2D bsGraphics = (Graphics2D) bs.getDrawGraphics();
-  //      bsGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,
-  //   RenderingHints.VALUE_RENDER_QUALITY);
-  //      bsGraphics.drawImage(cachedBackground, 0, 0, null);
-  ////      bsGraphics.drawImage(cachedImage, 0, 0, null);
-  //
-  //      // cleanup
-  //      bsGraphics.dispose();
-  //      bs.show();
-  //    }
+  public void paint(Graphics g0) {
+    super.paintComponents(g0);
+
+    //        int width = getWidth();
+    //        int height = getHeight();
+    //
+    //        originX = getX();
+    //        originY = getY();
+    //        originW = width;
+    //        originH = height;
+    //
+    //        Optional<Graphics2D> backgroundG;
+    //        if (cachedBackgroundWidth != width
+    //            || cachedBackgroundHeight != height
+    //            || redrawBackgroundAnyway) {
+    //          backgroundG = Optional.of(createBackground());
+    //        } else {
+    //          backgroundG = Optional.empty();
+    //        }
+    //
+    //  //      cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
+    //  //      Graphics2D g = (Graphics2D) cachedImage.getGraphics();
+    //  //      g.setRenderingHint(RenderingHints.KEY_RENDERING,
+    // RenderingHints.VALUE_RENDER_QUALITY);
+    //
+    //        // cleanup
+    //  //      g.dispose();
+    //
+    //        // draw the image
+    //        Graphics2D bsGraphics = (Graphics2D) bs.getDrawGraphics();
+    //        bsGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,
+    //     RenderingHints.VALUE_RENDER_QUALITY);
+    //        bsGraphics.drawImage(cachedBackground, 0, 0, null);
+    //  //      bsGraphics.drawImage(cachedImage, 0, 0, null);
+    //
+    //        // cleanup
+    //        bsGraphics.dispose();
+    //        bs.show();
+  }
 
   /**
    * temporary measure to refresh background. ideally we shouldn't need this (but we want to release
@@ -381,9 +383,14 @@ public class LizzieMain extends JFrame {
   }
 
   public void updateStatus() {
+    basicInfoPane.revalidate();
     basicInfoPane.repaint();
+    variationTreePane.revalidate();
     variationTreePane.repaint();
     commentPane.drawComment();
+    commentPane.revalidate();
+    commentPane.repaint();
+    invalidLayout();
   }
 
   public static void openConfigDialog() {

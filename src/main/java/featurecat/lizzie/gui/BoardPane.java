@@ -83,7 +83,7 @@ public class BoardPane extends LizziePane {
   public static Font winrateFont;
 
   //  private final BufferStrategy bs;
-  private boolean started = false;
+  private static boolean started = false;
 
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
   public int[] mouseOverCoordinate = outOfBoundCoordinate;
@@ -539,8 +539,8 @@ public class BoardPane extends LizziePane {
       if (Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
       if (!isPlayingAgainstLeelaz || (playerIsBlack == Lizzie.board.getData().blackToPlay))
         Lizzie.board.place(coords[0], coords[1]);
-      repaint();
-      owner.updateStatus();
+      //      repaint();
+      //      owner.updateStatus();
     }
   }
 

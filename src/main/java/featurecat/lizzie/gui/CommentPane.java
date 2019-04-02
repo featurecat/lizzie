@@ -128,17 +128,18 @@ public class CommentPane extends LizziePane {
     if (mode) {
       remove(scrollPane);
       add(dragPane);
-      this.commentPane.setVisible(false);
-      this.scrollPane.setVisible(false);
+      commentPane.setVisible(false);
+      scrollPane.setVisible(false);
       dragPane.setVisible(true);
     } else {
       remove(dragPane);
       add(scrollPane);
-      this.commentPane.setVisible(true);
-      this.scrollPane.setVisible(true);
+      commentPane.setVisible(true);
+      scrollPane.setVisible(true);
       dragPane.setVisible(false);
     }
     super.setDesignMode(mode);
+    revalidate();
     repaint();
   }
 
