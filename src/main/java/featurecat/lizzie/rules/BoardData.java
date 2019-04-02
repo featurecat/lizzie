@@ -150,8 +150,6 @@ public class BoardData {
     }
   }
 
-  public static int bestMovesPlayoutThreshold = 0;
-
   public void tryToSetBestMoves(List<MoveData> moves) {
     if (MoveData.getPlayouts(moves) > playouts) {
       bestMoves = moves;
