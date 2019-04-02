@@ -9,7 +9,6 @@ import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -356,6 +355,10 @@ public class LizzieMain extends JFrame {
   public void toggleDesignMode() {
     this.designMode = !this.designMode;
     //    boardPane.setDesignMode(designMode);
+    basicInfoPane.setDesignMode(designMode);
+    winratePane.setDesignMode(designMode);
+    subBoardPane.setDesignMode(designMode);
+    variationTreePane.setDesignMode(designMode);
     commentPane.setDesignMode(designMode);
   }
 

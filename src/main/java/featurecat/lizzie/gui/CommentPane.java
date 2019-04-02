@@ -5,7 +5,11 @@ import static java.lang.Math.min;
 import featurecat.lizzie.Lizzie;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
@@ -24,6 +28,9 @@ public class CommentPane extends LizziePane {
   private StyleSheet htmlStyle;
   public JScrollPane scrollPane;
   private JTextPane commentPane;
+  private JLabel dragPane = new JLabel("Drag out");
+  private MouseMotionListener[] mouseMotionListeners;
+  private MouseMotionAdapter mouseMotionAdapter;
 
   /** Creates a window */
   public CommentPane(LizzieMain owner) {
@@ -33,8 +40,8 @@ public class CommentPane extends LizziePane {
     htmlKit = new HTMLEditorKit();
     htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
     htmlStyle = htmlKit.getStyleSheet();
-    htmlStyle.addRule(
-        "body {background:#"
+    String style =
+        ".comment {background:#"
             + String.format(
                 "%02x%02x%02x",
                 Lizzie.config.commentBackgroundColor.getRed(),
@@ -46,29 +53,38 @@ public class CommentPane extends LizziePane {
                 Lizzie.config.commentFontColor.getRed(),
                 Lizzie.config.commentFontColor.getGreen(),
                 Lizzie.config.commentFontColor.getBlue())
-            + ";}");
+            + ";}";
+    htmlStyle.addRule(style);
 
     commentPane = new JTextPane();
+    commentPane.setBorder(BorderFactory.createEmptyBorder());
     commentPane.setEditorKit(htmlKit);
     commentPane.setDocument(htmlDoc);
     commentPane.setText("");
     commentPane.setEditable(false);
-    //    commentPane.setMargin(new Insets(5, 5, 5, 5));
-    commentPane.setBackground(Lizzie.config.commentBackgroundColor);
-    commentPane.setForeground(Lizzie.config.commentFontColor);
+    commentPane.setFocusable(false);
     scrollPane = new JScrollPane();
-    scrollPane.setBorder(null);
+    scrollPane.setBorder(BorderFactory.createEmptyBorder());
     scrollPane.setVerticalScrollBarPolicy(
         javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
     add(scrollPane);
     scrollPane.setViewportView(commentPane);
     setVisible(false);
+
+    //    mouseMotionAdapter = new MouseMotionAdapter() {
+    //      @Override
+    //      public void mouseDragged(MouseEvent e) {
+    //        System.out.println("Mouse Dragged");
+    //        owner.dispatchEvent(e);
+    //      }
+    //    };
+    //    commentPane.addMouseMotionListener(mouseMotionAdapter);
   }
 
   /** Draw the Comment of the Sgf file */
   public void drawComment() {
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
-      if (Lizzie.config.showWinrate) {
+      if (Lizzie.config.showComment) {
         setVisible(true);
         String comment = Lizzie.board.getHistory().getData().comment;
         int fontSize = (int) (min(getWidth(), getHeight()) * 0.0294);
@@ -79,7 +95,7 @@ public class CommentPane extends LizziePane {
         }
         Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
         commentPane.setFont(font);
-        addText(comment);
+        addText("<span class=\"comment\">" + comment + "</span>");
       }
     }
   }
@@ -95,14 +111,35 @@ public class CommentPane extends LizziePane {
   }
 
   public void setDesignMode(boolean mode) {
-    super.setDesignMode(mode);
+    //    if (mode) {
+    //      mouseMotionListeners = commentPane.getMouseMotionListeners();
+    //      if (mouseMotionListeners != null) {
+    //        for (MouseMotionListener l : mouseMotionListeners) {
+    //          commentPane.removeMouseMotionListener(l);
+    //        }
+    //      }
+    //    } else {
+    //      if (mouseMotionListeners != null) {
+    //        for (MouseMotionListener l : mouseMotionListeners) {
+    //          commentPane.addMouseMotionListener(l);
+    //        }
+    //      }
+    //    }
     if (mode) {
+      remove(scrollPane);
+      add(dragPane);
       this.commentPane.setVisible(false);
       this.scrollPane.setVisible(false);
+      dragPane.setVisible(true);
     } else {
+      remove(dragPane);
+      add(scrollPane);
       this.commentPane.setVisible(true);
       this.scrollPane.setVisible(true);
+      dragPane.setVisible(false);
     }
+    super.setDesignMode(mode);
+    repaint();
   }
 
   public void setCommentBounds(int x, int y, int width, int height) {

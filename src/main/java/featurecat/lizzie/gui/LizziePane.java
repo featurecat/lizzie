@@ -390,16 +390,17 @@ public class LizziePane extends JPanel {
   }
 
   protected void installDesignListeners() {
-    if (dragListener == null) {
-      //      dragListener = new PaneDragListener(this);
+    LizziePaneUI ui = getUI();
+    if (ui != null && ui instanceof BasicLizziePaneUI) {
+      ((BasicLizziePaneUI) ui).installListeners();
     }
-    addMouseListener(dragListener);
-    addMouseMotionListener(dragListener);
   }
 
   protected void uninstallDesignListeners() {
-    removeMouseListener(dragListener);
-    removeMouseMotionListener(dragListener);
+    LizziePaneUI ui = getUI();
+    if (ui != null && ui instanceof BasicLizziePaneUI) {
+      ((BasicLizziePaneUI) ui).uninstallListeners();
+    }
   }
 
   protected void installInputListeners() {

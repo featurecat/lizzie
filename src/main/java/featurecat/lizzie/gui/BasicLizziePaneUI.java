@@ -82,7 +82,8 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     // Set defaults
     installDefaults();
     installComponents();
-    installListeners();
+    // TODO Default disabled drag
+    //    installListeners();
     //    installKeyboardActions();
 
     // Initialize instance vars
@@ -145,7 +146,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
 
   protected void uninstallComponents() {}
 
-  protected void installListeners() {
+  public void installListeners() {
     dockingListener = createDockingListener();
 
     if (dockingListener != null) {
@@ -175,7 +176,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     }
   }
 
-  protected void uninstallListeners() {
+  public void uninstallListeners() {
     if (dockingListener != null) {
       lizziePane.removeMouseMotionListener(dockingListener);
       lizziePane.removeMouseListener(dockingListener);
