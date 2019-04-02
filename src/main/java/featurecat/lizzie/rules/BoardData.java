@@ -153,10 +153,16 @@ public class BoardData {
   public static int bestMovesPlayoutThreshold = 0;
 
   public void tryToSetBestMoves(List<MoveData> moves) {
-    if (MoveData.getPlayouts(moves) > playouts - bestMovesPlayoutThreshold) {
+    if (MoveData.getPlayouts(moves) > playouts) {
       bestMoves = moves;
       setPlayouts(MoveData.getPlayouts(moves));
+      winrate = getWinrateFromBestMoves(moves);
     }
+  }
+
+  public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {
+      // return the weighted average winrate of bestMoves
+      return bestMoves.stream().mapToDouble(move -> move.winrate * move.playouts / MoveData.getPlayouts(bestMoves)).sum();
   }
 
   public String bestMovesToString() {

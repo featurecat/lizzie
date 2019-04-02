@@ -10,6 +10,7 @@ import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
@@ -238,16 +239,16 @@ public class LizzieFrame extends JFrame {
             }
             if (Lizzie.leelaz == null) return;
             try {
-              Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
-              if (stats.totalPlayouts <= 0) return;
+                int totalPlayouts = MoveData.getPlayouts(Lizzie.leelaz.getBestMoves());
+              if (totalPlayouts <= 0) return;
               visitsString =
                   String.format(
                       " %d visits/second",
-                      (stats.totalPlayouts > lastPlayouts)
-                          ? stats.totalPlayouts - lastPlayouts
+                      (totalPlayouts > lastPlayouts)
+                          ? totalPlayouts - lastPlayouts
                           : 0);
               updateTitle();
-              lastPlayouts = stats.totalPlayouts;
+              lastPlayouts = totalPlayouts;
             } catch (Exception e) {
             }
           }
