@@ -27,6 +27,7 @@ public class BasicInfoPane extends LizziePane {
    */
   @Override
   protected void paintComponent(Graphics g0) {
+    super.paintComponent(g0);
 
     int x = 0; // getX();
     int y = 0; // getY();
