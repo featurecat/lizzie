@@ -8,7 +8,6 @@ import common.Util;
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
-import featurecat.lizzie.gui.LizzieFrame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

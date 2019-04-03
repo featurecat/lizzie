@@ -2,7 +2,11 @@ package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.MoveData;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class BoardData {
   public int moveNumber;
@@ -159,8 +163,11 @@ public class BoardData {
   }
 
   public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {
-      // return the weighted average winrate of bestMoves
-      return bestMoves.stream().mapToDouble(move -> move.winrate * move.playouts / MoveData.getPlayouts(bestMoves)).sum();
+    // return the weighted average winrate of bestMoves
+    return bestMoves
+        .stream()
+        .mapToDouble(move -> move.winrate * move.playouts / MoveData.getPlayouts(bestMoves))
+        .sum();
   }
 
   public String bestMovesToString() {

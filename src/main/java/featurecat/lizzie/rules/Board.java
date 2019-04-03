@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import org.json.JSONException;
 
 public class Board implements LeelazListener {

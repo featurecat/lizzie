@@ -384,7 +384,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
 
       if (width >= height) {
         // Landscape mode
-        if (Lizzie.config.showLargeSubBoard()) {
+        if (Lizzie.config.showLargeSubBoard() && !noSubBoard) {
           boardX = width - maxSize - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;
           int spaceH = height - topInset - bottomInset;
@@ -412,7 +412,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardHeight = ponderingY - subBoardY;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
           subBoardX = statx + (statw + vw - subBoardLength) / 2;
-        } else if (Lizzie.config.showLargeWinrate()) {
+        } else if (Lizzie.config.showLargeWinrate() && !noWinrate) {
           boardX = width - maxSize - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;
           int spaceH = height - topInset - bottomInset;
@@ -444,7 +444,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
         }
       } else {
         // Portrait mode
-        if (Lizzie.config.showLargeSubBoard()) {
+        if (Lizzie.config.showLargeSubBoard() && !noSubBoard) {
           // board
           maxSize = (int) (maxSize * 0.8);
           boardY = height - maxSize - bottomInset;
@@ -477,7 +477,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardY = capy + (gry + grh - capy - subBoardLength) / 2;
           // pondering message
           ponderingY = height;
-        } else if (Lizzie.config.showLargeWinrate()) {
+        } else if (Lizzie.config.showLargeWinrate() && !noWinrate) {
           // board
           maxSize = (int) (maxSize * 0.8);
           boardY = height - maxSize - bottomInset;
