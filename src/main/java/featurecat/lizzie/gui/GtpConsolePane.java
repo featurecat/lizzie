@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -44,12 +45,8 @@ public class GtpConsolePane extends JDialog {
     super(owner);
     setTitle("Gtp Console");
 
-    boolean persisted =
-        Lizzie.config.persistedUi != null
-            && Lizzie.config.persistedUi.optJSONArray("gtp-console-position") != null
-            && Lizzie.config.persistedUi.optJSONArray("gtp-console-position").length() == 4;
-    if (persisted) {
-      JSONArray pos = Lizzie.config.persistedUi.getJSONArray("gtp-console-position");
+    JSONArray pos = WindowPosition.gtpWindowPos();
+    if (pos != null) {
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
     } else {
       Insets oi = owner.getInsets();

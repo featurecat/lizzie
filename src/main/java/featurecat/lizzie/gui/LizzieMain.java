@@ -9,6 +9,7 @@ import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Frame;
@@ -123,13 +124,12 @@ public class LizzieMain extends JFrame {
     // TODO
     //    setMinimumSize(new Dimension(640, 400));
     boolean persisted = Lizzie.config.persistedUi != null;
-    if (persisted
-        && Lizzie.config.persistedUi.optJSONArray("main-window-position") != null
-        && Lizzie.config.persistedUi.optJSONArray("main-window-position").length() == 4) {
-      JSONArray pos = Lizzie.config.persistedUi.getJSONArray("main-window-position");
+    if (persisted)
+      BoardPositionProportion =
+          Lizzie.config.persistedUi.optInt("board-postion-propotion", BoardPositionProportion);
+    JSONArray pos = WindowPosition.mainWindowPos();
+    if (pos != null) {
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
-      this.BoardPositionProportion =
-          Lizzie.config.persistedUi.optInt("board-postion-propotion", this.BoardPositionProportion);
     } else {
       setSize(960, 600);
       setLocationRelativeTo(null); // Start centered, needs to be called *after* setSize...
@@ -191,7 +191,12 @@ public class LizzieMain extends JFrame {
     getContentPane().add(subBoardPane, LizzieLayout.SUB_BOARD);
     getContentPane().add(variationTreePane, LizzieLayout.VARIATION);
     getContentPane().add(commentPane, LizzieLayout.COMMENT);
-
+    WindowPosition.restorePane(Lizzie.config.persistedUi, boardPane);
+    WindowPosition.restorePane(Lizzie.config.persistedUi, basicInfoPane);
+    WindowPosition.restorePane(Lizzie.config.persistedUi, winratePane);
+    WindowPosition.restorePane(Lizzie.config.persistedUi, subBoardPane);
+    WindowPosition.restorePane(Lizzie.config.persistedUi, variationTreePane);
+    WindowPosition.restorePane(Lizzie.config.persistedUi, commentPane);
     setVisible(true);
 
     createBufferStrategy(2);

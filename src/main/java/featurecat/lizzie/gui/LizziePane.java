@@ -116,6 +116,12 @@ public class LizziePane extends JPanel {
     return uiClassID;
   }
 
+  public void toWindow(Point position, Dimension size) {
+    if (getUI() != null) {
+      getUI().toWindow(position, size);
+    }
+  }
+
   public int getComponentIndex(Component c) {
     int ncomponents = this.getComponentCount();
     Component[] component = this.getComponents();

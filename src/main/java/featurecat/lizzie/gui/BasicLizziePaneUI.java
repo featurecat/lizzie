@@ -587,6 +587,20 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     }
   }
 
+  public void toWindow(Point position, Dimension size) {
+    if (lizziePane.isFloatable()) {
+      try {
+        originSize = size;
+        if (dragWindow == null) dragWindow = createDragWindow(lizziePane);
+        if (dockingSource == null) dockingSource = lizziePane.getParent();
+        constraintBeforeFloating = calculateConstraint();
+        setFloatingLocation(position.x, position.y);
+        setFloating(true, null);
+      } catch (IllegalComponentStateException e) {
+      }
+    }
+  }
+
   private Handler getHandler() {
     if (handler == null) {
       handler = new Handler();
