@@ -24,7 +24,7 @@ public class SubBoardPane extends LizziePane {
 
     subBoardRenderer = new BoardRenderer(false);
 
-    setVisible(true);
+    setVisible(false);
 
     // TODO BufferStrategy does not support transparent background?
     //    createBufferStrategy(2);

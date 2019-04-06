@@ -22,7 +22,7 @@ public class VariationTreePane extends LizziePane {
 
     variationTree = new VariationTree();
 
-    setVisible(true);
+    setVisible(false);
 
     //    createBufferStrategy(2);
     //    bs = getBufferStrategy();

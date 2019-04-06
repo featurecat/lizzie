@@ -362,6 +362,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
+          Lizzie.main.invalidLayout();
         }
         break;
 

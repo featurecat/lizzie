@@ -24,6 +24,7 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -149,32 +151,30 @@ public class LizzieMain extends JFrame {
       setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 
-    // TODO Need Better Background
-    //        setBackground(new Color(0, 0, 0, 0));
-    //    JPanel panel =
-    //        new JPanel() {
-    //          @Override
-    //          protected void paintComponent(Graphics g) {
-    //            if (g instanceof Graphics2D) {
-    //              int width = getWidth();
-    //              int height = getHeight();
-    //              Optional<Graphics2D> backgroundG;
-    //              if (cachedBackgroundWidth != width
-    //                  || cachedBackgroundHeight != height
-    //                  || redrawBackgroundAnyway) {
-    //                backgroundG = Optional.of(createBackground());
-    //              } else {
-    //                backgroundG = Optional.empty();
-    //              }
-    //              // draw the image
-    //              Graphics2D bsGraphics = (Graphics2D) g; // bs.getDrawGraphics();
-    //              bsGraphics.setRenderingHint(
-    //                  RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-    //              bsGraphics.drawImage(cachedBackground, 0, 0, null);
-    //            }
-    //          }
-    //        };
-    //    setContentPane(panel);
+    JPanel panel =
+        new JPanel() {
+          @Override
+          protected void paintComponent(Graphics g) {
+            if (g instanceof Graphics2D) {
+              int width = getWidth();
+              int height = getHeight();
+              Optional<Graphics2D> backgroundG;
+              if (cachedBackgroundWidth != width
+                  || cachedBackgroundHeight != height
+                  || redrawBackgroundAnyway) {
+                backgroundG = Optional.of(createBackground());
+              } else {
+                backgroundG = Optional.empty();
+              }
+              // draw the image
+              Graphics2D bsGraphics = (Graphics2D) g; // bs.getDrawGraphics();
+              bsGraphics.setRenderingHint(
+                  RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+              bsGraphics.drawImage(cachedBackground, 0, 0, null);
+            }
+          }
+        };
+    setContentPane(panel);
     layout = new LizzieLayout();
     getContentPane().setLayout(layout);
     basicInfoPane = new BasicInfoPane(this);
@@ -250,45 +250,8 @@ public class LizzieMain extends JFrame {
    *
    * @param g0 not used
    */
-  // TODO Need Better Background
   public void paint(Graphics g0) {
     super.paintComponents(g0);
-
-    //        int width = getWidth();
-    //        int height = getHeight();
-    //
-    //        originX = getX();
-    //        originY = getY();
-    //        originW = width;
-    //        originH = height;
-    //
-    //        Optional<Graphics2D> backgroundG;
-    //        if (cachedBackgroundWidth != width
-    //            || cachedBackgroundHeight != height
-    //            || redrawBackgroundAnyway) {
-    //          backgroundG = Optional.of(createBackground());
-    //        } else {
-    //          backgroundG = Optional.empty();
-    //        }
-    //
-    //  //      cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
-    //  //      Graphics2D g = (Graphics2D) cachedImage.getGraphics();
-    //  //      g.setRenderingHint(RenderingHints.KEY_RENDERING,
-    // RenderingHints.VALUE_RENDER_QUALITY);
-    //
-    //        // cleanup
-    //  //      g.dispose();
-    //
-    //        // draw the image
-    //        Graphics2D bsGraphics = (Graphics2D) bs.getDrawGraphics();
-    //        bsGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,
-    //     RenderingHints.VALUE_RENDER_QUALITY);
-    //        bsGraphics.drawImage(cachedBackground, 0, 0, null);
-    //  //      bsGraphics.drawImage(cachedImage, 0, 0, null);
-    //
-    //        // cleanup
-    //        bsGraphics.dispose();
-    //        bs.show();
   }
 
   /**
@@ -366,6 +329,14 @@ public class LizzieMain extends JFrame {
   }
 
   public void repaintSub() {
+    if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
+      if (Lizzie.config.showSubBoard && !subBoardPane.isVisible()) {
+        subBoardPane.setVisible(true);
+      }
+      if (Lizzie.config.showWinrate && !winratePane.isVisible()) {
+        winratePane.setVisible(true);
+      }
+    }
     subBoardPane.repaint();
     winratePane.repaint();
   }
@@ -373,6 +344,11 @@ public class LizzieMain extends JFrame {
   public void updateStatus() {
     basicInfoPane.revalidate();
     basicInfoPane.repaint();
+    if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
+      if (Lizzie.config.showVariationGraph && !variationTreePane.isVisible()) {
+        variationTreePane.setVisible(true);
+      }
+    }
     variationTreePane.revalidate();
     variationTreePane.repaint();
     commentPane.drawComment();

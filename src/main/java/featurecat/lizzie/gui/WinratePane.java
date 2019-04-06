@@ -33,7 +33,7 @@ public class WinratePane extends LizziePane {
 
     winrateGraph = new WinrateGraph();
 
-    setVisible(true);
+    setVisible(false);
 
     //    createBufferStrategy(2);
     //    bs = getBufferStrategy();

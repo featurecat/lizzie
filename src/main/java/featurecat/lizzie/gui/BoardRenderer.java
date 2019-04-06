@@ -64,6 +64,7 @@ public class BoardRenderer {
   private boolean cachedBackgroundImageHasCoordinatesEnabled = false;
   private int cachedX, cachedY;
 
+  private int cachedBoardLength = 0;
   private BufferedImage cachedStonesImage = emptyImage;
   private BufferedImage cachedBoardImage = emptyImage;
   private BufferedImage cachedWallpaperImage = emptyImage;
@@ -153,6 +154,14 @@ public class BoardRenderer {
   }
 
   /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
+  public static int availableLength(int boardLength, boolean showCoordinates) {
+    int[] calculatedPixelMargins = calculatePixelMargins(boardLength, showCoordinates);
+    return (calculatedPixelMargins != null && calculatedPixelMargins.length >= 1)
+        ? calculatedPixelMargins[0]
+        : boardLength;
+  }
+
+  /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
   private void setupSizeParameters() {
     int boardLength0 = boardLength;
 
@@ -172,17 +181,19 @@ public class BoardRenderer {
    * Draw the green background and go board with lines. We cache the image for a performance boost.
    */
   private void drawGoban(Graphics2D g0) {
-    int width = Lizzie.frame.getWidth();
-    int height = Lizzie.frame.getHeight();
+    int width = Lizzie.main.getWidth();
+    int height = Lizzie.main.getHeight();
 
     // Draw the cached background image if frame size changes
     if (cachedBackgroundImage.getWidth() != width
         || cachedBackgroundImage.getHeight() != height
+        || cachedBoardLength != boardLength
         || cachedX != x
         || cachedY != y
         || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
         || Lizzie.board.isForceRefresh()) {
 
+      cachedBoardLength = boardLength;
       Lizzie.board.setForceRefresh(false);
 
       cachedBackgroundImage = new BufferedImage(width, height, TYPE_INT_ARGB);
@@ -817,7 +828,7 @@ public class BoardRenderer {
    * @param boardLength go board's length in pixels; must be boardLength >= BOARD_SIZE - 1
    * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
    */
-  private int[] calculatePixelMargins(int boardLength) {
+  private static int[] calculatePixelMargins(int boardLength, boolean showCoordinates) {
     // boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge
     // of the board
     //        if (boardLength < Board.BOARD_SIZE - 1)
@@ -828,8 +839,7 @@ public class BoardRenderer {
     int availableLength;
 
     // decrease boardLength until the availableLength will result in square board intersections
-    double margin =
-        (showCoordinates() ? 1.5 / (Board.boardSize + 2) : 1.0d / (Board.boardSize + 1));
+    double margin = (showCoordinates ? 1.5 / (Board.boardSize + 2) : 1.0d / (Board.boardSize + 1));
     boardLength++;
     do {
       boardLength--;
@@ -1171,7 +1181,7 @@ public class BoardRenderer {
   }
 
   private int[] calculatePixelMargins() {
-    return calculatePixelMargins(boardLength);
+    return calculatePixelMargins(boardLength, showCoordinates());
   }
 
   /**
