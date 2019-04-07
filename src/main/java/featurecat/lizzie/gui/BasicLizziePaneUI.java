@@ -1,5 +1,6 @@
 package featurecat.lizzie.gui;
 
+import featurecat.lizzie.Lizzie;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -17,6 +18,7 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -346,6 +348,15 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
               }
             };
         rootPane.setOpaque(true);
+
+        rootPane.registerKeyboardAction(
+            e -> {
+              if (Lizzie.main.designMode) {
+                Lizzie.main.toggleDesignMode();
+              }
+            },
+            KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.ALT_DOWN_MASK),
+            JComponent.WHEN_IN_FOCUSED_WINDOW);
         return rootPane;
       }
     }
