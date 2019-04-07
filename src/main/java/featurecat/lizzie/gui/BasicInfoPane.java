@@ -130,6 +130,15 @@ public class BasicInfoPane extends LizziePane {
 
     g.drawString(bval, posX + width / 4 + bx, posY + height * 7 / 8);
     g.drawString(wval, posX + width * 3 / 4 + wx, posY + height * 7 / 8);
+
+    // Status Indicator
+    int statusDiam = height / 8;
+    g.setColor((Lizzie.leelaz != null && Lizzie.leelaz.isPondering()) ? Color.GREEN : Color.RED);
+    g.fillOval(
+        posX + width / 2 - statusDiam / 2,
+        posY + height * 3 / 8 + (diam - statusDiam) / 2,
+        statusDiam,
+        statusDiam);
   }
 
   private void setPanelFont(Graphics2D g, float size) {
