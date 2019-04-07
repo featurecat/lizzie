@@ -135,7 +135,7 @@ public class BasicInfoPane extends LizziePane {
     int statusDiam = height / 8;
     g.setColor((Lizzie.leelaz != null && Lizzie.leelaz.isPondering()) ? Color.GREEN : Color.RED);
     g.fillOval(
-        posX + width / 2 - statusDiam / 2,
+        posX - strokeRadius + width / 2 - statusDiam / 2,
         posY + height * 3 / 8 + (diam - statusDiam) / 2,
         statusDiam,
         statusDiam);
