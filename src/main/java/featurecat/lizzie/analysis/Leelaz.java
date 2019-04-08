@@ -214,7 +214,7 @@ public class Leelaz {
     List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
     for (String var : variations) {
-      if (!var.trim().isEmpty()){
+      if (!var.trim().isEmpty()) {
         bestMoves.add(MoveData.fromInfo(var));
       }
     }
