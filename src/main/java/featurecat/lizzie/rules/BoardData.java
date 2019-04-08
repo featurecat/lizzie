@@ -2,7 +2,6 @@ package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.MoveData;
-
 import java.util.*;
 
 public class BoardData {
@@ -160,8 +159,11 @@ public class BoardData {
   }
 
   public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {
-      // return the weighted average winrate of bestMoves
-      return bestMoves.stream().mapToDouble(move -> move.winrate * move.playouts / MoveData.getPlayouts(bestMoves)).sum();
+    // return the weighted average winrate of bestMoves
+    return bestMoves
+        .stream()
+        .mapToDouble(move -> move.winrate * move.playouts / MoveData.getPlayouts(bestMoves))
+        .sum();
   }
 
   public String bestMovesToString() {
@@ -170,7 +172,7 @@ public class BoardData {
       // eg: info move R5 visits 38 winrate 5404 pv R5 Q5 R6 S4 Q10 C3 D3 C4 C6 C5 D5
       sb.append("move ").append(move.coordinate);
       sb.append(" visits ").append(move.playouts);
-      sb.append(" winrate ").append((int)(move.winrate*100));
+      sb.append(" winrate ").append((int) (move.winrate * 100));
       sb.append(" pv ").append(move.variation.stream().reduce((a, b) -> a + " " + b).get());
       sb.append(" info "); // this order is just because of how the MoveData info parser works
     }

@@ -209,7 +209,12 @@ public class SGFParser {
             }
             String versionNumber = line1[0];
             Lizzie.board.getData().winrate = 100 - Double.parseDouble(line1[1]);
-            int numPlayouts = Integer.parseInt(line1[2].replaceAll("k","000").replaceAll("m", "000000").replaceAll("[^0-9]", ""));
+            int numPlayouts =
+                Integer.parseInt(
+                    line1[2]
+                        .replaceAll("k", "000")
+                        .replaceAll("m", "000000")
+                        .replaceAll("[^0-9]", ""));
             Lizzie.board.getData().setPlayouts(numPlayouts);
             if (numPlayouts > 0 && !line2.isEmpty()) {
               Lizzie.board.getData().bestMoves = Leelaz.parseInfo(line2);
@@ -536,13 +541,16 @@ public class SGFParser {
         } else {
           diff = 100 - lastWR - curWR;
         }
-        lastMoveDiff = String.format("(%s%.1f%%)", diff >= 0? "+" : "-", Math.abs(diff));
+        lastMoveDiff = String.format("(%s%.1f%%)", diff >= 0 ? "+" : "-", Math.abs(diff));
       }
     }
 
     String wf = "%s's winrate: %s %s\n(%s / %s playouts)";
-    boolean blackWinrate = !node.getData().blackToPlay || Lizzie.config.uiConfig.getBoolean("win-rate-always-black");
-    String nc = String.format(wf, blackWinrate? "Black" : "White", curWinrate, lastMoveDiff, engine, playouts);
+    boolean blackWinrate =
+        !node.getData().blackToPlay || Lizzie.config.uiConfig.getBoolean("win-rate-always-black");
+    String nc =
+        String.format(
+            wf, blackWinrate ? "Black" : "White", curWinrate, lastMoveDiff, engine, playouts);
 
     if (!data.comment.isEmpty()) {
       String wp =
@@ -556,10 +564,7 @@ public class SGFParser {
     return nc;
   }
 
-
-  /**
-   * Format Comment with following format: <Winrate> <Playouts>
-   */
+  /** Format Comment with following format: <Winrate> <Playouts> */
   private static String formatNodeData(BoardHistoryNode node) {
     BoardData data = node.getData();
 
@@ -579,7 +584,8 @@ public class SGFParser {
 
     String wf = "%s %s %s\n%s";
 
-    return String.format(wf, Lizzie.lizzieVersion, curWinrate, playouts, node.getData().bestMovesToString());
+    return String.format(
+        wf, Lizzie.lizzieVersion, curWinrate, playouts, node.getData().bestMovesToString());
   }
 
   public static boolean isListProperty(String key) {
