@@ -6,10 +6,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-
-import org.json.*;
-
 import javax.swing.*;
+import org.json.*;
 
 public class Config {
   public String language = "en";
@@ -112,8 +110,8 @@ public class Config {
   /**
    * Check settings to ensure its consistency, especially for those whose types are not <code>
    * boolean</code>. If any inconsistency is found, try to correct it or to report it. <br>
-   * For example, we only support square boards of size >= 2x2. If the configured board
-   * size is not in the list above, we should correct it.
+   * For example, we only support square boards of size >= 2x2. If the configured board size is not
+   * in the list above, we should correct it.
    *
    * @param config The config json object to check
    * @return if any correction has been made.
@@ -191,14 +189,11 @@ public class Config {
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
 
-    if (theme.fontName() != null)
-      fontName = theme.fontName();
+    if (theme.fontName() != null) fontName = theme.fontName();
 
-    if (theme.uiFontName() != null)
-      uiFontName = theme.uiFontName();
+    if (theme.uiFontName() != null) uiFontName = theme.uiFontName();
 
-    if (theme.winrateFontName() != null)
-      winrateFontName = theme.winrateFontName();
+    if (theme.winrateFontName() != null) winrateFontName = theme.winrateFontName();
 
     commentFontSize = theme.commentFontSize();
     commentFontColor = theme.commentFontColor();

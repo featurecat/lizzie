@@ -60,7 +60,7 @@ public class Leelaz {
   // genmove
   public boolean isThinking = false;
   public boolean isInputCommand = false;
-
+  // public boolean isChanged = false;
   private boolean isLoaded = false;
   private boolean isCheckingVersion;
 
@@ -214,7 +214,7 @@ public class Leelaz {
     List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
     for (String var : variations) {
-      if (!var.trim().isEmpty()){
+      if (!var.trim().isEmpty()) {
         bestMoves.add(MoveData.fromInfo(var));
       }
     }
@@ -507,6 +507,32 @@ public class Leelaz {
       if (isPondering) ponder();
     }
   }
+
+  public void analyzeAvoid(String type, String color, String coordList, int untilMove) {
+    BoardData.isChanged = true;
+    // added for change bestmoves immediatly not wait until totalplayouts is bigger than previous
+    // analyze result
+    analyzeAvoid(
+        String.format("%s %s %s %d", type, color, coordList, untilMove <= 0 ? 1 : untilMove));
+    BoardData.isChanged = true;
+  }
+
+  public void analyzeAvoid(String parameters) {
+    BoardData.isChanged = true;
+    // added for change bestmoves immediatly not wait until totalplayouts is bigger than previous
+    // analyze result
+    bestMoves = new ArrayList<>();
+    if (!isPondering) {
+      isPondering = true;
+      startPonderTime = System.currentTimeMillis();
+    }
+    sendCommand(
+        String.format(
+            "lz-analyze %d %s",
+            Lizzie.config.config.getJSONObject("leelaz").getInt("analyze-update-interval-centisec"),
+            parameters));
+  }
+  // this is copyed from https://github.com/zsalch/lizzie/tree/n_avoiddialog
 
   /** This initializes leelaz's pondering mode at its current position */
   private void ponder() {

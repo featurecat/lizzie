@@ -4,7 +4,6 @@ import static java.awt.event.KeyEvent.*;
 
 import featurecat.lizzie.Lizzie;
 import java.awt.event.*;
-import javax.swing.*;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
@@ -387,9 +386,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_A:
-        shouldDisableAnalysis = false;
-        Lizzie.board.toggleAnalysis();
+        if (e.isAltDown()) {
+          Lizzie.frame.openAvoidMoveDialog();
+        } else {
+          shouldDisableAnalysis = false;
+          Lizzie.board.toggleAnalysis();
+        }
         break;
+        // this is copyed from https://github.com/zsalch/lizzie/tree/n_avoiddialog
 
       case VK_PERIOD:
         if (!Lizzie.board.getHistory().getNext().isPresent()) {

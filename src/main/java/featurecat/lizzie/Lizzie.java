@@ -4,6 +4,7 @@ import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.gui.GtpConsolePane;
 import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.rules.BoardData;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -78,8 +79,7 @@ public class Lizzie {
       e.printStackTrace(); // Failed to save config
     }
 
-    if (leelaz != null)
-      leelaz.shutdown();
+    if (leelaz != null) leelaz.shutdown();
     System.exit(0);
   }
 
@@ -89,6 +89,9 @@ public class Lizzie {
    * @param index engine index
    */
   public static void switchEngine(int index) {
+    BoardData.isChanged = true;
+    // added for change bestmoves immediatly not wait until totalplayouts>last engine's
+    // totalplayouts
     String commandLine;
     if (index == 0) {
       String networkFile = Lizzie.config.leelazConfig.getString("network-file");

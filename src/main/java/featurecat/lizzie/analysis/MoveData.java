@@ -42,7 +42,9 @@ public class MoveData {
         if (key.equals("visits")) {
           result.playouts = Integer.parseInt(value);
         }
-        if (key.equals("winrate")) {
+        // if (key.equals("winrate")) {
+        if (key.equals("lcb")) {
+          // LCB support
           result.winrate = Integer.parseInt(value) / 100.0;
         }
       }
@@ -72,7 +74,10 @@ public class MoveData {
   }
 
   private static Pattern summaryPattern =
-      Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+      //   Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+      Pattern.compile(
+          "^ *(\\w\\d*) -> *(\\d+) \\([^\\)]+\\) \\(LCB: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+  // LCB support
 
   public static int getPlayouts(List<MoveData> moves) {
     int playouts = 0;
