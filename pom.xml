@@ -83,7 +83,8 @@
                 <version>1.2.0</version>
                 <configuration>
                     <mainClass>featurecat.lizzie.Lizzie</mainClass>
-                    <iconFile>src/main/resources/assets/icon.icns</iconFile>
+                    <iconFile>assets/icon.icns</iconFile>
+                    <dictionaryFile>config/Info.plist</dictionaryFile>
                 </configuration>
                 <executions>
                     <execution>
