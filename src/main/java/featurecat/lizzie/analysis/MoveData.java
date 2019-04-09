@@ -31,11 +31,10 @@ public class MoveData {
   public static MoveData fromInfo(String line) throws ArrayIndexOutOfBoundsException {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
-
+    boolean islcb = false;
     // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
     for (int i = 0; i < data.length; i++) {
-      String key = data[i];
-      boolean islcb = false;
+      String key = data[i];      
       if (key.equals("pv")) {
         // Read variation to the end of line
         result.variation = new ArrayList<>(Arrays.asList(data));
@@ -103,7 +102,7 @@ public class MoveData {
   }
 
   private static Pattern summaryPattern =
-      Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+      Pattern.compile( "^ *(\\w\\d*) -> *(\\d+) \\([^\\)]+\\) \\(LCB: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
   private static Pattern summaryPatternold =
       Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
   // support 0.16 0.15
