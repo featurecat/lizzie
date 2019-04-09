@@ -355,6 +355,8 @@ public class Config {
     leelaz.put("max-game-thinking-time-seconds", 2);
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
+    leelaz.put("show-lcb-winrate", true);
+    leelaz.put("leela-version", 17);
 
     config.put("leelaz", leelaz);
 

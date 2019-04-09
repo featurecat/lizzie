@@ -1,5 +1,6 @@
 package featurecat.lizzie.analysis;
 
+import featurecat.lizzie.Lizzie;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,10 +32,12 @@ public class MoveData {
   public static MoveData fromInfo(String line) throws ArrayIndexOutOfBoundsException {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
-    boolean islcb = false;
+    boolean islcb =
+        (Lizzie.config.config.getJSONObject("leelaz").getInt("leela-version") >= 17)
+            && Lizzie.config.config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
     // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
     for (int i = 0; i < data.length; i++) {
-      String key = data[i];      
+      String key = data[i];
       if (key.equals("pv")) {
         // Read variation to the end of line
         result.variation = new ArrayList<>(Arrays.asList(data));
@@ -48,10 +51,9 @@ public class MoveData {
         if (key.equals("visits")) {
           result.playouts = Integer.parseInt(value);
         }
-        if (key.equals("lcb")) {
+        if (islcb && key.equals("lcb")) {
           // LCB support
           result.winrate = Integer.parseInt(value) / 100.0;
-          islcb = true;
         }
 
         if (!islcb && key.equals("winrate")) {
@@ -102,7 +104,8 @@ public class MoveData {
   }
 
   private static Pattern summaryPattern =
-      Pattern.compile( "^ *(\\w\\d*) -> *(\\d+) \\([^\\)]+\\) \\(LCB: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+      Pattern.compile(
+          "^ *(\\w\\d*) -> *(\\d+) \\([^\\)]+\\) \\(LCB: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
   private static Pattern summaryPatternold =
       Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
   // support 0.16 0.15
