@@ -48,6 +48,7 @@ public class Config {
   public JSONObject persisted;
   public JSONObject persistedUi;
 
+  private Boolean macAppBundle = System.getenv().containsKey("MAC_APP_BUNDLE");
   private String configFilename = "config.txt";
   private String persistFilename = "persist";
 
@@ -346,10 +347,19 @@ public class Config {
     // About engine parameter
     JSONObject leelaz = new JSONObject();
     leelaz.put("network-file", "network.gz");
-    leelaz.put(
-        "engine-command",
-        String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
+    if (this.macAppBundle) {
+      // Mac Apps don't really expect the user to modify the current working directory, since that
+      // resides inside the app bundle. So a more sensible default in this context is to expect
+      // the user to already have a ~/.local/share/leela-zero/best-network file, which has been
+      // standard since Leela 0.16.
+      leelaz.put(
+          "engine-command", String.format("%s --gtp --lagbuffer 0", getBestDefaultLeelazPath()));
+    } else {
+      leelaz.put(
+          "engine-command",
+          String.format(
+              "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
+    }
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
     leelaz.put("max-game-thinking-time-seconds", 2);
