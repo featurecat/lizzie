@@ -539,7 +539,8 @@ public class ConfigDialog extends JDialog {
           public void stateChanged(ChangeEvent e) {
             if (chkShowCoordinates.isSelected() != Lizzie.config.showCoordinates) {
               Lizzie.config.toggleCoordinates();
-              Lizzie.main.invalidLayout();
+              Lizzie.frame.repaint();
+              //Lizzie.main.invalidLayout();
             }
           }
         });
