@@ -347,7 +347,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
                 }
               }
             };
-        rootPane.setOpaque(true);
+        rootPane.setOpaque(false);
 
         rootPane.registerKeyboardAction(
             e -> {

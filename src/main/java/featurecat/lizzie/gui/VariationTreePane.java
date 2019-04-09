@@ -62,9 +62,7 @@ public class VariationTreePane extends LizziePane {
 
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showVariationGraph) {
-        //          if (backgroundG.isPresent()) {
-        //            drawContainer(backgroundG.get(), vx, vy, vw, vh);
-        //          }
+        g.drawImage(Lizzie.main.getVariationContainer(this), x, y, null);
         if (Lizzie.config.showVariationGraph) {
           variationTree.draw(g, x, y, width, height);
         }

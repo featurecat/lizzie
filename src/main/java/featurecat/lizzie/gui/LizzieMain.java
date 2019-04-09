@@ -4,6 +4,7 @@ import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 
+import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.MoveData;
@@ -67,6 +68,8 @@ public class LizzieMain extends JFrame {
   private BufferedImage cachedImage;
 
   private BufferedImage cachedBackground;
+  private BufferedImage cachedWinrateContainer = emptyImage;
+  private BufferedImage cachedVariationContainer = emptyImage;
 
   private BufferedImage cachedWallpaperImage = emptyImage;
   private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
@@ -245,6 +248,7 @@ public class LizzieMain extends JFrame {
     setFocusable(true);
     setFocusTraversalKeysEnabled(false);
   }
+
   /**
    * Draws the game board and interface
    *
@@ -295,6 +299,58 @@ public class LizzieMain extends JFrame {
     return g;
   }
 
+  private GaussianFilter filter20 = new GaussianFilter(20);
+  private GaussianFilter filter10 = new GaussianFilter(10);
+
+  public BufferedImage getWinrateContainer(LizziePane pane) {
+    if (cachedBackground == null
+        || (cachedWinrateContainer != null
+            && cachedWinrateContainer.getWidth() == pane.getWidth()
+            && cachedWinrateContainer.getHeight() == pane.getHeight())) {
+      return cachedWinrateContainer;
+    }
+    int vx = pane.getX();
+    int vy = pane.getY();
+    int vw = pane.getWidth();
+    int vh = pane.getHeight();
+    BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
+    filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
+    cachedWinrateContainer = result;
+    return result;
+  }
+
+  public BufferedImage getVariationContainer(LizziePane pane) {
+    if (cachedBackground == null
+        || (cachedVariationContainer != null
+            && cachedVariationContainer.getWidth() == pane.getWidth()
+            && cachedVariationContainer.getHeight() == pane.getHeight())) {
+      return cachedVariationContainer;
+    }
+    int vx = pane.getX();
+    int vy = pane.getY();
+    int vw = pane.getWidth();
+    int vh = pane.getHeight();
+    BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
+    filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
+    cachedVariationContainer = result;
+    return result;
+  }
+
+  public void drawContainer(Graphics g, int vx, int vy, int vw, int vh) {
+    if (vw <= 0
+        || vh <= 0
+        || vx < cachedBackground.getMinX()
+        || vx + vw > cachedBackground.getMinX() + cachedBackground.getWidth()
+        || vy < cachedBackground.getMinY()
+        || vy + vh > cachedBackground.getMinY() + cachedBackground.getHeight()) {
+      return;
+    }
+    redrawBackgroundAnyway = false;
+    BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
+    filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
+    g.drawImage(result, vx, vy, null);
+  }
+
   /** Draw texture image */
   public void drawTextureImage(
       Graphics2D g, BufferedImage img, int x, int y, int width, int height) {
@@ -342,17 +398,17 @@ public class LizzieMain extends JFrame {
   }
 
   public void updateStatus() {
-    basicInfoPane.revalidate();
+    //    basicInfoPane.revalidate();
     basicInfoPane.repaint();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showVariationGraph && !variationTreePane.isVisible()) {
         variationTreePane.setVisible(true);
       }
     }
-    variationTreePane.revalidate();
+    //    variationTreePane.revalidate();
     variationTreePane.repaint();
     commentPane.drawComment();
-    commentPane.revalidate();
+    //    commentPane.revalidate();
     commentPane.repaint();
     invalidLayout();
   }

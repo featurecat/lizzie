@@ -93,6 +93,7 @@ public class LizziePane extends JPanel {
     //    initCompotents();
     //    input = owner.input;
     //    installInputListeners();
+    setOpaque(false);
   }
 
   @Override

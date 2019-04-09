@@ -84,9 +84,7 @@ public class WinratePane extends LizziePane {
 
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showWinrate) {
-        //                  if (backgroundG.isPresent()) {
-        //                    drawContainer(backgroundG.get(), contx, conty, contw, conth);
-        //                  }
+        g.drawImage(Lizzie.main.getWinrateContainer(this), x, y, null);
         int hh = height * 3 / 13;
         drawMoveStatistics(g, x, y, width, hh);
         winrateGraph.draw(g, x, y + hh, width, height - hh);
