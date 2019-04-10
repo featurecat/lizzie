@@ -239,14 +239,12 @@ public class LizzieFrame extends JFrame {
             }
             if (Lizzie.leelaz == null) return;
             try {
-                int totalPlayouts = MoveData.getPlayouts(Lizzie.leelaz.getBestMoves());
+              int totalPlayouts = MoveData.getPlayouts(Lizzie.leelaz.getBestMoves());
               if (totalPlayouts <= 0) return;
               visitsString =
                   String.format(
                       " %d visits/second",
-                      (totalPlayouts > lastPlayouts)
-                          ? totalPlayouts - lastPlayouts
-                          : 0);
+                      (totalPlayouts > lastPlayouts) ? totalPlayouts - lastPlayouts : 0);
               updateTitle();
               lastPlayouts = totalPlayouts;
             } catch (Exception e) {
