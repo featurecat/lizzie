@@ -124,6 +124,7 @@ public class BoardPane extends LizziePane {
   LizzieMain owner;
   /** Creates a window */
   public BoardPane(LizzieMain owner) {
+    super(owner);
     this.owner = owner;
 
     //    setBackground(new Color(0, 0, 0, 0));

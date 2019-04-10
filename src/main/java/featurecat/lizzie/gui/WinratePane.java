@@ -30,6 +30,7 @@ public class WinratePane extends LizziePane {
 
   /** Creates a window */
   public WinratePane(LizzieMain owner) {
+    super(owner);
 
     winrateGraph = new WinrateGraph();
 

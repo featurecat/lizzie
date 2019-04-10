@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 public class BasicInfoPane extends LizziePane {
 
   public BasicInfoPane(LizzieMain owner) {
+    super(owner);
     setVisible(true);
   }
 
