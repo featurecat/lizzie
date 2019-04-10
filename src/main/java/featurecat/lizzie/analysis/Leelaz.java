@@ -109,7 +109,7 @@ public class Leelaz {
     // Initialize current engine number and start engine
     currentEngineN = 0;
     startEngine(engineCommand);
-    Lizzie.frame.refreshBackground();
+    Lizzie.main.refreshBackground();
   }
 
   public void startEngine(String engineCommand) throws IOException {

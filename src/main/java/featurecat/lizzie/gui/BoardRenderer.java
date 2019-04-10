@@ -1239,8 +1239,8 @@ public class BoardRenderer {
     int squareSize = calculateSquareLength(boardLengthWithoutMargins);
 
     // transform the pixel coordinates to board coordinates
-    x = Math.floorDiv(x - this.x - marginLength + squareSize / 2, squareSize);
-    y = Math.floorDiv(y - this.y - marginLength + squareSize / 2, squareSize);
+    x = squareSize == 0 ? 0 : Math.floorDiv(x - this.x - marginLength + squareSize / 2, squareSize);
+    y = squareSize == 0 ? 0 : Math.floorDiv(y - this.y - marginLength + squareSize / 2, squareSize);
 
     // return these values if they are valid board coordinates
     return Board.isValid(x, y) ? Optional.of(new int[] {x, y}) : Optional.empty();

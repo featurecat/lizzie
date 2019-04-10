@@ -15,7 +15,6 @@ import featurecat.lizzie.rules.SGFParser;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -70,17 +69,17 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.keyT"),
     resourceBundle.getString("LizzieFrame.commands.keyCtrlT"),
     resourceBundle.getString("LizzieFrame.commands.keyY"),
+    resourceBundle.getString("LizzieFrame.commands.keyZ"),
+    resourceBundle.getString("LizzieFrame.commands.keyShiftZ"),
     resourceBundle.getString("LizzieFrame.commands.keyHome"),
     resourceBundle.getString("LizzieFrame.commands.keyEnd"),
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
     resourceBundle.getString("LizzieFrame.commands.keyDelete"),
     resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
+    resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
-  private static final String DEFAULT_TITLE = "Lizzie - Leela Zero Interface";
-  private static BoardRenderer boardRenderer;
 
-  public static Font uiFont;
-  public static Font winrateFont;
+  private static BoardRenderer boardRenderer;
 
   //  private final BufferStrategy bs;
   private static boolean started = false;
@@ -91,35 +90,11 @@ public class BoardPane extends LizziePane {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
-  public int BoardPositionProportion = 4;
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
 
-  // Save the player title
-  private String playerTitle = "";
-
   public boolean isNewGame = false;
-
-  static {
-    // load fonts
-    try {
-      uiFont =
-          Font.createFont(
-              Font.TRUETYPE_FONT,
-              Thread.currentThread()
-                  .getContextClassLoader()
-                  .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
-      winrateFont =
-          Font.createFont(
-              Font.TRUETYPE_FONT,
-              Thread.currentThread()
-                  .getContextClassLoader()
-                  .getResourceAsStream("fonts/OpenSans-Semibold.ttf"));
-    } catch (IOException | FontFormatException e) {
-      e.printStackTrace();
-    }
-  }
 
   LizzieMain owner;
   /** Creates a window */
@@ -127,38 +102,8 @@ public class BoardPane extends LizziePane {
     super(owner);
     this.owner = owner;
 
-    //    setBackground(new Color(0, 0, 0, 0));
-    //    JPanel panel = new JPanel() {
-    //        @Override
-    //        protected void paintComponent(Graphics g) {
-    //            if (g instanceof Graphics2D) {
-    //                final int R = 240;
-    //                final int G = 240;
-    //                final int B = 240;
-    //
-    //                Paint p =
-    //                    new GradientPaint(0.0f, 0.0f, new Color(R, G, B, 0),
-    //                        0.0f, getHeight(), new Color(R, G, B, 0), true);
-    //                Graphics2D g2d = (Graphics2D)g;
-    //                g2d.setPaint(p);
-    //                g2d.fillRect(0, 0, getWidth(), getHeight());
-    //            }
-    //        }
-    //    };
-    //    setContentPane(panel);
-    //  getContentPane().setBackground(new Color(0, 100, 100, 0));
-
     boardRenderer = new BoardRenderer(true);
 
-    // Allow change font in the config
-    if (Lizzie.config.uiFontName != null) {
-      uiFont = new Font(Lizzie.config.uiFontName, Font.PLAIN, 12);
-    }
-    if (Lizzie.config.winrateFontName != null) {
-      winrateFont = new Font(Lizzie.config.winrateFontName, Font.BOLD, 12);
-    }
-
-    // TODO BufferStrategy does not support transparent background?
     //    createBufferStrategy(2);
     //    bs = getBufferStrategy();
 
@@ -188,17 +133,6 @@ public class BoardPane extends LizziePane {
 
   private BufferedImage cachedImage;
 
-  private BufferedImage cachedBackground;
-  private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
-  private boolean cachedBackgroundShowControls = false;
-  private boolean cachedShowWinrate = true;
-  private boolean cachedShowVariationGraph = true;
-  private boolean cachedShowLargeSubBoard = true;
-  private boolean cachedLargeWinrate = true;
-  private boolean cachedShowComment = true;
-  private boolean redrawBackgroundAnyway = false;
-  private int cachedBoardPositionProportion = BoardPositionProportion;
-
   /**
    * Draws the game board and interface
    *
@@ -219,12 +153,11 @@ public class BoardPane extends LizziePane {
       int leftInset = this.getInsets().left;
       int rightInset = this.getInsets().right;
       int bottomInset = this.getInsets().bottom;
-      int maxBound = Math.max(width, height);
 
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
-      int boardX = (width - maxSize) / 8 * BoardPositionProportion;
+      int boardX = (width - maxSize) / 2;
       int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
 
       // initialize
@@ -251,7 +184,6 @@ public class BoardPane extends LizziePane {
     }
 
     // draw the image
-    // TODO BufferStrategy does not support transparent background?
     Graphics2D bsGraphics = (Graphics2D) g0; // bs.getDrawGraphics();
     bsGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     //    bsGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
@@ -260,105 +192,7 @@ public class BoardPane extends LizziePane {
 
     // cleanup
     bsGraphics.dispose();
-    // TODO BufferStrategy does not support transparent background?
     //    bs.show();
-  }
-
-  /**
-   * temporary measure to refresh background. ideally we shouldn't need this (but we want to release
-   * Lizzie 0.5 today, not tomorrow!). Refactor me out please! (you need to get blurring to work
-   * properly on startup).
-   */
-  public void refreshBackground() {
-    redrawBackgroundAnyway = true;
-  }
-
-  private Graphics2D createBackground() {
-    cachedBackground = new BufferedImage(getWidth(), getHeight(), TYPE_INT_ARGB);
-    cachedBackgroundWidth = cachedBackground.getWidth();
-    cachedBackgroundHeight = cachedBackground.getHeight();
-    cachedBackgroundShowControls = showControls;
-    cachedShowWinrate = Lizzie.config.showWinrate;
-    cachedShowVariationGraph = Lizzie.config.showVariationGraph;
-    cachedShowLargeSubBoard = Lizzie.config.showLargeSubBoard();
-    cachedLargeWinrate = Lizzie.config.showLargeWinrate();
-    cachedShowComment = Lizzie.config.showComment;
-    cachedBoardPositionProportion = BoardPositionProportion;
-
-    redrawBackgroundAnyway = false;
-
-    Graphics2D g = cachedBackground.createGraphics();
-    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-    //    g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION,
-    //        RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-    //
-    //    final int R = 240;
-    //    final int G = 240;
-    //    final int B = 240;
-    //    Paint p =
-    //        new GradientPaint(0.0f, 0.0f, new Color(R, G, B, 0),
-    //            0.0f, getHeight(), new Color(R, G, B, 0), false);
-    //  g.setPaint(p);
-    //    AlphaComposite composite = AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f);
-    //    g.setComposite(composite);
-    //    g.setColor(new Color(0, 0, 0, 0));
-    //    g.fillRect(0, 0, getWidth(), getHeight());
-
-    return g;
-  }
-
-  private void drawContainer(Graphics g, int vx, int vy, int vw, int vh) {
-    if (vw <= 0
-        || vh <= 0
-        || vx < cachedBackground.getMinX()
-        || vx + vw > cachedBackground.getMinX() + cachedBackground.getWidth()
-        || vy < cachedBackground.getMinY()
-        || vy + vh > cachedBackground.getMinY() + cachedBackground.getHeight()) {
-      return;
-    }
-
-    BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
-    filter20.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
-    g.drawImage(result, vx, vy, null);
-  }
-
-  private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
-    int fontSize = (int) (max(getWidth(), getHeight()) * size);
-    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
-    FontMetrics fm = g.getFontMetrics(font);
-    int stringWidth = fm.stringWidth(text);
-    // Truncate too long text when display switching prompt
-    if (Lizzie.leelaz.isLoaded()) {
-      int mainBoardX = boardRenderer.getLocation().x;
-      if (getWidth() > getHeight() && (mainBoardX > x) && stringWidth > (mainBoardX - x)) {
-        text = truncateStringByWidth(text, fm, mainBoardX - x);
-        stringWidth = fm.stringWidth(text);
-      }
-    }
-    // Do nothing when no text
-    if (stringWidth <= 0) {
-      return;
-    }
-    int stringHeight = fm.getAscent() - fm.getDescent();
-    int width = max(stringWidth, 1);
-    int height = max((int) (stringHeight * 1.2), 1);
-
-    BufferedImage result = new BufferedImage(width, height, TYPE_INT_ARGB);
-    // commenting this out for now... always causing an exception on startup. will
-    // fix in the
-    // upcoming refactoring
-    // filter20.filter(cachedBackground.getSubimage(x, y, result.getWidth(),
-    // result.getHeight()), result);
-    g.drawImage(result, x, y, null);
-
-    g.setColor(new Color(0, 0, 0, 130));
-    g.fillRect(x, y, width, height);
-    g.drawRect(x, y, width, height);
-
-    g.setColor(Color.white);
-    g.setFont(font);
-    g.drawString(
-        text, x + (width - stringWidth) / 2, y + stringHeight + (height - stringHeight) / 2);
   }
 
   /**
@@ -412,7 +246,6 @@ public class BoardPane extends LizziePane {
     }
   }
 
-  private GaussianFilter filter20 = new GaussianFilter(20);
   private GaussianFilter filter10 = new GaussianFilter(10);
 
   /** Display the controls */
@@ -450,7 +283,7 @@ public class BoardPane extends LizziePane {
 
     BufferedImage result = new BufferedImage(boxWidth, boxHeight, TYPE_INT_ARGB);
     filter10.filter(
-        cachedBackground.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
+        owner.cachedBackground.getSubimage(commandsX, commandsY, boxWidth, boxHeight), result);
     g.drawImage(result, commandsX, commandsY, null);
 
     g.setColor(new Color(0, 0, 0, 130));
@@ -719,7 +552,7 @@ public class BoardPane extends LizziePane {
             }
             boardRenderer.setDisplayedBranchLength(oriBranchLength);
             isReplayVariation = false;
-            if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
           }
         };
     Thread thread = new Thread(runnable);

@@ -14,8 +14,11 @@ import java.awt.image.BufferedImage;
 /** The window used to display the game. */
 public class BasicInfoPane extends LizziePane {
 
+  private LizzieMain owner;
+
   public BasicInfoPane(LizzieMain owner) {
     super(owner);
+    this.owner = owner;
     setVisible(true);
   }
 
@@ -42,7 +45,14 @@ public class BasicInfoPane extends LizziePane {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    if (Lizzie.config.showCaptured) drawCaptured(g, x, y, width, height);
+    if (Lizzie.config.showCaptured) {
+      if (Lizzie.main == null) {
+        g.drawImage(this.owner.getBasicInfoContainer(this), x, y, null);
+      } else {
+        g.drawImage(Lizzie.main.getBasicInfoContainer(this), x, y, null);
+      }
+      drawCaptured(g, x, y, width, height);
+    }
 
     // cleanup
     g.dispose();

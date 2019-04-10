@@ -54,11 +54,6 @@ public class LizzieMain extends JFrame {
   public static boolean designMode;
   private LizzieLayout layout;
 
-  private int originX;
-  private int originY;
-  private int originW;
-  private int originH;
-
   public static Font uiFont;
   public static Font winrateFont;
 
@@ -67,7 +62,8 @@ public class LizzieMain extends JFrame {
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
   private BufferedImage cachedImage;
 
-  private BufferedImage cachedBackground;
+  public BufferedImage cachedBackground;
+  private BufferedImage cachedBasicInfoContainer = emptyImage;
   private BufferedImage cachedWinrateContainer = emptyImage;
   private BufferedImage cachedVariationContainer = emptyImage;
 
@@ -301,6 +297,24 @@ public class LizzieMain extends JFrame {
 
   private GaussianFilter filter20 = new GaussianFilter(20);
   private GaussianFilter filter10 = new GaussianFilter(10);
+
+  public BufferedImage getBasicInfoContainer(LizziePane pane) {
+    if (cachedBackground == null
+        || (cachedBasicInfoContainer != null
+            && cachedBasicInfoContainer.getWidth() == pane.getWidth()
+            && cachedBasicInfoContainer.getHeight() == pane.getHeight())) {
+      return cachedBasicInfoContainer;
+    }
+    int vx = pane.getX();
+    int vy = pane.getY();
+    int vw = pane.getWidth();
+    int vh = pane.getHeight();
+    BufferedImage result = cachedBackground.getSubimage(vx, vy, vw, vh);
+    //    BufferedImage result = new BufferedImage(vw, vh, TYPE_INT_ARGB);
+    //    filter10.filter(cachedBackground.getSubimage(vx, vy, vw, vh), result);
+    cachedBasicInfoContainer = result;
+    return result;
+  }
 
   public BufferedImage getWinrateContainer(LizziePane pane) {
     if (cachedBackground == null
