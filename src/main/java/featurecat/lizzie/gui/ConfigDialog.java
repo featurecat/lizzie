@@ -28,6 +28,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -85,6 +86,11 @@ public class ConfigDialog extends JDialog {
   private JRadioButton rdoShowMoveNumberAll;
   private JRadioButton rdoShowMoveNumberLast;
   private JTextField txtShowMoveNumber;
+  private JCheckBox chkShowBlunderBar;
+  private JCheckBox chkDynamicWinrateGraphWidth;
+  private JCheckBox chkAppendWinrateToComment;
+  private JCheckBox chkColorByWinrateInsteadOfVisits;
+  private JSlider sldBoardPositionProportion;
 
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
@@ -513,7 +519,8 @@ public class ConfigDialog extends JDialog {
     uiTab.add(txtBoardSize);
     txtBoardSize.setColumns(10);
 
-    JLabel lblMinPlayoutRatioForStats = new JLabel(resourceBundle.getString("LizzieConfig.title.minPlayoutRatioForStats"));
+    JLabel lblMinPlayoutRatioForStats =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.minPlayoutRatioForStats"));
     lblMinPlayoutRatioForStats.setBounds(6, 40, 157, 16);
     uiTab.add(lblMinPlayoutRatioForStats);
     txtMinPlayoutRatioForStats =
@@ -544,7 +551,7 @@ public class ConfigDialog extends JDialog {
             }
           }
         });
-    chkShowCoordinates.setBounds(170, 63, 57, 23);
+    chkShowCoordinates.setBounds(170, 64, 57, 23);
     uiTab.add(chkShowCoordinates);
 
     JLabel lblShowMoveNumber =
@@ -554,7 +561,7 @@ public class ConfigDialog extends JDialog {
 
     rdoShowMoveNumberNo =
         new JRadioButton(resourceBundle.getString("LizzieConfig.title.showMoveNumberNo"));
-    rdoShowMoveNumberNo.setBounds(170, 89, 84, 23);
+    rdoShowMoveNumberNo.setBounds(170, 91, 84, 23);
     uiTab.add(rdoShowMoveNumberNo);
 
     rdoShowMoveNumberAll =
@@ -595,6 +602,61 @@ public class ConfigDialog extends JDialog {
     uiTab.add(txtShowMoveNumber);
     txtShowMoveNumber.setColumns(10);
 
+    JLabel lblShowBlunderBar =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.showBlunderBar"));
+    lblShowBlunderBar.setBounds(6, 121, 157, 16);
+    uiTab.add(lblShowBlunderBar);
+    chkShowBlunderBar = new JCheckBox("");
+    chkShowBlunderBar.setBounds(170, 118, 57, 23);
+    uiTab.add(chkShowBlunderBar);
+
+    JLabel lblDynamicWinrateGraphWidth =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.dynamicWinrateGraphWidth"));
+    lblDynamicWinrateGraphWidth.setBounds(6, 148, 157, 16);
+    uiTab.add(lblDynamicWinrateGraphWidth);
+    chkDynamicWinrateGraphWidth = new JCheckBox("");
+    chkDynamicWinrateGraphWidth.setBounds(170, 145, 57, 23);
+    uiTab.add(chkDynamicWinrateGraphWidth);
+
+    JLabel lblAppendWinrateToComment =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.appendWinrateToComment"));
+    lblAppendWinrateToComment.setBounds(6, 175, 157, 16);
+    uiTab.add(lblAppendWinrateToComment);
+    chkAppendWinrateToComment = new JCheckBox("");
+    chkAppendWinrateToComment.setBounds(170, 172, 57, 23);
+    uiTab.add(chkAppendWinrateToComment);
+
+    JLabel lblColorByWinrateInsteadOfVisits =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.colorByWinrateInsteadOfVisits"));
+    lblColorByWinrateInsteadOfVisits.setBounds(6, 202, 163, 16);
+    uiTab.add(lblColorByWinrateInsteadOfVisits);
+    chkColorByWinrateInsteadOfVisits = new JCheckBox("");
+    chkColorByWinrateInsteadOfVisits.setBounds(170, 199, 57, 23);
+    uiTab.add(chkColorByWinrateInsteadOfVisits);
+
+    JLabel lblBoardPositionProportion =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.boardPositionProportion"));
+    lblBoardPositionProportion.setBounds(6, 229, 163, 16);
+    uiTab.add(lblBoardPositionProportion);
+    sldBoardPositionProportion = new JSlider();
+    sldBoardPositionProportion.setPaintTicks(true);
+    sldBoardPositionProportion.setSnapToTicks(true);
+    sldBoardPositionProportion.addChangeListener(
+        new ChangeListener() {
+          public void stateChanged(ChangeEvent e) {
+            if (Lizzie.main.BoardPositionProportion != sldBoardPositionProportion.getValue()) {
+              Lizzie.main.BoardPositionProportion = sldBoardPositionProportion.getValue();
+              Lizzie.frame.repaint();
+              //Lizzie.main.invalidLayout();
+            }
+          }
+        });
+    sldBoardPositionProportion.setValue(4);
+    sldBoardPositionProportion.setMaximum(8);
+    sldBoardPositionProportion.setBounds(170, 225, 200, 28);
+    uiTab.add(sldBoardPositionProportion);
+
+    // Theme Tab
     JTabbedPane tabTheme = new JTabbedPane(JTabbedPane.TOP);
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.theme"), null, tabTheme, null);
     txts =
@@ -632,6 +694,11 @@ public class ConfigDialog extends JDialog {
     setBoardSize();
     txtMinPlayoutRatioForStats.setText(String.valueOf(Lizzie.config.minPlayoutRatioForStats));
     chkShowCoordinates.setSelected(Lizzie.config.showCoordinates);
+    chkShowBlunderBar.setSelected(Lizzie.config.showBlunderBar);
+    chkDynamicWinrateGraphWidth.setSelected(Lizzie.config.dynamicWinrateGraphWidth);
+    chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
+    chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
+    sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
     setShowMoveNumber();
     setLocationRelativeTo(getOwner());
   }
@@ -715,39 +782,6 @@ public class ConfigDialog extends JDialog {
         line.append((char) c);
       }
       commandHelp = line.toString();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void saveConfig() {
-    try {
-      leelazConfig.putOpt("max-analyze-time-minutes", txtFieldIntValue(txtMaxAnalyzeTime));
-      leelazConfig.putOpt(
-          "analyze-update-interval-centisec", txtFieldIntValue(txtAnalyzeUpdateInterval));
-      leelazConfig.putOpt(
-          "max-game-thinking-time-seconds", txtFieldIntValue(txtMaxGameThinkingTime));
-      leelazConfig.putOpt("print-comms", chkPrintEngineLog.isSelected());
-      leelazConfig.put("engine-command", txtEngine.getText().trim());
-      JSONArray engines = new JSONArray();
-      Arrays.asList(txts).forEach(t -> engines.put(t.getText().trim()));
-      leelazConfig.put("engine-command-list", engines);
-      Lizzie.config.uiConfig.put("board-size", getBoardSize());
-      Lizzie.config.minPlayoutRatioForStats = txtFieldDoubleValue(txtMinPlayoutRatioForStats);
-      Lizzie.config.uiConfig.put(
-          "min-playout-ratio-for-stats", Lizzie.config.minPlayoutRatioForStats);
-      Lizzie.config.uiConfig.putOpt("show-coordinates", chkShowCoordinates.isSelected());
-      Lizzie.config.uiConfig.put("board-size", getBoardSize());
-      Lizzie.config.showMoveNumber = !rdoShowMoveNumberNo.isSelected();
-      Lizzie.config.onlyLastMoveNumber =
-          rdoShowMoveNumberLast.isSelected() ? txtFieldIntValue(txtShowMoveNumber) : 0;
-      Lizzie.config.allowMoveNumber =
-          Lizzie.config.showMoveNumber
-              ? (Lizzie.config.onlyLastMoveNumber > 0 ? Lizzie.config.onlyLastMoveNumber : -1)
-              : 0;
-      Lizzie.config.uiConfig.put("show-move-number", Lizzie.config.showMoveNumber);
-      Lizzie.config.uiConfig.put("only-last-move-number", Lizzie.config.onlyLastMoveNumber);
-      Lizzie.config.save();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -881,6 +915,54 @@ public class ConfigDialog extends JDialog {
       }
     } else {
       rdoShowMoveNumberNo.setSelected(true);
+    }
+  }
+
+  private void saveConfig() {
+    try {
+      leelazConfig.putOpt("max-analyze-time-minutes", txtFieldIntValue(txtMaxAnalyzeTime));
+      leelazConfig.putOpt(
+          "analyze-update-interval-centisec", txtFieldIntValue(txtAnalyzeUpdateInterval));
+      leelazConfig.putOpt(
+          "max-game-thinking-time-seconds", txtFieldIntValue(txtMaxGameThinkingTime));
+      leelazConfig.putOpt("print-comms", chkPrintEngineLog.isSelected());
+      leelazConfig.put("engine-command", txtEngine.getText().trim());
+      JSONArray engines = new JSONArray();
+      Arrays.asList(txts).forEach(t -> engines.put(t.getText().trim()));
+      leelazConfig.put("engine-command-list", engines);
+      Lizzie.config.uiConfig.put("board-size", getBoardSize());
+      Lizzie.config.minPlayoutRatioForStats = txtFieldDoubleValue(txtMinPlayoutRatioForStats);
+      Lizzie.config.uiConfig.put(
+          "min-playout-ratio-for-stats", Lizzie.config.minPlayoutRatioForStats);
+      Lizzie.config.uiConfig.putOpt("show-coordinates", chkShowCoordinates.isSelected());
+      Lizzie.config.uiConfig.put("board-size", getBoardSize());
+      Lizzie.config.showMoveNumber = !rdoShowMoveNumberNo.isSelected();
+      Lizzie.config.onlyLastMoveNumber =
+          rdoShowMoveNumberLast.isSelected() ? txtFieldIntValue(txtShowMoveNumber) : 0;
+      Lizzie.config.allowMoveNumber =
+          Lizzie.config.showMoveNumber
+              ? (Lizzie.config.onlyLastMoveNumber > 0 ? Lizzie.config.onlyLastMoveNumber : -1)
+              : 0;
+      Lizzie.config.uiConfig.put("show-move-number", Lizzie.config.showMoveNumber);
+      Lizzie.config.uiConfig.put("only-last-move-number", Lizzie.config.onlyLastMoveNumber);
+
+      Lizzie.config.showBlunderBar = chkShowBlunderBar.isSelected();
+      Lizzie.config.uiConfig.putOpt("show-blunder-bar", Lizzie.config.showBlunderBar);
+      Lizzie.config.dynamicWinrateGraphWidth = chkDynamicWinrateGraphWidth.isSelected();
+      Lizzie.config.uiConfig.putOpt(
+          "dynamic-winrate-graph-width", Lizzie.config.dynamicWinrateGraphWidth);
+      Lizzie.config.appendWinrateToComment = chkAppendWinrateToComment.isSelected();
+      Lizzie.config.uiConfig.putOpt(
+          "append-winrate-to-comment", Lizzie.config.appendWinrateToComment);
+      Lizzie.config.colorByWinrateInsteadOfVisits = chkColorByWinrateInsteadOfVisits.isSelected();
+      Lizzie.config.uiConfig.putOpt(
+          "color-by-winrate-instead-of-visits", Lizzie.config.colorByWinrateInsteadOfVisits);
+      Lizzie.config.boardPositionProportion = sldBoardPositionProportion.getValue();
+      Lizzie.config.uiConfig.putOpt(
+          "board-postion-proportion", Lizzie.config.boardPositionProportion);
+      Lizzie.config.save();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
   }
 }
