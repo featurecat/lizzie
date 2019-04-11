@@ -644,8 +644,8 @@ public class ConfigDialog extends JDialog {
     sldBoardPositionProportion.addChangeListener(
         new ChangeListener() {
           public void stateChanged(ChangeEvent e) {
-            if (Lizzie.main.BoardPositionProportion != sldBoardPositionProportion.getValue()) {
-              Lizzie.main.BoardPositionProportion = sldBoardPositionProportion.getValue();
+            if (Lizzie.frame.BoardPositionProportion != sldBoardPositionProportion.getValue()) {
+              Lizzie.frame.BoardPositionProportion = sldBoardPositionProportion.getValue();
               Lizzie.frame.repaint();
               //Lizzie.main.invalidLayout();
             }
