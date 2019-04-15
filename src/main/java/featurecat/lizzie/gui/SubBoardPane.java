@@ -34,9 +34,11 @@ public class SubBoardPane extends LizziePane {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            if (Lizzie.config.showSubBoard) {
-              Lizzie.config.toggleLargeSubBoard();
-              owner.invalidLayout();
+            if (e.getButton() == MouseEvent.BUTTON1) { // left click
+              if (Lizzie.config.showSubBoard) {
+                Lizzie.config.toggleLargeSubBoard();
+                owner.invalidLayout();
+              }
             }
           }
         });

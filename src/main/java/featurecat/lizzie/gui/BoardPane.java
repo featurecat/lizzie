@@ -12,6 +12,7 @@ import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.rules.Stone;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -111,7 +112,11 @@ public class BoardPane extends LizziePane {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            onClicked(e.getX(), e.getY());
+            if (e.getButton() == MouseEvent.BUTTON1) { // left click
+              onClicked(e.getX(), e.getY());
+            } else if (e.getButton() == MouseEvent.BUTTON3) { // right click
+              Input.undo();
+            }
           }
         });
     addMouseMotionListener(

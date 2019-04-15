@@ -43,7 +43,9 @@ public class WinratePane extends LizziePane {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            onClicked(e.getX(), e.getY());
+            if (e.getButton() == MouseEvent.BUTTON1) { // left click
+              onClicked(e.getX(), e.getY());
+            }
           }
         });
 
