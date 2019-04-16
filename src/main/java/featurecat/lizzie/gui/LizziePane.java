@@ -13,7 +13,6 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferStrategy;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -81,7 +80,6 @@ public class LizziePane extends JPanel {
 
   protected PaneDragListener dragListener;
   protected Input input;
-  private BufferStrategy bs;
 
   public LizziePane() {
     super();

@@ -21,7 +21,6 @@ import java.awt.RenderingHints;
 import java.awt.TexturePaint;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +29,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -57,10 +57,7 @@ public class LizzieMain extends JFrame {
   public static Font uiFont;
   public static Font winrateFont;
 
-  private final BufferStrategy bs;
-
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
-  private BufferedImage cachedImage;
 
   public BufferedImage cachedBackground;
   private BufferedImage cachedBasicInfoContainer = emptyImage;
@@ -69,12 +66,6 @@ public class LizzieMain extends JFrame {
 
   private BufferedImage cachedWallpaperImage = emptyImage;
   private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
-  private boolean cachedBackgroundShowControls = false;
-  private boolean cachedShowWinrate = true;
-  private boolean cachedShowVariationGraph = true;
-  private boolean cachedShowLargeSubBoard = true;
-  private boolean cachedLargeWinrate = true;
-  private boolean cachedShowComment = true;
   private boolean redrawBackgroundAnyway = false;
 
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
@@ -85,9 +76,6 @@ public class LizzieMain extends JFrame {
   public boolean isNewGame = false;
   public int winRateGridLines = 3;
   public int BoardPositionProportion = Lizzie.config.boardPositionProportion;
-
-  private long lastAutosaveTime = System.currentTimeMillis();
-  private boolean isReplayVariation = false;
 
   // Save the player title
   private String playerTitle = "";
@@ -174,6 +162,7 @@ public class LizzieMain extends JFrame {
           }
         };
     setContentPane(panel);
+
     layout = new LizzieLayout();
     getContentPane().setLayout(layout);
     basicInfoPane = new BasicInfoPane(this);
@@ -196,10 +185,14 @@ public class LizzieMain extends JFrame {
     WindowPosition.restorePane(Lizzie.config.persistedUi, subBoardPane);
     WindowPosition.restorePane(Lizzie.config.persistedUi, variationTreePane);
     WindowPosition.restorePane(Lizzie.config.persistedUi, commentPane);
-    setVisible(true);
 
-    createBufferStrategy(2);
-    bs = getBufferStrategy();
+    try {
+      this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/assets/logo.png")));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    setVisible(true);
 
     input = new Input();
     //  addMouseListener(input);
@@ -214,6 +207,7 @@ public class LizzieMain extends JFrame {
             Lizzie.shutdown();
           }
         });
+
     // Show the playouts in the title
     showPlayouts.scheduleAtFixedRate(
         new Runnable() {
@@ -274,12 +268,6 @@ public class LizzieMain extends JFrame {
     cachedBackground = new BufferedImage(getWidth(), getHeight(), TYPE_INT_RGB);
     cachedBackgroundWidth = cachedBackground.getWidth();
     cachedBackgroundHeight = cachedBackground.getHeight();
-    //    cachedBackgroundShowControls = showControls;
-    cachedShowWinrate = Lizzie.config.showWinrate;
-    cachedShowVariationGraph = Lizzie.config.showVariationGraph;
-    cachedShowLargeSubBoard = Lizzie.config.showLargeSubBoard();
-    cachedLargeWinrate = Lizzie.config.showLargeWinrate();
-    cachedShowComment = Lizzie.config.showComment;
 
     redrawBackgroundAnyway = false;
 
@@ -296,7 +284,6 @@ public class LizzieMain extends JFrame {
   }
 
   private GaussianFilter filter20 = new GaussianFilter(20);
-  private GaussianFilter filter10 = new GaussianFilter(10);
 
   public BufferedImage getBasicInfoContainer(LizziePane pane) {
     if (cachedBackground == null
