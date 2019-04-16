@@ -27,7 +27,7 @@ public class Theme {
   BufferedImage backgroundCached = null;
 
   private String configFile = "theme.txt";
-  private String pathPrefix = "theme" + separator;
+  public static String pathPrefix = "theme" + separator;
   private String path = null;
   private JSONObject config = new JSONObject();
   private JSONObject uiConfig = null;
