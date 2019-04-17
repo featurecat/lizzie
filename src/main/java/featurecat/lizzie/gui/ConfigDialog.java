@@ -66,6 +66,8 @@ public class ConfigDialog extends JDialog {
   private Path curPath;
   private BufferedInputStream inputStream;
   private JSONObject leelazConfig;
+  private List<String> fontList;
+  private Theme theme;
 
   // Engine Tab
   private JTextField txtEngine;
@@ -104,15 +106,19 @@ public class ConfigDialog extends JDialog {
   private JCheckBox chkAppendWinrateToComment;
   private JCheckBox chkColorByWinrateInsteadOfVisits;
   private JSlider sldBoardPositionProportion;
+
+  // Theme Tab
+  private JComboBox<String> cmbThemes;
   private JSpinner spnWinrateStrokeWidth;
   private JSpinner spnMinimumBlunderBarWidth;
   private JSpinner spnShadowSize;
-  private JComboBox cmbFontName;
-  private JComboBox cmbUiFontName;
-  private JComboBox cmbWinrateFontName;
-
-  // Theme Tab
-  private JComboBox cmbThemes;
+  private JComboBox<String> cmbFontName;
+  private JComboBox<String> cmbUiFontName;
+  private JComboBox<String> cmbWinrateFontName;
+  private JTextField txtBackgroundPath;
+  private JTextField txtBoardPath;
+  private JTextField txtBlackStonePath;
+  private JTextField txtWhiteStonePath;
 
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
@@ -678,84 +684,6 @@ public class ConfigDialog extends JDialog {
     sldBoardPositionProportion.setBounds(170, 225, 200, 28);
     uiTab.add(sldBoardPositionProportion);
 
-    JLabel lblWinrateStrokeWidth =
-        new JLabel(resourceBundle.getString("LizzieConfig.title.winrateStrokeWidth"));
-    lblWinrateStrokeWidth.setBounds(6, 274, 163, 16);
-    uiTab.add(lblWinrateStrokeWidth);
-    spnWinrateStrokeWidth = new JSpinner();
-    spnWinrateStrokeWidth.setModel(new SpinnerNumberModel(2, 1, 10, 1));
-    spnWinrateStrokeWidth.setBounds(171, 272, 41, 20);
-    uiTab.add(spnWinrateStrokeWidth);
-
-    JLabel lblMinimumBlunderBarWidth =
-        new JLabel(resourceBundle.getString("LizzieConfig.title.minimumBlunderBarWidth"));
-    lblMinimumBlunderBarWidth.setBounds(6, 304, 163, 16);
-    uiTab.add(lblMinimumBlunderBarWidth);
-    spnMinimumBlunderBarWidth = new JSpinner();
-    spnMinimumBlunderBarWidth.setModel(new SpinnerNumberModel(1, 1, 10, 1));
-    spnMinimumBlunderBarWidth.setBounds(171, 302, 41, 20);
-    uiTab.add(spnMinimumBlunderBarWidth);
-
-    JLabel lblShadowSize = new JLabel(resourceBundle.getString("LizzieConfig.title.shadowSize"));
-    lblShadowSize.setBounds(6, 334, 163, 16);
-    uiTab.add(lblShadowSize);
-    spnShadowSize = new JSpinner();
-    spnShadowSize.setModel(new SpinnerNumberModel(50, 1, 100, 1));
-    spnShadowSize.setBounds(171, 332, 41, 20);
-    uiTab.add(spnShadowSize);
-
-    String fonts[] =
-        GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-
-    JLabel lblFontName = new JLabel(resourceBundle.getString("LizzieConfig.title.fontName"));
-    lblFontName.setBounds(6, 364, 163, 16);
-    uiTab.add(lblFontName);
-    cmbFontName = new JComboBox(fonts);
-    cmbFontName.setMaximumRowCount(16);
-    cmbFontName.setBounds(170, 363, 200, 20);
-    cmbFontName.setRenderer(new FontComboBoxRenderer<String>());
-    cmbFontName.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            cmbFontName.setFont(
-                new Font((String) e.getItem(), Font.PLAIN, cmbFontName.getFont().getSize()));
-          }
-        });
-    uiTab.add(cmbFontName);
-
-    JLabel lblUiFontName = new JLabel(resourceBundle.getString("LizzieConfig.title.uiFontName"));
-    lblUiFontName.setBounds(6, 394, 163, 16);
-    uiTab.add(lblUiFontName);
-    cmbUiFontName = new JComboBox(fonts);
-    cmbUiFontName.setMaximumRowCount(16);
-    cmbUiFontName.setBounds(170, 393, 200, 20);
-    cmbUiFontName.setRenderer(new FontComboBoxRenderer<String>());
-    cmbUiFontName.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            cmbUiFontName.setFont(
-                new Font((String) e.getItem(), Font.PLAIN, cmbUiFontName.getFont().getSize()));
-          }
-        });
-    uiTab.add(cmbUiFontName);
-
-    JLabel lblWinrateFontName =
-        new JLabel(resourceBundle.getString("LizzieConfig.title.winrateFontName"));
-    lblWinrateFontName.setBounds(6, 424, 163, 16);
-    uiTab.add(lblWinrateFontName);
-    cmbWinrateFontName = new JComboBox(fonts);
-    cmbWinrateFontName.setMaximumRowCount(16);
-    cmbWinrateFontName.setBounds(170, 423, 200, 20);
-    cmbWinrateFontName.setRenderer(new FontComboBoxRenderer<String>());
-    cmbWinrateFontName.addItemListener(
-        new ItemListener() {
-          public void itemStateChanged(ItemEvent e) {
-            cmbWinrateFontName.setFont(
-                new Font((String) e.getItem(), Font.PLAIN, cmbWinrateFontName.getFont().getSize()));
-          }
-        });
-    uiTab.add(cmbWinrateFontName);
-
     // Theme Tab
     JPanel themeTab = new JPanel();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.theme"), null, themeTab, null);
@@ -769,15 +697,148 @@ public class ConfigDialog extends JDialog {
                 return f.isDirectory() && !".".equals(f.getName());
               }
             });
-    List themeList =
+    List<String> themeList =
         Arrays.asList(themes).stream().map(t -> t.getName()).collect(Collectors.toList());
+    themeList.add(0, resourceBundle.getString("LizzieConfig.title.defaultTheme"));
 
     JLabel lblThemes = new JLabel(resourceBundle.getString("LizzieConfig.title.theme"));
-    lblThemes.setBounds(12, 11, 90, 20);
+    lblThemes.setBounds(10, 11, 155, 20);
     themeTab.add(lblThemes);
     cmbThemes = new JComboBox(themeList.toArray());
-    cmbThemes.setBounds(112, 11, 96, 20);
+    cmbThemes.addItemListener(
+        new ItemListener() {
+          public void itemStateChanged(ItemEvent e) {
+            readThemeValues();
+          }
+        });
+    cmbThemes.setBounds(175, 11, 199, 20);
     themeTab.add(cmbThemes);
+
+    JLabel lblWinrateStrokeWidth =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.winrateStrokeWidth"));
+    lblWinrateStrokeWidth.setBounds(10, 44, 163, 16);
+    themeTab.add(lblWinrateStrokeWidth);
+    spnWinrateStrokeWidth = new JSpinner();
+    spnWinrateStrokeWidth.setModel(new SpinnerNumberModel(2, 1, 10, 1));
+    spnWinrateStrokeWidth.setBounds(175, 42, 41, 20);
+    themeTab.add(spnWinrateStrokeWidth);
+
+    JLabel lblMinimumBlunderBarWidth =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.minimumBlunderBarWidth"));
+    lblMinimumBlunderBarWidth.setBounds(10, 74, 163, 16);
+    themeTab.add(lblMinimumBlunderBarWidth);
+    spnMinimumBlunderBarWidth = new JSpinner();
+    spnMinimumBlunderBarWidth.setModel(new SpinnerNumberModel(1, 1, 10, 1));
+    spnMinimumBlunderBarWidth.setBounds(175, 72, 41, 20);
+    themeTab.add(spnMinimumBlunderBarWidth);
+
+    JLabel lblShadowSize = new JLabel(resourceBundle.getString("LizzieConfig.title.shadowSize"));
+    lblShadowSize.setBounds(10, 104, 163, 16);
+    themeTab.add(lblShadowSize);
+    spnShadowSize = new JSpinner();
+    spnShadowSize.setModel(new SpinnerNumberModel(50, 1, 100, 1));
+    spnShadowSize.setBounds(175, 102, 41, 20);
+    themeTab.add(spnShadowSize);
+
+    fontList =
+        Arrays.asList(
+                GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames())
+            .stream()
+            .collect(Collectors.toList());
+    fontList.add(0, " ");
+    Object fonts[] = fontList.toArray();
+
+    JLabel lblFontName = new JLabel(resourceBundle.getString("LizzieConfig.title.fontName"));
+    lblFontName.setBounds(10, 134, 163, 16);
+    themeTab.add(lblFontName);
+    cmbFontName = new JComboBox(fonts);
+    cmbFontName.setMaximumRowCount(16);
+    cmbFontName.setBounds(175, 133, 200, 20);
+    cmbFontName.setRenderer(new FontComboBoxRenderer<String>());
+    cmbFontName.addItemListener(
+        new ItemListener() {
+          public void itemStateChanged(ItemEvent e) {
+            cmbFontName.setFont(
+                new Font((String) e.getItem(), Font.PLAIN, cmbFontName.getFont().getSize()));
+          }
+        });
+    themeTab.add(cmbFontName);
+
+    JLabel lblUiFontName = new JLabel(resourceBundle.getString("LizzieConfig.title.uiFontName"));
+    lblUiFontName.setBounds(10, 164, 163, 16);
+    themeTab.add(lblUiFontName);
+    cmbUiFontName = new JComboBox(fonts);
+    cmbUiFontName.setMaximumRowCount(16);
+    cmbUiFontName.setBounds(175, 163, 200, 20);
+    cmbUiFontName.setRenderer(new FontComboBoxRenderer<String>());
+    cmbUiFontName.addItemListener(
+        new ItemListener() {
+          public void itemStateChanged(ItemEvent e) {
+            cmbUiFontName.setFont(
+                new Font((String) e.getItem(), Font.PLAIN, cmbUiFontName.getFont().getSize()));
+          }
+        });
+    themeTab.add(cmbUiFontName);
+
+    JLabel lblWinrateFontName =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.winrateFontName"));
+    lblWinrateFontName.setBounds(10, 194, 163, 16);
+    themeTab.add(lblWinrateFontName);
+    cmbWinrateFontName = new JComboBox(fonts);
+    cmbWinrateFontName.setMaximumRowCount(16);
+    cmbWinrateFontName.setBounds(175, 193, 200, 20);
+    cmbWinrateFontName.setRenderer(new FontComboBoxRenderer<String>());
+    cmbWinrateFontName.addItemListener(
+        new ItemListener() {
+          public void itemStateChanged(ItemEvent e) {
+            cmbWinrateFontName.setFont(
+                new Font((String) e.getItem(), Font.PLAIN, cmbWinrateFontName.getFont().getSize()));
+          }
+        });
+    themeTab.add(cmbWinrateFontName);
+
+    JLabel lblBackgroundPath =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.backgroundPath"));
+    lblBackgroundPath.setHorizontalAlignment(SwingConstants.LEFT);
+    lblBackgroundPath.setBounds(10, 225, 92, 16);
+    themeTab.add(lblBackgroundPath);
+    txtBackgroundPath = new JTextField();
+    txtBackgroundPath.setText((String) null);
+    txtBackgroundPath.setColumns(10);
+    txtBackgroundPath.setBounds(175, 224, 421, 20);
+    themeTab.add(txtBackgroundPath);
+
+    JLabel lblBoardPath = new JLabel(resourceBundle.getString("LizzieConfig.title.boardPath"));
+    lblBoardPath.setHorizontalAlignment(SwingConstants.LEFT);
+    lblBoardPath.setBounds(10, 255, 92, 16);
+    themeTab.add(lblBoardPath);
+    txtBoardPath = new JTextField();
+    txtBoardPath.setText((String) null);
+    txtBoardPath.setColumns(10);
+    txtBoardPath.setBounds(175, 254, 421, 20);
+    themeTab.add(txtBoardPath);
+
+    JLabel lblBlackStonePath =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.blackStonePath"));
+    lblBlackStonePath.setHorizontalAlignment(SwingConstants.LEFT);
+    lblBlackStonePath.setBounds(10, 285, 92, 16);
+    themeTab.add(lblBlackStonePath);
+    txtBlackStonePath = new JTextField();
+    txtBlackStonePath.setText((String) null);
+    txtBlackStonePath.setColumns(10);
+    txtBlackStonePath.setBounds(175, 284, 421, 20);
+    themeTab.add(txtBlackStonePath);
+
+    JLabel lblWhiteStonePath =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.whiteStonePath"));
+    lblWhiteStonePath.setHorizontalAlignment(SwingConstants.LEFT);
+    lblWhiteStonePath.setBounds(10, 315, 92, 16);
+    themeTab.add(lblWhiteStonePath);
+    txtWhiteStonePath = new JTextField();
+    txtWhiteStonePath.setText((String) null);
+    txtWhiteStonePath.setColumns(10);
+    txtWhiteStonePath.setBounds(175, 314, 421, 20);
+    themeTab.add(txtWhiteStonePath);
 
     // Engines
     txts =
@@ -820,15 +881,10 @@ public class ConfigDialog extends JDialog {
     chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
     chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
     sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
-    spnWinrateStrokeWidth.setValue(Lizzie.config.uiConfig.optInt("winrate-stroke-width", 3));
-    spnMinimumBlunderBarWidth.setValue(
-        Lizzie.config.uiConfig.optInt("minimum-blunder-bar-width", 3));
-    spnShadowSize.setValue(Lizzie.config.uiConfig.optInt("shadow-size", 100));
-    cmbFontName.setSelectedItem(Lizzie.config.uiConfig.optString("font-name", null));
-    cmbUiFontName.setSelectedItem(Lizzie.config.uiConfig.optString("ui-font-name", null));
-    cmbWinrateFontName.setSelectedItem(Lizzie.config.uiConfig.optString("winrate-font-name", null));
-    cmbThemes.setSelectedItem(Lizzie.config.uiConfig.optString("theme", ""));
-
+    cmbThemes.setSelectedItem(
+        Lizzie.config.uiConfig.optString(
+            "theme", resourceBundle.getString("LizzieConfig.title.defaultTheme")));
+    readThemeValues();
     setShowMoveNumber();
     setLocationRelativeTo(getOwner());
   }
@@ -1059,6 +1115,95 @@ public class ConfigDialog extends JDialog {
     }
   }
 
+  private void setFontValue(JComboBox cmb, String fontName) {
+    cmb.setSelectedIndex(0);
+    cmb.setSelectedItem(fontName);
+  }
+
+  private void readThemeValues() {
+    if (cmbThemes.getSelectedIndex() <= 0) {
+      // Default
+      readDefaultTheme();
+    } else {
+      // Read the Theme
+      String themeName = (String) cmbThemes.getSelectedItem();
+      if (themeName == null || themeName.isEmpty()) {
+        readDefaultTheme();
+      } else {
+        theme = new Theme(themeName);
+        spnWinrateStrokeWidth.setValue(theme.winrateStrokeWidth());
+        spnMinimumBlunderBarWidth.setValue(theme.minimumBlunderBarWidth());
+        spnShadowSize.setValue(theme.shadowSize());
+        setFontValue(cmbFontName, theme.fontName());
+        setFontValue(cmbUiFontName, theme.uiFontName());
+        setFontValue(cmbWinrateFontName, theme.winrateFontName());
+        txtBackgroundPath.setEnabled(true);
+        txtBackgroundPath.setText(theme.backgroundPath());
+        txtBoardPath.setEnabled(true);
+        txtBoardPath.setText(theme.boardPath());
+        txtBlackStonePath.setEnabled(true);
+        txtBlackStonePath.setText(theme.blackStonePath());
+        txtWhiteStonePath.setEnabled(true);
+        txtWhiteStonePath.setText(theme.whiteStonePath());
+      }
+    }
+  }
+
+  private void writeThemeValues() {
+    if (cmbThemes.getSelectedIndex() <= 0) {
+      // Default
+      writeDefaultTheme();
+    } else {
+      // Write the Theme
+      String themeName = (String) cmbThemes.getSelectedItem();
+      if (themeName == null || themeName.isEmpty()) {
+        writeDefaultTheme();
+      } else {
+        if (theme == null) {
+          theme = new Theme(themeName);
+        }
+        theme.config.put("winrate-stroke-width", spnWinrateStrokeWidth.getValue());
+        theme.config.put("minimum-blunder-bar-width", spnMinimumBlunderBarWidth.getValue());
+        theme.config.put("shadow-size", spnShadowSize.getValue());
+        theme.config.put("font-name", cmbFontName.getSelectedItem());
+        theme.config.put("ui-font-name", cmbUiFontName.getSelectedItem());
+        theme.config.put("winrate-font-name", cmbWinrateFontName.getSelectedItem());
+        theme.config.put("background-image", txtBackgroundPath.getText().trim());
+        theme.config.put("board-image", txtBoardPath.getText().trim());
+        theme.config.put("black-stone-image", txtBlackStonePath.getText().trim());
+        theme.config.put("white-stone-image", txtWhiteStonePath.getText().trim());
+        theme.save();
+      }
+    }
+  }
+
+  private void readDefaultTheme() {
+    spnWinrateStrokeWidth.setValue(Lizzie.config.uiConfig.optInt("winrate-stroke-width", 3));
+    spnMinimumBlunderBarWidth.setValue(
+        Lizzie.config.uiConfig.optInt("minimum-blunder-bar-width", 3));
+    spnShadowSize.setValue(Lizzie.config.uiConfig.optInt("shadow-size", 100));
+    cmbFontName.setSelectedItem(Lizzie.config.uiConfig.optString("font-name", null));
+    cmbUiFontName.setSelectedItem(Lizzie.config.uiConfig.optString("ui-font-name", null));
+    cmbWinrateFontName.setSelectedItem(Lizzie.config.uiConfig.optString("winrate-font-name", null));
+    txtBackgroundPath.setEnabled(false);
+    txtBackgroundPath.setText("/asset/background.jpg");
+    txtBoardPath.setEnabled(false);
+    txtBoardPath.setText("/asset/board.png");
+    txtBlackStonePath.setEnabled(false);
+    txtBlackStonePath.setText("/asset/black0.png");
+    txtWhiteStonePath.setEnabled(false);
+    txtWhiteStonePath.setText("/asset/white0.png");
+  }
+
+  private void writeDefaultTheme() {
+    Lizzie.config.uiConfig.put("winrate-stroke-width", spnWinrateStrokeWidth.getValue());
+    Lizzie.config.uiConfig.put("minimum-blunder-bar-width", spnMinimumBlunderBarWidth.getValue());
+    Lizzie.config.uiConfig.put("shadow-size", spnShadowSize.getValue());
+    Lizzie.config.uiConfig.put("font-name", cmbFontName.getSelectedItem());
+    Lizzie.config.uiConfig.put("ui-font-name", cmbUiFontName.getSelectedItem());
+    Lizzie.config.uiConfig.put("winrate-font-name", cmbWinrateFontName.getSelectedItem());
+  }
+
   private void saveConfig() {
     try {
       leelazConfig.putOpt("max-analyze-time-minutes", txtFieldIntValue(txtMaxAnalyzeTime));
@@ -1101,13 +1246,8 @@ public class ConfigDialog extends JDialog {
       Lizzie.config.boardPositionProportion = sldBoardPositionProportion.getValue();
       Lizzie.config.uiConfig.putOpt(
           "board-postion-proportion", Lizzie.config.boardPositionProportion);
-      Lizzie.config.uiConfig.put("winrate-stroke-width", spnWinrateStrokeWidth.getValue());
-      Lizzie.config.uiConfig.put("minimum-blunder-bar-width", spnMinimumBlunderBarWidth.getValue());
-      Lizzie.config.uiConfig.put("shadow-size", spnShadowSize.getValue());
-      Lizzie.config.uiConfig.put("font-name", cmbFontName.getSelectedItem());
-      Lizzie.config.uiConfig.put("ui-font-name", cmbUiFontName.getSelectedItem());
-      Lizzie.config.uiConfig.put("winrate-font-name", cmbWinrateFontName.getSelectedItem());
       Lizzie.config.uiConfig.put("theme", cmbThemes.getSelectedItem());
+      writeThemeValues();
 
       Lizzie.config.save();
     } catch (IOException e) {
