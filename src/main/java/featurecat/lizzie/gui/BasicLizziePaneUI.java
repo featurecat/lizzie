@@ -28,7 +28,6 @@ import java.beans.PropertyChangeListener;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
@@ -38,25 +37,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.MouseInputListener;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.UIResource;
 
 public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
   protected LizziePane lizziePane;
   private boolean floating;
   private int floatingX;
   private int floatingY;
-  private JFrame floatingFrame;
   private RootPaneContainer floatingLizziePane;
   protected DragWindow dragWindow;
   private Container dockingSource;
-  private int dockingSensitivity = 0;
   protected int focusedCompIndex = -1;
   private Dimension originSize = null;
-
-  protected Color dockingColor = null;
-  protected Color floatingColor = null;
-  protected Color dockingBorderColor = null;
-  protected Color floatingBorderColor = null;
 
   protected MouseInputListener dockingListener;
   protected PropertyChangeListener propertyListener;
@@ -66,11 +57,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
   private Handler handler;
 
   protected String constraintBeforeFloating;
-
-  @Deprecated protected KeyStroke upKey;
-  @Deprecated protected KeyStroke downKey;
-  @Deprecated protected KeyStroke leftKey;
-  @Deprecated protected KeyStroke rightKey;
 
   private static String FOCUSED_COMP_INDEX = "LizziePane.focusedCompIndex";
 
@@ -84,12 +70,11 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     // Set defaults
     installDefaults();
     installComponents();
-    // TODO Default disabled drag
+    // Default disabled drag
     //    installListeners();
     //    installKeyboardActions();
 
     // Initialize instance vars
-    dockingSensitivity = 0;
     floating = false;
     floatingX = floatingY = 0;
     floatingLizziePane = null;
@@ -123,25 +108,10 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     LookAndFeel.installBorder(lizziePane, "LizziePane.border");
     LookAndFeel.installColorsAndFont(
         lizziePane, "LizziePane.background", "LizziePane.foreground", "LizziePane.font");
-    // Toolbar specific defaults
-    if (dockingColor == null || dockingColor instanceof UIResource)
-      dockingColor = UIManager.getColor("LizziePane.dockingBackground");
-    if (floatingColor == null || floatingColor instanceof UIResource)
-      floatingColor = UIManager.getColor("LizziePane.floatingBackground");
-    if (dockingBorderColor == null || dockingBorderColor instanceof UIResource)
-      dockingBorderColor = UIManager.getColor("LizziePane.dockingForeground");
-    if (floatingBorderColor == null || floatingBorderColor instanceof UIResource)
-      floatingBorderColor = UIManager.getColor("LizziePane.floatingForeground");
   }
 
   protected void uninstallDefaults() {
     LookAndFeel.uninstallBorder(lizziePane);
-    dockingColor = null;
-    floatingColor = null;
-    dockingBorderColor = null;
-    floatingBorderColor = null;
-
-    //    installNormalBorders(lizziePane);
   }
 
   protected void installComponents() {}
@@ -213,9 +183,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     InputMap km = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
     SwingUtilities.replaceUIInputMap(lizziePane, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, km);
-
-    //    LazyActionMap.installLazyActionMap(lizziePane, LizziePaneUI.class,
-    // "LizziePane.actionMap");
   }
 
   InputMap getInputMap(int condition) {
@@ -231,95 +198,10 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
         lizziePane, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, null);
   }
 
-  protected void navigateFocusedComp(int direction) {
-    int nComp = lizziePane.getComponentCount();
-    int j;
-
-    switch (direction) {
-      case EAST:
-      case SOUTH:
-        if (focusedCompIndex < 0 || focusedCompIndex >= nComp) break;
-
-        j = focusedCompIndex + 1;
-
-        while (j != focusedCompIndex) {
-          if (j >= nComp) j = 0;
-          Component comp = lizziePane.getComponentAtIndex(j++);
-
-          if (comp != null && comp.isFocusable() && comp.isEnabled()) {
-            comp.requestFocus();
-            break;
-          }
-        }
-
-        break;
-
-      case WEST:
-      case NORTH:
-        if (focusedCompIndex < 0 || focusedCompIndex >= nComp) break;
-
-        j = focusedCompIndex - 1;
-
-        while (j != focusedCompIndex) {
-          if (j < 0) j = nComp - 1;
-          Component comp = lizziePane.getComponentAtIndex(j--);
-
-          if (comp != null && comp.isFocusable() && comp.isEnabled()) {
-            comp.requestFocus();
-            break;
-          }
-        }
-
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  /**
-   * No longer used, use LizziePaneUI.createFloatingWindow(LizziePane)
-   *
-   * @see #createFloatingWindow
-   */
-  protected JFrame createFloatingFrame(LizziePane lizziePane) {
-    Window window = SwingUtilities.getWindowAncestor(lizziePane);
-    JFrame frame =
-        new JFrame(
-            lizziePane.getName(), (window != null) ? window.getGraphicsConfiguration() : null) {
-          // Override createRootPane() to automatically resize
-          // the frame when contents change
-          protected JRootPane createRootPane() {
-            JRootPane rootPane =
-                new JRootPane() {
-                  private boolean packing = false;
-
-                  public void validate() {
-                    super.validate();
-                    if (!packing) {
-                      packing = true;
-                      pack();
-                      packing = false;
-                    }
-                  }
-                };
-            rootPane.setOpaque(true);
-            return rootPane;
-          }
-        };
-    frame.getRootPane().setName("LizziePane.FloatingFrame");
-    frame.setResizable(false);
-    frame.setSize(lizziePane.getSize());
-    WindowListener wl = createFrameListener();
-    frame.addWindowListener(wl);
-    return frame;
-  }
-
   /**
    * Creates a window which contains the lizziePane after it has been dragged out from its container
    *
    * @return a <code>RootPaneContainer</code> object, containing the lizziePane.
-   * @since 1.4
    */
   protected RootPaneContainer createFloatingWindow(LizziePane lizziePane) {
     class LizziePaneDialog extends JDialog {
@@ -331,22 +213,8 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
         super(owner, title, modal);
       }
 
-      // Override createRootPane() to automatically resize
-      // the frame when contents change
       protected JRootPane createRootPane() {
-        JRootPane rootPane =
-            new JRootPane() {
-              private boolean packing = false;
-
-              public void validate() {
-                super.validate();
-                if (!packing) {
-                  packing = true;
-                  pack();
-                  packing = false;
-                }
-              }
-            };
+        JRootPane rootPane = new JRootPane();
         rootPane.setOpaque(false);
 
         rootPane.registerKeyboardAction(
@@ -374,7 +242,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     dialog.getRootPane().setName("LizziePane.FloatingWindow");
     dialog.setTitle(lizziePane.getName());
     dialog.setResizable(true);
-    dialog.setSize(lizziePane.getSize());
+    //    dialog.setSize(lizziePane.getSize());
     WindowListener wl = createFrameListener();
     dialog.addWindowListener(wl);
     return dialog;
@@ -432,7 +300,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
               new Dimension(
                   originSize.width + insets.left + insets.right,
                   originSize.height + insets.top + insets.bottom);
-          ((Window) floatingLizziePane).setMinimumSize(d);
+          ((Window) floatingLizziePane).setSize(d);
           if (visible) {
             ((Window) floatingLizziePane).setVisible(true);
           } else {
@@ -449,52 +317,17 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
         if (floatingLizziePane instanceof Window) ((Window) floatingLizziePane).setVisible(false);
         floatingLizziePane.getContentPane().remove(lizziePane);
         String constraint = getDockingConstraint(dockingSource, p);
-        // TODO
-        if (constraint == null) {
-          constraint = LizzieLayout.MAIN_BOARD;
+        if (constraint != null) {
+          if (dockingSource == null) dockingSource = lizziePane.getParent();
+          if (propertyListener != null) UIManager.removePropertyChangeListener(propertyListener);
+          dockingSource.add(constraint, lizziePane);
         }
-        if (dockingSource == null) dockingSource = lizziePane.getParent();
-        if (propertyListener != null) UIManager.removePropertyChangeListener(propertyListener);
-        dockingSource.add(constraint, lizziePane);
       }
       dockingSource.invalidate();
       Container dockingSourceParent = dockingSource.getParent();
       if (dockingSourceParent != null) dockingSourceParent.validate();
       dockingSource.repaint();
     }
-  }
-
-  /** Gets the color displayed when over a docking area */
-  public Color getDockingColor() {
-    return dockingColor;
-  }
-
-  /** Sets the color displayed when over a docking area */
-  public void setDockingColor(Color c) {
-    this.dockingColor = c;
-  }
-
-  /** Gets the color displayed when over a floating area */
-  public Color getFloatingColor() {
-    return floatingColor;
-  }
-
-  /** Sets the color displayed when over a floating area */
-  public void setFloatingColor(Color c) {
-    this.floatingColor = c;
-  }
-
-  private boolean isBlocked(Component comp, Object constraint) {
-    if (comp instanceof Container) {
-      Container cont = (Container) comp;
-      LayoutManager lm = cont.getLayout();
-      if (lm instanceof LizzieLayout) {
-        LizzieLayout blm = (LizzieLayout) lm;
-        Component c = blm.getLayoutComponent(cont, constraint);
-        return (c != null && c != lizziePane);
-      }
-    }
-    return false;
   }
 
   public boolean canDock(Component c, Point p) {
@@ -512,23 +345,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
 
   private String getDockingConstraint(Component c, Point p) {
     if (p == null) return constraintBeforeFloating;
-    if (c.contains(p)) {
-      dockingSensitivity = lizziePane.getSize().height;
-      //      if (p.y < dockingSensitivity && !isBlocked(c, LizzieLayout.NORTH)) {
-      //        return LizzieLayout.NORTH;
-      //      }
-      //      // East (Base distance on height for now!)
-      //      if (p.x >= c.getWidth() - dockingSensitivity && !isBlocked(c, LizzieLayout.EAST)) {
-      //        return LizzieLayout.EAST;
-      //      }
-      //      // West (Base distance on height for now!)
-      //      if (p.x < dockingSensitivity && !isBlocked(c, LizzieLayout.WEST)) {
-      //        return LizzieLayout.WEST;
-      //      }
-      //      if (p.y >= c.getHeight() - dockingSensitivity && !isBlocked(c, LizzieLayout.SOUTH)) {
-      //        return LizzieLayout.SOUTH;
-      //      }
-    }
     return null;
   }
 
@@ -539,7 +355,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
         if (dragWindow == null) dragWindow = createDragWindow(lizziePane);
         Point offset = dragWindow.getOffset();
         if (offset == null) {
-          Dimension size = lizziePane.getSize(); // TODO .getPreferredSize();
+          Dimension size = lizziePane.getSize();
           offset = new Point(size.width / 2, size.height / 2);
           dragWindow.setOffset(offset);
         }
@@ -547,21 +363,9 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
         Point dragPoint = new Point(global.x - offset.x, global.y - offset.y);
         if (dockingSource == null) dockingSource = lizziePane.getParent();
         constraintBeforeFloating = calculateConstraint();
-        Point dockingPosition = dockingSource.getLocationOnScreen();
-        Point comparisonPoint =
-            new Point(global.x - dockingPosition.x, global.y - dockingPosition.y);
-        if (canDock(dockingSource, comparisonPoint)) {
-          dragWindow.setBackground(getDockingColor());
-          String constraint = getDockingConstraint(dockingSource, comparisonPoint);
-          dragWindow.setBorderColor(dockingBorderColor);
-        } else {
-          dragWindow.setBackground(getFloatingColor());
-          dragWindow.setBorderColor(floatingBorderColor);
-        }
-
         dragWindow.setLocation(dragPoint.x, dragPoint.y);
         if (dragWindow.isVisible() == false) {
-          Dimension size = lizziePane.getSize(); // TODO.getPreferredSize();
+          Dimension size = lizziePane.getSize();
           dragWindow.setSize(size.width, size.height);
           dragWindow.setVisible(true);
         }
@@ -645,7 +449,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
    *
    * @param g Graphics to paint to.
    * @throws NullPointerException is <code>g</code> is null
-   * @since 1.5
    */
   protected void paintDragWindow(Graphics g) {
     g.setColor(dragWindow.getBackground());
@@ -655,34 +458,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
     g.setColor(dragWindow.getBorderColor());
     g.drawRect(0, 0, w - 1, h - 1);
   }
-  //
-  //  private static class Actions extends UIAction {
-  //    private static final String NAVIGATE_RIGHT = "navigateRight";
-  //    private static final String NAVIGATE_LEFT = "navigateLeft";
-  //    private static final String NAVIGATE_UP = "navigateUp";
-  //    private static final String NAVIGATE_DOWN = "navigateDown";
-  //
-  //    public Actions(String name) {
-  //      super(name);
-  //    }
-  //
-  //    public void actionPerformed(ActionEvent evt) {
-  //      String key = getName();
-  //      LizziePane lizziePane = (LizziePane) evt.getSource();
-  //      LizziePaneUI ui = (LizziePaneUI) BasicLookAndFeel.getUIOfType(lizziePane.getUI(),
-  // LizziePaneUI.class);
-  //
-  //      if (NAVIGATE_RIGHT == key) {
-  //        ui.navigateFocusedComp(EAST);
-  //      } else if (NAVIGATE_LEFT == key) {
-  //        ui.navigateFocusedComp(WEST);
-  //      } else if (NAVIGATE_UP == key) {
-  //        ui.navigateFocusedComp(NORTH);
-  //      } else if (NAVIGATE_DOWN == key) {
-  //        ui.navigateFocusedComp(SOUTH);
-  //      //      }
-  //    }
-  //  }
 
   private class Handler
       implements ContainerListener, FocusListener, MouseInputListener, PropertyChangeListener {
@@ -706,9 +481,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
       }
     }
 
-    //
-    // FocusListener
-    //
     public void focusGained(FocusEvent evt) {
       Component c = evt.getComponent();
       focusedCompIndex = lizziePane.getComponentIndex(c);
@@ -716,9 +488,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
 
     public void focusLost(FocusEvent evt) {}
 
-    //
-    // MouseInputListener (DockingListener)
-    //
     LizziePane lp;
     boolean isDragging = false;
     Point origin = null;
@@ -763,9 +532,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
 
     public void mouseMoved(MouseEvent evt) {}
 
-    //
-    // PropertyChangeListener
-    //
     public void propertyChange(PropertyChangeEvent evt) {
       String propertyName = evt.getPropertyName();
       if (propertyName == "lookAndFeel") {
@@ -795,10 +561,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
   }
 
   protected class LizziePaneContListener implements ContainerListener {
-    // NOTE: This class exists only for backward compatibility. All
-    // its functionality has been moved into Handler. If you need to add
-    // new functionality add it to the Handler, but make sure this
-    // class calls into the Handler.
     public void componentAdded(ContainerEvent e) {
       getHandler().componentAdded(e);
     }
@@ -809,10 +571,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
   }
 
   protected class LizziePaneFocusListener implements FocusListener {
-    // NOTE: This class exists only for backward compatibility. All
-    // its functionality has been moved into Handler. If you need to add
-    // new functionality add it to the Handler, but make sure this
-    // class calls into the Handler.
     public void focusGained(FocusEvent e) {
       getHandler().focusGained(e);
     }
@@ -823,10 +581,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
   }
 
   protected class PropertyListener implements PropertyChangeListener {
-    // NOTE: This class exists only for backward compatibility. All
-    // its functionality has been moved into Handler. If you need to add
-    // new functionality add it to the Handler, but make sure this
-    // class calls into the Handler.
     public void propertyChange(PropertyChangeEvent e) {
       getHandler().propertyChange(e);
     }
@@ -837,10 +591,6 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
    * subclasses of LizziePaneUI.
    */
   public class DockingListener implements MouseInputListener {
-    // NOTE: This class exists only for backward compatibility. All
-    // its functionality has been moved into Handler. If you need to add
-    // new functionality add it to the Handler, but make sure this
-    // class calls into the Handler.
     protected LizziePane lizziePane;
     protected boolean isDragging = false;
     protected Point origin = null;
