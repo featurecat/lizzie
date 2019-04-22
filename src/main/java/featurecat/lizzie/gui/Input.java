@@ -4,19 +4,30 @@ import static java.awt.event.KeyEvent.*;
 
 import featurecat.lizzie.Lizzie;
 import java.awt.event.*;
+import java.util.ResourceBundle;
+
 import javax.swing.*;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
+	public final ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
+	public static boolean isinsertmode = false;
   @Override
   public void mouseClicked(MouseEvent e) {}
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) // left click
-    Lizzie.frame.onClicked(e.getX(), e.getY());
-    else if (e.getButton() == MouseEvent.BUTTON3) // right click
-    undo();
-  }
+	    if (e.getButton() == MouseEvent.BUTTON1) // left click
+	    {
+	      if (!isinsertmode) {
+	        Lizzie.frame.onClicked(e.getX(), e.getY());
+	      } else {
+	        Lizzie.frame.insertMove(e.getX(), e.getY());
+	      }
+
+	    } else if (e.getButton() == MouseEvent.BUTTON3) // right click
+	      // undo();
+	      Lizzie.frame.openRightClickMenu(e.getX(), e.getY());	    
+	  }
 
   @Override
   public void mouseReleased(MouseEvent e) {}
@@ -177,24 +188,36 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         Lizzie.frame.toggleGtpConsole();
         break;
       case VK_RIGHT:
+    		if (isinsertmode) {
+    	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+    	        return;
+    	      }
         if (e.isShiftDown()) {
           moveBranchDown();
-        } else {
+        } else {        
           nextBranch();
         }
         break;
 
       case VK_LEFT:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      }   
         if (e.isShiftDown()) {
           moveBranchUp();
         } else if (controlIsPressed(e)) {
           undoToFirstParentWithVariations();
-        } else {
+        } else {        	     	
           previousBranch();
         }
         break;
 
       case VK_UP:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      }   
         if (controlIsPressed(e) && e.isShiftDown()) {
           goCommentNode(false);
         } else if (e.isShiftDown()) {
@@ -210,11 +233,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (controlIsPressed(e) && e.isShiftDown()) {
           Lizzie.frame.increaseMaxAlpha(-5);
         } else {
+        	if (isinsertmode) {
+    	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+    	        return;
+    	      }   
           redo(10);
         }
         break;
 
       case VK_DOWN:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      }   
         if (controlIsPressed(e) && e.isShiftDown()) {
           goCommentNode(true);
         } else if (controlIsPressed(e)) {
@@ -225,6 +256,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_N:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      }   
         // stop the ponder
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
         LizzieFrame.startNewGame();
@@ -245,8 +280,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (!Lizzie.frame.playCurrentVariation()) Lizzie.frame.playBestMove();
         break;
 
-      case VK_M:
+      case VK_M:    	  
         if (e.isAltDown()) {
+        	if (isinsertmode) {
+    	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+    	        return;
+    	      }   
           Lizzie.frame.openChangeMoveDialog();
         } else {
           Lizzie.config.toggleShowMoveNumber();
@@ -265,6 +304,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (controlIsPressed(e) && e.isShiftDown()) {
           Lizzie.frame.increaseMaxAlpha(5);
         } else {
+        	if (isinsertmode) {
+    	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+    	        return;
+    	      } 
           undo(10);
         }
         break;
@@ -287,6 +330,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_V:
         if (controlIsPressed(e)) {
+        	if (isinsertmode) {
+    	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+    	        return;
+    	      } 
           Lizzie.frame.pasteSgf();
         } else {
           Lizzie.config.toggleShowBranch();
@@ -294,6 +341,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_HOME:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      } 
         if (controlIsPressed(e)) {
           Lizzie.board.clear();
         } else {
@@ -302,6 +353,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_END:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      } 
         while (Lizzie.board.nextMove()) ;
         break;
 
@@ -355,6 +410,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_ENTER:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      } 
         if (!Lizzie.leelaz.isThinking) {
           Lizzie.leelaz.sendCommand(
               "time_settings 0 "
@@ -371,6 +430,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_DELETE:
       case VK_BACK_SPACE:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      } 
         if (e.isShiftDown()) {
           deleteBranch();
         } else {
@@ -402,6 +465,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_R:
+    	  if (isinsertmode) {
+  	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+  	        return;
+  	      } 
         Lizzie.frame.replayBranch();
         break;
 
@@ -463,6 +530,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
+	    if (isinsertmode) {
+	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
+	        return;
+	      }
     if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
       return;
     }

@@ -509,7 +509,7 @@ public class Leelaz {
   }
 
   /** This initializes leelaz's pondering mode at its current position */
-  private void ponder() {
+  public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
     sendCommand(

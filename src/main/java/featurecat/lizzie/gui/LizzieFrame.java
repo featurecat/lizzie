@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -109,6 +110,7 @@ public class LizzieFrame extends JFrame {
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
   public int BoardPositionProportion = Lizzie.config.boardPositionProportion;
+  public boolean isshowrightmenu;
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
@@ -122,6 +124,7 @@ public class LizzieFrame extends JFrame {
   private BufferedImage cachedCommentImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
   private String cachedComment;
   private Rectangle commentRect;
+  private RightClickMenu RightClickMenu = new RightClickMenu();
 
   // Show the playouts in the title
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
@@ -1283,6 +1286,39 @@ public class LizzieFrame extends JFrame {
     repaint();
   }
 
+  public void openRightClickMenu(int x, int y) {
+	    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+
+	    if (!boardCoordinates.isPresent()) {
+
+	      return;
+	    }
+	    if (isPlayingAgainstLeelaz) {
+
+	      return;
+	    }
+	    if (Lizzie.leelaz.isPondering()) {
+	      Lizzie.leelaz.sendCommand("name");
+	    }
+	    isshowrightmenu = true;
+	    RightClickMenu.Store(x, y);
+	    Timer timer = new Timer();
+	    timer.schedule(
+	        new TimerTask() {
+	          public void run() {
+	            Lizzie.frame.showmenu(x, y);
+	            this.cancel();
+	          }
+	        },
+	        50);
+	    // System.out.println("弹出右键菜单");
+	    //  RightClickMenu.show(this, x, y);
+	  }
+  
+  public void showmenu(int x, int y) {
+	    RightClickMenu.show(this, x, y);
+	  }
+  
   private final Consumer<String> placeVariation =
       v -> Board.asCoordinates(v).ifPresent(c -> Lizzie.board.place(c[0], c[1]));
 
@@ -1296,18 +1332,27 @@ public class LizzieFrame extends JFrame {
   }
 
   public void onMouseMoved(int x, int y) {
-    mouseOverCoordinate = outOfBoundCoordinate;
-    Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
-    coords.filter(c -> !isMouseOver(c[0], c[1])).ifPresent(c -> repaint());
-    coords.ifPresent(
-        c -> {
-          mouseOverCoordinate = c;
-          isReplayVariation = false;
-        });
-    if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
-      repaint();
-    }
-  }
+	    if (RightClickMenu.isVisible()) {
+	      return;
+	    }
+	    if (isshowrightmenu) {
+	      isshowrightmenu = false;
+	      if (Lizzie.leelaz.isPondering()) {
+	        Lizzie.leelaz.ponder();
+	      }
+	    }
+	    mouseOverCoordinate = outOfBoundCoordinate;
+	    Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
+	    coords.filter(c -> !isMouseOver(c[0], c[1])).ifPresent(c -> repaint());
+	    coords.ifPresent(
+	        c -> {
+	          mouseOverCoordinate = c;
+	          isReplayVariation = false;
+	        });
+	    if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
+	      repaint();
+	    }
+	  }
 
   public boolean isMouseOver(int x, int y) {
     return mouseOverCoordinate[0] == x && mouseOverCoordinate[1] == y;
@@ -1569,4 +1614,24 @@ public class LizzieFrame extends JFrame {
     Thread thread = new Thread(runnable);
     thread.start();
   }
+  
+  public void insertMove(int x, int y, boolean isblack) {
+	    // Check for board click
+	    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+	    if (boardCoordinates.isPresent()) {
+	      int[] coords = boardCoordinates.get();
+	      Lizzie.board.insertMove(coords, isblack);
+	    }
+	    repaint();
+	  }
+  
+  public void insertMove(int x, int y) {
+	    // Check for board click
+	    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+	    if (boardCoordinates.isPresent()) {
+	      int[] coords = boardCoordinates.get();
+	      Lizzie.board.insertMove(coords);
+	    }
+	    repaint();
+	  }
 }

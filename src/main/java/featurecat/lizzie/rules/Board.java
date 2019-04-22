@@ -26,6 +26,12 @@ import org.json.JSONException;
 
 public class Board implements LeelazListener {
   public static int boardSize = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
+  
+  public int insertoricurrentMoveNumber = 0;
+  public ArrayList<Integer> insertorimove = new ArrayList<Integer>();
+  public ArrayList<Boolean> insertoriisblack = new ArrayList<Boolean>();
+  public int[] mvnumber = new int[361];
+  
   private static final String alphabet = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
   private BoardHistoryList history;
@@ -1453,4 +1459,182 @@ public class Board implements LeelazListener {
 
     return true;
   }
+  
+  
+  public boolean insertmode() {
+	    insertoricurrentMoveNumber = history.getMoveNumber();
+	    int movenum = history.getMoveNumber();
+	    Optional<BoardHistoryNode> changeNode = history.getCurrentHistoryNode().next();	
+	    featurecat.lizzie.gui.Input.isinsertmode = true;
+	    Optional<BoardHistoryNode> relink = changeNode;
+	    Optional<BoardHistoryNode> node = relink;
+	    Optional<int[]> passstep = Optional.empty();
+	    while (node.isPresent()) {
+	      Optional<int[]> lastMove = node.get().getData().lastMove;
+	      if (lastMove == passstep) {
+	    	  insertorimove.add(-1);
+	    	  insertorimove.add(-1);
+	        boolean oisblack = node.get().getData().lastMoveColor.isBlack();
+	        insertoriisblack.add(oisblack);
+	        node = node.get().next();
+	      } else {
+	        if (lastMove.isPresent()) {
+	          int[] n = lastMove.get();
+	          insertorimove.add(n[0]);
+	          insertorimove.add(n[1]);
+	          boolean oisblack = node.get().getData().lastMoveColor.isBlack();
+	          insertoriisblack.add(oisblack);
+	          node = node.get().next();
+	        }
+	      }
+	    }
+	    return true;
+	  }
+
+	  public void quitinsertmode() {
+	    for (int j = 0; j < insertoriisblack.size(); j = j + 1) {
+	      if (insertorimove.get(2 * j) != -1) {
+	        placeinsert(
+	        		insertorimove.get(2 * j),
+	        		insertorimove.get(2 * j + 1),
+	            insertoriisblack.get(j) ? Stone.BLACK : Stone.WHITE);
+	      } else {
+	        passinsert(insertoriisblack.get(j) ? Stone.BLACK : Stone.WHITE);
+	      }
+	    }
+	    goToMoveNumber(insertoricurrentMoveNumber);
+	    insertorimove.clear();
+	    insertoriisblack.clear();
+	    featurecat.lizzie.gui.Input.isinsertmode = false;
+	  }
+
+	  public void insertMove(int coords[], boolean isblack) {
+
+	    if (Board.isValid(coords[0], coords[1])) {
+	      placeinsert(coords[0], coords[1], isblack ? Stone.BLACK : Stone.WHITE);
+	    }
+	    insertoricurrentMoveNumber = insertoricurrentMoveNumber + 1;
+	    mvnumber[getIndex(coords[0], coords[1])] = history.getCurrentHistoryNode().getData().moveNumber;
+	    if (Lizzie.leelaz.isPondering()) {
+	      Lizzie.leelaz.ponder();
+	    }
+	  }
+
+	  public void insertMove(int coords[]) {
+
+	    if (Board.isValid(coords[0], coords[1])) {
+	      placeinsert(coords[0], coords[1], history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+	    }
+	    insertoricurrentMoveNumber = insertoricurrentMoveNumber + 1;
+	    mvnumber[getIndex(coords[0], coords[1])] = history.getCurrentHistoryNode().getData().moveNumber;
+	    if (Lizzie.leelaz.isPondering()) {
+	      Lizzie.leelaz.ponder();
+	    }
+	  }
+	  
+	  public void placeinsert(int x, int y, Stone color) {
+		    synchronized (this) {
+		      if (!isValid(x, y) || (history.getStones()[getIndex(x, y)] != Stone.EMPTY)) return;
+
+		      updateWinrate();
+		      double nextWinrate = -100;
+		      if (history.getData().winrate >= 0) nextWinrate = 100 - history.getData().winrate;
+
+		      Stone[] stones = history.getStones().clone();
+		      Zobrist zobrist = history.getZobrist();
+		      Optional<int[]> lastMove = Optional.of(new int[] {x, y});
+		      int moveNumber = history.getMoveNumber() + 1;
+		      int moveMNNumber = history.getMoveMNNumber() > -1 ? history.getMoveMNNumber() + 1 : -1;
+		      int[] moveNumberList = history.getMoveNumberList().clone();
+
+		      moveNumberList[Board.getIndex(x, y)] = moveMNNumber > -1 ? moveMNNumber : moveNumber;
+
+		      // set the stone at (x, y) to color
+		      stones[getIndex(x, y)] = color;
+		      zobrist.toggleStone(x, y, color);
+
+		      // remove enemy stones
+		      int capturedStones = 0;
+		      capturedStones += removeDeadChain(x + 1, y, color.opposite(), stones, zobrist);
+		      capturedStones += removeDeadChain(x, y + 1, color.opposite(), stones, zobrist);
+		      capturedStones += removeDeadChain(x - 1, y, color.opposite(), stones, zobrist);
+		      capturedStones += removeDeadChain(x, y - 1, color.opposite(), stones, zobrist);
+
+		      // check to see if the player made a suicidal coordinate
+		      int isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
+
+		      for (int i = 0; i < boardSize * boardSize; i++) {
+		        if (stones[i].equals(Stone.EMPTY)) {
+		          moveNumberList[i] = 0;
+		        }
+		      }
+
+		      int bc = history.getData().blackCaptures;
+		      int wc = history.getData().whiteCaptures;
+		      if (color.isBlack()) bc += capturedStones;
+		      else wc += capturedStones;
+		      BoardData newState =
+		          new BoardData(
+		              stones,
+		              lastMove,
+		              color,
+		              color.equals(Stone.WHITE),
+		              zobrist,
+		              moveNumber,
+		              moveNumberList,
+		              bc,
+		              wc,
+		              nextWinrate,
+		              0);
+		      newState.moveMNNumber = moveMNNumber;
+
+		      // don't make this coordinate if it is suicidal or violates superko
+		      if (isSuicidal > 0 || history.violatesKoRule(newState)) return;
+
+		      // update leelaz with board position
+		      if ( !Lizzie.leelaz.isInputCommand) {
+		        Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
+		      }
+
+		      // update history with this coordinate
+		      history.addOrGoto(newState, false, false);
+
+		      Lizzie.frame.repaint();
+		    }
+		  }
+	  
+	  public void passinsert(Stone color) {
+		    synchronized (this) {		     
+
+		      Stone[] stones = history.getStones().clone();
+		      Zobrist zobrist = history.getZobrist();
+
+		      int moveNumber = history.getMoveNumber() + 1;
+		      int[] moveNumberList = history.getMoveNumberList().clone();
+
+		      // build the new game state
+		      BoardData newState =
+		          new BoardData(
+		              stones,
+		              Optional.empty(),
+		              color,
+		              color.equals(Stone.WHITE),
+		              zobrist,
+		              moveNumber,
+		              moveNumberList,
+		              history.getData().blackCaptures,
+		              history.getData().whiteCaptures,
+		              0,
+		              0);
+		      newState.dummy = false;
+		      // update leelaz with pass
+		      if (!Lizzie.leelaz.isInputCommand) Lizzie.leelaz.playMove(color, "pass");
+
+		      // update history with pass
+		      history.addOrGoto(newState, false, false);
+
+		      Lizzie.frame.repaint();
+		    }
+		  }
+	  
 }
