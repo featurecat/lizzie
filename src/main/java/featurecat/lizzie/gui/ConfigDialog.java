@@ -3,6 +3,7 @@ package featurecat.lizzie.gui;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.theme.Theme;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -11,6 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -21,15 +24,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.swing.AbstractCellEditor;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -38,16 +46,23 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
@@ -119,12 +134,20 @@ public class ConfigDialog extends JDialog {
   private JTextField txtBoardPath;
   private JTextField txtBlackStonePath;
   private JTextField txtWhiteStonePath;
+  private ColorLabel lblWinrateLineColor;
+  private ColorLabel lblWinrateMissLineColor;
+  private ColorLabel lblBlunderBarColor;
+  private JCheckBox chkSolidStoneIndicator;
+  private JCheckBox chkShowCommentNodeColor;
+  private ColorLabel lblCommentNodeColor;
+  private JTable tblBlunderNodes;
+  private String[] columsBlunderNodes;
 
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
     setModalityType(ModalityType.APPLICATION_MODAL);
     setType(Type.POPUP);
-    setBounds(100, 100, 661, 567);
+    setBounds(100, 100, 661, 716);
     getContentPane().setLayout(new BorderLayout());
     JPanel buttonPane = new JPanel();
     buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -702,7 +725,7 @@ public class ConfigDialog extends JDialog {
     themeList.add(0, resourceBundle.getString("LizzieConfig.title.defaultTheme"));
 
     JLabel lblThemes = new JLabel(resourceBundle.getString("LizzieConfig.title.theme"));
-    lblThemes.setBounds(10, 11, 155, 20);
+    lblThemes.setBounds(10, 11, 163, 20);
     themeTab.add(lblThemes);
     cmbThemes = new JComboBox(themeList.toArray());
     cmbThemes.addItemListener(
@@ -720,7 +743,7 @@ public class ConfigDialog extends JDialog {
     themeTab.add(lblWinrateStrokeWidth);
     spnWinrateStrokeWidth = new JSpinner();
     spnWinrateStrokeWidth.setModel(new SpinnerNumberModel(2, 1, 10, 1));
-    spnWinrateStrokeWidth.setBounds(175, 42, 41, 20);
+    spnWinrateStrokeWidth.setBounds(175, 42, 69, 20);
     themeTab.add(spnWinrateStrokeWidth);
 
     JLabel lblMinimumBlunderBarWidth =
@@ -729,7 +752,7 @@ public class ConfigDialog extends JDialog {
     themeTab.add(lblMinimumBlunderBarWidth);
     spnMinimumBlunderBarWidth = new JSpinner();
     spnMinimumBlunderBarWidth.setModel(new SpinnerNumberModel(1, 1, 10, 1));
-    spnMinimumBlunderBarWidth.setBounds(175, 72, 41, 20);
+    spnMinimumBlunderBarWidth.setBounds(175, 72, 69, 20);
     themeTab.add(spnMinimumBlunderBarWidth);
 
     JLabel lblShadowSize = new JLabel(resourceBundle.getString("LizzieConfig.title.shadowSize"));
@@ -737,7 +760,7 @@ public class ConfigDialog extends JDialog {
     themeTab.add(lblShadowSize);
     spnShadowSize = new JSpinner();
     spnShadowSize.setModel(new SpinnerNumberModel(50, 1, 100, 1));
-    spnShadowSize.setBounds(175, 102, 41, 20);
+    spnShadowSize.setBounds(175, 102, 69, 20);
     themeTab.add(spnShadowSize);
 
     fontList =
@@ -800,7 +823,7 @@ public class ConfigDialog extends JDialog {
     JLabel lblBackgroundPath =
         new JLabel(resourceBundle.getString("LizzieConfig.title.backgroundPath"));
     lblBackgroundPath.setHorizontalAlignment(SwingConstants.LEFT);
-    lblBackgroundPath.setBounds(10, 225, 92, 16);
+    lblBackgroundPath.setBounds(10, 225, 163, 16);
     themeTab.add(lblBackgroundPath);
     txtBackgroundPath = new JTextField();
     txtBackgroundPath.setText((String) null);
@@ -810,7 +833,7 @@ public class ConfigDialog extends JDialog {
 
     JLabel lblBoardPath = new JLabel(resourceBundle.getString("LizzieConfig.title.boardPath"));
     lblBoardPath.setHorizontalAlignment(SwingConstants.LEFT);
-    lblBoardPath.setBounds(10, 255, 92, 16);
+    lblBoardPath.setBounds(10, 255, 163, 16);
     themeTab.add(lblBoardPath);
     txtBoardPath = new JTextField();
     txtBoardPath.setText((String) null);
@@ -821,7 +844,7 @@ public class ConfigDialog extends JDialog {
     JLabel lblBlackStonePath =
         new JLabel(resourceBundle.getString("LizzieConfig.title.blackStonePath"));
     lblBlackStonePath.setHorizontalAlignment(SwingConstants.LEFT);
-    lblBlackStonePath.setBounds(10, 285, 92, 16);
+    lblBlackStonePath.setBounds(10, 285, 163, 16);
     themeTab.add(lblBlackStonePath);
     txtBlackStonePath = new JTextField();
     txtBlackStonePath.setText((String) null);
@@ -832,13 +855,102 @@ public class ConfigDialog extends JDialog {
     JLabel lblWhiteStonePath =
         new JLabel(resourceBundle.getString("LizzieConfig.title.whiteStonePath"));
     lblWhiteStonePath.setHorizontalAlignment(SwingConstants.LEFT);
-    lblWhiteStonePath.setBounds(10, 315, 92, 16);
+    lblWhiteStonePath.setBounds(10, 315, 163, 16);
     themeTab.add(lblWhiteStonePath);
     txtWhiteStonePath = new JTextField();
     txtWhiteStonePath.setText((String) null);
     txtWhiteStonePath.setColumns(10);
     txtWhiteStonePath.setBounds(175, 314, 421, 20);
     themeTab.add(txtWhiteStonePath);
+
+    JLabel lblWinrateLineColorTitle =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.winrateLineColor"));
+    lblWinrateLineColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
+    lblWinrateLineColorTitle.setBounds(10, 345, 163, 16);
+    themeTab.add(lblWinrateLineColorTitle);
+    lblWinrateLineColor = new ColorLabel();
+    lblWinrateLineColor.setBounds(175, 350, 199, 9);
+    themeTab.add(lblWinrateLineColor);
+
+    JLabel lblWinrateMissLineColorTitle =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.winrateMissLineColor"));
+    lblWinrateMissLineColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
+    lblWinrateMissLineColorTitle.setBounds(10, 375, 163, 16);
+    themeTab.add(lblWinrateMissLineColorTitle);
+    lblWinrateMissLineColor = new ColorLabel();
+    lblWinrateMissLineColor.setBounds(175, 380, 199, 9);
+    themeTab.add(lblWinrateMissLineColor);
+
+    JLabel lblBlunderBarColorTitle =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.blunderBarColor"));
+    lblBlunderBarColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
+    lblBlunderBarColorTitle.setBounds(10, 405, 163, 16);
+    themeTab.add(lblBlunderBarColorTitle);
+    lblBlunderBarColor = new ColorLabel();
+    lblBlunderBarColor.setBounds(175, 410, 199, 9);
+    themeTab.add(lblBlunderBarColor);
+
+    JLabel lblSolidStoneIndicator =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.solidStoneIndicator"));
+    lblSolidStoneIndicator.setBounds(10, 444, 163, 16);
+    themeTab.add(lblSolidStoneIndicator);
+    chkSolidStoneIndicator = new JCheckBox("");
+    chkSolidStoneIndicator.setBounds(170, 437, 57, 23);
+    themeTab.add(chkSolidStoneIndicator);
+
+    JLabel lblShowCommentNodeColor =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.showCommentNodeColor"));
+    lblShowCommentNodeColor.setBounds(10, 474, 163, 16);
+    themeTab.add(lblShowCommentNodeColor);
+    chkShowCommentNodeColor = new JCheckBox("");
+    chkShowCommentNodeColor.setBounds(170, 467, 33, 23);
+    themeTab.add(chkShowCommentNodeColor);
+
+    JLabel lblCommentNodeColorTitle =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.commentNodeColor"));
+    lblCommentNodeColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
+    lblCommentNodeColorTitle.setBounds(274, 474, 138, 16);
+    themeTab.add(lblCommentNodeColorTitle);
+    lblCommentNodeColor = new ColorLabel();
+    lblCommentNodeColor.setBounds(431, 468, 22, 22);
+    themeTab.add(lblCommentNodeColor);
+
+    JLabel lblBlunderNodes =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.blunderNodes"));
+    lblBlunderNodes.setHorizontalAlignment(SwingConstants.LEFT);
+    lblBlunderNodes.setBounds(10, 497, 163, 16);
+    themeTab.add(lblBlunderNodes);
+    tblBlunderNodes = new JTable();
+    columsBlunderNodes =
+        new String[] {
+          resourceBundle.getString("LizzieConfig.title.blunderThresholds"),
+          resourceBundle.getString("LizzieConfig.title.blunderColor")
+        };
+    JScrollPane pnlScrollBlunderNodes = new JScrollPane();
+    pnlScrollBlunderNodes.setViewportView(tblBlunderNodes);
+    pnlScrollBlunderNodes.setBounds(175, 497, 199, 108);
+    themeTab.add(pnlScrollBlunderNodes);
+
+    JButton btnAdd = new JButton(resourceBundle.getString("LizzieConfig.button.add"));
+    btnAdd.setBounds(382, 506, 89, 23);
+    btnAdd.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            ((BlunderNodeTableModel) tblBlunderNodes.getModel()).addRow("", Color.WHITE);
+          }
+        });
+    themeTab.add(btnAdd);
+
+    JButton btnRemove = new JButton(resourceBundle.getString("LizzieConfig.button.remove"));
+    btnRemove.setBounds(384, 540, 89, 23);
+    btnRemove.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            ((BlunderNodeTableModel) tblBlunderNodes.getModel())
+                .removeRow(tblBlunderNodes.getSelectedRow());
+          }
+        });
+    themeTab.add(btnRemove);
 
     // Engines
     txts =
@@ -884,6 +996,7 @@ public class ConfigDialog extends JDialog {
     cmbThemes.setSelectedItem(
         Lizzie.config.uiConfig.optString(
             "theme", resourceBundle.getString("LizzieConfig.title.defaultTheme")));
+
     readThemeValues();
     setShowMoveNumber();
     setLocationRelativeTo(getOwner());
@@ -1044,6 +1157,170 @@ public class ConfigDialog extends JDialog {
     }
   }
 
+  private class ColorLabel extends JLabel {
+
+    private Color curColor;
+
+    public ColorLabel() {
+      super();
+      setOpaque(true);
+
+      addMouseListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+              ColorLabel cl = (ColorLabel) e.getSource();
+              Color color =
+                  JColorChooser.showDialog(
+                      (Component) e.getSource(), "Choose a color", cl.getColor());
+              if (color != null) {
+                cl.setColor(color);
+              }
+            }
+          });
+    }
+
+    public void setColor(Color c) {
+      curColor = c;
+      setBackground(c);
+    }
+
+    public Color getColor() {
+      return curColor;
+    }
+  }
+
+  private class ColorRenderer extends JLabel implements TableCellRenderer {
+    Border unselectedBorder = null;
+    Border selectedBorder = null;
+    boolean isBordered = true;
+
+    public ColorRenderer(boolean isBordered) {
+      this.isBordered = isBordered;
+      setOpaque(true);
+    }
+
+    public Component getTableCellRendererComponent(
+        JTable table, Object color, boolean isSelected, boolean hasFocus, int row, int column) {
+      Color newColor = (Color) color;
+      setBackground(newColor);
+      if (isBordered) {
+        if (isSelected) {
+          if (selectedBorder == null) {
+            selectedBorder =
+                BorderFactory.createMatteBorder(2, 5, 2, 5, table.getSelectionBackground());
+          }
+          setBorder(selectedBorder);
+        } else {
+          if (unselectedBorder == null) {
+            unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getBackground());
+          }
+          setBorder(unselectedBorder);
+        }
+      }
+
+      return this;
+    }
+  }
+
+  private class ColorEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
+    ColorLabel cl;
+
+    public ColorEditor() {
+      cl = new ColorLabel();
+    }
+
+    public Object getCellEditorValue() {
+      return cl.getColor();
+    }
+
+    public Component getTableCellEditorComponent(
+        JTable table, Object value, boolean isSelected, int row, int column) {
+      cl.setColor((Color) value);
+      return cl;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {}
+  }
+
+  class BlunderNodeTableModel extends AbstractTableModel {
+    private String[] columnNames;
+    private Vector<Vector<Object>> data;
+
+    public BlunderNodeTableModel(
+        List<Double> blunderWinrateThresholds,
+        Map<Double, Color> blunderNodeColors,
+        String[] columnNames) {
+      this.columnNames = columnNames;
+      data = new Vector<Vector<Object>>();
+      if (blunderWinrateThresholds != null) {
+        for (Double d : blunderWinrateThresholds) {
+          Vector<Object> row = new Vector<Object>();
+          row.add(String.valueOf(d));
+          row.add(blunderNodeColors.get(d));
+          data.add(row);
+        }
+      }
+    }
+
+    public JSONArray getThresholdArray() {
+      JSONArray thresholds = new JSONArray("[]");
+      data.forEach(d -> thresholds.put(new Double((String) d.get(0))));
+      return thresholds;
+    }
+
+    public JSONArray getColorArray() {
+      JSONArray colors = new JSONArray("[]");
+      data.forEach(d -> colors.put(Theme.color2Array((Color) d.get(1))));
+      return colors;
+    }
+
+    public void addRow(String threshold, Color color) {
+      Vector<Object> row = new Vector<Object>();
+      row.add(threshold);
+      row.add(color);
+      data.add(row);
+      fireTableRowsInserted(0, data.size() - 1);
+    }
+
+    public void removeRow(int index) {
+      if (index >= 0 && index < data.size()) {
+        data.remove(index);
+        fireTableRowsDeleted(0, data.size() - 1);
+      }
+    }
+
+    public int getColumnCount() {
+      return columnNames.length;
+    }
+
+    public int getRowCount() {
+      return data.size();
+    }
+
+    public String getColumnName(int col) {
+      return columnNames[col];
+    }
+
+    public Object getValueAt(int row, int col) {
+      return data.get(row).get(col);
+    }
+
+    public Class<?> getColumnClass(int c) {
+      return getValueAt(0, c).getClass();
+    }
+
+    public void setValueAt(Object value, int row, int col) {
+      data.get(row).set(col, value);
+      fireTableCellUpdated(row, col);
+    }
+
+    public boolean isCellEditable(int row, int col) {
+      return true;
+    }
+  }
+
   public boolean isWindows() {
     return osName != null && !osName.contains("darwin") && osName.contains("win");
   }
@@ -1115,7 +1392,7 @@ public class ConfigDialog extends JDialog {
     }
   }
 
-  private void setFontValue(JComboBox cmb, String fontName) {
+  private void setFontValue(JComboBox<String> cmb, String fontName) {
     cmb.setSelectedIndex(0);
     cmb.setSelectedItem(fontName);
   }
@@ -1145,6 +1422,20 @@ public class ConfigDialog extends JDialog {
         txtBlackStonePath.setText(theme.blackStonePath());
         txtWhiteStonePath.setEnabled(true);
         txtWhiteStonePath.setText(theme.whiteStonePath());
+        lblWinrateLineColor.setColor(theme.winrateLineColor());
+        lblWinrateMissLineColor.setColor(theme.winrateMissLineColor());
+        lblBlunderBarColor.setColor(theme.blunderBarColor());
+        chkSolidStoneIndicator.setSelected(theme.solidStoneIndicator());
+        chkShowCommentNodeColor.setSelected(theme.showCommentNodeColor());
+        lblCommentNodeColor.setColor(theme.commentNodeColor());
+        tblBlunderNodes.setModel(
+            new BlunderNodeTableModel(
+                theme.blunderWinrateThresholds().orElse(null),
+                theme.blunderNodeColors().orElse(null),
+                columsBlunderNodes));
+        TableColumn colorCol = tblBlunderNodes.getColumnModel().getColumn(1);
+        colorCol.setCellRenderer(new ColorRenderer(false));
+        colorCol.setCellEditor(new ColorEditor());
       }
     }
   }
@@ -1172,6 +1463,19 @@ public class ConfigDialog extends JDialog {
         theme.config.put("board-image", txtBoardPath.getText().trim());
         theme.config.put("black-stone-image", txtBlackStonePath.getText().trim());
         theme.config.put("white-stone-image", txtWhiteStonePath.getText().trim());
+        theme.config.put("winrate-line-color", Theme.color2Array(lblWinrateLineColor.getColor()));
+        theme.config.put(
+            "winrate-miss-line-color", Theme.color2Array(lblWinrateMissLineColor.getColor()));
+        theme.config.put("blunder-bar-color", Theme.color2Array(lblBlunderBarColor.getColor()));
+        theme.config.put("solid-stone-indicator", chkSolidStoneIndicator.isSelected());
+        theme.config.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
+        theme.config.put("comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
+        theme.config.put(
+            "blunder-winrate-thresholds",
+            ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getThresholdArray());
+        theme.config.put(
+            "blunder-node-colors",
+            ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getColorArray());
         theme.save();
       }
     }
@@ -1193,6 +1497,29 @@ public class ConfigDialog extends JDialog {
     txtBlackStonePath.setText("/asset/black0.png");
     txtWhiteStonePath.setEnabled(false);
     txtWhiteStonePath.setText("/asset/white0.png");
+    lblWinrateLineColor.setColor(
+        Theme.array2Color(Lizzie.config.uiConfig.optJSONArray("winrate-line-color"), Color.green));
+    lblWinrateMissLineColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("winrate-miss-line-color"), Color.blue.darker()));
+    lblBlunderBarColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("blunder-bar-color"), new Color(255, 0, 0, 150)));
+    chkSolidStoneIndicator.setSelected(Lizzie.config.uiConfig.optBoolean("solid-stone-indicator"));
+    chkShowCommentNodeColor.setSelected(
+        Lizzie.config.uiConfig.optBoolean("show-comment-node-color"));
+    lblCommentNodeColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("comment-node-color"), Color.BLUE.brighter()));
+    Theme defTheme = new Theme("");
+    tblBlunderNodes.setModel(
+        new BlunderNodeTableModel(
+            defTheme.blunderWinrateThresholds().orElse(null),
+            defTheme.blunderNodeColors().orElse(null),
+            columsBlunderNodes));
+    TableColumn colorCol = tblBlunderNodes.getColumnModel().getColumn(1);
+    colorCol.setCellRenderer(new ColorRenderer(false));
+    colorCol.setCellEditor(new ColorEditor());
   }
 
   private void writeDefaultTheme() {
@@ -1202,6 +1529,22 @@ public class ConfigDialog extends JDialog {
     Lizzie.config.uiConfig.put("font-name", cmbFontName.getSelectedItem());
     Lizzie.config.uiConfig.put("ui-font-name", cmbUiFontName.getSelectedItem());
     Lizzie.config.uiConfig.put("winrate-font-name", cmbWinrateFontName.getSelectedItem());
+    Lizzie.config.uiConfig.put(
+        "winrate-line-color", Theme.color2Array(lblWinrateLineColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "winrate-miss-line-color", Theme.color2Array(lblWinrateMissLineColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "blunder-bar-color", Theme.color2Array(lblBlunderBarColor.getColor()));
+    Lizzie.config.uiConfig.put("solid-stone-indicator", chkSolidStoneIndicator.isSelected());
+    Lizzie.config.uiConfig.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
+    Lizzie.config.uiConfig.put(
+        "comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "blunder-winrate-thresholds",
+        ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getThresholdArray());
+    Lizzie.config.uiConfig.put(
+        "blunder-node-colors",
+        ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getColorArray());
   }
 
   private void saveConfig() {

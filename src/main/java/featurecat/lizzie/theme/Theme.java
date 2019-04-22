@@ -164,16 +164,12 @@ public class Theme {
     return getIntByKey("comment-font-size", 3);
   }
 
-  /** The size of the shadow */
+  /** The node color mode */
   public int nodeColorMode() {
     return getIntByKey("node-color-mode", 0);
   }
 
-  /**
-   * The background color of the comment panel
-   *
-   * @return
-   */
+  /** The background color of the comment panel */
   public Color commentBackgroundColor() {
     return getColorByKey("comment-background-color", new Color(0, 0, 0, 200));
   }
@@ -247,7 +243,7 @@ public class Theme {
   }
 
   /** Convert option color array to Color */
-  private Color array2Color(JSONArray a, Color defaultColor) {
+  public static Color array2Color(JSONArray a, Color defaultColor) {
     if (a != null) {
       if (a.length() == 3) {
         return new Color(a.getInt(0), a.getInt(1), a.getInt(2));
@@ -256,6 +252,20 @@ public class Theme {
       }
     }
     return defaultColor;
+  }
+
+  /** Convert Color to option color array */
+  public static JSONArray color2Array(Color c) {
+    JSONArray a = new JSONArray("[]");
+    if (c != null) {
+      a.put(c.getRed());
+      a.put(c.getGreen());
+      a.put(c.getBlue());
+      if (c.getAlpha() != 255) {
+        a.put(c.getAlpha());
+      }
+    }
+    return a;
   }
 
   private String getImagePathByKey(String key) {
