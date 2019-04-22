@@ -32,7 +32,7 @@ public class Theme {
 
   private String configFile = "theme.txt";
   public static String pathPrefix = "theme" + separator;
-  private String path = null;
+  public String path = null;
   public JSONObject config = new JSONObject();
   private JSONObject uiConfig = null;
   private Optional<List<Double>> blunderWinrateThresholds = Optional.empty();

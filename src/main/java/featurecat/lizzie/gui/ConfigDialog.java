@@ -7,13 +7,17 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
@@ -32,6 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -142,6 +147,11 @@ public class ConfigDialog extends JDialog {
   private ColorLabel lblCommentNodeColor;
   private JTable tblBlunderNodes;
   private String[] columsBlunderNodes;
+  private JButton btnBackgroundPath;
+  private JButton btnBoardPath;
+  private JButton btnBlackStonePath;
+  private JButton btnWhiteStonePath;
+  private JPanel pnlBoardPreview;
 
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
@@ -952,6 +962,62 @@ public class ConfigDialog extends JDialog {
         });
     themeTab.add(btnRemove);
 
+    btnBackgroundPath = new JButton("...");
+    btnBackgroundPath.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String ip = getImagePath();
+            if (!ip.isEmpty()) {
+              txtBackgroundPath.setText(ip);
+              pnlBoardPreview.repaint();
+            }
+          }
+        });
+    btnBackgroundPath.setBounds(598, 220, 40, 26);
+    themeTab.add(btnBackgroundPath);
+
+    btnBoardPath = new JButton("...");
+    btnBoardPath.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String ip = getImagePath();
+            if (!ip.isEmpty()) {
+              txtBoardPath.setText(ip);
+              pnlBoardPreview.repaint();
+            }
+          }
+        });
+    btnBoardPath.setBounds(598, 252, 40, 26);
+    themeTab.add(btnBoardPath);
+
+    btnBlackStonePath = new JButton("...");
+    btnBlackStonePath.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String ip = getImagePath();
+            if (!ip.isEmpty()) {
+              txtBlackStonePath.setText(ip);
+              pnlBoardPreview.repaint();
+            }
+          }
+        });
+    btnBlackStonePath.setBounds(598, 282, 40, 26);
+    themeTab.add(btnBlackStonePath);
+
+    btnWhiteStonePath = new JButton("...");
+    btnWhiteStonePath.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            String ip = getImagePath();
+            if (!ip.isEmpty()) {
+              txtWhiteStonePath.setText(ip);
+              pnlBoardPreview.repaint();
+            }
+          }
+        });
+    btnWhiteStonePath.setBounds(598, 312, 40, 26);
+    themeTab.add(btnWhiteStonePath);
+
     // Engines
     txts =
         new JTextField[] {
@@ -998,6 +1064,36 @@ public class ConfigDialog extends JDialog {
             "theme", resourceBundle.getString("LizzieConfig.title.defaultTheme")));
 
     readThemeValues();
+
+    pnlBoardPreview =
+        new JPanel() {
+          @Override
+          protected void paintComponent(Graphics g) {
+            if (g instanceof Graphics2D) {
+              int width = getWidth();
+              int height = getHeight();
+              Graphics2D bsGraphics = (Graphics2D) g;
+              bsGraphics.setRenderingHint(
+                  RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+              BufferedImage backgroundImage = null;
+              try {
+                backgroundImage = ImageIO.read(new File(theme.path + txtBackgroundPath.getText()));
+                bsGraphics.drawImage(backgroundImage, 0, 0, null);
+              } catch (IOException e0) {
+              }
+              BufferedImage boardImage = null;
+              try {
+                boardImage = ImageIO.read(new File(theme.path + txtBoardPath.getText()));
+                bsGraphics.drawImage(boardImage, 20, 20, null);
+              } catch (IOException e0) {
+              }
+            }
+          }
+        };
+    pnlBoardPreview.setBounds(422, 11, 200, 200);
+    themeTab.add(pnlBoardPreview);
+
     setShowMoveNumber();
     setLocationRelativeTo(getOwner());
   }
@@ -1022,7 +1118,7 @@ public class ConfigDialog extends JDialog {
       engineFile = chooser.getSelectedFile();
       if (engineFile != null) {
         enginePath = engineFile.getAbsolutePath();
-        enginePath = relativizePath(engineFile.toPath());
+        enginePath = relativizePath(engineFile.toPath(), this.curPath);
         getCommandHelp();
         JFileChooser chooserw = new JFileChooser(".");
         chooserw.setMultiSelectionEnabled(false);
@@ -1031,7 +1127,7 @@ public class ConfigDialog extends JDialog {
         if (result == JFileChooser.APPROVE_OPTION) {
           weightFile = chooserw.getSelectedFile();
           if (weightFile != null) {
-            weightPath = relativizePath(weightFile.toPath());
+            weightPath = relativizePath(weightFile.toPath(), this.curPath);
             EngineParameter ep = new EngineParameter(enginePath, weightPath, this);
             ep.setVisible(true);
             if (!ep.commandLine.isEmpty()) {
@@ -1044,7 +1140,28 @@ public class ConfigDialog extends JDialog {
     return engineLine;
   }
 
-  private String relativizePath(Path path) {
+  private String getImagePath() {
+    String imagePath = "";
+    File imageFile = null;
+    JFileChooser chooser = new JFileChooser(theme.path);
+    FileNameExtensionFilter filter =
+        new FileNameExtensionFilter("Image", "jpg", "png", "jpeg", "gif");
+    chooser.setFileFilter(filter);
+    chooser.setMultiSelectionEnabled(false);
+    chooser.setDialogTitle("Image");
+    int result = chooser.showOpenDialog(this);
+    if (result == JFileChooser.APPROVE_OPTION) {
+      imageFile = chooser.getSelectedFile();
+      if (imageFile != null) {
+        imagePath = imageFile.getAbsolutePath();
+        imagePath =
+            relativizePath(imageFile.toPath(), new File(theme.path).getAbsoluteFile().toPath());
+      }
+    }
+    return imagePath;
+  }
+
+  private String relativizePath(Path path, Path curPath) {
     Path relatPath;
     if (path.startsWith(curPath)) {
       relatPath = curPath.relativize(path);
@@ -1415,12 +1532,16 @@ public class ConfigDialog extends JDialog {
         setFontValue(cmbUiFontName, theme.uiFontName());
         setFontValue(cmbWinrateFontName, theme.winrateFontName());
         txtBackgroundPath.setEnabled(true);
+        btnBackgroundPath.setEnabled(true);
         txtBackgroundPath.setText(theme.backgroundPath());
         txtBoardPath.setEnabled(true);
+        btnBoardPath.setEnabled(true);
         txtBoardPath.setText(theme.boardPath());
         txtBlackStonePath.setEnabled(true);
+        btnBlackStonePath.setEnabled(true);
         txtBlackStonePath.setText(theme.blackStonePath());
         txtWhiteStonePath.setEnabled(true);
+        btnWhiteStonePath.setEnabled(true);
         txtWhiteStonePath.setText(theme.whiteStonePath());
         lblWinrateLineColor.setColor(theme.winrateLineColor());
         lblWinrateMissLineColor.setColor(theme.winrateMissLineColor());
@@ -1490,12 +1611,16 @@ public class ConfigDialog extends JDialog {
     cmbUiFontName.setSelectedItem(Lizzie.config.uiConfig.optString("ui-font-name", null));
     cmbWinrateFontName.setSelectedItem(Lizzie.config.uiConfig.optString("winrate-font-name", null));
     txtBackgroundPath.setEnabled(false);
+    btnBackgroundPath.setEnabled(false);
     txtBackgroundPath.setText("/asset/background.jpg");
     txtBoardPath.setEnabled(false);
+    btnBoardPath.setEnabled(false);
     txtBoardPath.setText("/asset/board.png");
     txtBlackStonePath.setEnabled(false);
+    btnBlackStonePath.setEnabled(false);
     txtBlackStonePath.setText("/asset/black0.png");
     txtWhiteStonePath.setEnabled(false);
+    btnWhiteStonePath.setEnabled(false);
     txtWhiteStonePath.setText("/asset/white0.png");
     lblWinrateLineColor.setColor(
         Theme.array2Color(Lizzie.config.uiConfig.optJSONArray("winrate-line-color"), Color.green));
