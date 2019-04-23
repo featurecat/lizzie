@@ -1,6 +1,11 @@
 package featurecat.lizzie.gui;
 
+import static java.awt.RenderingHints.KEY_ANTIALIASING;
+import static java.awt.RenderingHints.VALUE_ANTIALIAS_ON;
+import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.theme.Theme;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -10,13 +15,19 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.RadialGradientPaint;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.TexturePaint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -737,7 +748,7 @@ public class ConfigDialog extends JDialog {
     JLabel lblThemes = new JLabel(resourceBundle.getString("LizzieConfig.title.theme"));
     lblThemes.setBounds(10, 11, 163, 20);
     themeTab.add(lblThemes);
-    cmbThemes = new JComboBox(themeList.toArray());
+    cmbThemes = new JComboBox<String>(themeList.toArray(new String[0]));
     cmbThemes.addItemListener(
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
@@ -779,12 +790,12 @@ public class ConfigDialog extends JDialog {
             .stream()
             .collect(Collectors.toList());
     fontList.add(0, " ");
-    Object fonts[] = fontList.toArray();
+    String fonts[] = fontList.toArray(new String[0]);
 
     JLabel lblFontName = new JLabel(resourceBundle.getString("LizzieConfig.title.fontName"));
     lblFontName.setBounds(10, 134, 163, 16);
     themeTab.add(lblFontName);
-    cmbFontName = new JComboBox(fonts);
+    cmbFontName = new JComboBox<String>(fonts);
     cmbFontName.setMaximumRowCount(16);
     cmbFontName.setBounds(175, 133, 200, 20);
     cmbFontName.setRenderer(new FontComboBoxRenderer<String>());
@@ -800,7 +811,7 @@ public class ConfigDialog extends JDialog {
     JLabel lblUiFontName = new JLabel(resourceBundle.getString("LizzieConfig.title.uiFontName"));
     lblUiFontName.setBounds(10, 164, 163, 16);
     themeTab.add(lblUiFontName);
-    cmbUiFontName = new JComboBox(fonts);
+    cmbUiFontName = new JComboBox<String>(fonts);
     cmbUiFontName.setMaximumRowCount(16);
     cmbUiFontName.setBounds(175, 163, 200, 20);
     cmbUiFontName.setRenderer(new FontComboBoxRenderer<String>());
@@ -817,7 +828,7 @@ public class ConfigDialog extends JDialog {
         new JLabel(resourceBundle.getString("LizzieConfig.title.winrateFontName"));
     lblWinrateFontName.setBounds(10, 194, 163, 16);
     themeTab.add(lblWinrateFontName);
-    cmbWinrateFontName = new JComboBox(fonts);
+    cmbWinrateFontName = new JComboBox<String>(fonts);
     cmbWinrateFontName.setMaximumRowCount(16);
     cmbWinrateFontName.setBounds(175, 193, 200, 20);
     cmbWinrateFontName.setRenderer(new FontComboBoxRenderer<String>());
@@ -1075,17 +1086,138 @@ public class ConfigDialog extends JDialog {
               Graphics2D bsGraphics = (Graphics2D) g;
               bsGraphics.setRenderingHint(
                   RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+              bsGraphics.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
 
               BufferedImage backgroundImage = null;
               try {
                 backgroundImage = ImageIO.read(new File(theme.path + txtBackgroundPath.getText()));
-                bsGraphics.drawImage(backgroundImage, 0, 0, null);
+                TexturePaint paint =
+                    new TexturePaint(
+                        backgroundImage,
+                        new Rectangle(
+                            0, 0, backgroundImage.getWidth(), backgroundImage.getHeight()));
+                bsGraphics.setPaint(paint);
+                bsGraphics.fill(new Rectangle(0, 0, width, height));
               } catch (IOException e0) {
               }
               BufferedImage boardImage = null;
               try {
                 boardImage = ImageIO.read(new File(theme.path + txtBoardPath.getText()));
-                bsGraphics.drawImage(boardImage, 20, 20, null);
+                TexturePaint paint =
+                    new TexturePaint(
+                        boardImage,
+                        new Rectangle(0, 0, boardImage.getWidth(), boardImage.getHeight()));
+                bsGraphics.setPaint(paint);
+                bsGraphics.fill(new Rectangle(30, 30, width, height));
+              } catch (IOException e0) {
+              }
+              // Draw the lines
+              int x = 60;
+              int y = 60;
+              int squareLength = 30;
+              int stoneRadius = squareLength < 4 ? 1 : squareLength / 2 - 1;
+              int size = stoneRadius * 2 + 1;
+              double r = stoneRadius * Lizzie.config.shadowSize / 100;
+              int shadowSize = (int) (r * 0.3) == 0 ? 1 : (int) (r * 0.3);
+              int fartherShadowSize = (int) (r * 0.17) == 0 ? 1 : (int) (r * 0.17);
+              int stoneX = x + squareLength * 2;
+              int stoneY = y + squareLength * 3;
+
+              g.setColor(Color.BLACK);
+              for (int i = 0; i < Board.boardSize; i++) {
+                g.drawLine(x, y + squareLength * i, height, y + squareLength * i);
+              }
+              for (int i = 0; i < Board.boardSize; i++) {
+                g.drawLine(x + squareLength * i, y, x + squareLength * i, width);
+              }
+
+              BufferedImage blackStoneImage = null;
+              try {
+                blackStoneImage = ImageIO.read(new File(theme.path + txtBlackStonePath.getText()));
+                BufferedImage stoneImage = new BufferedImage(size, size, TYPE_INT_ARGB);
+                RadialGradientPaint TOP_GRADIENT_PAINT =
+                    new RadialGradientPaint(
+                        new Point2D.Float(stoneX, stoneY),
+                        stoneRadius + shadowSize,
+                        new float[] {0.3f, 1.0f},
+                        new Color[] {new Color(50, 50, 50, 150), new Color(0, 0, 0, 0)});
+                RadialGradientPaint LOWER_RIGHT_GRADIENT_PAINT =
+                    new RadialGradientPaint(
+                        new Point2D.Float(stoneX + shadowSize, stoneY + shadowSize),
+                        stoneRadius + fartherShadowSize,
+                        new float[] {0.6f, 1.0f},
+                        new Color[] {new Color(0, 0, 0, 140), new Color(0, 0, 0, 0)});
+                final Paint originalPaint = bsGraphics.getPaint();
+
+                bsGraphics.setPaint(TOP_GRADIENT_PAINT);
+                bsGraphics.fillOval(
+                    stoneX - stoneRadius - shadowSize,
+                    stoneY - stoneRadius - shadowSize,
+                    2 * (stoneRadius + shadowSize) + 1,
+                    2 * (stoneRadius + shadowSize) + 1);
+                bsGraphics.setPaint(LOWER_RIGHT_GRADIENT_PAINT);
+                bsGraphics.fillOval(
+                    stoneX + shadowSize - stoneRadius - fartherShadowSize,
+                    stoneY + shadowSize - stoneRadius - fartherShadowSize,
+                    2 * (stoneRadius + fartherShadowSize) + 1,
+                    2 * (stoneRadius + fartherShadowSize) + 1);
+                bsGraphics.setPaint(originalPaint);
+                Image img = blackStoneImage;
+                Graphics2D g2 = stoneImage.createGraphics();
+                g2.setRenderingHint(
+                    RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g2.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
+                g2.drawImage(
+                    img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                g2.dispose();
+                bsGraphics.drawImage(stoneImage, stoneX - stoneRadius, stoneY - stoneRadius, null);
+              } catch (IOException e0) {
+              }
+
+              stoneX = x + squareLength * 1;
+              stoneY = y + squareLength * 2;
+
+              BufferedImage whiteStoneImage = null;
+              try {
+                whiteStoneImage = ImageIO.read(new File(theme.path + txtWhiteStonePath.getText()));
+                BufferedImage stoneImage = new BufferedImage(size, size, TYPE_INT_ARGB);
+
+                RadialGradientPaint TOP_GRADIENT_PAINT =
+                    new RadialGradientPaint(
+                        new Point2D.Float(stoneX, stoneY),
+                        stoneRadius + shadowSize,
+                        new float[] {0.3f, 1.0f},
+                        new Color[] {new Color(50, 50, 50, 150), new Color(0, 0, 0, 0)});
+                RadialGradientPaint LOWER_RIGHT_GRADIENT_PAINT =
+                    new RadialGradientPaint(
+                        new Point2D.Float(stoneX + shadowSize, stoneY + shadowSize),
+                        stoneRadius + fartherShadowSize,
+                        new float[] {0.6f, 1.0f},
+                        new Color[] {new Color(0, 0, 0, 140), new Color(0, 0, 0, 0)});
+                final Paint originalPaint = bsGraphics.getPaint();
+
+                bsGraphics.setPaint(TOP_GRADIENT_PAINT);
+                bsGraphics.fillOval(
+                    stoneX - stoneRadius - shadowSize,
+                    stoneY - stoneRadius - shadowSize,
+                    2 * (stoneRadius + shadowSize) + 1,
+                    2 * (stoneRadius + shadowSize) + 1);
+                bsGraphics.setPaint(LOWER_RIGHT_GRADIENT_PAINT);
+                bsGraphics.fillOval(
+                    stoneX + shadowSize - stoneRadius - fartherShadowSize,
+                    stoneY + shadowSize - stoneRadius - fartherShadowSize,
+                    2 * (stoneRadius + fartherShadowSize) + 1,
+                    2 * (stoneRadius + fartherShadowSize) + 1);
+                bsGraphics.setPaint(originalPaint);
+                Image img = whiteStoneImage;
+                Graphics2D g2 = stoneImage.createGraphics();
+                g2.setRenderingHint(
+                    RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                g2.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
+                g2.drawImage(
+                    img.getScaledInstance(size, size, java.awt.Image.SCALE_SMOOTH), 0, 0, null);
+                g2.dispose();
+                bsGraphics.drawImage(stoneImage, stoneX - stoneRadius, stoneY - stoneRadius, null);
               } catch (IOException e0) {
               }
             }
