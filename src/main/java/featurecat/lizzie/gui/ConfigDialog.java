@@ -700,7 +700,7 @@ public class ConfigDialog extends JDialog {
     return osName != null && !osName.contains("darwin") && osName.contains("win");
   }
 
-  private void setShowLcbWinrate() {   
+  private void setShowLcbWinrate() {
    
       if (Lizzie.config.showlcbwinrate) {
         rdoLcb.setSelected(true);
