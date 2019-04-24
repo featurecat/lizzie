@@ -34,12 +34,11 @@ public class RightClickMenu extends JPopupMenu {
 	    	  if (Lizzie.leelaz.isPondering()) {
 	  	        Lizzie.leelaz.ponder();
 	  	      }
+	    	  Lizzie.frame.isshowrightmenu=false;
 	      }
 
 	      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {	   
-	    	  if (Lizzie.leelaz.isPondering()) {
-	    	      Lizzie.leelaz.sendCommand("name");
-	    	    }
+	    	 
 	      }
 	    };
 	    
@@ -120,9 +119,7 @@ public class RightClickMenu extends JPopupMenu {
     this.remove(addone);
     this.add(insertmode);
     Lizzie.board.quitinsertmode();
-    if (Lizzie.leelaz.isPondering()) {
-      Lizzie.leelaz.ponder();
-    }
+  
   }
 
   private void addblack() {
