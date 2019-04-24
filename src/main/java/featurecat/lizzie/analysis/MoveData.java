@@ -32,9 +32,7 @@ public class MoveData {
   public static MoveData fromInfo(String line) throws ArrayIndexOutOfBoundsException {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
-    boolean islcb =
-        (Lizzie.config.config.getJSONObject("leelaz").getInt("leela-version") >= 17)
-            && Lizzie.config.config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
+    boolean islcb =Lizzie.config.showlcbwinrate;
     // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
     for (int i = 0; i < data.length; i++) {
       String key = data[i];
@@ -56,7 +54,7 @@ public class MoveData {
           result.winrate = Integer.parseInt(value) / 100.0;
         }
 
-        if (!islcb && key.equals("winrate")) {
+        if (key.equals("winrate")) {
           // support 0.16 0.15
           result.winrate = Integer.parseInt(value) / 100.0;
         }

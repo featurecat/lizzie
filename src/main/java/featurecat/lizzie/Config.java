@@ -33,6 +33,7 @@ public class Config {
   public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
+  public boolean showlcbwinrate=true;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -183,11 +184,11 @@ public class Config {
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
-    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
-
+    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);    
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
+    showlcbwinrate = config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
@@ -356,7 +357,6 @@ public class Config {
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
     leelaz.put("show-lcb-winrate", true);
-    leelaz.put("leela-version", 17);
 
     config.put("leelaz", leelaz);
 
