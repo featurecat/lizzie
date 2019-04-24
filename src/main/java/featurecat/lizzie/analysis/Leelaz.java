@@ -37,7 +37,6 @@ public class Leelaz {
   private int cmdNumber;
   private int currentCmdNum;
   private ArrayDeque<String> cmdQueue;
-  private JSONObject leelazConfig;
 
   private Process process;
 
@@ -315,7 +314,7 @@ public class Leelaz {
         } else if (isCheckingVersion) {
           String[] ver = params[1].split("\\.");
           int minor = Integer.parseInt(ver[1]);
-          // Gtp support added in version 15          
+          // Gtp support added in version 15
           if (minor < 15) {
             JOptionPane.showMessageDialog(
                 Lizzie.frame,
