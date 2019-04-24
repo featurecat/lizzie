@@ -6,8 +6,11 @@ import java.awt.event.ActionListener;
 import java.util.ResourceBundle;
 
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuListener;
+import javax.swing.event.PopupMenuEvent;
+
+
 
 public class RightClickMenu extends JPopupMenu {
   public final ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
@@ -18,8 +21,30 @@ public class RightClickMenu extends JPopupMenu {
   private JMenuItem addwhite;
   private JMenuItem addone;
   private JMenuItem quitinsert;
+
   
-  public RightClickMenu() {
+  
+  public RightClickMenu() {	  
+	
+	PopupMenuListener listener =  new PopupMenuListener() {	     
+	      public void popupMenuCanceled(PopupMenuEvent e) {	    	  
+	      }
+	      
+	      public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+	    	  if (Lizzie.leelaz.isPondering()) {
+	  	        Lizzie.leelaz.ponder();
+	  	      }
+	      }
+
+	      public void popupMenuWillBecomeVisible(PopupMenuEvent e) {	   
+	    	  if (Lizzie.leelaz.isPondering()) {
+	    	      Lizzie.leelaz.sendCommand("name");
+	    	    }
+	      }
+	    };
+	    
+	this.addPopupMenuListener(listener);
+	  
     insertmode = new JMenuItem(resourceBundle.getString("LizzieRightClickMenu.button.insertmode"));
     quitinsert = new JMenuItem(resourceBundle.getString("LizzieRightClickMenu.button.quitinsert"));
     addblack = new JMenuItem(resourceBundle.getString("LizzieRightClickMenu.button.addblack"));
@@ -27,7 +52,6 @@ public class RightClickMenu extends JPopupMenu {
     addone = new JMenuItem(resourceBundle.getString("LizzieRightClickMenu.button.addone"));
 
     this.add(insertmode);
-
     insertmode.addActionListener(
         new ActionListener() {
           @Override
@@ -70,6 +94,8 @@ public class RightClickMenu extends JPopupMenu {
         });
   }
 
+  
+ 
 
   private void insertmode() {
 
@@ -110,7 +136,7 @@ public class RightClickMenu extends JPopupMenu {
   }
 
   private void addone() {
-    Lizzie.frame.insertMove(mousex, mousey);
+    Lizzie.frame.insertMove(mousex, mousey);  
   }
  
 

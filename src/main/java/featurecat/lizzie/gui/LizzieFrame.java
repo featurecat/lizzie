@@ -110,7 +110,7 @@ public class LizzieFrame extends JFrame {
   public boolean playerIsBlack = true;
   public int winRateGridLines = 3;
   public int BoardPositionProportion = Lizzie.config.boardPositionProportion;
-  public boolean isshowrightmenu;
+ // public boolean isshowrightmenu;
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
@@ -1297,20 +1297,21 @@ public class LizzieFrame extends JFrame {
 
 	      return;
 	    }
-	    if (Lizzie.leelaz.isPondering()) {
-	      Lizzie.leelaz.sendCommand("name");
-	    }
-	    isshowrightmenu = true;
+//	    if (Lizzie.leelaz.isPondering()) {
+//	      Lizzie.leelaz.sendCommand("name");
+//	    }
+//	    isshowrightmenu = true;
 	    RightClickMenu.Store(x, y);
-	    Timer timer = new Timer();
-	    timer.schedule(
-	        new TimerTask() {
-	          public void run() {
-	            Lizzie.frame.showmenu(x, y);
-	            this.cancel();
-	          }
-	        },
-	        50);
+	    Lizzie.frame.showmenu(x, y);
+//	    Timer timer = new Timer();
+//	    timer.schedule(
+//	        new TimerTask() {
+//	          public void run() {
+//	            Lizzie.frame.showmenu(x, y);
+//	            this.cancel();
+//	          }
+//	        },
+//	        50);
 	    // System.out.println("弹出右键菜单");
 	    //  RightClickMenu.show(this, x, y);
 	  }
@@ -1334,12 +1335,6 @@ public class LizzieFrame extends JFrame {
   public void onMouseMoved(int x, int y) {
 	    if (RightClickMenu.isVisible()) {
 	      return;
-	    }
-	    if (isshowrightmenu) {
-	      isshowrightmenu = false;
-	      if (Lizzie.leelaz.isPondering()) {
-	        Lizzie.leelaz.ponder();
-	      }
 	    }
 	    mouseOverCoordinate = outOfBoundCoordinate;
 	    Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
