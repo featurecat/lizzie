@@ -194,7 +194,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     	      }
         if (e.isShiftDown()) {
           moveBranchDown();
-        } else {        
+        } else {
           nextBranch();
         }
         break;
@@ -208,7 +208,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           moveBranchUp();
         } else if (controlIsPressed(e)) {
           undoToFirstParentWithVariations();
-        } else {        	     	
+        } else {
           previousBranch();
         }
         break;
@@ -280,7 +280,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (!Lizzie.frame.playCurrentVariation()) Lizzie.frame.playBestMove();
         break;
 
-      case VK_M:    	  
+      case VK_M:
         if (e.isAltDown()) {
         	if (isinsertmode) {
     	        JOptionPane.showMessageDialog(null,resourceBundle.getString("LizzieRightClickMenu.insertmode"));
