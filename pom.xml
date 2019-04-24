@@ -1,113 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <groupId>featurecat</groupId>
-    <artifactId>lizzie</artifactId>
-    <version>0.6</version>
+	<groupId>featurecat</groupId>
+	<artifactId>lizzie</artifactId>
+	<version>0.6</version>
 
-    <properties>
-        <!-- Prevent warning: "[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!"-->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+	<properties>
+		<!-- Prevent warning: "[WARNING] Using platform encoding (UTF-8 actually) 
+			to copy filtered resources, i.e. build is platform dependent!" -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <compilerArgs>
-                      <arg>-Xlint:all</arg>
-                    </compilerArgs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <!-- No need to specify the main class since maven-shade-plugin will add it. -->
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>featurecat.lizzie.Lizzie</mainClass>
-                                </transformer>
-                            </transformers>
-                            <shadedArtifactAttached>true</shadedArtifactAttached>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <!-- Required to get the test failure reports in stdout -->
-                    <useFile>false</useFile>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.coveo</groupId>
-                <artifactId>fmt-maven-plugin</artifactId>
-                <version>2.5.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>format</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.7.0</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<compilerArgs>
+						<arg>-Xlint:all</arg>
+					</compilerArgs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.0.2</version>
+				<!-- No need to specify the main class since maven-shade-plugin will 
+					add it. -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>featurecat.lizzie.Lizzie</mainClass>
+								</transformer>
+							</transformers>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<!-- Required to get the test failure reports in stdout -->
+					<useFile>false</useFile>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.coveo</groupId>
+				<artifactId>fmt-maven-plugin</artifactId>
+				<version>2.5.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
-    <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.json/json -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20180130</version>
-        </dependency>
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20180130</version>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/junit/junit -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/junit/junit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
 
-        <!-- https://code.google.com/archive/p/juniversalchardet -->
-        <dependency>
-            <groupId>com.googlecode.juniversalchardet</groupId>
-            <artifactId>juniversalchardet</artifactId>
-            <version>1.0.3</version>
-        </dependency>
+		<!-- https://code.google.com/archive/p/juniversalchardet -->
+		<dependency>
+			<groupId>com.googlecode.juniversalchardet</groupId>
+			<artifactId>juniversalchardet</artifactId>
+			<version>1.0.3</version>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.jhlabs/filters -->
-        <dependency>
-            <groupId>com.jhlabs</groupId>
-            <artifactId>filters</artifactId>
-            <version>2.0.235</version>
-        </dependency>
-    </dependencies>
+		<!-- https://mvnrepository.com/artifact/com.jhlabs/filters -->
+		<dependency>
+			<groupId>com.jhlabs</groupId>
+			<artifactId>filters</artifactId>
+			<version>2.0.235</version>
+		</dependency>
+	</dependencies>
 </project>

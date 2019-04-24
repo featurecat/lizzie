@@ -551,8 +551,6 @@ public class ConfigDialog extends JDialog {
     txtMaxAnalyzeTime.setText(String.valueOf(leelazConfig.getInt("max-analyze-time-minutes")));
     txtAnalyzeUpdateInterval.setText(
         String.valueOf(leelazConfig.getInt("analyze-update-interval-centisec")));
-    txtAnalyzeUpdateInterval.setText(
-        String.valueOf(leelazConfig.getInt("analyze-update-interval-centisec")));
     txtMaxGameThinkingTime.setText(
         String.valueOf(leelazConfig.getInt("max-game-thinking-time-seconds")));
     chkPrintEngineLog.setSelected(leelazConfig.getBoolean("print-comms"));
