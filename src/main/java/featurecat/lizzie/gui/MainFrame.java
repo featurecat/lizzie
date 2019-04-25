@@ -1,5 +1,6 @@
 package featurecat.lizzie.gui;
 
+import featurecat.lizzie.Lizzie;
 import java.awt.HeadlessException;
 import java.io.File;
 import javax.swing.JFrame;
@@ -9,7 +10,7 @@ public abstract class MainFrame extends JFrame {
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
   public boolean isNewGame = false;
-  public int boardPositionProportion;
+  public int boardPositionProportion = Lizzie.config.boardPositionProportion;
   public int winRateGridLines = 3;
   public boolean showControls = false;
 
@@ -46,6 +47,10 @@ public abstract class MainFrame extends JFrame {
   public abstract boolean isMouseOver(int x, int y);
 
   public abstract void onClicked(int x, int y);
+
+  public abstract void onMouseDragged(int x, int y);
+
+  public abstract void onMouseMoved(int x, int y);
 
   public abstract void startRawBoard();
 

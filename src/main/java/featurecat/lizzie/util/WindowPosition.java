@@ -28,6 +28,7 @@ public class WindowPosition {
     // Main Window Position & Size
     ui.put("main-window-position", new JSONArray("[]"));
     ui.put("gtp-console-position", new JSONArray("[]"));
+    ui.put("board-position-proportion", 4);
     // Panes
     ui.put("main-board-position", new JSONArray("[]"));
     ui.put("sub-board-position", new JSONArray("[]"));
@@ -48,7 +49,7 @@ public class WindowPosition {
 
     boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
     ui.put("window-maximized", windowIsMaximized);
-    ui.put("board-postion-propotion", Lizzie.frame.boardPositionProportion);
+    ui.put("board-position-proportion", Lizzie.frame.boardPositionProportion);
 
     JSONArray mainPos = new JSONArray();
     if (!windowIsMaximized) {

@@ -69,12 +69,6 @@ public class LizzieMain extends MainFrame {
 
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
   public int[] mouseOverCoordinate = outOfBoundCoordinate;
-  public boolean showControls = false;
-  public boolean isPlayingAgainstLeelaz = false;
-  public boolean playerIsBlack = true;
-  public boolean isNewGame = false;
-  public int winRateGridLines = 3;
-  public int BoardPositionProportion = Lizzie.config.boardPositionProportion;
 
   // Save the player title
   private String playerTitle = "";
@@ -113,8 +107,8 @@ public class LizzieMain extends MainFrame {
     //    setMinimumSize(new Dimension(640, 400));
     boolean persisted = Lizzie.config.persistedUi != null;
     if (persisted)
-      BoardPositionProportion =
-          Lizzie.config.persistedUi.optInt("board-postion-propotion", BoardPositionProportion);
+      boardPositionProportion =
+          Lizzie.config.persistedUi.optInt("board-position-proportion", boardPositionProportion);
     JSONArray pos = WindowPosition.mainWindowPos();
     if (pos != null) {
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
@@ -592,6 +586,16 @@ public class LizzieMain extends MainFrame {
   @Override
   public void onClicked(int x, int y) {
     boardPane.onClicked(x, y);
+  }
+
+  @Override
+  public void onMouseDragged(int x, int y) {
+    winratePane.onMouseDragged(x, y);
+  }
+
+  @Override
+  public void onMouseMoved(int x, int y) {
+    boardPane.onMouseMoved(x, y);
   }
 
   @Override

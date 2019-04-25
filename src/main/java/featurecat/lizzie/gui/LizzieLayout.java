@@ -326,7 +326,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
               / 8
               * ((main == null || !(main instanceof LizzieMain))
                   ? Lizzie.config.boardPositionProportion
-                  : ((LizzieMain) main).BoardPositionProportion);
+                  : ((LizzieMain) main).boardPositionProportion);
       if (noBasic && noWinrate && noSubBoard) {
         boardX = leftInset;
       } else if (noVariation && noComment) {

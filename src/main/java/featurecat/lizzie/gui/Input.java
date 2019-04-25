@@ -13,15 +13,15 @@ import java.awt.event.MouseWheelListener;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
-  public void mouseClicked(MouseEvent e) {
+  public void mouseClicked(MouseEvent e) {}
+
+  @Override
+  public void mousePressed(MouseEvent e) {
     if (e.getButton() == MouseEvent.BUTTON1) // left click
     Lizzie.frame.onClicked(e.getX(), e.getY());
     else if (e.getButton() == MouseEvent.BUTTON3) // right click
     undo();
   }
-
-  @Override
-  public void mousePressed(MouseEvent e) {}
 
   @Override
   public void mouseReleased(MouseEvent e) {}
@@ -34,12 +34,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    //    Lizzie.frame.onMouseDragged(e.getX(), e.getY());
+    Lizzie.frame.onMouseDragged(e.getX(), e.getY());
   }
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    //    Lizzie.frame.onMouseMoved(e.getX(), e.getY());
+    Lizzie.frame.onMouseMoved(e.getX(), e.getY());
   }
 
   @Override
