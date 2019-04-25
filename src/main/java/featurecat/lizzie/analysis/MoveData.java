@@ -33,6 +33,7 @@ public class MoveData {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
     boolean islcb =Lizzie.config.showlcbwinrate;
+    // read from config
     // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
     for (int i = 0; i < data.length; i++) {
       String key = data[i];

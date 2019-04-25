@@ -438,7 +438,7 @@ public class ConfigDialog extends JDialog {
     engineTab.add(rdoLcb);
 
     rdoWinrate = new JRadioButton("Winrate");
-    rdoWinrate.setBounds(545, 400, 80, 23);
+    rdoWinrate.setBounds(545, 400, 75, 23);
     engineTab.add(rdoWinrate);
 
     ButtonGroup wrgroup = new ButtonGroup();
