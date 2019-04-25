@@ -742,7 +742,9 @@ public class ConfigDialog extends JDialog {
               }
             });
     List<String> themeList =
-        Arrays.asList(themes).stream().map(t -> t.getName()).collect(Collectors.toList());
+        themes == null
+            ? new ArrayList<String>()
+            : Arrays.asList(themes).stream().map(t -> t.getName()).collect(Collectors.toList());
     themeList.add(0, resourceBundle.getString("LizzieConfig.title.defaultTheme"));
 
     JLabel lblThemes = new JLabel(resourceBundle.getString("LizzieConfig.title.theme"));
@@ -798,7 +800,7 @@ public class ConfigDialog extends JDialog {
     cmbFontName = new JComboBox<String>(fonts);
     cmbFontName.setMaximumRowCount(16);
     cmbFontName.setBounds(175, 133, 200, 20);
-    cmbFontName.setRenderer(new FontComboBoxRenderer<String>());
+    cmbFontName.setRenderer(new FontComboBoxRenderer());
     cmbFontName.addItemListener(
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
@@ -814,7 +816,7 @@ public class ConfigDialog extends JDialog {
     cmbUiFontName = new JComboBox<String>(fonts);
     cmbUiFontName.setMaximumRowCount(16);
     cmbUiFontName.setBounds(175, 163, 200, 20);
-    cmbUiFontName.setRenderer(new FontComboBoxRenderer<String>());
+    cmbUiFontName.setRenderer(new FontComboBoxRenderer());
     cmbUiFontName.addItemListener(
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
@@ -831,7 +833,7 @@ public class ConfigDialog extends JDialog {
     cmbWinrateFontName = new JComboBox<String>(fonts);
     cmbWinrateFontName.setMaximumRowCount(16);
     cmbWinrateFontName.setBounds(175, 193, 200, 20);
-    cmbWinrateFontName.setRenderer(new FontComboBoxRenderer<String>());
+    cmbWinrateFontName.setRenderer(new FontComboBoxRenderer());
     cmbWinrateFontName.addItemListener(
         new ItemListener() {
           public void itemStateChanged(ItemEvent e) {
@@ -1090,7 +1092,14 @@ public class ConfigDialog extends JDialog {
 
               BufferedImage backgroundImage = null;
               try {
-                backgroundImage = ImageIO.read(new File(theme.path + txtBackgroundPath.getText()));
+                if (cmbThemes.getSelectedIndex() <= 0) {
+                  backgroundImage =
+                      ImageIO.read(getClass().getResourceAsStream(txtBackgroundPath.getText()));
+                } else {
+                  backgroundImage =
+                      ImageIO.read(
+                          new File(theme == null ? "" : theme.path + txtBackgroundPath.getText()));
+                }
                 TexturePaint paint =
                     new TexturePaint(
                         backgroundImage,
@@ -1102,7 +1111,13 @@ public class ConfigDialog extends JDialog {
               }
               BufferedImage boardImage = null;
               try {
-                boardImage = ImageIO.read(new File(theme.path + txtBoardPath.getText()));
+                if (cmbThemes.getSelectedIndex() <= 0) {
+                  boardImage = ImageIO.read(getClass().getResourceAsStream(txtBoardPath.getText()));
+                } else {
+                  boardImage =
+                      ImageIO.read(
+                          new File(theme == null ? "" : theme.path + txtBoardPath.getText()));
+                }
                 TexturePaint paint =
                     new TexturePaint(
                         boardImage,
@@ -1133,7 +1148,14 @@ public class ConfigDialog extends JDialog {
 
               BufferedImage blackStoneImage = null;
               try {
-                blackStoneImage = ImageIO.read(new File(theme.path + txtBlackStonePath.getText()));
+                if (cmbThemes.getSelectedIndex() <= 0) {
+                  blackStoneImage =
+                      ImageIO.read(getClass().getResourceAsStream(txtBlackStonePath.getText()));
+                } else {
+                  blackStoneImage =
+                      ImageIO.read(
+                          new File(theme == null ? "" : theme.path + txtBlackStonePath.getText()));
+                }
                 BufferedImage stoneImage = new BufferedImage(size, size, TYPE_INT_ARGB);
                 RadialGradientPaint TOP_GRADIENT_PAINT =
                     new RadialGradientPaint(
@@ -1179,7 +1201,14 @@ public class ConfigDialog extends JDialog {
 
               BufferedImage whiteStoneImage = null;
               try {
-                whiteStoneImage = ImageIO.read(new File(theme.path + txtWhiteStonePath.getText()));
+                if (cmbThemes.getSelectedIndex() <= 0) {
+                  whiteStoneImage =
+                      ImageIO.read(getClass().getResourceAsStream(txtWhiteStonePath.getText()));
+                } else {
+                  whiteStoneImage =
+                      ImageIO.read(
+                          new File(theme == null ? "" : theme.path + txtWhiteStonePath.getText()));
+                }
                 BufferedImage stoneImage = new BufferedImage(size, size, TYPE_INT_ARGB);
 
                 RadialGradientPaint TOP_GRADIENT_PAINT =
@@ -1744,16 +1773,16 @@ public class ConfigDialog extends JDialog {
     cmbWinrateFontName.setSelectedItem(Lizzie.config.uiConfig.optString("winrate-font-name", null));
     txtBackgroundPath.setEnabled(false);
     btnBackgroundPath.setEnabled(false);
-    txtBackgroundPath.setText("/asset/background.jpg");
+    txtBackgroundPath.setText("/assets/background.jpg");
     txtBoardPath.setEnabled(false);
     btnBoardPath.setEnabled(false);
-    txtBoardPath.setText("/asset/board.png");
+    txtBoardPath.setText("/assets/board.png");
     txtBlackStonePath.setEnabled(false);
     btnBlackStonePath.setEnabled(false);
-    txtBlackStonePath.setText("/asset/black0.png");
+    txtBlackStonePath.setText("/assets/black0.png");
     txtWhiteStonePath.setEnabled(false);
     btnWhiteStonePath.setEnabled(false);
-    txtWhiteStonePath.setText("/asset/white0.png");
+    txtWhiteStonePath.setText("/assets/white0.png");
     lblWinrateLineColor.setColor(
         Theme.array2Color(Lizzie.config.uiConfig.optJSONArray("winrate-line-color"), Color.green));
     lblWinrateMissLineColor.setColor(
@@ -1845,7 +1874,7 @@ public class ConfigDialog extends JDialog {
           "color-by-winrate-instead-of-visits", Lizzie.config.colorByWinrateInsteadOfVisits);
       Lizzie.config.boardPositionProportion = sldBoardPositionProportion.getValue();
       Lizzie.config.uiConfig.putOpt(
-          "board-postion-proportion", Lizzie.config.boardPositionProportion);
+          "board-position-proportion", Lizzie.config.boardPositionProportion);
       Lizzie.config.uiConfig.put("theme", cmbThemes.getSelectedItem());
       writeThemeValues();
 
