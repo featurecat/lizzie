@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.BoardHistoryNode;
+import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -129,7 +130,7 @@ public class VariationTree {
                 RING_DIAM,
                 RING_DIAM);
           }
-          g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+          g.setColor(Utils.getBlunderNodeColor(cur));
           g.fillOval(curposx + diff, posy + diff, diam, diam);
           if (startNode == curMove) {
             g.setColor(Color.BLACK);
@@ -173,7 +174,7 @@ public class VariationTree {
               RING_DIAM,
               RING_DIAM);
         }
-        g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+        g.setColor(Utils.getBlunderNodeColor(cur));
         g.fillOval(curposx + diff, posy + diff, diam, diam);
         if (cur == curMove) {
           g.setColor(Color.BLACK);

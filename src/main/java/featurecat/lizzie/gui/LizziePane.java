@@ -438,7 +438,6 @@ public class LizziePane extends JPanel {
     LizzieLayout lm;
 
     DefaultLizziePaneLayout() {
-      // TODO
       lm = new LizzieLayout();
     }
 
@@ -485,16 +484,16 @@ public class LizziePane extends JPanel {
     }
 
     public void propertyChange(PropertyChangeEvent e) {
-      String name = e.getPropertyName();
       // TODO
-      if (name.equals("orientation")) {
-        int o = ((Integer) e.getNewValue()).intValue();
-        //                if (o == LizziePane.VERTICAL)
-        //                    lm = new LizzieLayout(LizziePane.this, LizzieLayout.PAGE_AXIS);
-        //                else {
-        //                    lm = new LizzieLayout(LizziePane.this, LizzieLayout.LINE_AXIS);
-        //                }
-      }
+      //      String name = e.getPropertyName();
+      //      if (name.equals("orientation")) {
+      //        int o = ((Integer) e.getNewValue()).intValue();
+      //                if (o == LizziePane.VERTICAL)
+      //                    lm = new LizzieLayout(LizziePane.this, LizzieLayout.PAGE_AXIS);
+      //                else {
+      //                    lm = new LizzieLayout(LizziePane.this, LizzieLayout.LINE_AXIS);
+      //                }
+      //      }
     }
   }
 

@@ -31,14 +31,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class LizzieMain extends JFrame {
+public class LizzieMain extends MainFrame {
   public static final ResourceBundle resourceBundle =
       ResourceBundle.getBundle("l10n.DisplayStrings");
 
@@ -167,8 +166,6 @@ public class LizzieMain extends JFrame {
     getContentPane().setLayout(layout);
     basicInfoPane = new BasicInfoPane(this);
     boardPane = new BoardPane(this);
-    // TODO
-    Lizzie.frame = boardPane;
     subBoardPane = new SubBoardPane(this);
     winratePane = new WinratePane(this);
     variationTreePane = new VariationTreePane(this);
@@ -361,6 +358,10 @@ public class LizzieMain extends JFrame {
     g.fill(new Rectangle(x, y, width, height));
   }
 
+  public boolean isDesignMode() {
+    return designMode;
+  }
+
   public void toggleDesignMode() {
     this.designMode = !this.designMode;
     //    boardPane.setDesignMode(designMode);
@@ -369,6 +370,12 @@ public class LizzieMain extends JFrame {
     subBoardPane.setDesignMode(designMode);
     variationTreePane.setDesignMode(designMode);
     commentPane.setDesignMode(designMode);
+  }
+
+  public void updateBasicInfo() {
+    if (basicInfoPane != null) {
+      basicInfoPane.repaint();
+    }
   }
 
   public void invalidLayout() {
@@ -383,6 +390,13 @@ public class LizzieMain extends JFrame {
     if (all) {
       updateStatus();
     }
+  }
+
+  @Override
+  public void refresh() {
+    layout.layoutContainer(getContentPane());
+    layout.invalidateLayout(getContentPane());
+    repaint();
   }
 
   public void repaintSub() {
@@ -414,13 +428,13 @@ public class LizzieMain extends JFrame {
     invalidLayout();
   }
 
-  public static void openConfigDialog() {
+  public void openConfigDialog() {
     ConfigDialog configDialog = new ConfigDialog();
     configDialog.setVisible(true);
     //    configDialog.dispose();
   }
 
-  public static void openChangeMoveDialog() {
+  public void openChangeMoveDialog() {
     ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
     changeMoveDialog.setVisible(true);
   }
@@ -435,7 +449,7 @@ public class LizzieMain extends JFrame {
     }
   }
 
-  public static void startNewGame() {
+  public void startNewGame() {
     GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
 
     NewGameDialog newGameDialog = new NewGameDialog();
@@ -463,7 +477,7 @@ public class LizzieMain extends JFrame {
     }
   }
 
-  public static void editGameInfo() {
+  public void editGameInfo() {
     GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
 
     GameInfoDialog gameInfoDialog = new GameInfoDialog();
@@ -473,7 +487,7 @@ public class LizzieMain extends JFrame {
     gameInfoDialog.dispose();
   }
 
-  public static void saveFile() {
+  public void saveFile() {
     FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -509,7 +523,7 @@ public class LizzieMain extends JFrame {
     }
   }
 
-  public static void openFile() {
+  public void openFile() {
     FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -520,7 +534,7 @@ public class LizzieMain extends JFrame {
     if (result == JFileChooser.APPROVE_OPTION) loadFile(chooser.getSelectedFile());
   }
 
-  public static void loadFile(File file) {
+  public void loadFile(File file) {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
       file = new File(file.getPath() + ".sgf");
@@ -558,5 +572,70 @@ public class LizzieMain extends JFrame {
   public void resetTitle() {
     playerTitle = "";
     updateTitle();
+  }
+
+  @Override
+  public void drawControls() {
+    boardPane.drawControls();
+  }
+
+  @Override
+  public void replayBranch() {
+    boardPane.replayBranch();
+  }
+
+  @Override
+  public boolean isMouseOver(int x, int y) {
+    return boardPane.isMouseOver(x, y);
+  }
+
+  @Override
+  public void onClicked(int x, int y) {
+    boardPane.onClicked(x, y);
+  }
+
+  @Override
+  public void startRawBoard() {
+    boardPane.startRawBoard();
+  }
+
+  @Override
+  public void stopRawBoard() {
+    boardPane.stopRawBoard();
+  }
+
+  @Override
+  public boolean incrementDisplayedBranchLength(int n) {
+    return boardPane.incrementDisplayedBranchLength(n);
+  }
+
+  @Override
+  public void increaseMaxAlpha(int k) {
+    boardPane.increaseMaxAlpha(k);
+  }
+
+  @Override
+  public void copySgf() {
+    boardPane.copySgf();
+  }
+
+  @Override
+  public void pasteSgf() {
+    boardPane.pasteSgf();
+  }
+
+  @Override
+  public boolean playCurrentVariation() {
+    return boardPane.playCurrentVariation();
+  }
+
+  @Override
+  public void playBestMove() {
+    boardPane.playBestMove();
+  }
+
+  @Override
+  public void clear() {
+    boardPane.clear();
   }
 }

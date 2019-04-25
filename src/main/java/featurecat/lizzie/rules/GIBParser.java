@@ -99,7 +99,7 @@ public class GIBParser {
       }
     }
     Lizzie.board.getHistory().getGameInfo().setKomi(komi);
-    Lizzie.main.setPlayers(whitePlayer, blackPlayer);
+    Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
     // Rewind to game start
     while (Lizzie.board.previousMove()) ;
 

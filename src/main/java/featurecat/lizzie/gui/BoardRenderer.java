@@ -20,6 +20,7 @@ import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.rules.Zobrist;
+import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -181,8 +182,8 @@ public class BoardRenderer {
    * Draw the green background and go board with lines. We cache the image for a performance boost.
    */
   private void drawGoban(Graphics2D g0) {
-    int width = Lizzie.main.getWidth();
-    int height = Lizzie.main.getHeight();
+    int width = Lizzie.frame.getWidth();
+    int height = Lizzie.frame.getHeight();
 
     // Draw the cached background image if frame size changes
     if (cachedBackgroundImage.getWidth() != width
@@ -755,7 +756,7 @@ public class BoardRenderer {
                 suggestionX,
                 suggestionY + stoneRadius * 2 / 5,
                 LizzieFrame.uiFont,
-                Lizzie.frame.getPlayoutsString(move.playouts),
+                Utils.getPlayoutsString(move.playouts),
                 (float) (stoneRadius * 0.8),
                 stoneRadius * 1.4);
           }

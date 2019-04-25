@@ -1,10 +1,10 @@
 package featurecat.lizzie;
 
 import featurecat.lizzie.analysis.Leelaz;
-import featurecat.lizzie.gui.BoardPane;
 import featurecat.lizzie.gui.GtpConsolePane;
 import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.gui.LizzieMain;
+import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,7 @@ import org.json.JSONArray;
 /** Main class. */
 public class Lizzie {
   public static Config config;
-  public static LizzieMain main;
-  public static BoardPane frame;
+  public static MainFrame frame;
   public static GtpConsolePane gtpConsole;
   public static Board board;
   public static Leelaz leelaz;
@@ -31,8 +30,8 @@ public class Lizzie {
     mainArgs = args;
     config = new Config();
     board = new Board();
-    main = new LizzieMain();
-    gtpConsole = new GtpConsolePane(main);
+    frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
+    gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
     try {
       leelaz = new Leelaz();
@@ -41,13 +40,13 @@ public class Lizzie {
         leelaz.estimatePassWinrate();
       }
       if (mainArgs.length == 1) {
-        main.loadFile(new File(mainArgs[0]));
+        frame.loadFile(new File(mainArgs[0]));
       } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
         board.resumePreviousGame();
       }
       leelaz.togglePonder();
     } catch (IOException e) {
-      main.openConfigDialog();
+      frame.openConfigDialog();
       System.exit(1);
     }
   }
@@ -72,7 +71,7 @@ public class Lizzie {
           JOptionPane.showConfirmDialog(
               null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
       if (ret == JOptionPane.OK_OPTION) {
-        LizzieFrame.saveFile();
+        frame.saveFile();
       }
     }
     board.autosaveToMemory();

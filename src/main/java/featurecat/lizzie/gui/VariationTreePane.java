@@ -14,11 +14,14 @@ import java.awt.image.BufferedImage;
 public class VariationTreePane extends LizziePane {
   private static VariationTree variationTree;
 
+  private LizzieMain owner;
+
   //  private final BufferStrategy bs;
 
   /** Creates a window */
   public VariationTreePane(LizzieMain owner) {
     super(owner);
+    this.owner = owner;
 
     variationTree = new VariationTree();
 
@@ -64,7 +67,7 @@ public class VariationTreePane extends LizziePane {
 
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showVariationGraph) {
-        g.drawImage(Lizzie.main.getVariationContainer(this), x, y, null);
+        g.drawImage(owner.getVariationContainer(this), x, y, null);
         if (Lizzie.config.showVariationGraph) {
           variationTree.draw(g, x, y, width, height);
         }

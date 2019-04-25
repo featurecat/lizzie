@@ -25,6 +25,7 @@ import org.json.JSONTokener;
 public class Config {
   public String language = "en";
 
+  public boolean panelUI = false;
   public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
@@ -172,6 +173,7 @@ public class Config {
 
     theme = new Theme(uiConfig);
 
+    panelUI = uiConfig.optBoolean("panel-ui", false);
     showBorder = uiConfig.optBoolean("show-border", false);
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
@@ -421,6 +423,7 @@ public class Config {
     ui.put("append-winrate-to-comment", false);
     ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
+    ui.put("panel-ui", false);
     config.put("ui", ui);
     return config;
   }

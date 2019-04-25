@@ -219,8 +219,8 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
 
         rootPane.registerKeyboardAction(
             e -> {
-              if (Lizzie.main.designMode) {
-                Lizzie.main.toggleDesignMode();
+              if (Lizzie.frame.isDesignMode()) {
+                Lizzie.frame.toggleDesignMode();
               }
             },
             KeyStroke.getKeyStroke(KeyEvent.VK_W, KeyEvent.ALT_DOWN_MASK),

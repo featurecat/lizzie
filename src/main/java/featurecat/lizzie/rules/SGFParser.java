@@ -6,6 +6,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.util.EncodingDetector;
+import featurecat.lizzie.util.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -325,7 +326,7 @@ public class SGFParser {
       }
     }
 
-    Lizzie.main.setPlayers(whitePlayer, blackPlayer);
+    Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
 
     // Rewind to game start
     while (Lizzie.board.previousMove()) ;
@@ -511,7 +512,7 @@ public class SGFParser {
     String engine = Lizzie.leelaz.currentWeight();
 
     // Playouts
-    String playouts = Lizzie.frame.getPlayoutsString(data.getPlayouts());
+    String playouts = Utils.getPlayoutsString(data.getPlayouts());
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
@@ -576,7 +577,7 @@ public class SGFParser {
     BoardData data = node.getData();
 
     // Playouts
-    String playouts = Lizzie.frame.getPlayoutsString(data.getPlayouts());
+    String playouts = Utils.getPlayoutsString(data.getPlayouts());
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));

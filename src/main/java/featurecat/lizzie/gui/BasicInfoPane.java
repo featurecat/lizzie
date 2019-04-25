@@ -46,10 +46,10 @@ public class BasicInfoPane extends LizziePane {
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     if (Lizzie.config.showCaptured) {
-      if (Lizzie.main == null) {
-        g.drawImage(this.owner.getBasicInfoContainer(this), x, y, null);
+      if (owner == null) {
+        g.drawImage(owner.getBasicInfoContainer(this), x, y, null);
       } else {
-        g.drawImage(Lizzie.main.getBasicInfoContainer(this), x, y, null);
+        g.drawImage(owner.getBasicInfoContainer(this), x, y, null);
       }
       drawCaptured(g, x, y, width, height);
     }

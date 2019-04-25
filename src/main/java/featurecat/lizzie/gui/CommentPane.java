@@ -53,6 +53,8 @@ public class CommentPane extends LizziePane {
                 Lizzie.config.commentFontColor.getRed(),
                 Lizzie.config.commentFontColor.getGreen(),
                 Lizzie.config.commentFontColor.getBlue())
+            + "; font-family:#"
+            + Lizzie.config.fontName
             + ";}";
     htmlStyle.addRule(style);
 

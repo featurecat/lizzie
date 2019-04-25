@@ -109,7 +109,7 @@ public class Leelaz {
     // Initialize current engine number and start engine
     currentEngineN = 0;
     startEngine(engineCommand);
-    Lizzie.main.refreshBackground();
+    Lizzie.frame.refreshBackground();
   }
 
   public void startEngine(String engineCommand) throws IOException {
@@ -251,12 +251,12 @@ public class Leelaz {
         // Clear switching prompt
         switching = false;
         // Display engine command in the title
-        Lizzie.main.updateTitle();
+        Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
           this.bestMoves = parseInfo(line.substring(5));
           notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+          Lizzie.frame.refresh();
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
@@ -270,7 +270,7 @@ public class Leelaz {
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
           bestMoves.add(MoveData.fromSummary(line));
           notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+          Lizzie.frame.refresh();
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze
@@ -528,9 +528,7 @@ public class Leelaz {
     } else {
       sendCommand("name"); // ends pondering
     }
-    if (Lizzie.main.basicInfoPane != null) {
-      Lizzie.main.basicInfoPane.repaint();
-    }
+    Lizzie.frame.updateBasicInfo();
   }
 
   /** End the process */

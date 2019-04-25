@@ -232,7 +232,7 @@ public class Board implements LeelazListener {
       stones[getIndex(x, y)] = color;
       zobrist.toggleStone(x, y, color);
 
-      Lizzie.main.refresh(true);
+      Lizzie.frame.refresh();
     }
   }
 
@@ -257,7 +257,7 @@ public class Board implements LeelazListener {
       zobrist.toggleStone(x, y, oriColor);
       data.moveNumberList[Board.getIndex(x, y)] = 0;
 
-      Lizzie.main.refresh(true);
+      Lizzie.frame.refresh();
     }
   }
 
@@ -357,7 +357,7 @@ public class Board implements LeelazListener {
       // update history with pass
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.main.refresh(true);
+      Lizzie.frame.refresh();
     }
   }
 
@@ -494,7 +494,7 @@ public class Board implements LeelazListener {
       // update history with this coordinate
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.main.refresh(true);
+      Lizzie.frame.refresh();
     }
   }
 
@@ -676,7 +676,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.main.refresh(true);
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -807,7 +807,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.main.refresh(true);
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -1008,7 +1008,7 @@ public class Board implements LeelazListener {
   /** Clears all history and starts over from empty board. */
   public void clear() {
     Lizzie.leelaz.clear();
-    Lizzie.main.resetTitle();
+    Lizzie.frame.resetTitle();
     Lizzie.frame.clear();
     initialize();
   }
@@ -1020,7 +1020,7 @@ public class Board implements LeelazListener {
       updateWinrate();
       if (history.previous().isPresent()) {
         Lizzie.leelaz.undo();
-        Lizzie.main.refresh(true);
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -1115,7 +1115,7 @@ public class Board implements LeelazListener {
         x++;
       }
     }
-    Lizzie.main.refresh(true);
+    Lizzie.frame.refresh();
   }
 
   /*

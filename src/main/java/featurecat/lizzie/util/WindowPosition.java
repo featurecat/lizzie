@@ -46,16 +46,16 @@ public class WindowPosition {
       ui = new JSONObject();
     }
 
-    boolean windowIsMaximized = Lizzie.main.getExtendedState() == JFrame.MAXIMIZED_BOTH;
+    boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
     ui.put("window-maximized", windowIsMaximized);
-    ui.put("board-postion-propotion", Lizzie.main.BoardPositionProportion);
+    ui.put("board-postion-propotion", Lizzie.frame.boardPositionProportion);
 
     JSONArray mainPos = new JSONArray();
     if (!windowIsMaximized) {
-      mainPos.put(Lizzie.main.getX());
-      mainPos.put(Lizzie.main.getY());
-      mainPos.put(Lizzie.main.getWidth());
-      mainPos.put(Lizzie.main.getHeight());
+      mainPos.put(Lizzie.frame.getX());
+      mainPos.put(Lizzie.frame.getY());
+      mainPos.put(Lizzie.frame.getWidth());
+      mainPos.put(Lizzie.frame.getHeight());
     }
     ui.put("main-window-position", mainPos);
 
@@ -67,12 +67,15 @@ public class WindowPosition {
     ui.put("gtp-console-position", gtpPos);
 
     // Panes
-    ui.put("main-board-position", getWindowPos(Lizzie.main.boardPane));
-    ui.put("sub-board-position", getWindowPos(Lizzie.main.subBoardPane));
-    ui.put("basic-info-position", getWindowPos(Lizzie.main.basicInfoPane));
-    ui.put("winrate-position", getWindowPos(Lizzie.main.winratePane));
-    ui.put("variation-tree-position", getWindowPos(Lizzie.main.variationTreePane));
-    ui.put("comment-position", getWindowPos(Lizzie.main.commentPane));
+    if (Lizzie.frame instanceof LizzieMain) {
+      LizzieMain main = (LizzieMain) Lizzie.frame;
+      ui.put("main-board-position", getWindowPos(main.boardPane));
+      ui.put("sub-board-position", getWindowPos(main.subBoardPane));
+      ui.put("basic-info-position", getWindowPos(main.basicInfoPane));
+      ui.put("winrate-position", getWindowPos(main.winratePane));
+      ui.put("variation-tree-position", getWindowPos(main.variationTreePane));
+      ui.put("comment-position", getWindowPos(main.commentPane));
+    }
 
     return ui;
   }

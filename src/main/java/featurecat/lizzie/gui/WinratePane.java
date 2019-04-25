@@ -22,6 +22,7 @@ import java.util.Optional;
 /** The window used to display the game. */
 public class WinratePane extends LizziePane {
 
+  private LizzieMain owner;
   private static WinrateGraph winrateGraph;
   private BufferedImage cachedImage;
   public int winRateGridLines = 3;
@@ -31,6 +32,7 @@ public class WinratePane extends LizziePane {
   /** Creates a window */
   public WinratePane(LizzieMain owner) {
     super(owner);
+    this.owner = owner;
 
     winrateGraph = new WinrateGraph();
 
@@ -87,7 +89,7 @@ public class WinratePane extends LizziePane {
 
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showWinrate) {
-        g.drawImage(Lizzie.main.getWinrateContainer(this), x, y, null);
+        g.drawImage(owner.getWinrateContainer(this), x, y, null);
         int hh = height * 3 / 13;
         drawMoveStatistics(g, x, y, width, hh);
         winrateGraph.draw(g, x, y + hh, width, height - hh);
@@ -121,8 +123,8 @@ public class WinratePane extends LizziePane {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     double curWR = stats.maxWinrate; // winrate on this move
     boolean validWinrate = (stats.totalPlayouts > 0); // and whether it was actually calculated
-    if (Lizzie.main.isPlayingAgainstLeelaz
-        && Lizzie.main.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
+    if (Lizzie.frame.isPlayingAgainstLeelaz
+        && Lizzie.frame.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
       validWinrate = false;
     }
 
@@ -246,7 +248,7 @@ public class WinratePane extends LizziePane {
   public void onClicked(int x, int y) {
     int moveNumber = winrateGraph.moveNumber(x, y);
     if (Lizzie.config.showWinrate && moveNumber >= 0) {
-      Lizzie.main.isPlayingAgainstLeelaz = false;
+      Lizzie.frame.isPlayingAgainstLeelaz = false;
       Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
       repaint();
     }
