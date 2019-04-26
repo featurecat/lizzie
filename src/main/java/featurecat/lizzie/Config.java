@@ -12,6 +12,7 @@ import org.json.*;
 public class Config {
   public String language = "en";
 
+  public boolean panelUI = false;
   public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
@@ -160,6 +161,7 @@ public class Config {
 
     theme = new Theme(uiConfig);
 
+    panelUI = uiConfig.optBoolean("panel-ui", false);
     showBorder = uiConfig.optBoolean("show-border", false);
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
@@ -185,7 +187,7 @@ public class Config {
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
-    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
+    boardPositionProportion = uiConfig.optInt("board-position-proportion", 4);
     minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.0);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
@@ -410,6 +412,7 @@ public class Config {
     ui.put("append-winrate-to-comment", false);
     ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
+    ui.put("panel-ui", false);
     config.put("ui", ui);
     return config;
   }
