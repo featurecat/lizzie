@@ -32,7 +32,7 @@ public class MoveData {
   public static MoveData fromInfo(String line) throws ArrayIndexOutOfBoundsException {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
-    boolean islcb =Lizzie.config.showlcbwinrate;
+    boolean islcb =Lizzie.config.showLcbWinrate;
     // read from config
     // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
     for (int i = 0; i < data.length; i++) {
@@ -78,10 +78,10 @@ public class MoveData {
    * @param summary line of summary output
    */
   public static MoveData fromSummary(String summary) {
-    Matcher match = summaryPattern.matcher(summary.trim());
+    Matcher match = summaryPatternLcb.matcher(summary.trim());
     if (!match.matches()) {
       // support 0.16 0.15
-      Matcher matchold = summaryPatternold.matcher(summary.trim());
+      Matcher matchold = summaryPatternWinrate.matcher(summary.trim());
       if (!matchold.matches()) {
         throw new IllegalArgumentException("Unexpected summary format: " + summary);
       } else {
@@ -96,16 +96,16 @@ public class MoveData {
       MoveData result = new MoveData();
       result.coordinate = match.group(1);
       result.playouts = Integer.parseInt(match.group(2));
-      result.winrate = Double.parseDouble(match.group(3));
-      result.variation = Arrays.asList(match.group(4).split(" "));
+      result.winrate = Double.parseDouble(match.group(Lizzie.config.showLcbWinrate ? 4 : 3));
+      result.variation = Arrays.asList(match.group(5).split(" "));
       return result;
     }
   }
 
-  private static Pattern summaryPattern =
+  private static Pattern summaryPatternLcb =
       Pattern.compile(
-          "^ *(\\w\\d*) -> *(\\d+) \\([^\\)]+\\) \\(LCB: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
-  private static Pattern summaryPatternold =
+          "^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\(LCB: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
+  private static Pattern summaryPatternWinrate =
       Pattern.compile("^ *(\\w\\d*) -> *(\\d+) \\(V: ([^%)]+)%\\) \\([^\\)]+\\) PV: (.+).*$");
   // support 0.16 0.15
 

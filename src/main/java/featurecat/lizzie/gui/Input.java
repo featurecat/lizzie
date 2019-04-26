@@ -245,14 +245,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (!Lizzie.frame.playCurrentVariation()) Lizzie.frame.playBestMove();
         break;
 
+        
+      case VK_L:
+          Lizzie.config.toggleShowLcbWinrate();
+          break;
       case VK_M:
         if (e.isAltDown()) {
           Lizzie.frame.openChangeMoveDialog();
         } else {
           Lizzie.config.toggleShowMoveNumber();
         }
-        break;
-
+        break;    
+        
       case VK_F:
         Lizzie.config.toggleShowNextMoves();
         break;

@@ -33,7 +33,7 @@ public class Config {
   public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
-  public boolean showlcbwinrate=true;
+  public boolean showLcbWinrate=true;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -188,7 +188,7 @@ public class Config {
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
-    showlcbwinrate = config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
+    showLcbWinrate = config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
@@ -285,6 +285,10 @@ public class Config {
     this.showNextMoves = !this.showNextMoves;
   }
 
+  public void toggleShowLcbWinrate() {
+	    this.showLcbWinrate = !this.showLcbWinrate;
+	  }
+  
   public void toggleHandicapInsteadOfWinrate() {
     this.handicapInsteadOfWinrate = !this.handicapInsteadOfWinrate;
   }

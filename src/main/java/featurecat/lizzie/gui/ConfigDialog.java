@@ -702,7 +702,7 @@ public class ConfigDialog extends JDialog {
 
   private void setShowLcbWinrate() {
    
-      if (Lizzie.config.showlcbwinrate) {
+      if (Lizzie.config.showLcbWinrate) {
         rdoLcb.setSelected(true);
       } else {
         rdoWinrate.setSelected(true);
@@ -713,11 +713,11 @@ public class ConfigDialog extends JDialog {
   private boolean getShowLcbWinrate() {
 
     if (rdoLcb.isSelected()) {
-    	Lizzie.config.showlcbwinrate=true;
+    	Lizzie.config.showLcbWinrate=true;
       return true;
     }
     if (rdoWinrate.isSelected()) {
-    	Lizzie.config.showlcbwinrate=false;
+    	Lizzie.config.showLcbWinrate=false;
       return false;
     }
     return true;
