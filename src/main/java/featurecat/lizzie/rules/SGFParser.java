@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class SGFParser {
   private static final SimpleDateFormat SGF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
+  private static final String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private static final String[] listProps =
       new String[] {"LB", "CR", "SQ", "MA", "TR", "AB", "AW", "AE"};
   private static final String[] markupProps = new String[] {"LB", "CR", "SQ", "MA", "TR"};
@@ -55,8 +56,19 @@ public class SGFParser {
     return parse(sgfString);
   }
 
+  public static boolean isPassPos(String pos) {
+    // TODO
+    String passPos =
+        Lizzie.board.boardSize <= 52
+            ? String.format(
+                "%c%c",
+                alphabet.charAt(Lizzie.board.boardSize), alphabet.charAt(Lizzie.board.boardSize))
+            : "";
+    return pos.isEmpty() || passPos.equals(pos);
+  }
+
   public static int[] convertSgfPosToCoord(String pos) {
-    if (pos.equals("tt") || pos.isEmpty()) return null;
+    if (isPassPos(pos)) return null;
     int[] ret = new int[2];
     ret[0] = (int) pos.charAt(0) - 'a';
     ret[1] = (int) pos.charAt(1) - 'a';
