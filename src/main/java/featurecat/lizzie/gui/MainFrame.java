@@ -28,7 +28,16 @@ public abstract class MainFrame extends JFrame {
 
   public void refresh() {
     repaint();
-  };
+  }
+
+  /**
+   * Refresh
+   *
+   * @param type: 0-All, 1-Only Board, 2-Invalid Layout
+   */
+  public void refresh(int type) {
+    repaint();
+  }
 
   public abstract void drawControls();
 
@@ -73,8 +82,6 @@ public abstract class MainFrame extends JFrame {
   public abstract void openConfigDialog();
 
   public abstract void toggleGtpConsole();
-
-  public abstract void openAvoidMoveDialog();
 
   public abstract void startNewGame();
 

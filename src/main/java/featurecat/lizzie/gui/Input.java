@@ -330,18 +330,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_W:
         if (controlIsPressed(e)) {
           Lizzie.config.toggleLargeWinrate();
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(2);
         } else if (e.isAltDown()) {
           Lizzie.frame.toggleDesignMode();
         } else {
           Lizzie.config.toggleShowWinrate();
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(2);
         }
         break;
 
       case VK_G:
         Lizzie.config.toggleShowVariationGraph();
-        Lizzie.frame.refresh();
+        Lizzie.frame.refresh(2);
         break;
 
       case VK_T:
@@ -349,7 +349,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.config.toggleShowCommentNodeColor();
         } else {
           Lizzie.config.toggleShowComment();
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(2);
         }
         break;
 
@@ -362,7 +362,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(2);
         }
         break;
 
@@ -420,14 +420,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_OPEN_BRACKET:
         if (Lizzie.frame.boardPositionProportion > 0) {
           Lizzie.frame.boardPositionProportion--;
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(2);
         }
         break;
 
       case VK_CLOSE_BRACKET:
         if (Lizzie.frame.boardPositionProportion < 8) {
           Lizzie.frame.boardPositionProportion++;
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(2);
         }
         break;
 
@@ -456,7 +456,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     if (shouldDisableAnalysis && Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
 
-    Lizzie.frame.refresh();
+    Lizzie.frame.refresh(1);
   }
 
   private boolean wasPonderingWhenControlsShown = false;
@@ -467,12 +467,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_X:
         if (wasPonderingWhenControlsShown) Lizzie.leelaz.togglePonder();
         Lizzie.frame.showControls = false;
-        Lizzie.frame.refresh();
+        Lizzie.frame.refresh(1);
         break;
 
       case VK_Z:
         stopTemporaryBoard();
-        Lizzie.frame.refresh();
+        Lizzie.frame.refresh(1);
         break;
 
       default:

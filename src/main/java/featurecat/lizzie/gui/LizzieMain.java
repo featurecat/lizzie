@@ -379,18 +379,21 @@ public class LizzieMain extends MainFrame {
     repaint();
   }
 
-  public void refresh(boolean all) {
-    boardPane.repaint();
-    if (all) {
-      updateStatus();
-    }
+  @Override
+  public void refresh() {
+    refresh(0);
   }
 
   @Override
-  public void refresh() {
-    layout.layoutContainer(getContentPane());
-    layout.invalidateLayout(getContentPane());
-    repaint();
+  public void refresh(int type) {
+    if (type == 2) {
+      invalidLayout();
+    } else {
+      boardPane.repaint();
+      if (type != 1) {
+        updateStatus();
+      }
+    }
   }
 
   public void repaintSub() {

@@ -256,7 +256,7 @@ public class Leelaz {
           // This should not be stale data when the command number match
           this.bestMoves = parseInfo(line.substring(5));
           notifyBestMoveListeners();
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(1);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
@@ -270,7 +270,7 @@ public class Leelaz {
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
           bestMoves.add(MoveData.fromSummary(line));
           notifyBestMoveListeners();
-          Lizzie.frame.refresh();
+          Lizzie.frame.refresh(1);
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze

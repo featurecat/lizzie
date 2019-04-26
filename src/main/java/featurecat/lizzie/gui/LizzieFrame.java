@@ -278,7 +278,7 @@ public class LizzieFrame extends MainFrame {
     }
   }
 
-  public static void startNewGame() {
+  public void startNewGame() {
     GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
 
     NewGameDialog newGameDialog = new NewGameDialog();

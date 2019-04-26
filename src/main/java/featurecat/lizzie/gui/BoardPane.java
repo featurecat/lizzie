@@ -101,7 +101,7 @@ public class BoardPane extends LizziePane {
     addMouseListener(
         new MouseAdapter() {
           @Override
-          public void mouseClicked(MouseEvent e) {
+          public void mousePressed(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON1) { // left click
               if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
                 onDoubleClicked(e.getX(), e.getY());
