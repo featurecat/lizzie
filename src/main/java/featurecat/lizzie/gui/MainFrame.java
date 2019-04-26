@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import java.awt.HeadlessException;
+import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import javax.swing.JFrame;
 
@@ -37,6 +38,10 @@ public abstract class MainFrame extends JFrame {
    */
   public void refresh(int type) {
     repaint();
+  }
+
+  public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
+    return false;
   }
 
   public abstract void drawControls();

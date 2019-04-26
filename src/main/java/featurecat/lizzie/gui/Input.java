@@ -483,6 +483,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
+    if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
+      return;
+    }
     if (e.getWhen() - wheelWhen > 0) {
       wheelWhen = e.getWhen();
       if (Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();

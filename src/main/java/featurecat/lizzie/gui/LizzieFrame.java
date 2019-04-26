@@ -1270,6 +1270,7 @@ public class LizzieFrame extends MainFrame {
    *
    * @return true when the scroll event was processed by this method
    */
+  @Override
   public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
     if (Lizzie.config.showComment && commentRect.contains(e.getX(), e.getY())) {
       scrollPane.dispatchEvent(e);

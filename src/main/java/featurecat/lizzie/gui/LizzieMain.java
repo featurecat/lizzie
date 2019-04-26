@@ -352,10 +352,12 @@ public class LizzieMain extends MainFrame {
     g.fill(new Rectangle(x, y, width, height));
   }
 
+  @Override
   public boolean isDesignMode() {
     return designMode;
   }
 
+  @Override
   public void toggleDesignMode() {
     this.designMode = !this.designMode;
     //    boardPane.setDesignMode(designMode);
@@ -366,6 +368,7 @@ public class LizzieMain extends MainFrame {
     commentPane.setDesignMode(designMode);
   }
 
+  @Override
   public void updateBasicInfo() {
     if (basicInfoPane != null) {
       basicInfoPane.repaint();
