@@ -15,6 +15,7 @@ import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.util.Utils;
 import java.awt.*;
 import java.awt.BasicStroke;
 import java.awt.Color;
