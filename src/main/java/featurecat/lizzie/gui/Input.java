@@ -255,7 +255,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else {
           Lizzie.config.toggleShowMoveNumber();
         }
-        break;    
+        break;
         
       case VK_F:
         Lizzie.config.toggleShowNextMoves();
