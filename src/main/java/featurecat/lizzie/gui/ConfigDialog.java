@@ -52,6 +52,8 @@ import javax.imageio.ImageIO;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
@@ -69,6 +71,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
@@ -104,6 +108,7 @@ public class ConfigDialog extends JDialog {
 
   public JPanel uiTab;
   public JPanel themeTab;
+  public JPanel aboutTab;
   public JButton okButton;
 
   // Engine Tab
@@ -146,6 +151,9 @@ public class ConfigDialog extends JDialog {
   public JCheckBox chkAppendWinrateToComment;
   public JCheckBox chkColorByWinrateInsteadOfVisits;
   public JSlider sldBoardPositionProportion;
+  public JTextField txtLimitBestMoveNum;
+  public JTextField txtLimitBranchLength;
+  public JTextPane tpGtpConsoleStyle;
 
   // Theme Tab
   public JComboBox<String> cmbThemes;
@@ -162,6 +170,9 @@ public class ConfigDialog extends JDialog {
   public ColorLabel lblWinrateLineColor;
   public ColorLabel lblWinrateMissLineColor;
   public ColorLabel lblBlunderBarColor;
+  public ColorLabel lblCommentBackgroundColor;
+  public ColorLabel lblCommentFontColor;
+  public JTextField txtCommentFontSize;
   public JCheckBox chkSolidStoneIndicator;
   public JCheckBox chkShowCommentNodeColor;
   public ColorLabel lblCommentNodeColor;
@@ -558,6 +569,79 @@ public class ConfigDialog extends JDialog {
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.theme"), null, themeTab, null);
     themeTab.setLayout(null);
 
+    // About Tab
+    aboutTab = new JPanel();
+    tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.about"), null, aboutTab, null);
+
+    JLabel lblLizzieName = new JLabel("Lizzie 0.6+");
+    lblLizzieName.setFont(new Font("Tahoma", Font.BOLD, 24));
+    lblLizzieName.setHorizontalAlignment(SwingConstants.CENTER);
+
+    JLabel lblLizzieInfo = new JLabel(resourceBundle.getString("LizzieConfig.lizzie.info"));
+    lblLizzieInfo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+
+    JLabel lblContributorsTitle =
+        new JLabel(resourceBundle.getString("LizzieConfig.lizzie.contributorsTitle"));
+    lblContributorsTitle.setFont(new Font("Tahoma", Font.BOLD, 12));
+
+    JLabel lblContributors =
+        new JLabel(resourceBundle.getString("LizzieConfig.lizzie.contributors"));
+    lblContributors.setVerticalAlignment(SwingConstants.TOP);
+    lblContributors.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    GroupLayout gl = new GroupLayout(aboutTab);
+    gl.setHorizontalGroup(
+        gl.createParallelGroup(Alignment.LEADING)
+            .addGroup(
+                gl.createSequentialGroup()
+                    .addGroup(
+                        gl.createParallelGroup(Alignment.TRAILING)
+                            .addGroup(
+                                Alignment.LEADING,
+                                gl.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(
+                                        lblLizzieInfo,
+                                        GroupLayout.DEFAULT_SIZE,
+                                        620,
+                                        Short.MAX_VALUE))
+                            .addGroup(
+                                Alignment.LEADING,
+                                gl.createSequentialGroup().addGap(254).addComponent(lblLizzieName))
+                            .addGroup(
+                                Alignment.LEADING,
+                                gl.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(lblContributorsTitle))
+                            .addGroup(
+                                Alignment.LEADING,
+                                gl.createSequentialGroup()
+                                    .addContainerGap()
+                                    .addComponent(
+                                        lblContributors,
+                                        GroupLayout.PREFERRED_SIZE,
+                                        620,
+                                        GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap()));
+    gl.setVerticalGroup(
+        gl.createParallelGroup(Alignment.LEADING)
+            .addGroup(
+                gl.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(lblLizzieName)
+                    .addGap(18)
+                    .addComponent(
+                        lblLizzieInfo, GroupLayout.PREFERRED_SIZE, 183, GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(lblContributorsTitle)
+                    .addPreferredGap(ComponentPlacement.RELATED)
+                    .addComponent(
+                        lblContributors,
+                        GroupLayout.PREFERRED_SIZE,
+                        282,
+                        GroupLayout.PREFERRED_SIZE)
+                    .addGap(126)));
+    aboutTab.setLayout(gl);
+
     // Engines
     txts =
         new JTextField[] {
@@ -811,6 +895,48 @@ public class ConfigDialog extends JDialog {
       sldBoardPositionProportion.setBounds(170, 250, 200, 28);
       uiTab.add(sldBoardPositionProportion);
 
+      JLabel lblLimitBestMoveNum =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.limitBestMoveNum"));
+      lblLimitBestMoveNum.setBounds(6, 281, 157, 16);
+      uiTab.add(lblLimitBestMoveNum);
+      txtLimitBestMoveNum =
+          new JFormattedTextField(
+              new InternationalFormatter(nf) {
+                protected DocumentFilter getDocumentFilter() {
+                  return filter;
+                }
+
+                private DocumentFilter filter = new DigitOnlyFilter();
+              });
+      txtLimitBestMoveNum.setBounds(171, 279, 52, 24);
+      uiTab.add(txtLimitBestMoveNum);
+      txtLimitBestMoveNum.setColumns(10);
+
+      JLabel lblLimitBranchLength =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.limitBranchLength"));
+      lblLimitBranchLength.setBounds(6, 308, 157, 16);
+      uiTab.add(lblLimitBranchLength);
+      txtLimitBranchLength =
+          new JFormattedTextField(
+              new InternationalFormatter(nf) {
+                protected DocumentFilter getDocumentFilter() {
+                  return filter;
+                }
+
+                private DocumentFilter filter = new DigitOnlyFilter();
+              });
+      txtLimitBranchLength.setBounds(171, 306, 52, 24);
+      uiTab.add(txtLimitBranchLength);
+      txtLimitBranchLength.setColumns(10);
+
+      JLabel lblGtpConsoleStyle =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.gtpConsoleStyle"));
+      lblGtpConsoleStyle.setBounds(6, 335, 157, 16);
+      uiTab.add(lblGtpConsoleStyle);
+      tpGtpConsoleStyle = new JTextPane();
+      tpGtpConsoleStyle.setBounds(171, 333, 460, 80);
+      uiTab.add(tpGtpConsoleStyle);
+
       File themeFolder = new File(Theme.pathPrefix);
       File[] themes =
           themeFolder.listFiles(
@@ -971,7 +1097,7 @@ public class ConfigDialog extends JDialog {
       lblWinrateLineColorTitle.setBounds(10, 345, 163, 16);
       themeTab.add(lblWinrateLineColorTitle);
       lblWinrateLineColor = new ColorLabel();
-      lblWinrateLineColor.setBounds(175, 350, 199, 9);
+      lblWinrateLineColor.setBounds(175, 350, 167, 9);
       themeTab.add(lblWinrateLineColor);
 
       JLabel lblWinrateMissLineColorTitle =
@@ -980,7 +1106,7 @@ public class ConfigDialog extends JDialog {
       lblWinrateMissLineColorTitle.setBounds(10, 375, 163, 16);
       themeTab.add(lblWinrateMissLineColorTitle);
       lblWinrateMissLineColor = new ColorLabel();
-      lblWinrateMissLineColor.setBounds(175, 380, 199, 9);
+      lblWinrateMissLineColor.setBounds(175, 380, 167, 9);
       themeTab.add(lblWinrateMissLineColor);
 
       JLabel lblBlunderBarColorTitle =
@@ -989,32 +1115,68 @@ public class ConfigDialog extends JDialog {
       lblBlunderBarColorTitle.setBounds(10, 405, 163, 16);
       themeTab.add(lblBlunderBarColorTitle);
       lblBlunderBarColor = new ColorLabel();
-      lblBlunderBarColor.setBounds(175, 410, 199, 9);
+      lblBlunderBarColor.setBounds(175, 410, 167, 9);
       themeTab.add(lblBlunderBarColor);
+
+      JLabel lblCommentBackgroundColorTitle =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.commentBackgroundColor"));
+      lblCommentBackgroundColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
+      lblCommentBackgroundColorTitle.setBounds(370, 345, 148, 16);
+      themeTab.add(lblCommentBackgroundColorTitle);
+      lblCommentBackgroundColor = new ColorLabel();
+      lblCommentBackgroundColor.setBounds(529, 342, 22, 22);
+      themeTab.add(lblCommentBackgroundColor);
+
+      JLabel lblCommentFontColorTitle =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.commentFontColor"));
+      lblCommentFontColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
+      lblCommentFontColorTitle.setBounds(370, 375, 148, 16);
+      themeTab.add(lblCommentFontColorTitle);
+      lblCommentFontColor = new ColorLabel();
+      lblCommentFontColor.setBounds(529, 372, 22, 22);
+      themeTab.add(lblCommentFontColor);
+
+      JLabel lblCommentFontSize =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.commentFontSize"));
+      lblCommentFontSize.setHorizontalAlignment(SwingConstants.LEFT);
+      lblCommentFontSize.setBounds(370, 405, 148, 16);
+      themeTab.add(lblCommentFontSize);
+      txtCommentFontSize =
+          new JFormattedTextField(
+              new InternationalFormatter(nf) {
+                protected DocumentFilter getDocumentFilter() {
+                  return filter;
+                }
+
+                private DocumentFilter filter = new DigitOnlyFilter();
+              });
+      txtCommentFontSize.setBounds(529, 403, 52, 24);
+      themeTab.add(txtCommentFontSize);
+      txtLimitBranchLength.setColumns(10);
 
       JLabel lblSolidStoneIndicator =
           new JLabel(resourceBundle.getString("LizzieConfig.title.solidStoneIndicator"));
-      lblSolidStoneIndicator.setBounds(10, 444, 163, 16);
+      lblSolidStoneIndicator.setBounds(10, 435, 163, 16);
       themeTab.add(lblSolidStoneIndicator);
       chkSolidStoneIndicator = new JCheckBox("");
-      chkSolidStoneIndicator.setBounds(170, 437, 57, 23);
+      chkSolidStoneIndicator.setBounds(170, 432, 57, 23);
       themeTab.add(chkSolidStoneIndicator);
 
       JLabel lblShowCommentNodeColor =
           new JLabel(resourceBundle.getString("LizzieConfig.title.showCommentNodeColor"));
-      lblShowCommentNodeColor.setBounds(10, 474, 163, 16);
+      lblShowCommentNodeColor.setBounds(10, 465, 163, 16);
       themeTab.add(lblShowCommentNodeColor);
       chkShowCommentNodeColor = new JCheckBox("");
-      chkShowCommentNodeColor.setBounds(170, 467, 33, 23);
+      chkShowCommentNodeColor.setBounds(170, 462, 33, 23);
       themeTab.add(chkShowCommentNodeColor);
 
       JLabel lblCommentNodeColorTitle =
           new JLabel(resourceBundle.getString("LizzieConfig.title.commentNodeColor"));
       lblCommentNodeColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
-      lblCommentNodeColorTitle.setBounds(274, 474, 138, 16);
+      lblCommentNodeColorTitle.setBounds(210, 465, 138, 16);
       themeTab.add(lblCommentNodeColorTitle);
       lblCommentNodeColor = new ColorLabel();
-      lblCommentNodeColor.setBounds(431, 468, 22, 22);
+      lblCommentNodeColor.setBounds(351, 462, 22, 22);
       themeTab.add(lblCommentNodeColor);
 
       JLabel lblBlunderNodes =
@@ -1034,7 +1196,7 @@ public class ConfigDialog extends JDialog {
       themeTab.add(pnlScrollBlunderNodes);
 
       JButton btnAdd = new JButton(resourceBundle.getString("LizzieConfig.button.add"));
-      btnAdd.setBounds(382, 506, 89, 23);
+      btnAdd.setBounds(80, 527, 89, 23);
       btnAdd.addActionListener(
           new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1044,7 +1206,7 @@ public class ConfigDialog extends JDialog {
       themeTab.add(btnAdd);
 
       JButton btnRemove = new JButton(resourceBundle.getString("LizzieConfig.button.remove"));
-      btnRemove.setBounds(384, 540, 89, 23);
+      btnRemove.setBounds(80, 557, 89, 23);
       btnRemove.addActionListener(
           new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1119,6 +1281,9 @@ public class ConfigDialog extends JDialog {
       chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
       chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
       sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
+      txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
+      txtLimitBranchLength.setText(String.valueOf(Lizzie.config.limitBranchLength));
+      tpGtpConsoleStyle.setText(Lizzie.config.gtpConsoleStyle);
       cmbThemes.setSelectedItem(
           Lizzie.config.uiConfig.optString(
               "theme", resourceBundle.getString("LizzieConfig.title.defaultTheme")));
@@ -1800,6 +1965,9 @@ public class ConfigDialog extends JDialog {
         chkSolidStoneIndicator.setSelected(theme.solidStoneIndicator());
         chkShowCommentNodeColor.setSelected(theme.showCommentNodeColor());
         lblCommentNodeColor.setColor(theme.commentNodeColor());
+        lblCommentBackgroundColor.setColor(theme.commentBackgroundColor());
+        lblCommentFontColor.setColor(theme.commentFontColor());
+        txtCommentFontSize.setText(String.valueOf(theme.commentFontSize()));
         tblBlunderNodes.setModel(
             new BlunderNodeTableModel(
                 theme.blunderWinrateThresholds().orElse(null),
@@ -1846,6 +2014,10 @@ public class ConfigDialog extends JDialog {
         theme.config.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
         theme.config.put("comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
         theme.config.put(
+            "comment-background-color", Theme.color2Array(lblCommentBackgroundColor.getColor()));
+        theme.config.put("comment-font-color", Theme.color2Array(lblCommentFontColor.getColor()));
+        theme.config.put("comment-font-size", txtFieldIntValue(txtCommentFontSize));
+        theme.config.put(
             "blunder-winrate-thresholds",
             ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getThresholdArray());
         theme.config.put(
@@ -1890,6 +2062,14 @@ public class ConfigDialog extends JDialog {
     lblCommentNodeColor.setColor(
         Theme.array2Color(
             Lizzie.config.uiConfig.optJSONArray("comment-node-color"), Color.BLUE.brighter()));
+    lblCommentBackgroundColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("comment-background-color"),
+            new Color(0, 0, 0, 200)));
+    lblCommentFontColor.setColor(
+        Theme.array2Color(Lizzie.config.uiConfig.optJSONArray("comment-font-color"), Color.WHITE));
+    txtCommentFontSize.setText(
+        String.valueOf(Lizzie.config.uiConfig.optInt("comment-font-size", 3)));
     Theme defTheme = new Theme("");
     tblBlunderNodes.setModel(
         new BlunderNodeTableModel(
@@ -1918,6 +2098,11 @@ public class ConfigDialog extends JDialog {
     Lizzie.config.uiConfig.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
     Lizzie.config.uiConfig.put(
         "comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "comment-background-color", Theme.color2Array(lblCommentBackgroundColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "comment-font-color", Theme.color2Array(lblCommentFontColor.getColor()));
+    Lizzie.config.uiConfig.put("comment-font-size", txtFieldIntValue(txtCommentFontSize));
     Lizzie.config.uiConfig.put(
         "blunder-winrate-thresholds",
         ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getThresholdArray());
@@ -1970,6 +2155,11 @@ public class ConfigDialog extends JDialog {
       Lizzie.config.boardPositionProportion = sldBoardPositionProportion.getValue();
       Lizzie.config.uiConfig.putOpt(
           "board-position-proportion", Lizzie.config.boardPositionProportion);
+      Lizzie.config.limitBestMoveNum = txtFieldIntValue(txtLimitBestMoveNum);
+      Lizzie.config.uiConfig.put("limit-best-move-num", Lizzie.config.limitBestMoveNum);
+      Lizzie.config.limitBranchLength = txtFieldIntValue(txtLimitBranchLength);
+      Lizzie.config.uiConfig.put("limit-branch-length", Lizzie.config.limitBranchLength);
+      Lizzie.config.uiConfig.put("gtp-console-style", tpGtpConsoleStyle.getText());
       Lizzie.config.uiConfig.put("theme", cmbThemes.getSelectedItem());
       writeThemeValues();
 
