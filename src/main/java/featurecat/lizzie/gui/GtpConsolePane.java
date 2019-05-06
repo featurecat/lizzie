@@ -20,7 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 
@@ -30,7 +29,7 @@ public class GtpConsolePane extends JDialog {
 
   // Display Comment
   private HTMLDocument htmlDoc;
-  private HTMLEditorKit htmlKit;
+  private LizziePane.HtmlKit htmlKit;
   private StyleSheet htmlStyle;
   private JScrollPane scrollPane;
   private JTextPane console;
@@ -57,7 +56,7 @@ public class GtpConsolePane extends JDialog {
           Math.max(owner.getHeight() + oi.top + oi.bottom, 300));
     }
 
-    htmlKit = new HTMLEditorKit();
+    htmlKit = new LizziePane.HtmlKit();
     htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
     htmlStyle = htmlKit.getStyleSheet();
     htmlStyle.addRule(Lizzie.config.gtpConsoleStyle);

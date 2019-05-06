@@ -46,6 +46,8 @@ import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -97,9 +99,6 @@ public class LizzieFrame extends MainFrame {
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
 
-  public static Font uiFont;
-  public static Font winrateFont;
-
   private final BufferStrategy bs;
 
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
@@ -112,6 +111,9 @@ public class LizzieFrame extends MainFrame {
   private String playerTitle = "";
 
   // Display Comment
+  private HTMLDocument htmlDoc;
+  private LizziePane.HtmlKit htmlKit;
+  private StyleSheet htmlStyle;
   private JScrollPane scrollPane;
   private JTextPane commentPane;
   private BufferedImage cachedCommentImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
@@ -182,11 +184,35 @@ public class LizzieFrame extends MainFrame {
       setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 
+    htmlKit = new LizziePane.HtmlKit();
+    htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
+    htmlStyle = htmlKit.getStyleSheet();
+    String style =
+        "body {background:#"
+            + String.format(
+                "%02x%02x%02x",
+                Lizzie.config.commentBackgroundColor.getRed(),
+                Lizzie.config.commentBackgroundColor.getGreen(),
+                Lizzie.config.commentBackgroundColor.getBlue())
+            + "; color:#"
+            + String.format(
+                "%02x%02x%02x",
+                Lizzie.config.commentFontColor.getRed(),
+                Lizzie.config.commentFontColor.getGreen(),
+                Lizzie.config.commentFontColor.getBlue())
+            + "; font-family:"
+            + Lizzie.config.fontName
+            + ", Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;"
+            + (Lizzie.config.commentFontSize > 0
+                ? "font-size:" + Lizzie.config.commentFontSize
+                : "")
+            + "}";
+    htmlStyle.addRule(style);
     commentPane = new JTextPane();
+    commentPane.setBorder(BorderFactory.createEmptyBorder());
+    commentPane.setEditorKit(htmlKit);
+    commentPane.setDocument(htmlDoc);
     commentPane.setEditable(false);
-    commentPane.setMargin(new Insets(5, 5, 5, 5));
-    commentPane.setBackground(Lizzie.config.commentBackgroundColor);
-    commentPane.setForeground(Lizzie.config.commentFontColor);
     scrollPane = new JScrollPane();
     scrollPane.setViewportView(commentPane);
     scrollPane.setBorder(null);

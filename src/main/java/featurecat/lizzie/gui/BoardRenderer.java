@@ -231,16 +231,16 @@ public class BoardRenderer {
           drawString(
               g,
               x + scaledMargin + squareLength * i,
-              y + scaledMargin / 2,
-              LizzieFrame.uiFont,
+              y + scaledMargin / 3,
+              MainFrame.uiFont,
               Board.asName(i),
               stoneRadius * 4 / 5,
               stoneRadius);
           drawString(
               g,
               x + scaledMargin + squareLength * i,
-              y - scaledMargin / 2 + boardLength,
-              LizzieFrame.uiFont,
+              y - scaledMargin / 3 + boardLength,
+              MainFrame.uiFont,
               Board.asName(i),
               stoneRadius * 4 / 5,
               stoneRadius);
@@ -248,17 +248,17 @@ public class BoardRenderer {
         for (int i = 0; i < Board.boardSize; i++) {
           drawString(
               g,
-              x + scaledMargin / 2,
+              x + scaledMargin / 3,
               y + scaledMargin + squareLength * i,
-              LizzieFrame.uiFont,
+              MainFrame.uiFont,
               "" + (Board.boardSize - i),
               stoneRadius * 4 / 5,
               stoneRadius);
           drawString(
               g,
-              x - scaledMargin / 2 + +boardLength,
+              x - scaledMargin / 3 + boardLength,
               y + scaledMargin + squareLength * i,
-              LizzieFrame.uiFont,
+              MainFrame.uiFont,
               "" + (Board.boardSize - i),
               stoneRadius * 4 / 5,
               stoneRadius);
@@ -515,7 +515,7 @@ public class BoardRenderer {
             g,
             x + boardLength / 2,
             y + boardLength / 2,
-            LizzieFrame.uiFont,
+            MainFrame.uiFont,
             "pass",
             stoneRadius * 4,
             stoneRadius * 6);
@@ -568,7 +568,7 @@ public class BoardRenderer {
               g,
               stoneX,
               stoneY,
-              LizzieFrame.uiFont,
+              MainFrame.uiFont,
               moveNumberString,
               (float) (stoneRadius * 1.4),
               (int) (stoneRadius * 1.4));
@@ -646,7 +646,8 @@ public class BoardRenderer {
           int suggestionY = y + scaledMargin + squareLength * coords[1];
 
           float hue;
-          if (isBestMove && !Lizzie.config.colorByWinrateInsteadOfVisits) {
+          if (isBestMove && !Lizzie.config.colorByWinrateInsteadOfVisits
+              || hasMaxWinrate && Lizzie.config.colorByWinrateInsteadOfVisits) {
             hue = cyanHue;
           } else {
             double fraction;
@@ -744,7 +745,7 @@ public class BoardRenderer {
                 g,
                 suggestionX,
                 suggestionY,
-                LizzieFrame.winrateFont,
+                MainFrame.winrateFont,
                 Font.PLAIN,
                 text,
                 stoneRadius,
@@ -755,7 +756,7 @@ public class BoardRenderer {
                 g,
                 suggestionX,
                 suggestionY + stoneRadius * 2 / 5,
-                LizzieFrame.uiFont,
+                MainFrame.uiFont,
                 Utils.getPlayoutsString(move.playouts),
                 (float) (stoneRadius * 0.8),
                 stoneRadius * 1.4);
@@ -840,7 +841,7 @@ public class BoardRenderer {
     int availableLength;
 
     // decrease boardLength until the availableLength will result in square board intersections
-    double margin = (showCoordinates ? 1.5 / (Board.boardSize + 2) : 1.0d / (Board.boardSize + 1));
+    double margin = (showCoordinates ? 0.045 : 0.03) / Board.boardSize * 19.0;
     boardLength++;
     do {
       boardLength--;
@@ -1070,7 +1071,7 @@ public class BoardRenderer {
                             g,
                             moveX,
                             moveY,
-                            LizzieFrame.uiFont,
+                            MainFrame.uiFont,
                             moves[1],
                             (float) labelRadius,
                             labelRadius);

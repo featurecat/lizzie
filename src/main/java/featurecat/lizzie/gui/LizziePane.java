@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JWindow;
 import javax.swing.UIManager;
 import javax.swing.plaf.UIResource;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 /** The window used to display the game. */
 public class LizziePane extends JPanel {
@@ -513,6 +515,23 @@ public class LizziePane extends JPanel {
       //        if (count == 0 && ui != null) {
       ui.installUI(this);
       //        }
+    }
+  }
+
+  public static class HtmlKit extends HTMLEditorKit {
+    private StyleSheet style = new StyleSheet();
+
+    @Override
+    public void setStyleSheet(StyleSheet styleSheet) {
+      style = styleSheet;
+    }
+
+    @Override
+    public StyleSheet getStyleSheet() {
+      if (style == null) {
+        style = super.getStyleSheet();
+      }
+      return style;
     }
   }
 }

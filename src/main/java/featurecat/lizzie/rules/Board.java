@@ -214,6 +214,37 @@ public class Board implements LeelazListener {
     }
   }
 
+  public int moveNumberByCoord(int[] coord) {
+    int moveNumber = 0;
+    if (Lizzie.board.isValid(coord)) {
+      int index = Lizzie.board.getIndex(coord[0], coord[1]);
+      if (Lizzie.board.getHistory().getStones()[index] != Stone.EMPTY) {
+        BoardHistoryNode cur = Lizzie.board.getHistory().getCurrentHistoryNode();
+        moveNumber = cur.getData().moveNumberList[index];
+        if (!cur.isMainTrunk()) {
+          if (moveNumber > 0) {
+            moveNumber = cur.getData().moveNumber - cur.getData().moveMNNumber + moveNumber;
+          } else {
+            BoardHistoryNode p = cur.firstParentWithVariations().orElse(cur);
+            while (p != cur && moveNumber == 0) {
+              moveNumber = p.getData().moveNumberList[index];
+              if (moveNumber > 0) {
+                BoardHistoryNode topOfTop = p.firstParentWithVariations().orElse(p);
+                if (topOfTop != p) {
+                  moveNumber = p.getData().moveNumber - p.getData().moveMNNumber + moveNumber;
+                }
+              } else {
+                cur = p;
+                p = cur.firstParentWithVariations().orElse(cur);
+              }
+            }
+          }
+        }
+      }
+    }
+    return moveNumber;
+  }
+
   /**
    * Add a stone to the board representation. Thread safe
    *

@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
@@ -14,6 +15,8 @@ public abstract class MainFrame extends JFrame {
   public int boardPositionProportion = Lizzie.config.boardPositionProportion;
   public int winRateGridLines = 3;
   public boolean showControls = false;
+  public static Font uiFont;
+  public static Font winrateFont;
 
   public MainFrame(String title) throws HeadlessException {
     super(title);

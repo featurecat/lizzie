@@ -14,7 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 /** The window used to display the game. */
@@ -24,7 +23,7 @@ public class CommentPane extends LizziePane {
 
   // Display Comment
   private HTMLDocument htmlDoc;
-  private HTMLEditorKit htmlKit;
+  private LizziePane.HtmlKit htmlKit;
   private StyleSheet htmlStyle;
   public JScrollPane scrollPane;
   private JTextPane commentPane;
@@ -37,11 +36,11 @@ public class CommentPane extends LizziePane {
     super(owner);
     setLayout(new BorderLayout(0, 0));
 
-    htmlKit = new HTMLEditorKit();
+    htmlKit = new LizziePane.HtmlKit();
     htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
     htmlStyle = htmlKit.getStyleSheet();
     String style =
-        ".comment {background:#"
+        "body {background:#"
             + String.format(
                 "%02x%02x%02x",
                 Lizzie.config.commentBackgroundColor.getRed(),
@@ -53,9 +52,13 @@ public class CommentPane extends LizziePane {
                 Lizzie.config.commentFontColor.getRed(),
                 Lizzie.config.commentFontColor.getGreen(),
                 Lizzie.config.commentFontColor.getBlue())
-            + "; font-family:#"
+            + "; font-family:"
             + Lizzie.config.fontName
-            + ";}";
+            + ", Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;"
+            + (Lizzie.config.commentFontSize > 0
+                ? "font-size:" + Lizzie.config.commentFontSize
+                : "")
+            + "}";
     htmlStyle.addRule(style);
 
     commentPane = new JTextPane();

@@ -17,9 +17,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) // left click
-    Lizzie.frame.onClicked(e.getX(), e.getY());
-    else if (e.getButton() == MouseEvent.BUTTON3) // right click
+    if (e.getButton() == MouseEvent.BUTTON1) { // left click
+      if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
+        Lizzie.frame.onDoubleClicked(e.getX(), e.getY());
+      } else {
+        Lizzie.frame.onClicked(e.getX(), e.getY());
+      }
+    } else if (e.getButton() == MouseEvent.BUTTON3) // right click
     undo();
   }
 

@@ -53,9 +53,6 @@ public class LizzieMain extends MainFrame {
   public static boolean designMode;
   private LizzieLayout layout;
 
-  public static Font uiFont;
-  public static Font winrateFont;
-
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
 
   public BufferedImage cachedBackground;

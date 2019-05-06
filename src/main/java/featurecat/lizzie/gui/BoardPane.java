@@ -333,13 +333,9 @@ public class BoardPane extends LizziePane {
     if (boardCoordinates.isPresent()) {
       int[] coords = boardCoordinates.get();
       if (!owner.isPlayingAgainstLeelaz) {
-        int index = Lizzie.board.getIndex(coords[0], coords[1]);
-        if (Lizzie.board.isValid(coords[0], coords[1])
-            && (Lizzie.board.getHistory().getStones()[index] != Stone.EMPTY)) {
-          int moveNumber = Lizzie.board.getHistory().getMoveNumberList()[index];
-          if (moveNumber > 0) {
-            Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
-          }
+        int moveNumber = Lizzie.board.moveNumberByCoord(coords);
+        if (moveNumber > 0) {
+          Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
         }
       }
     }
