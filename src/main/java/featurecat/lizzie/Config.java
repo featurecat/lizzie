@@ -33,7 +33,7 @@ public class Config {
   public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
-  public boolean showLcbWinrate=true;
+  public boolean showLcbWinrate = false;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -265,6 +265,10 @@ public class Config {
     this.largeWinrate = !this.largeWinrate;
   }
 
+  public void toggleShowLcbWinrate() {
+    this.showLcbWinrate = !this.showLcbWinrate;
+  }
+
   public void toggleShowVariationGraph() {
     this.showVariationGraph = !this.showVariationGraph;
   }
@@ -285,10 +289,6 @@ public class Config {
     this.showNextMoves = !this.showNextMoves;
   }
 
-  public void toggleShowLcbWinrate() {
-	    this.showLcbWinrate = !this.showLcbWinrate;
-	  }
-  
   public void toggleHandicapInsteadOfWinrate() {
     this.handicapInsteadOfWinrate = !this.handicapInsteadOfWinrate;
   }

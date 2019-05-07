@@ -429,16 +429,16 @@ public class ConfigDialog extends JDialog {
     engineTab.add(txtAnalyzeUpdateInterval);
 
     JLabel lblShowLcbWinrate =
-        new JLabel(resourceBundle.getString("LizzieConfig.title.showlcbwinrate"));
-    lblShowLcbWinrate.setBounds(331, 400, 157, 16);
+        new JLabel(resourceBundle.getString("LizzieConfig.title.showLcbWinrate"));
+    lblShowLcbWinrate.setBounds(6, 457, 157, 16);
     engineTab.add(lblShowLcbWinrate);
 
     rdoLcb = new JRadioButton("Lcb");
-    rdoLcb.setBounds(496, 400, 50, 23);
+    rdoLcb.setBounds(167, 454, 69, 23);
     engineTab.add(rdoLcb);
 
     rdoWinrate = new JRadioButton("Winrate");
-    rdoWinrate.setBounds(545, 400, 75, 23);
+    rdoWinrate.setBounds(250, 454, 92, 23);
     engineTab.add(rdoWinrate);
 
     ButtonGroup wrgroup = new ButtonGroup();
@@ -701,23 +701,22 @@ public class ConfigDialog extends JDialog {
   }
 
   private void setShowLcbWinrate() {
-   
-      if (Lizzie.config.showLcbWinrate) {
-        rdoLcb.setSelected(true);
-      } else {
-        rdoWinrate.setSelected(true);
-      }
-    
+
+    if (Lizzie.config.showLcbWinrate) {
+      rdoLcb.setSelected(true);
+    } else {
+      rdoWinrate.setSelected(true);
+    }
   }
 
   private boolean getShowLcbWinrate() {
 
     if (rdoLcb.isSelected()) {
-    	Lizzie.config.showLcbWinrate=true;
+      Lizzie.config.showLcbWinrate = true;
       return true;
     }
     if (rdoWinrate.isSelected()) {
-    	Lizzie.config.showLcbWinrate=false;
+      Lizzie.config.showLcbWinrate = false;
       return false;
     }
     return true;

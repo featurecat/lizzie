@@ -245,11 +245,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         if (!Lizzie.frame.playCurrentVariation()) Lizzie.frame.playBestMove();
         break;
 
-        
-      case VK_L:
-          Lizzie.config.toggleShowLcbWinrate();
-          break;
-
       case VK_M:
         if (e.isAltDown()) {
           Lizzie.frame.openChangeMoveDialog();
@@ -333,6 +328,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else {
           Lizzie.config.toggleShowWinrate();
         }
+        break;
+
+      case VK_L:
+        Lizzie.config.toggleShowLcbWinrate();
         break;
 
       case VK_G:

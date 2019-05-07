@@ -32,8 +32,7 @@ public class MoveData {
   public static MoveData fromInfo(String line) throws ArrayIndexOutOfBoundsException {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
-    boolean islcb =Lizzie.config.showLcbWinrate;
-    // read from config
+    boolean islcb = Lizzie.config.showLcbWinrate;
     // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
     for (int i = 0; i < data.length; i++) {
       String key = data[i];
