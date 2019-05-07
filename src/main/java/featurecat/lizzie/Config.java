@@ -33,6 +33,7 @@ public class Config {
   public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
+  public boolean showLcbWinrate = false;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -185,10 +186,10 @@ public class Config {
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
     boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
-
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
+    showLcbWinrate = config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
@@ -263,6 +264,10 @@ public class Config {
 
   public void toggleLargeWinrate() {
     this.largeWinrate = !this.largeWinrate;
+  }
+
+  public void toggleShowLcbWinrate() {
+    this.showLcbWinrate = !this.showLcbWinrate;
   }
 
   public void toggleShowVariationGraph() {
@@ -365,6 +370,7 @@ public class Config {
     leelaz.put("max-game-thinking-time-seconds", 2);
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
+    leelaz.put("show-lcb-winrate", false);
 
     config.put("leelaz", leelaz);
 
