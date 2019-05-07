@@ -8,7 +8,6 @@ import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.SGFParser;
-import featurecat.lizzie.rules.Stone;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;

@@ -1252,6 +1252,20 @@ public class LizzieFrame extends MainFrame {
     repaint();
   }
 
+  public void onDoubleClicked(int x, int y) {
+    // Check for board double click
+    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+    if (boardCoordinates.isPresent()) {
+      int[] coords = boardCoordinates.get();
+      if (!isPlayingAgainstLeelaz) {
+        int moveNumber = Lizzie.board.moveNumberByCoord(coords);
+        if (moveNumber > 0) {
+          Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
+        }
+      }
+    }
+  }
+
   private final Consumer<String> placeVariation =
       v -> Board.asCoordinates(v).ifPresent(c -> Lizzie.board.place(c[0], c[1]));
 

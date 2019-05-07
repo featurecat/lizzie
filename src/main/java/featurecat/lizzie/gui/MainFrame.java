@@ -65,6 +65,8 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void onClicked(int x, int y);
 
+  public abstract void onDoubleClicked(int x, int y);
+
   public abstract void onMouseDragged(int x, int y);
 
   public abstract void onMouseMoved(int x, int y);

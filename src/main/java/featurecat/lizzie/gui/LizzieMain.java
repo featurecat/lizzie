@@ -592,6 +592,11 @@ public class LizzieMain extends MainFrame {
   }
 
   @Override
+  public void onDoubleClicked(int x, int y) {
+    boardPane.onDoubleClicked(x, y);
+  }
+
+  @Override
   public void onMouseDragged(int x, int y) {
     winratePane.onMouseDragged(x, y);
   }

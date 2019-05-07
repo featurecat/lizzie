@@ -841,7 +841,8 @@ public class BoardRenderer {
     int availableLength;
 
     // decrease boardLength until the availableLength will result in square board intersections
-    double margin = (showCoordinates ? 0.045 : 0.03) / Board.boardSize * 19.0;
+    double margin =
+        (showCoordinates ? (Board.boardSize > 3 ? 0.06 : 0.04) : 0.03) / Board.boardSize * 19.0;
     boardLength++;
     do {
       boardLength--;
