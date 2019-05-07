@@ -11,6 +11,7 @@ import featurecat.lizzie.theme.Theme;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -59,6 +60,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -80,6 +82,8 @@ import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
@@ -577,16 +581,15 @@ public class ConfigDialog extends JDialog {
     lblLizzieName.setFont(new Font("Tahoma", Font.BOLD, 24));
     lblLizzieName.setHorizontalAlignment(SwingConstants.CENTER);
 
-    JLabel lblLizzieInfo = new JLabel(resourceBundle.getString("LizzieConfig.lizzie.info"));
+    LinkLabel lblLizzieInfo = new LinkLabel(resourceBundle.getString("LizzieConfig.lizzie.info"));
     lblLizzieInfo.setFont(new Font("Tahoma", Font.PLAIN, 14));
 
-    JLabel lblContributorsTitle =
-        new JLabel(resourceBundle.getString("LizzieConfig.lizzie.contributorsTitle"));
-    lblContributorsTitle.setFont(new Font("Tahoma", Font.BOLD, 12));
+    LinkLabel lblContributorsTitle =
+        new LinkLabel(resourceBundle.getString("LizzieConfig.lizzie.contributorsTitle"));
+    lblContributorsTitle.setFont(new Font("Tahoma", Font.BOLD, 14));
 
-    JLabel lblContributors =
-        new JLabel(resourceBundle.getString("LizzieConfig.lizzie.contributors"));
-    lblContributors.setVerticalAlignment(SwingConstants.TOP);
+    LinkLabel lblContributors =
+        new LinkLabel(resourceBundle.getString("LizzieConfig.lizzie.contributors"));
     lblContributors.setFont(new Font("Tahoma", Font.PLAIN, 14));
     GroupLayout gl = new GroupLayout(aboutTab);
     gl.setHorizontalGroup(
@@ -594,41 +597,37 @@ public class ConfigDialog extends JDialog {
             .addGroup(
                 gl.createSequentialGroup()
                     .addGroup(
-                        gl.createParallelGroup(Alignment.TRAILING)
+                        gl.createParallelGroup(Alignment.LEADING)
                             .addGroup(
-                                Alignment.LEADING,
                                 gl.createSequentialGroup()
                                     .addContainerGap()
                                     .addComponent(
                                         lblLizzieInfo,
                                         GroupLayout.DEFAULT_SIZE,
-                                        620,
+                                        628,
                                         Short.MAX_VALUE))
                             .addGroup(
-                                Alignment.LEADING,
-                                gl.createSequentialGroup().addGap(254).addComponent(lblLizzieName))
-                            .addGroup(
-                                Alignment.LEADING,
                                 gl.createSequentialGroup()
                                     .addContainerGap()
                                     .addComponent(lblContributorsTitle))
                             .addGroup(
-                                Alignment.LEADING,
                                 gl.createSequentialGroup()
                                     .addContainerGap()
                                     .addComponent(
                                         lblContributors,
                                         GroupLayout.PREFERRED_SIZE,
                                         620,
-                                        GroupLayout.PREFERRED_SIZE)))
+                                        GroupLayout.PREFERRED_SIZE))
+                            .addGroup(
+                                gl.createSequentialGroup().addGap(254).addComponent(lblLizzieName)))
                     .addContainerGap()));
     gl.setVerticalGroup(
         gl.createParallelGroup(Alignment.LEADING)
             .addGroup(
                 gl.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(lblLizzieName)
                     .addGap(18)
+                    .addComponent(lblLizzieName)
+                    .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(
                         lblLizzieInfo, GroupLayout.PREFERRED_SIZE, 183, GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(ComponentPlacement.RELATED)
@@ -676,11 +675,17 @@ public class ConfigDialog extends JDialog {
     curPath = (new File("")).getAbsoluteFile().toPath();
     osName = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
     setShowLcbWinrate();
-    new ComsWorker().execute();
+    new ComsWorker(this).execute();
     setLocationRelativeTo(getOwner());
   }
 
   class ComsWorker extends SwingWorker<Void, Integer> {
+
+    private JDialog owner;
+
+    public ComsWorker(JDialog owner) {
+      this.owner = owner;
+    }
 
     @Override
     protected Void doInBackground() throws Exception {
@@ -1096,7 +1101,7 @@ public class ConfigDialog extends JDialog {
       lblWinrateLineColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
       lblWinrateLineColorTitle.setBounds(10, 345, 163, 16);
       themeTab.add(lblWinrateLineColorTitle);
-      lblWinrateLineColor = new ColorLabel();
+      lblWinrateLineColor = new ColorLabel(owner);
       lblWinrateLineColor.setBounds(175, 350, 167, 9);
       themeTab.add(lblWinrateLineColor);
 
@@ -1105,7 +1110,7 @@ public class ConfigDialog extends JDialog {
       lblWinrateMissLineColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
       lblWinrateMissLineColorTitle.setBounds(10, 375, 163, 16);
       themeTab.add(lblWinrateMissLineColorTitle);
-      lblWinrateMissLineColor = new ColorLabel();
+      lblWinrateMissLineColor = new ColorLabel(owner);
       lblWinrateMissLineColor.setBounds(175, 380, 167, 9);
       themeTab.add(lblWinrateMissLineColor);
 
@@ -1114,7 +1119,7 @@ public class ConfigDialog extends JDialog {
       lblBlunderBarColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
       lblBlunderBarColorTitle.setBounds(10, 405, 163, 16);
       themeTab.add(lblBlunderBarColorTitle);
-      lblBlunderBarColor = new ColorLabel();
+      lblBlunderBarColor = new ColorLabel(owner);
       lblBlunderBarColor.setBounds(175, 410, 167, 9);
       themeTab.add(lblBlunderBarColor);
 
@@ -1123,7 +1128,7 @@ public class ConfigDialog extends JDialog {
       lblCommentBackgroundColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
       lblCommentBackgroundColorTitle.setBounds(370, 345, 148, 16);
       themeTab.add(lblCommentBackgroundColorTitle);
-      lblCommentBackgroundColor = new ColorLabel();
+      lblCommentBackgroundColor = new ColorLabel(owner);
       lblCommentBackgroundColor.setBounds(529, 342, 22, 22);
       themeTab.add(lblCommentBackgroundColor);
 
@@ -1132,7 +1137,7 @@ public class ConfigDialog extends JDialog {
       lblCommentFontColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
       lblCommentFontColorTitle.setBounds(370, 375, 148, 16);
       themeTab.add(lblCommentFontColorTitle);
-      lblCommentFontColor = new ColorLabel();
+      lblCommentFontColor = new ColorLabel(owner);
       lblCommentFontColor.setBounds(529, 372, 22, 22);
       themeTab.add(lblCommentFontColor);
 
@@ -1175,7 +1180,7 @@ public class ConfigDialog extends JDialog {
       lblCommentNodeColorTitle.setHorizontalAlignment(SwingConstants.LEFT);
       lblCommentNodeColorTitle.setBounds(210, 465, 138, 16);
       themeTab.add(lblCommentNodeColorTitle);
-      lblCommentNodeColor = new ColorLabel();
+      lblCommentNodeColor = new ColorLabel(owner);
       lblCommentNodeColor.setBounds(351, 462, 22, 22);
       themeTab.add(lblCommentNodeColor);
 
@@ -1671,21 +1676,29 @@ public class ConfigDialog extends JDialog {
   private class ColorLabel extends JLabel {
 
     private Color curColor;
+    private JDialog owner;
 
-    public ColorLabel() {
+    public ColorLabel(JDialog owner) {
       super();
       setOpaque(true);
+      this.owner = owner;
 
       addMouseListener(
           new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
               ColorLabel cl = (ColorLabel) e.getSource();
+              if (!isWindows()) {
+                cl.owner.setVisible(false);
+              }
               Color color =
                   JColorChooser.showDialog(
                       (Component) e.getSource(), "Choose a color", cl.getColor());
               if (color != null) {
                 cl.setColor(color);
+              }
+              if (!isWindows()) {
+                cl.owner.setVisible(true);
               }
             }
           });
@@ -1737,8 +1750,8 @@ public class ConfigDialog extends JDialog {
   private class ColorEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
     ColorLabel cl;
 
-    public ColorEditor() {
-      cl = new ColorLabel();
+    public ColorEditor(JDialog owner) {
+      cl = new ColorLabel(owner);
     }
 
     public Object getCellEditorValue() {
@@ -1753,6 +1766,28 @@ public class ConfigDialog extends JDialog {
 
     @Override
     public void actionPerformed(ActionEvent e) {}
+  }
+
+  private class LinkLabel extends JEditorPane {
+    public LinkLabel(String text) {
+      super("text/html", text);
+      setEditable(false);
+      setOpaque(false);
+      putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+      addHyperlinkListener(
+          new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+              if (HyperlinkEvent.EventType.ACTIVATED.equals(e.getEventType())) {
+                if (Desktop.isDesktopSupported()) {
+                  try {
+                    Desktop.getDesktop().browse(e.getURL().toURI());
+                  } catch (Exception ex) {
+                  }
+                }
+              }
+            }
+          });
+    }
   }
 
   class BlunderNodeTableModel extends AbstractTableModel {
@@ -1975,7 +2010,7 @@ public class ConfigDialog extends JDialog {
                 columsBlunderNodes));
         TableColumn colorCol = tblBlunderNodes.getColumnModel().getColumn(1);
         colorCol.setCellRenderer(new ColorRenderer(false));
-        colorCol.setCellEditor(new ColorEditor());
+        colorCol.setCellEditor(new ColorEditor(this));
       }
     }
     if (this.pnlBoardPreview != null) {
@@ -2078,7 +2113,7 @@ public class ConfigDialog extends JDialog {
             columsBlunderNodes));
     TableColumn colorCol = tblBlunderNodes.getColumnModel().getColumn(1);
     colorCol.setCellRenderer(new ColorRenderer(false));
-    colorCol.setCellEditor(new ColorEditor());
+    colorCol.setCellEditor(new ColorEditor(this));
   }
 
   private void writeDefaultTheme() {

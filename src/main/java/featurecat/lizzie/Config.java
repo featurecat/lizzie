@@ -2,12 +2,24 @@ package featurecat.lizzie;
 
 import featurecat.lizzie.theme.Theme;
 import java.awt.Color;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import javax.swing.*;
-import org.json.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Config {
   public String language = "en";
@@ -35,6 +47,7 @@ public class Config {
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
   public double minPlayoutRatioForStats = 0.0;
+  public boolean showLcbWinrate = false;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -75,6 +88,8 @@ public class Config {
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = true;
   public int boardPositionProportion = 4;
+  public int limitBestMoveNum = 0;
+  public int limitBranchLength = 0;
   public String gtpConsoleStyle = "";
   private final String defaultGtpConsoleStyle =
       "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
@@ -188,11 +203,14 @@ public class Config {
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
     boardPositionProportion = uiConfig.optInt("board-position-proportion", 4);
+    limitBestMoveNum = uiConfig.optInt("limit-best-move-num", 0);
+    limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
     minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.0);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
+    showLcbWinrate = config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
@@ -267,6 +285,10 @@ public class Config {
 
   public void toggleLargeWinrate() {
     this.largeWinrate = !this.largeWinrate;
+  }
+
+  public void toggleShowLcbWinrate() {
+    this.showLcbWinrate = !this.showLcbWinrate;
   }
 
   public void toggleShowVariationGraph() {
@@ -369,6 +391,7 @@ public class Config {
     leelaz.put("max-game-thinking-time-seconds", 2);
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
+    leelaz.put("show-lcb-winrate", false);
 
     config.put("leelaz", leelaz);
 
