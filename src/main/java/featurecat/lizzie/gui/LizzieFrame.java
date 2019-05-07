@@ -367,7 +367,15 @@ public class LizzieFrame extends JFrame {
 
     chooser.setFileFilter(filter);
     chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showOpenDialog(null);
+    JFrame frame = new JFrame();
+    Action details = chooser.getActionMap().get("viewTypeDetails");
+    details.actionPerformed(null);
+    // Find the JTable on the file chooser panel and manually do the sort
+    JTable table = SwingUtils.getDescendantsOfType(JTable.class, chooser).get(0);
+    table.getRowSorter().toggleSortOrder(3);
+    table.getRowSorter().toggleSortOrder(3);
+    int result = chooser.showOpenDialog(frame);
+    // chooser.showOpenDialog(null);
     if (result == JFileChooser.APPROVE_OPTION) loadFile(chooser.getSelectedFile());
   }
 
