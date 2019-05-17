@@ -183,7 +183,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
-    holdWinrateToMove = uiConfig.optBoolean("hold-wnrate-to-move");
+    holdWinrateToMove = uiConfig.optBoolean("hold-winrate-to-move");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
