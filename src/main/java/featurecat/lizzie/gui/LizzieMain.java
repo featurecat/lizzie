@@ -139,7 +139,7 @@ public class LizzieMain extends MainFrame {
               if (cachedBackgroundWidth != width
                   || cachedBackgroundHeight != height
                   || redrawBackgroundAnyway) {
-                backgroundG = Optional.of(createBackground());
+                backgroundG = Optional.of(createBackground(width, height));
               } else {
                 backgroundG = Optional.empty();
               }
@@ -252,8 +252,8 @@ public class LizzieMain extends MainFrame {
     return cachedWallpaperImage;
   }
 
-  private Graphics2D createBackground() {
-    cachedBackground = new BufferedImage(getWidth(), getHeight(), TYPE_INT_RGB);
+  private Graphics2D createBackground(int width, int height) {
+    cachedBackground = new BufferedImage(width, height, TYPE_INT_RGB);
     cachedBackgroundWidth = cachedBackground.getWidth();
     cachedBackgroundHeight = cachedBackground.getHeight();
 
@@ -263,8 +263,8 @@ public class LizzieMain extends MainFrame {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     BufferedImage wallpaper = getWallpaper();
-    int drawWidth = max(wallpaper.getWidth(), getWidth());
-    int drawHeight = max(wallpaper.getHeight(), getHeight());
+    int drawWidth = max(wallpaper.getWidth(), width);
+    int drawHeight = max(wallpaper.getHeight(), height);
     // Support seamless texture
     drawTextureImage(g, wallpaper, 0, 0, drawWidth, drawHeight);
 
