@@ -83,7 +83,7 @@ public class ConfigDialog extends JDialog {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
     setModalityType(ModalityType.APPLICATION_MODAL);
     setType(Type.POPUP);
-    setBounds(100, 100, 661, 567);
+    setBounds(100, 100, 661, 587);
     getContentPane().setLayout(new BorderLayout());
     JPanel buttonPane = new JPanel();
     buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));

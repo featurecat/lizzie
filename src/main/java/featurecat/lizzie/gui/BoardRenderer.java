@@ -20,6 +20,7 @@ import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +54,7 @@ public class BoardRenderer {
   private BufferedImage cachedBoardImage = emptyImage;
   private BufferedImage cachedWallpaperImage = emptyImage;
   private BufferedImage cachedStonesShadowImage = emptyImage;
+  private BufferedImage countBlockImage = emptyImage;
   private Zobrist cachedZhash = new Zobrist(); // defaults to an empty board
 
   private BufferedImage cachedBlackStoneImage = emptyImage;
@@ -359,6 +361,33 @@ public class BoardRenderer {
     g.dispose();
   }
 
+  public void removeCountBlock() {
+    countBlockImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+  }
+
+  public void drawCountBlock(ArrayList<Integer> tempcount) {
+    countBlockImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+    Graphics2D g = countBlockImage.createGraphics();
+    for (int i = 0; i < tempcount.size(); i++) {
+      if (tempcount.get(i) > 0) {
+        int y = i / 19;
+        int x = i % 19;
+        int stoneX = scaledMargin + squareLength * x;
+        int stoneY = scaledMargin + squareLength * y;
+        g.setColor(Color.BLACK);
+        g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
+      }
+      if (tempcount.get(i) < 0) {
+        int y = i / 19;
+        int x = i % 19;
+        int stoneX = scaledMargin + squareLength * x;
+        int stoneY = scaledMargin + squareLength * y;
+        g.setColor(Color.WHITE);
+        g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
+      }
+    }
+  }
+
   /** Draw the 'ghost stones' which show a variationOpt Leelaz is thinking about */
   private void drawBranch() {
     showingBranch = false;
@@ -445,6 +474,7 @@ public class BoardRenderer {
       g.drawImage(branchStonesShadowImage, x, y, null);
     }
     g.drawImage(cachedStonesImage, x, y, null);
+    g.drawImage(countBlockImage, x, y, null);
     if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesImage, x, y, null);
     }

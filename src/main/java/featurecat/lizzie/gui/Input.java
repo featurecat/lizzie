@@ -396,9 +396,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_PERIOD:
-        if (!Lizzie.board.getHistory().getNext().isPresent()) {
-          Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
-        }
+        Lizzie.frame.countStones();
+        // if (!Lizzie.board.getHistory().getNext().isPresent()) {
+        //   Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
+        //  }
         break;
 
       case VK_D:

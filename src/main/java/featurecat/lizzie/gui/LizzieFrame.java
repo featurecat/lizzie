@@ -11,6 +11,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
@@ -92,10 +93,11 @@ public class LizzieFrame extends JFrame {
     resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
   private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
-  private static BoardRenderer boardRenderer;
-  private static BoardRenderer subBoardRenderer;
+  public static BoardRenderer boardRenderer;
+  public static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
+  public static CountResults countResults;
 
   public static Font uiFont;
   public static Font winrateFont;
@@ -122,12 +124,15 @@ public class LizzieFrame extends JFrame {
   private BufferedImage cachedCommentImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
   private String cachedComment;
   private Rectangle commentRect;
-
+  public YaZenGtp zen;
   // Show the playouts in the title
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
   private long lastPlayouts = 0;
   private String visitsString = "";
   public boolean isDrawVisitsInTitle = true;
+  public boolean isCounting = false;
+  boolean isFirstCount = true;
+  public boolean isAutocounting = false;
 
   static {
     // load fonts
@@ -157,6 +162,7 @@ public class LizzieFrame extends JFrame {
     subBoardRenderer = new BoardRenderer(false);
     variationTree = new VariationTree();
     winrateGraph = new WinrateGraph();
+    countResults = new CountResults();
 
     setMinimumSize(new Dimension(640, 400));
     boolean persisted = Lizzie.config.persistedUi != null;
@@ -1210,7 +1216,7 @@ public class LizzieFrame extends JFrame {
     int diam = height / 3;
     int smallDiam = diam / 2;
     int bdiam = diam, wdiam = diam;
-    if (Lizzie.board.inScoreMode()) {
+    if (Lizzie.board.inScoreMode() || isCounting) {
       // do nothing
     } else if (Lizzie.board.getHistory().isBlacksTurn()) {
       wdiam = smallDiam;
@@ -1226,17 +1232,19 @@ public class LizzieFrame extends JFrame {
         posX + width * 3 / 4 - wdiam / 2, posY + height * 3 / 8 + (diam - wdiam) / 2, wdiam, wdiam);
 
     // Draw captures
-    String bval, wval;
+    String bval = "", wval = "";
     setPanelFont(g, (float) (height * 0.18));
     if (Lizzie.board.inScoreMode()) {
       double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
       bval = String.format("%.0f", score[0]);
       wval = String.format("%.1f", score[1]);
+    } else if (isCounting || isAutocounting) {
+      bval = String.format("%d", this.countResults.allBlackCounts);
+      wval = String.format("%d", this.countResults.allWhiteCounts);
     } else {
       bval = String.format("%d", Lizzie.board.getData().blackCaptures);
       wval = String.format("%d", Lizzie.board.getData().whiteCaptures);
     }
-
     g.setColor(Color.WHITE);
     int bw = g.getFontMetrics().stringWidth(bval);
     int ww = g.getFontMetrics().stringWidth(wval);
@@ -1568,5 +1576,37 @@ public class LizzieFrame extends JFrame {
         };
     Thread thread = new Thread(runnable);
     thread.start();
+  }
+
+  public void countStones() {
+    if (isFirstCount) {
+      try {
+        zen = new YaZenGtp();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+      isFirstCount = false;
+    } else if (!zen.process.isAlive()) {
+      try {
+        zen = new YaZenGtp();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+    }
+    zen.noread = false;
+    zen.syncboradstat();
+    zen.countStones();
+    isCounting = true;
+  }
+
+  public void noAutoCounting() {
+    this.isAutocounting = false;
+    try {
+      Lizzie.frame.subBoardRenderer.removeCountBlock();
+    } catch (Exception ex) {
+    }
+    Lizzie.frame.repaint();
+    this.countResults.isAutocounting = false;
+    this.countResults.button2.setText("自动判断");
   }
 }

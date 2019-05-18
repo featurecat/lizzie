@@ -144,6 +144,10 @@ public class BoardHistoryNode {
     return variations.isEmpty() ? Optional.empty() : Optional.of(variations.get(0));
   }
 
+  public Optional<BoardHistoryNode> now() {
+    return Optional.of(this);
+  }
+
   public BoardHistoryNode topOfBranch() {
     BoardHistoryNode top = this;
     while (top.previous.isPresent() && top.previous.get().variations.size() == 1) {

@@ -300,16 +300,33 @@ public class Leelaz {
           }
           isSettingHandicap = false;
         } else if (isThinking && !isPondering) {
-          if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
+          if (isInputCommand) {
             Lizzie.board.place(params[1]);
             togglePonder();
-            if (!isInputCommand) {
-              isPondering = false;
+            if (Lizzie.frame.isAutocounting) {
+              if (Lizzie.board.getHistory().isBlacksTurn())
+                Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
+              else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
+
+              Lizzie.frame.zen.countStones();
             }
-            isThinking = false;
-            if (isInputCommand) {
-              isInputCommand = false;
+          }
+          if (Lizzie.frame.isPlayingAgainstLeelaz) {
+            Lizzie.board.place(params[1]);
+            if (Lizzie.frame.isAutocounting) {
+              if (Lizzie.board.getHistory().isBlacksTurn())
+                Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
+              else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
+
+              Lizzie.frame.zen.countStones();
             }
+          }
+          if (!isInputCommand) {
+            isPondering = false;
+          }
+          isThinking = false;
+          if (isInputCommand) {
+            isInputCommand = false;
           }
         } else if (isCheckingVersion) {
           String[] ver = params[1].split("\\.");
@@ -385,6 +402,12 @@ public class Leelaz {
       }
       cmdQueue.addLast(command);
       trySendCommandFromQueue();
+    }
+    if (Lizzie.frame.isAutocounting) {
+      if (command.startsWith("play") || command.startsWith("undo")) {
+        Lizzie.frame.zen.sendCommand(command);
+        Lizzie.frame.zen.countStones();
+      }
     }
   }
 
