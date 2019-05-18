@@ -111,7 +111,6 @@ public class CountResults extends JFrame {
               Lizzie.frame.repaint();
               button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
             }
-            
           }
         });
     button.setBounds(0, 240, 100, 20);
@@ -139,7 +138,7 @@ public class CountResults extends JFrame {
     whiteEat = whiteEatCount;
     if (!Lizzie.frame.isAutocounting) {
       button.setText(resourceBundle.getString("CountDialog.estimateButton.clicktwo"));
-      iscounted = true;      
+      iscounted = true;
     }
     repaint();
   }
