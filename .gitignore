@@ -4,9 +4,8 @@ lizzie.properties
 config.txt
 out/*
 .idea/
-*.dll
 *.iml
-*.exe
+
 network
 network.gz
 leelaz
