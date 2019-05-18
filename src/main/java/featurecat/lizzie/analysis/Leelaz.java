@@ -300,7 +300,7 @@ public class Leelaz {
           }
           isSettingHandicap = false;
         } else if (isThinking && !isPondering) {
-          if (isInputCommand||Lizzie.frame.isPlayingAgainstLeelaz) {
+          if (Lizzie.frame.isPlayingAgainstLeelaz||isInputCommand) {
             Lizzie.board.place(params[1]);
             togglePonder();
             if (Lizzie.frame.isAutocounting) {

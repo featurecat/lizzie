@@ -25,8 +25,7 @@ public class YaZenGtp {
 
   private String engineCommand;
   // private List<String> commands;
-  private int cmdNumber;
-  private int currentCmdNum;
+  private int cmdNumber;  
   private ArrayDeque<String> cmdQueue;
   private ScheduledExecutorService executor;
   ArrayList<Integer> detailedCount = new ArrayList<Integer>();
@@ -42,7 +41,6 @@ public class YaZenGtp {
   public YaZenGtp() throws IOException {
 
     cmdNumber = 1;
-    currentCmdNum = 0;
     cmdQueue = new ArrayDeque<>();
     gtpConsole = true;
     engineCommand = "YAZenGtp.exe";
@@ -125,7 +123,9 @@ public class YaZenGtp {
             Lizzie.frame.boardRenderer.drawCountBlock(detailedCount);
           else {
             if (Lizzie.config.showSubBoard) {             
-              Lizzie.frame.subBoardRenderer.drawCountBlock(detailedCount);
+             try { Lizzie.frame.subBoardRenderer.drawCountBlock(detailedCount);}
+             catch (Exception e)
+             {}
             } else Lizzie.frame.boardRenderer.drawCountBlock(detailedCount);
           }
           Lizzie.frame.repaint();

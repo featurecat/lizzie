@@ -418,8 +418,9 @@ public class BoardRenderer {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     Graphics2D gShadow = (Graphics2D) branchStonesShadowImage.getGraphics();
     gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);  
+    
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
-    if (!suggestedMove.isPresent()) {
+    if (!suggestedMove.isPresent()||(!isMainBoard&&Lizzie.frame.isAutocounting)) {
       return;
     }
     List<String> variation = suggestedMove.get().variation;
