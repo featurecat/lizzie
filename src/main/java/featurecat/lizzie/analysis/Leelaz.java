@@ -300,24 +300,13 @@ public class Leelaz {
           }
           isSettingHandicap = false;
         } else if (isThinking && !isPondering) {
-          if (isInputCommand) {
+          if (isInputCommand||Lizzie.frame.isPlayingAgainstLeelaz) {
             Lizzie.board.place(params[1]);
             togglePonder();
             if (Lizzie.frame.isAutocounting) {
               if (Lizzie.board.getHistory().isBlacksTurn())
                 Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
               else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
-
-              Lizzie.frame.zen.countStones();
-            }
-          }
-          if (Lizzie.frame.isPlayingAgainstLeelaz) {
-            Lizzie.board.place(params[1]);
-            if (Lizzie.frame.isAutocounting) {
-              if (Lizzie.board.getHistory().isBlacksTurn())
-                Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
-              else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
-
               Lizzie.frame.zen.countStones();
             }
           }

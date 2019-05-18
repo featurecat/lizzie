@@ -1593,7 +1593,7 @@ public class LizzieFrame extends JFrame {
         e1.printStackTrace();
       }
     }
-    zen.noread = false;
+    zen.noRead = false;
     zen.syncboradstat();
     zen.countStones();
     isCounting = true;

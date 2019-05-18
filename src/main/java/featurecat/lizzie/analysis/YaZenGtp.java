@@ -36,8 +36,8 @@ public class YaZenGtp {
   public int whitePrisonerCount = 0;
   CountResults results;
   boolean firstcount = true;
-  public int numberofcount = 0;
-  public boolean noread = false;
+  public int timesOfCounts = 0;
+  public boolean noRead = false;
 
   public YaZenGtp() throws IOException {
 
@@ -111,8 +111,8 @@ public class YaZenGtp {
     if (line.startsWith("= ")) {
       String[] params = line.trim().split(" ");
       if (params.length == 14) {
-        if (noread) {
-          numberofcount = 0;
+        if (noRead) {
+        	timesOfCounts = 0;
         } else {
 
           blackEatCount = Integer.parseInt(params[3]);
@@ -124,12 +124,10 @@ public class YaZenGtp {
           if (!Lizzie.frame.isAutocounting)
             Lizzie.frame.boardRenderer.drawCountBlock(detailedCount);
           else {
-            if (Lizzie.config.showSubBoard) {
-              Lizzie.frame.boardRenderer.removeCountBlock();
+            if (Lizzie.config.showSubBoard) {             
               Lizzie.frame.subBoardRenderer.drawCountBlock(detailedCount);
             } else Lizzie.frame.boardRenderer.drawCountBlock(detailedCount);
           }
-
           Lizzie.frame.repaint();
           if (firstcount) {
             results = LizzieFrame.countResults;
@@ -142,7 +140,7 @@ public class YaZenGtp {
                 whitepoint);
             results.setVisible(true);
             firstcount = false;
-            numberofcount = 0;
+            timesOfCounts = 0;
           } else {
             results.Counts(
                 blackEatCount,
@@ -153,7 +151,7 @@ public class YaZenGtp {
                 whitepoint);
             results.setVisible(true);
             Lizzie.frame.setVisible(true);
-            numberofcount = 0;
+            timesOfCounts = 0;
           }
         }
       }
@@ -220,13 +218,13 @@ public class YaZenGtp {
   }
 
   public void countStones() {
-    if (numberofcount > 5) {
-      noread = true;
+    if (timesOfCounts > 5) {
+      noRead = true;
       cmdQueue.clear();
       Lizzie.frame.noAutoCounting();
       return;
     }
-    numberofcount++;
+    timesOfCounts++;
     detailedCount.clear();
     blackEatCount = 0;
     whiteEatCount = 0;
