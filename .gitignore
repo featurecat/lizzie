@@ -5,7 +5,7 @@ config.txt
 out/*
 .idea/
 *.iml
-
+*.dll
 network
 network.gz
 leelaz
