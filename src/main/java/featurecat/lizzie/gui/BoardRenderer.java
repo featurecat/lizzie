@@ -420,7 +420,7 @@ public class BoardRenderer {
     gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
-    if (!suggestedMove.isPresent() || (!isMainBoard && Lizzie.frame.isAutocounting)) {
+    if (!suggestedMove.isPresent() || (!isMainBoard && Lizzie.frame.isAutoCounting)) {
       return;
     }
     List<String> variation = suggestedMove.get().variation;

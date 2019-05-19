@@ -48,7 +48,7 @@ public class CountResults extends JFrame {
         new WindowAdapter() {
           public void windowClosing(WindowEvent e) {
             invisiable();
-            Lizzie.frame.isAutocounting = false;
+            Lizzie.frame.isAutoCounting = false;
             button2.setText(resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
             try {
               Lizzie.frame.subBoardRenderer.removeCountBlock();
@@ -80,7 +80,7 @@ public class CountResults extends JFrame {
           public void actionPerformed(ActionEvent e) {
             Lizzie.frame.zen.noRead = false;
             if (!isAutocounting) {
-              Lizzie.frame.isAutocounting = true;
+              Lizzie.frame.isAutoCounting = true;
               Lizzie.frame.zen.syncboradstat();
               Lizzie.frame.zen.countStones();
               button2.setText(resourceBundle.getString("CountDialog.autoEstimateButton.clicktwo"));
@@ -92,7 +92,7 @@ public class CountResults extends JFrame {
               Lizzie.frame.boardRenderer.removeCountBlock();
               Lizzie.frame.repaint();
               button2.setText(resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
-              Lizzie.frame.isAutocounting = false;
+              Lizzie.frame.isAutoCounting = false;
             }
             isAutocounting = !isAutocounting;
           }
@@ -136,7 +136,7 @@ public class CountResults extends JFrame {
     allWhiteCounts = whitepoint + whiteEatCount + blackPrisonerCount;
     blackEat = blackEatCount;
     whiteEat = whiteEatCount;
-    if (!Lizzie.frame.isAutocounting) {
+    if (!Lizzie.frame.isAutoCounting) {
       button.setText(resourceBundle.getString("CountDialog.estimateButton.clicktwo"));
       iscounted = true;
     }

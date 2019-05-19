@@ -123,7 +123,7 @@ public class YaZenGtp {
           whitePrisonerCount = Integer.parseInt(params[6]);
           int blackpoint = Integer.parseInt(params[7]);
           int whitepoint = Integer.parseInt(params[8]);
-          if (!Lizzie.frame.isAutocounting)
+          if (!Lizzie.frame.isAutoCounting)
             Lizzie.frame.boardRenderer.drawCountBlock(detailedCount);
           else {
             if (Lizzie.config.showSubBoard) {

@@ -132,7 +132,7 @@ public class LizzieFrame extends JFrame {
   public boolean isDrawVisitsInTitle = true;
   public boolean isCounting = false;
   boolean isFirstCount = true;
-  public boolean isAutocounting = false;
+  public boolean isAutoCounting = false;
 
   static {
     // load fonts
@@ -1238,7 +1238,7 @@ public class LizzieFrame extends JFrame {
       double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
       bval = String.format("%.0f", score[0]);
       wval = String.format("%.1f", score[1]);
-    } else if (isCounting || isAutocounting) {
+    } else if (isCounting || isAutoCounting) {
       bval = String.format("%d", this.countResults.allBlackCounts);
       wval = String.format("%d", this.countResults.allWhiteCounts);
     } else {
@@ -1600,7 +1600,7 @@ public class LizzieFrame extends JFrame {
   }
 
   public void noAutoCounting() {
-    this.isAutocounting = false;
+    this.isAutoCounting = false;
     if (Lizzie.config.showSubBoard) Lizzie.frame.subBoardRenderer.removeCountBlock();
     else Lizzie.frame.boardRenderer.removeCountBlock();
     Lizzie.frame.repaint();
