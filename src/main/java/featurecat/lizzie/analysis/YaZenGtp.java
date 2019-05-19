@@ -97,10 +97,10 @@ public class YaZenGtp {
         String[] params = line.trim().split(" ");
         for (int i = 2; i < params.length; i++) detailedCount.add(Integer.parseInt(params[i]));
       }
-      
-      if (line.startsWith("Throw")) { 
-    	  JOptionPane.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
-    	  shutdown();
+
+      if (line.startsWith("Throw")) {
+        JOptionPane.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
+        shutdown();
       }
       if (line.startsWith(" ")) {
 
