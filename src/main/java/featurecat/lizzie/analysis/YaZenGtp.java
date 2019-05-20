@@ -212,7 +212,7 @@ public class YaZenGtp {
   public void syncboradstat() {
     sendCommand("clear_board");
     cmdNumber = 1;
-    ArrayList<MoveList> movelist = Lizzie.board.getmovelist();
+    ArrayList<MoveList> movelist = Lizzie.board.getMoveList();
     int lenth = movelist.size();
     for (int i = 0; i < lenth; i++) {
       MoveList move = movelist.get(lenth - 1 - i);

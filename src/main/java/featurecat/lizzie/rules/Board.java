@@ -1463,8 +1463,8 @@ public class Board implements LeelazListener {
     return true;
   }
 
-  public ArrayList<MoveList> getmovelist() {
-    ArrayList<MoveList> movelist = new ArrayList<MoveList>();
+  public ArrayList<MoveList> getMoveList() {
+    ArrayList<MoveList> moveList = new ArrayList<MoveList>();
 
     Optional<BoardHistoryNode> node = history.getCurrentHistoryNode().now();
     Optional<int[]> passstep = Optional.empty();
@@ -1474,7 +1474,7 @@ public class Board implements LeelazListener {
         MoveList move = new MoveList();
         move.isPass = true;
         move.isBlack = node.get().getData().lastMoveColor.isBlack();
-        movelist.add(move);
+        moveList.add(move);
         node = node.get().previous();
       } else {
         if (lastMove.isPresent()) {
@@ -1486,12 +1486,12 @@ public class Board implements LeelazListener {
           move.isPass = false;
           move.isBlack = node.get().getData().lastMoveColor.isBlack();
           move.moveNum = node.get().getData().moveNumber;
-          movelist.add(move);
+          moveList.add(move);
           node = node.get().previous();
         }
       }
     }
-    movelist.remove(movelist.size() - 1);
-    return movelist;
+    moveList.remove(moveList.size() - 1);
+    return moveList;
   }
 }

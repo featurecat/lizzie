@@ -154,11 +154,14 @@ public class CountResults extends JFrame {
       // TODO Auto-generated catch block
       e1.printStackTrace();
     }
-    int nums = (340 / image.getWidth(getOwner())) + 1;
-    for (int i = 0; i < nums; i++) {
-      g2.drawImage(image, image.getWidth(getOwner()) * i, 0, null);
-    }
+    int withtimes = (340 / image.getWidth(getOwner())) + 1;
+    int highttimes = (260 / image.getHeight(getOwner())) + 1;
 
+    for (int i = 0; i < highttimes; i++) {
+      for (int j = 0; j < withtimes; j++) {
+        g2.drawImage(image, image.getWidth(getOwner()) * j, image.getHeight(getOwner()) * i, null);
+      }
+    }
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g2.setColor(Color.BLACK);
     g2.setStroke(new BasicStroke(2f));
