@@ -1604,7 +1604,7 @@ public class LizzieFrame extends JFrame {
     if (Lizzie.config.showSubBoard) Lizzie.frame.subBoardRenderer.removeCountBlock();
     else Lizzie.frame.boardRenderer.removeCountBlock();
     Lizzie.frame.repaint();
-    this.countResults.isAutocounting = false;
-    this.countResults.button2.setText("自动判断");
+    this.countResults.isAutocounting = false;  
+    this.countResults.button2.setText(resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
   }
 }
