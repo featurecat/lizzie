@@ -12,6 +12,7 @@ public class MoveData {
   public String coordinate;
   public int playouts;
   public double winrate;
+  public double scoreMean;
   public List<String> variation;
 
   private MoveData() {}
@@ -63,6 +64,10 @@ public class MoveData {
               Lizzie.config.isKataGo
                   ? Double.parseDouble(value) * 100
                   : Integer.parseInt(value) / 100.0;
+        }
+        if (key.equals("scoreMean")) {
+          // KataGo
+          result.scoreMean = Double.parseDouble(value);
         }
       }
     }

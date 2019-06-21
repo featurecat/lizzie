@@ -574,6 +574,7 @@ public class Leelaz {
 
   public class WinrateStats {
     public double maxWinrate;
+    public double maxScoreMean;
     public int totalPlayouts;
 
     public WinrateStats(double maxWinrate, int totalPlayouts) {
@@ -601,6 +602,7 @@ public class Leelaz {
       stats.totalPlayouts = totalPlayouts;
 
       stats.maxWinrate = BoardData.getWinrateFromBestMoves(moves);
+      stats.maxScoreMean = BoardData.getScoreMeanFromBestMoves(moves);
     }
 
     return stats;
