@@ -319,7 +319,11 @@ public class Leelaz {
           }
         } else if (isCheckingName) {
           if (params[1].startsWith("KataGo")) {
+            sendCommand("name"); // stop lz-analyze
             Lizzie.config.isKataGo = true;
+            if (isPondering) {
+              ponder(); // re-send kata-analyze
+            }
           }
           isCheckingName = false;
         } else if (isCheckingVersion) {
@@ -391,7 +395,9 @@ public class Leelaz {
   public void sendCommand(String command) {
     synchronized (cmdQueue) {
       // For efficiency, delete unnecessary "lz-analyze" that will be stopped immediately
-      if (!cmdQueue.isEmpty() && cmdQueue.peekLast().startsWith("lz-analyze")) {
+      if (!cmdQueue.isEmpty()
+          && (cmdQueue.peekLast().startsWith("lz-analyze")
+              || cmdQueue.peekLast().startsWith("kata-analyze"))) {
         cmdQueue.removeLast();
       }
       cmdQueue.addLast(command);
@@ -403,13 +409,15 @@ public class Leelaz {
   private void trySendCommandFromQueue() {
     // Defer sending "lz-analyze" if leelaz is not ready yet.
     // Though all commands should be deferred theoretically,
-    // only "lz-analyze" is differed here for fear of
+    // only "lz-analyze" is deferred here for fear of
     // possible hang-up by missing response for some reason.
     // cmdQueue can be replaced with a mere String variable in this case,
     // but it is kept for future change of our mind.
     synchronized (cmdQueue) {
       if (cmdQueue.isEmpty()
-          || cmdQueue.peekFirst().startsWith("lz-analyze") && !isResponseUpToDate()) {
+          || (cmdQueue.peekFirst().startsWith("lz-analyze")
+                  || cmdQueue.peekFirst().startsWith("kata-analyze"))
+              && !isResponseUpToDate()) {
         return;
       }
       String command = cmdQueue.removeFirst();
@@ -524,7 +532,7 @@ public class Leelaz {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
     sendCommand(
-        "lz-analyze "
+        (Lizzie.config.isKataGo ? "kata-analyze " : "lz-analyze ")
             + Lizzie.config
                 .config
                 .getJSONObject("leelaz")

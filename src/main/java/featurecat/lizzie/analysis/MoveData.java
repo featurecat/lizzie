@@ -51,12 +51,18 @@ public class MoveData {
         }
         if (islcb && key.equals("lcb")) {
           // LCB support
-          result.winrate = Integer.parseInt(value) / 100.0;
+          result.winrate =
+              Lizzie.config.isKataGo
+                  ? Double.parseDouble(value) * 100
+                  : Integer.parseInt(value) / 100.0;
         }
 
         if (key.equals("winrate")) {
           // support 0.16 0.15
-          result.winrate = Integer.parseInt(value) / 100.0;
+          result.winrate =
+              Lizzie.config.isKataGo
+                  ? Double.parseDouble(value) * 100
+                  : Integer.parseInt(value) / 100.0;
         }
       }
     }
