@@ -62,6 +62,7 @@ public class Leelaz {
   public boolean isInputCommand = false;
 
   private boolean isLoaded = false;
+  private boolean isCheckingName;
   private boolean isCheckingVersion;
 
   // for Multiple Engine
@@ -158,6 +159,11 @@ public class Leelaz {
     process = processBuilder.start();
 
     initializeStreams();
+
+    // Send a name request to check if the engine is KataGo
+    // Response handled in parseLine
+    isCheckingName = true;
+    sendCommand("name");
 
     // Send a version request to check that we have a supported version
     // Response handled in parseLine
@@ -311,11 +317,16 @@ public class Leelaz {
               isInputCommand = false;
             }
           }
+        } else if (isCheckingName) {
+          if (params[1].startsWith("KataGo")) {
+            Lizzie.config.isKataGo = true;
+          }
+          isCheckingName = false;
         } else if (isCheckingVersion) {
           String[] ver = params[1].split("\\.");
           int minor = Integer.parseInt(ver[1]);
           // Gtp support added in version 15
-          if (minor < 15) {
+          if (minor < 15 && !Lizzie.config.isKataGo) {
             JOptionPane.showMessageDialog(
                 Lizzie.frame,
                 "Lizzie requires version 0.15 or later of Leela Zero for analysis (found "

@@ -34,6 +34,7 @@ public class Config {
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
   public boolean showLcbWinrate = false;
+  public boolean isKataGo = false;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
