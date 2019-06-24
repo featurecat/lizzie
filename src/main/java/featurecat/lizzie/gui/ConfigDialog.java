@@ -127,6 +127,16 @@ public class ConfigDialog extends JDialog {
   private JTextField txtEngine8;
   private JTextField txtEngine9;
   private JTextField[] txts;
+  private JCheckBox chkPreload1;
+  private JCheckBox chkPreload2;
+  private JCheckBox chkPreload3;
+  private JCheckBox chkPreload4;
+  private JCheckBox chkPreload5;
+  private JCheckBox chkPreload6;
+  private JCheckBox chkPreload7;
+  private JCheckBox chkPreload8;
+  private JCheckBox chkPreload9;
+  private JCheckBox[] chkPreloads;
   private JFormattedTextField txtMaxAnalyzeTime;
   private JFormattedTextField txtMaxGameThinkingTime;
   private JFormattedTextField txtAnalyzeUpdateInterval;
@@ -135,7 +145,9 @@ public class ConfigDialog extends JDialog {
   private JRadioButton rdoLcb;
 
   // UI Tab
-  public JTextField txtBoardSize;
+  public JLabel lblBoardSign;
+  public JTextField txtBoardWidth;
+  public JTextField txtBoardHeight;
   public JRadioButton rdoBoardSizeOther;
   public JRadioButton rdoBoardSize19;
   public JRadioButton rdoBoardSize13;
@@ -226,15 +238,25 @@ public class ConfigDialog extends JDialog {
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.engine"), null, engineTab, null);
     engineTab.setLayout(null);
 
+    JLabel lblPreload = new JLabel(resourceBundle.getString("LizzieConfig.title.preload"));
+    lblPreload.setBounds(570, 14, 92, 16);
+    lblPreload.setHorizontalAlignment(SwingConstants.LEFT);
+    engineTab.add(lblPreload);
+
     JLabel lblEngine = new JLabel(resourceBundle.getString("LizzieConfig.title.engine"));
     lblEngine.setBounds(6, 44, 92, 16);
     lblEngine.setHorizontalAlignment(SwingConstants.LEFT);
     engineTab.add(lblEngine);
 
     txtEngine = new JTextField();
-    txtEngine.setBounds(87, 40, 502, 26);
+    txtEngine.setBounds(87, 40, 481, 26);
     engineTab.add(txtEngine);
     txtEngine.setColumns(10);
+    JCheckBox chkPreload = new JCheckBox();
+    chkPreload.setBounds(570, 41, 23, 23);
+    chkPreload.setSelected(true);
+    chkPreload.setEnabled(false);
+    engineTab.add(chkPreload);
 
     JLabel lblEngine1 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 1");
     lblEngine1.setHorizontalAlignment(SwingConstants.LEFT);
@@ -243,8 +265,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine2 = new JTextField();
     txtEngine2.setColumns(10);
-    txtEngine2.setBounds(87, 105, 502, 26);
+    txtEngine2.setBounds(87, 105, 481, 26);
     engineTab.add(txtEngine2);
+    chkPreload2 = new JCheckBox();
+    chkPreload2.setBounds(570, 106, 23, 23);
+    engineTab.add(chkPreload2);
 
     JLabel lblEngine2 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 2");
     lblEngine2.setHorizontalAlignment(SwingConstants.LEFT);
@@ -253,8 +278,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine1 = new JTextField();
     txtEngine1.setColumns(10);
-    txtEngine1.setBounds(87, 75, 502, 26);
+    txtEngine1.setBounds(87, 75, 481, 26);
     engineTab.add(txtEngine1);
+    chkPreload1 = new JCheckBox();
+    chkPreload1.setBounds(570, 76, 23, 23);
+    engineTab.add(chkPreload1);
 
     JLabel lblEngine3 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 3");
     lblEngine3.setHorizontalAlignment(SwingConstants.LEFT);
@@ -263,8 +291,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine3 = new JTextField();
     txtEngine3.setColumns(10);
-    txtEngine3.setBounds(87, 135, 502, 26);
+    txtEngine3.setBounds(87, 135, 481, 26);
     engineTab.add(txtEngine3);
+    chkPreload3 = new JCheckBox();
+    chkPreload3.setBounds(570, 136, 23, 23);
+    engineTab.add(chkPreload3);
 
     JLabel lblEngine4 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 4");
     lblEngine4.setHorizontalAlignment(SwingConstants.LEFT);
@@ -273,8 +304,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine4 = new JTextField();
     txtEngine4.setColumns(10);
-    txtEngine4.setBounds(87, 165, 502, 26);
+    txtEngine4.setBounds(87, 165, 481, 26);
     engineTab.add(txtEngine4);
+    chkPreload4 = new JCheckBox();
+    chkPreload4.setBounds(570, 166, 23, 23);
+    engineTab.add(chkPreload4);
 
     JLabel lblEngine5 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 5");
     lblEngine5.setHorizontalAlignment(SwingConstants.LEFT);
@@ -283,8 +317,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine5 = new JTextField();
     txtEngine5.setColumns(10);
-    txtEngine5.setBounds(87, 195, 502, 26);
+    txtEngine5.setBounds(87, 195, 481, 26);
     engineTab.add(txtEngine5);
+    chkPreload5 = new JCheckBox();
+    chkPreload5.setBounds(570, 196, 23, 23);
+    engineTab.add(chkPreload5);
 
     JLabel lblEngine6 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 6");
     lblEngine6.setHorizontalAlignment(SwingConstants.LEFT);
@@ -293,8 +330,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine6 = new JTextField();
     txtEngine6.setColumns(10);
-    txtEngine6.setBounds(87, 225, 502, 26);
+    txtEngine6.setBounds(87, 225, 481, 26);
     engineTab.add(txtEngine6);
+    chkPreload6 = new JCheckBox();
+    chkPreload6.setBounds(570, 226, 23, 23);
+    engineTab.add(chkPreload6);
 
     JLabel lblEngine7 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 7");
     lblEngine7.setHorizontalAlignment(SwingConstants.LEFT);
@@ -303,8 +343,11 @@ public class ConfigDialog extends JDialog {
 
     txtEngine7 = new JTextField();
     txtEngine7.setColumns(10);
-    txtEngine7.setBounds(87, 255, 502, 26);
+    txtEngine7.setBounds(87, 255, 481, 26);
     engineTab.add(txtEngine7);
+    chkPreload7 = new JCheckBox();
+    chkPreload7.setBounds(570, 256, 23, 23);
+    engineTab.add(chkPreload7);
 
     JLabel lblEngine8 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 8");
     lblEngine8.setHorizontalAlignment(SwingConstants.LEFT);
@@ -313,13 +356,19 @@ public class ConfigDialog extends JDialog {
 
     txtEngine8 = new JTextField();
     txtEngine8.setColumns(10);
-    txtEngine8.setBounds(87, 285, 502, 26);
+    txtEngine8.setBounds(87, 285, 481, 26);
     engineTab.add(txtEngine8);
+    chkPreload8 = new JCheckBox();
+    chkPreload8.setBounds(570, 286, 23, 23);
+    engineTab.add(chkPreload8);
 
     txtEngine9 = new JTextField();
     txtEngine9.setColumns(10);
-    txtEngine9.setBounds(87, 315, 502, 26);
+    txtEngine9.setBounds(87, 315, 481, 26);
     engineTab.add(txtEngine9);
+    chkPreload9 = new JCheckBox();
+    chkPreload9.setBounds(570, 316, 23, 23);
+    engineTab.add(chkPreload9);
 
     JLabel lblEngine9 = new JLabel(resourceBundle.getString("LizzieConfig.title.engine") + " 9");
     lblEngine9.setHorizontalAlignment(SwingConstants.LEFT);
@@ -666,6 +715,29 @@ public class ConfigDialog extends JDialog {
                     txts[i].setText(a.getString(i));
                   });
         });
+
+    chkPreloads =
+        new JCheckBox[] {
+          chkPreload1,
+          chkPreload2,
+          chkPreload3,
+          chkPreload4,
+          chkPreload5,
+          chkPreload6,
+          chkPreload7,
+          chkPreload8,
+          chkPreload9
+        };
+    Optional<JSONArray> enginePreloadOpt =
+        Optional.ofNullable(Lizzie.config.leelazConfig.optJSONArray("engine-preload-list"));
+    enginePreloadOpt.ifPresent(
+        a -> {
+          IntStream.range(0, a.length())
+              .forEach(
+                  i -> {
+                    chkPreloads[i].setSelected(a.optBoolean(i));
+                  });
+        });
     txtMaxAnalyzeTime.setText(String.valueOf(leelazConfig.getInt("max-analyze-time-minutes")));
     txtAnalyzeUpdateInterval.setText(
         String.valueOf(leelazConfig.getInt("analyze-update-interval-centisec")));
@@ -716,7 +788,7 @@ public class ConfigDialog extends JDialog {
       uiTab.add(rdoBoardSize5);
 
       rdoBoardSize4 = new JRadioButton("4x4");
-      rdoBoardSize4.setBounds(460, 2, 67, 23);
+      rdoBoardSize4.setBounds(460, 2, 60, 23);
       uiTab.add(rdoBoardSize4);
 
       rdoBoardSizeOther = new JRadioButton("");
@@ -724,13 +796,15 @@ public class ConfigDialog extends JDialog {
           new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
               if (rdoBoardSizeOther.isSelected()) {
-                txtBoardSize.setEnabled(true);
+                txtBoardWidth.setEnabled(true);
+                txtBoardHeight.setEnabled(true);
               } else {
-                txtBoardSize.setEnabled(false);
+                txtBoardWidth.setEnabled(false);
+                txtBoardHeight.setEnabled(false);
               }
             }
           });
-      rdoBoardSizeOther.setBounds(530, 2, 29, 23);
+      rdoBoardSizeOther.setBounds(524, 2, 27, 23);
       uiTab.add(rdoBoardSizeOther);
 
       ButtonGroup group = new ButtonGroup();
@@ -744,7 +818,7 @@ public class ConfigDialog extends JDialog {
 
       NumberFormat nf = NumberFormat.getIntegerInstance();
       nf.setGroupingUsed(false);
-      txtBoardSize =
+      txtBoardWidth =
           new JFormattedTextField(
               new InternationalFormatter(nf) {
                 protected DocumentFilter getDocumentFilter() {
@@ -753,9 +827,26 @@ public class ConfigDialog extends JDialog {
 
                 private DocumentFilter filter = new DigitOnlyFilter();
               });
-      txtBoardSize.setBounds(564, 1, 52, 26);
-      uiTab.add(txtBoardSize);
-      txtBoardSize.setColumns(10);
+      txtBoardWidth.setBounds(551, 1, 38, 26);
+      uiTab.add(txtBoardWidth);
+      txtBoardWidth.setColumns(10);
+
+      lblBoardSign = new JLabel("x");
+      lblBoardSign.setBounds(591, 3, 26, 20);
+      uiTab.add(lblBoardSign);
+
+      txtBoardHeight =
+          new JFormattedTextField(
+              new InternationalFormatter(nf) {
+                protected DocumentFilter getDocumentFilter() {
+                  return filter;
+                }
+
+                private DocumentFilter filter = new DigitOnlyFilter();
+              });
+      txtBoardHeight.setBounds(601, 1, 38, 26);
+      uiTab.add(txtBoardHeight);
+      txtBoardHeight.setColumns(10);
 
       JLabel lblPanelUI = new JLabel(resourceBundle.getString("LizzieConfig.title.panelUI"));
       lblPanelUI.setBounds(6, 38, 157, 16);
@@ -792,7 +883,7 @@ public class ConfigDialog extends JDialog {
             public void stateChanged(ChangeEvent e) {
               if (chkShowCoordinates.isSelected() != Lizzie.config.showCoordinates) {
                 Lizzie.config.toggleCoordinates();
-                Lizzie.frame.repaint();
+                Lizzie.frame.refresh(2);
               }
             }
           });
@@ -889,9 +980,9 @@ public class ConfigDialog extends JDialog {
       sldBoardPositionProportion.addChangeListener(
           new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
-            if (Lizzie.frame.BoardPositionProportion != sldBoardPositionProportion.getValue()) {
-              Lizzie.frame.BoardPositionProportion = sldBoardPositionProportion.getValue();
-              Lizzie.frame.repaint();
+              if (Lizzie.frame.boardPositionProportion != sldBoardPositionProportion.getValue()) {
+                Lizzie.frame.boardPositionProportion = sldBoardPositionProportion.getValue();
+                Lizzie.frame.refresh(2);
               }
             }
           });
@@ -1366,10 +1457,10 @@ public class ConfigDialog extends JDialog {
                 int stoneY = y + squareLength * 3;
 
                 g.setColor(Color.BLACK);
-                for (int i = 0; i < Board.boardSize; i++) {
+                for (int i = 0; i < Board.boardWidth; i++) {
                   g.drawLine(x, y + squareLength * i, height, y + squareLength * i);
                 }
-                for (int i = 0; i < Board.boardSize; i++) {
+                for (int i = 0; i < Board.boardHeight; i++) {
                   g.drawLine(x + squareLength * i, y, x + squareLength * i, width);
                 }
 
@@ -1603,7 +1694,8 @@ public class ConfigDialog extends JDialog {
   }
 
   private void applyChange() {
-    Lizzie.board.reopen(getBoardSize());
+    int[] size = getBoardSize();
+    Lizzie.board.reopen(size[0], size[1]);
   }
 
   private Integer txtFieldIntValue(JTextField txt) {
@@ -1895,7 +1987,11 @@ public class ConfigDialog extends JDialog {
 
   private void setBoardSize() {
     int size = Lizzie.config.uiConfig.optInt("board-size", 19);
-    txtBoardSize.setEnabled(false);
+    int width = Lizzie.config.uiConfig.optInt("board-width", size);
+    int height = Lizzie.config.uiConfig.optInt("board-height", size);
+    size = width == height ? width : 0;
+    txtBoardWidth.setEnabled(false);
+    txtBoardHeight.setEnabled(false);
     switch (size) {
       case 19:
         rdoBoardSize19.setSelected(true);
@@ -1916,32 +2012,38 @@ public class ConfigDialog extends JDialog {
         rdoBoardSize4.setSelected(true);
         break;
       default:
-        txtBoardSize.setText(String.valueOf(size));
+        txtBoardWidth.setText(String.valueOf(width));
+        txtBoardHeight.setText(String.valueOf(height));
         rdoBoardSizeOther.setSelected(true);
-        txtBoardSize.setEnabled(true);
+        txtBoardWidth.setEnabled(true);
+        txtBoardHeight.setEnabled(true);
         break;
     }
   }
 
-  private int getBoardSize() {
+  private int[] getBoardSize() {
     if (rdoBoardSize19.isSelected()) {
-      return 19;
+      return new int[] {19, 19};
     } else if (rdoBoardSize13.isSelected()) {
-      return 13;
+      return new int[] {13, 13};
     } else if (rdoBoardSize9.isSelected()) {
-      return 9;
+      return new int[] {9, 9};
     } else if (rdoBoardSize7.isSelected()) {
-      return 7;
+      return new int[] {7, 7};
     } else if (rdoBoardSize5.isSelected()) {
-      return 5;
+      return new int[] {5, 5};
     } else if (rdoBoardSize4.isSelected()) {
-      return 4;
+      return new int[] {4, 4};
     } else {
-      int size = Integer.parseInt(txtBoardSize.getText().trim());
-      if (size < 2) {
-        size = 19;
+      int width = Integer.parseInt(txtBoardWidth.getText().trim());
+      if (width < 2) {
+        width = 19;
       }
-      return size;
+      int height = Integer.parseInt(txtBoardHeight.getText().trim());
+      if (height < 2) {
+        height = 19;
+      }
+      return new int[] {width, height};
     }
   }
 
@@ -2159,13 +2261,20 @@ public class ConfigDialog extends JDialog {
       JSONArray engines = new JSONArray();
       Arrays.asList(txts).forEach(t -> engines.put(t.getText().trim()));
       leelazConfig.put("engine-command-list", engines);
-      Lizzie.config.uiConfig.put("board-size", getBoardSize());
+      JSONArray preloads = new JSONArray();
+      Arrays.asList(chkPreloads).forEach(t -> preloads.put(t.isSelected()));
+      leelazConfig.put("engine-preload-list", preloads);
+      int[] size = getBoardSize();
+      if (size[0] == size[1]) {
+        Lizzie.config.uiConfig.put("board-size", size[0]);
+      }
+      Lizzie.config.uiConfig.put("board-width", size[0]);
+      Lizzie.config.uiConfig.put("board-height", size[1]);
       Lizzie.config.uiConfig.putOpt("panel-ui", chkPanelUI.isSelected());
       Lizzie.config.minPlayoutRatioForStats = txtFieldDoubleValue(txtMinPlayoutRatioForStats);
       Lizzie.config.uiConfig.put(
           "min-playout-ratio-for-stats", Lizzie.config.minPlayoutRatioForStats);
       Lizzie.config.uiConfig.putOpt("show-coordinates", chkShowCoordinates.isSelected());
-      Lizzie.config.uiConfig.put("board-size", getBoardSize());
       Lizzie.config.showMoveNumber = !rdoShowMoveNumberNo.isSelected();
       Lizzie.config.onlyLastMoveNumber =
           rdoShowMoveNumberLast.isSelected() ? txtFieldIntValue(txtShowMoveNumber) : 0;
