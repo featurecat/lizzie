@@ -47,6 +47,7 @@ public class Config {
   public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
+  public double minPlayoutRatioForStats = 0.0;
   public boolean showLcbWinrate = false;
 
   public boolean showStatus = true;
@@ -87,7 +88,10 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = true;
+  public boolean holdWinrateToMove = false;
   public int boardPositionProportion = 4;
+  public int limitBestMoveNum = 0;
+  public int limitBranchLength = 0;
   public String gtpConsoleStyle = "";
   private final String defaultGtpConsoleStyle =
       "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
@@ -197,10 +201,15 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
+    holdWinrateToMove = uiConfig.optBoolean("hold-winrate-to-move");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
     boardPositionProportion = uiConfig.optInt("board-position-proportion", 4);
+    limitBestMoveNum = uiConfig.optInt("limit-best-move-num", 0);
+    limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
+    minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.0);
+
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();

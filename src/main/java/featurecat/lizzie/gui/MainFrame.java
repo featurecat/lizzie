@@ -106,20 +106,11 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void toggleGtpConsole();
 
-  public abstract void openAvoidMoveDialog();
-
   public abstract void startGame();
 
   public abstract void editGameInfo();
 
   public abstract void openChangeMoveDialog();
-
-  public void openOnlineDialog() {
-    if (onlineDialog == null) {
-      onlineDialog = new OnlineDialog();
-    }
-    onlineDialog.setVisible(true);
-  }
 
   public abstract boolean playCurrentVariation();
 
