@@ -1,5 +1,6 @@
 package featurecat.lizzie;
 
+import featurecat.lizzie.analysis.EngineManager;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.gui.GtpConsolePane;
 import featurecat.lizzie.gui.LizzieFrame;
@@ -25,12 +26,11 @@ public class Lizzie {
     setLookAndFeel();
     mainArgs = args;
     config = new Config();
-    board = new Board();
     frame = new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
     try {
-      leelaz = new Leelaz();
+      engineManager = new EngineManager(config);
 
       if (config.handicapInsteadOfWinrate) {
         leelaz.estimatePassWinrate();
@@ -80,46 +80,5 @@ public class Lizzie {
 
     if (leelaz != null) leelaz.shutdown();
     System.exit(0);
-  }
-
-  /**
-   * Switch the Engine by index number
-   *
-   * @param index engine index
-   */
-  public static void switchEngine(int index) {
-    String commandLine;
-    if (index == 0) {
-      String networkFile = Lizzie.config.leelazConfig.getString("network-file");
-      commandLine = Lizzie.config.leelazConfig.getString("engine-command");
-      commandLine = commandLine.replaceAll("%network-file", networkFile);
-    } else {
-      Optional<JSONArray> enginesOpt =
-          Optional.ofNullable(Lizzie.config.leelazConfig.optJSONArray("engine-command-list"));
-      if (enginesOpt.map(e -> e.length() < index).orElse(true)) {
-        return;
-      }
-      commandLine = enginesOpt.get().getString(index - 1);
-    }
-    if (commandLine.trim().isEmpty() || index == Lizzie.leelaz.currentEngineN()) {
-      return;
-    }
-
-    // Workaround for leelaz no exiting when restarting
-    if (leelaz.isThinking) {
-      if (Lizzie.frame.isPlayingAgainstLeelaz) {
-        Lizzie.frame.isPlayingAgainstLeelaz = false;
-        Lizzie.leelaz.isThinking = false;
-      }
-      Lizzie.leelaz.togglePonder();
-    }
-
-    board.saveMoveNumber();
-    try {
-      leelaz.restartEngine(commandLine, index);
-      board.restoreMoveNumber();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
   }
 }
