@@ -10,7 +10,7 @@ public class Branch {
   public BoardData data;
 
   public Branch(Board board, List<String> variation) {
-    int[] moveNumberList = new int[Board.boardSize * Board.boardSize];
+    int[] moveNumberList = new int[Board.boardWidth * Board.boardHeight];
     int moveNumber = 0;
     double winrate = 0.0;
     int playouts = 0;

@@ -21,11 +21,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import org.json.JSONException;
 
 public class Board implements LeelazListener {
-  public static int boardSize = Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19);
+  public static int boardSize0 =
+      (Lizzie.config != null
+              && Lizzie.config.config != null
+              && Lizzie.config.config.getJSONObject("ui") != null)
+          ? Lizzie.config.config.getJSONObject("ui").optInt("board-size", 19)
+          : 19;
+  public static int boardWidth =
+      (Lizzie.config != null
+              && Lizzie.config.config != null
+              && Lizzie.config.config.getJSONObject("ui") != null)
+          ? Lizzie.config.config.getJSONObject("ui").optInt("board-width", boardSize0)
+          : boardSize0;
+  public static int boardHeight =
+      (Lizzie.config != null
+              && Lizzie.config.config != null
+              && Lizzie.config.config.getJSONObject("ui") != null)
+          ? Lizzie.config.config.getJSONObject("ui").optInt("board-height", boardSize0)
+          : boardSize0;
   private static final String alphabet = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
   private BoardHistoryList history;
@@ -36,9 +53,6 @@ public class Board implements LeelazListener {
 
   // Save the node for restore move when in the branch
   private Optional<BoardHistoryNode> saveNode;
-
-  // Force refresh board
-  private boolean forceRefresh;
 
   public Board() {
     initialize();
@@ -51,8 +65,8 @@ public class Board implements LeelazListener {
     analysisMode = false;
     playoutsAnalysis = 100;
     saveNode = Optional.empty();
-    forceRefresh = false;
-    history = new BoardHistoryList(BoardData.empty(boardSize));
+    Lizzie.frame.setForceRefresh(false);
+    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight));
   }
 
   /**
@@ -63,7 +77,13 @@ public class Board implements LeelazListener {
    * @return the array index
    */
   public static int getIndex(int x, int y) {
-    return x * Board.boardSize + y;
+    return x * Board.boardHeight + y;
+  }
+
+  public static int[] getCoord(int index) {
+    int y = index % Board.boardHeight;
+    int x = (index - y) / Board.boardHeight;
+    return new int[] {x, y};
   }
 
   /**
@@ -79,15 +99,25 @@ public class Board implements LeelazListener {
       return Optional.empty();
     }
     // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-    String reg = "(\\D+)(\\d+)";
+    String reg = "([A-HJ-Z]+)(\\d+)";
     Pattern p = Pattern.compile(reg);
     Matcher m = p.matcher(namedCoordinate);
     if (m.find() && m.groupCount() == 2) {
       int x = asDigit(m.group(1));
-      int y = boardSize - Integer.parseInt(m.group(2));
+      int y = boardHeight - Integer.parseInt(m.group(2));
       return Optional.of(new int[] {x, y});
+    } else {
+      reg = "\\(([\\d]+),([\\d]+)\\)";
+      p = Pattern.compile(reg);
+      m = p.matcher(namedCoordinate);
+      if (m.find() && m.groupCount() == 2) {
+        int x = Integer.parseInt(m.group(1));
+        int y = Integer.parseInt(m.group(2)); // boardHeight - Integer.parseInt(m.group(2)) - 1;
+        return Optional.of(new int[] {x, y});
+      } else {
+        return Optional.empty();
+      }
     }
-    return Optional.empty();
   }
 
   public static int asDigit(String name) {
@@ -111,6 +141,13 @@ public class Board implements LeelazListener {
   }
 
   public static String asName(int c) {
+    return asName(c, true);
+  }
+
+  public static String asName(int c, boolean isName) {
+    if (boardWidth > 25 && isName) {
+      return String.valueOf(c + 1);
+    }
     StringBuilder name = new StringBuilder();
     int base = alphabet.length();
     int n = c;
@@ -136,7 +173,11 @@ public class Board implements LeelazListener {
    */
   public static String convertCoordinatesToName(int x, int y) {
     // coordinates take the form C16 A19 Q5 K10 etc. I is not used.
-    return asName(x) + (boardSize - y);
+    if (boardWidth > 25 || boardHeight > 25) {
+      return String.format("(%d,%d)", x, y); // boardHeight - y - 1);
+    } else {
+      return asName(x, false) + (boardHeight - y);
+    }
   }
 
   /**
@@ -147,7 +188,7 @@ public class Board implements LeelazListener {
    * @return whether or not this coordinate is part of the board
    */
   public static boolean isValid(int x, int y) {
-    return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
+    return x >= 0 && x < boardWidth && y >= 0 && y < boardHeight;
   }
 
   public static boolean isValid(int[] c) {
@@ -159,23 +200,17 @@ public class Board implements LeelazListener {
    *
    * @param size
    */
-  public void reopen(int size) {
-    size = (size >= 2) ? size : 19;
-    if (size != boardSize) {
-      boardSize = size;
+  public void reopen(int width, int height) {
+    width = (width >= 2) ? width : 19;
+    height = (height >= 2) ? height : 19;
+    if (width != boardWidth || height != boardHeight) {
+      boardWidth = width;
+      boardHeight = height;
       Zobrist.init();
       clear();
-      Lizzie.leelaz.sendCommand("boardsize " + boardSize);
-      forceRefresh = true;
+      Lizzie.leelaz.boardSize(boardWidth, boardHeight);
+      Lizzie.frame.setForceRefresh(true);
     }
-  }
-
-  public boolean isForceRefresh() {
-    return forceRefresh;
-  }
-
-  public void setForceRefresh(boolean forceRefresh) {
-    this.forceRefresh = forceRefresh;
   }
 
   /**
@@ -214,6 +249,37 @@ public class Board implements LeelazListener {
     }
   }
 
+  public int moveNumberByCoord(int[] coord) {
+    int moveNumber = 0;
+    if (Lizzie.board.isValid(coord)) {
+      int index = Lizzie.board.getIndex(coord[0], coord[1]);
+      if (Lizzie.board.getHistory().getStones()[index] != Stone.EMPTY) {
+        BoardHistoryNode cur = Lizzie.board.getHistory().getCurrentHistoryNode();
+        moveNumber = cur.getData().moveNumberList[index];
+        if (!cur.isMainTrunk()) {
+          if (moveNumber > 0) {
+            moveNumber = cur.getData().moveNumber - cur.getData().moveMNNumber + moveNumber;
+          } else {
+            BoardHistoryNode p = cur.firstParentWithVariations().orElse(cur);
+            while (p != cur && moveNumber == 0) {
+              moveNumber = p.getData().moveNumberList[index];
+              if (moveNumber > 0) {
+                BoardHistoryNode topOfTop = p.firstParentWithVariations().orElse(p);
+                if (topOfTop != p) {
+                  moveNumber = p.getData().moveNumber - p.getData().moveMNNumber + moveNumber;
+                }
+              } else {
+                cur = p;
+                p = cur.firstParentWithVariations().orElse(cur);
+              }
+            }
+          }
+        }
+      }
+    }
+    return moveNumber;
+  }
+
   /**
    * Add a stone to the board representation. Thread safe
    *
@@ -232,7 +298,7 @@ public class Board implements LeelazListener {
       stones[getIndex(x, y)] = color;
       zobrist.toggleStone(x, y, color);
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -257,7 +323,7 @@ public class Board implements LeelazListener {
       zobrist.toggleStone(x, y, oriColor);
       data.moveNumberList[Board.getIndex(x, y)] = 0;
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -329,8 +395,8 @@ public class Board implements LeelazListener {
       Zobrist zobrist = history.getZobrist();
       int moveNumber = history.getMoveNumber() + 1;
       int[] moveNumberList =
-          newBranch && history.getNext().isPresent()
-              ? new int[Board.boardSize * Board.boardSize]
+          newBranch && history.getNext(true).isPresent()
+              ? new int[Board.boardWidth * Board.boardHeight]
               : history.getMoveNumberList().clone();
 
       // build the new game state
@@ -357,7 +423,7 @@ public class Board implements LeelazListener {
       // update history with pass
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -378,7 +444,7 @@ public class Board implements LeelazListener {
   }
 
   public void place(int x, int y, Stone color, boolean newBranch) {
-    place(x, y, color, false, false);
+    place(x, y, color, newBranch, false);
   }
 
   /**
@@ -434,8 +500,8 @@ public class Board implements LeelazListener {
       int moveMNNumber =
           history.getMoveMNNumber() > -1 && !newBranch ? history.getMoveMNNumber() + 1 : -1;
       int[] moveNumberList =
-          newBranch && history.getNext().isPresent()
-              ? new int[Board.boardSize * Board.boardSize]
+          newBranch && history.getNext(true).isPresent()
+              ? new int[Board.boardWidth * Board.boardHeight]
               : history.getMoveNumberList().clone();
 
       moveNumberList[Board.getIndex(x, y)] = moveMNNumber > -1 ? moveMNNumber : moveNumber;
@@ -454,7 +520,7 @@ public class Board implements LeelazListener {
       // check to see if the player made a suicidal coordinate
       int isSuicidal = removeDeadChain(x, y, color, stones, zobrist);
 
-      for (int i = 0; i < boardSize * boardSize; i++) {
+      for (int i = 0; i < boardWidth * boardHeight; i++) {
         if (stones[i].equals(Stone.EMPTY)) {
           moveNumberList[i] = 0;
         }
@@ -478,6 +544,7 @@ public class Board implements LeelazListener {
               nextWinrate,
               0);
       newState.moveMNNumber = moveMNNumber;
+      newState.dummy = false;
 
       // don't make this coordinate if it is suicidal or violates superko
       if (isSuicidal > 0 || history.violatesKoRule(newState)) return;
@@ -494,7 +561,7 @@ public class Board implements LeelazListener {
       // update history with this coordinate
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -538,7 +605,7 @@ public class Board implements LeelazListener {
                 blackToPlay,
                 zobrist,
                 0,
-                new int[boardSize * boardSize],
+                new int[boardWidth * boardHeight],
                 0,
                 0,
                 0.0,
@@ -556,7 +623,7 @@ public class Board implements LeelazListener {
    * @param zobrist the zobrist object to modify
    * @return number of removed stones
    */
-  private int removeDeadChain(int x, int y, Stone color, Stone[] stones, Zobrist zobrist) {
+  public static int removeDeadChain(int x, int y, Stone color, Stone[] stones, Zobrist zobrist) {
     if (!isValid(x, y) || stones[getIndex(x, y)] != color) return 0;
 
     boolean hasLiberties = hasLibertiesHelper(x, y, color, stones);
@@ -575,7 +642,7 @@ public class Board implements LeelazListener {
    * @param stones the stones array to modify
    * @return whether or not this chain has liberties
    */
-  private boolean hasLibertiesHelper(int x, int y, Stone color, Stone[] stones) {
+  private static boolean hasLibertiesHelper(int x, int y, Stone color, Stone[] stones) {
     if (!isValid(x, y)) return false;
 
     if (stones[getIndex(x, y)] == Stone.EMPTY) return true; // a liberty was found
@@ -607,7 +674,7 @@ public class Board implements LeelazListener {
    *     their unrecursed version
    * @return number of removed stones
    */
-  private int cleanupHasLibertiesHelper(
+  private static int cleanupHasLibertiesHelper(
       int x, int y, Stone color, Stone[] stones, Zobrist zobrist, boolean removeStones) {
     int removed = 0;
     if (!isValid(x, y) || stones[getIndex(x, y)] != color) return 0;
@@ -676,7 +743,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -728,8 +795,8 @@ public class Board implements LeelazListener {
     for (int i = 0; i < stones.length; i++) {
       Stone stone = stones[i];
       if (stone.isBlack() || stone.isWhite()) {
-        int y = i % Board.boardSize;
-        int x = (i - y) / Board.boardSize;
+        int y = i % Board.boardWidth;
+        int x = (i - y) / Board.boardHeight;
         Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
       }
     }
@@ -807,7 +874,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -963,7 +1030,7 @@ public class Board implements LeelazListener {
   public void deleteMove() {
     synchronized (this) {
       BoardHistoryNode currentNode = history.getCurrentHistoryNode();
-      if (currentNode.next().isPresent()) {
+      if (currentNode.next(true).isPresent()) {
         // Will delete more than one move, ask for confirmation
         int ret =
             JOptionPane.showConfirmDialog(
@@ -1020,7 +1087,7 @@ public class Board implements LeelazListener {
       updateWinrate();
       if (history.previous().isPresent()) {
         Lizzie.leelaz.undo();
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -1086,7 +1153,7 @@ public class Board implements LeelazListener {
 
       lastup = lastdown = false;
       // Find all stones within empty area line by line (new lines added to Q)
-      while (x < boardSize) {
+      while (x < boardWidth) {
         if (shdwstones[getIndex(x, y)] == Stone.EMPTY) {
           shdwstones[getIndex(x, y)] = Stone.DAME; // Too mark that it has been visited
         } else if (stones[getIndex(x, y)] == toggle) {
@@ -1104,7 +1171,7 @@ public class Board implements LeelazListener {
           lastup = false;
         }
         // Check below
-        if (y + 1 < boardSize
+        if (y + 1 < boardHeight
             && (shdwstones[getIndex(x, y + 1)] == Stone.EMPTY
                 || stones[getIndex(x, y + 1)] == toggle)) {
           if (!lastdown) visitQ.add(new int[] {x, y + 1});
@@ -1115,7 +1182,7 @@ public class Board implements LeelazListener {
         x++;
       }
     }
-    Lizzie.frame.repaint();
+    Lizzie.frame.refresh();
   }
 
   /*
@@ -1162,7 +1229,7 @@ public class Board implements LeelazListener {
       }
 
       lastup = lastdown = false;
-      while (x < boardSize && emptyOrCaptured(shdwstones, x, y)) {
+      while (x < boardWidth && emptyOrCaptured(shdwstones, x, y)) {
         // Check above
         if (y - 1 >= 0 && shdwstones[getIndex(x, y - 1)] != Stone.DAME) {
           if (emptyOrCaptured(shdwstones, x, y - 1)) {
@@ -1180,7 +1247,7 @@ public class Board implements LeelazListener {
           }
         }
         // Check below
-        if (y + 1 < boardSize && shdwstones[getIndex(x, y + 1)] != Stone.DAME) {
+        if (y + 1 < boardHeight && shdwstones[getIndex(x, y + 1)] != Stone.DAME) {
           if (emptyOrCaptured(shdwstones, x, y + 1)) {
             if (!lastdown) {
               visitQ.add(new int[] {x, y + 1});
@@ -1205,7 +1272,7 @@ public class Board implements LeelazListener {
         x++;
       }
       // At this point x is at the edge of the board or on a stone
-      if (x < boardSize && shdwstones[getIndex(x, y)] != found) {
+      if (x < boardWidth && shdwstones[getIndex(x, y)] != found) {
         if (found == Stone.EMPTY) found = shdwstones[getIndex(x, y)];
         else found = Stone.DAME;
       }
@@ -1228,8 +1295,8 @@ public class Board implements LeelazListener {
 
     Stone[] scoreStones = capturedStones.clone();
 
-    for (int i = 0; i < boardSize; i++) {
-      for (int j = 0; j < boardSize; j++) {
+    for (int i = 0; i < boardWidth; i++) {
+      for (int j = 0; j < boardHeight; j++) {
         if (scoreStones[getIndex(i, j)] == Stone.EMPTY) {
           markEmptyArea(scoreStones, i, j);
         }
@@ -1246,8 +1313,8 @@ public class Board implements LeelazListener {
         new double[] {
           getData().blackCaptures, getData().whiteCaptures + getHistory().getGameInfo().getKomi()
         };
-    for (int i = 0; i < boardSize; i++) {
-      for (int j = 0; j < boardSize; j++) {
+    for (int i = 0; i < boardWidth; i++) {
+      for (int j = 0; j < boardHeight; j++) {
         switch (scoreStones[getIndex(i, j)]) {
           case BLACK_POINT:
             score[0]++;
@@ -1359,6 +1426,9 @@ public class Board implements LeelazListener {
       history.getData().winrate = stats.maxWinrate;
       // we won't set playouts here. but setting winrate is ok... it shows the user that we are
       // computing. i think its fine.
+      if (!Lizzie.config.holdWinrateToMove) {
+        history.getData().setPlayouts(stats.totalPlayouts);
+      }
     }
   }
 

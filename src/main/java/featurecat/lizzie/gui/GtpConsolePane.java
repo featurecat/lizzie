@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,7 +20,6 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 
@@ -29,7 +29,7 @@ public class GtpConsolePane extends JDialog {
 
   // Display Comment
   private HTMLDocument htmlDoc;
-  private HTMLEditorKit htmlKit;
+  private LizziePane.HtmlKit htmlKit;
   private StyleSheet htmlStyle;
   private JScrollPane scrollPane;
   private JTextPane console;
@@ -44,12 +44,8 @@ public class GtpConsolePane extends JDialog {
     super(owner);
     setTitle("Gtp Console");
 
-    boolean persisted =
-        Lizzie.config.persistedUi != null
-            && Lizzie.config.persistedUi.optJSONArray("gtp-console-position") != null
-            && Lizzie.config.persistedUi.optJSONArray("gtp-console-position").length() == 4;
-    if (persisted) {
-      JSONArray pos = Lizzie.config.persistedUi.getJSONArray("gtp-console-position");
+    JSONArray pos = WindowPosition.gtpWindowPos();
+    if (pos != null) {
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
     } else {
       Insets oi = owner.getInsets();
@@ -60,7 +56,7 @@ public class GtpConsolePane extends JDialog {
           Math.max(owner.getHeight() + oi.top + oi.bottom, 300));
     }
 
-    htmlKit = new HTMLEditorKit();
+    htmlKit = new LizziePane.HtmlKit();
     htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
     htmlStyle = htmlKit.getStyleSheet();
     htmlStyle.addRule(Lizzie.config.gtpConsoleStyle);
@@ -180,6 +176,16 @@ public class GtpConsolePane extends JDialog {
         Lizzie.board.clear();
       } else if ("undo".equals(command)) {
         Input.undo();
+      } else if (command.startsWith("boardsize")) {
+        String cmdParams[] = command.split(" ");
+        if (cmdParams.length >= 2) {
+          int width = Integer.parseInt(cmdParams[1]);
+          int height = width;
+          if (cmdParams.length >= 3) {
+            height = Integer.parseInt(cmdParams[2]);
+          }
+          Lizzie.board.reopen(width, height);
+        }
       } else {
         Lizzie.leelaz.sendCommand(command);
       }

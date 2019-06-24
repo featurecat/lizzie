@@ -1,6 +1,7 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
 import java.io.BufferedInputStream;
@@ -46,6 +47,7 @@ public class Leelaz {
   private boolean printCommunication;
   public boolean gtpConsole;
 
+  public Board board;
   private List<MoveData> bestMoves;
   private List<MoveData> bestMovesTemp;
 
@@ -84,6 +86,7 @@ public class Leelaz {
    * @throws IOException
    */
   public Leelaz() throws IOException, JSONException {
+    board = new Board();
     bestMoves = new ArrayList<>();
     bestMovesTemp = new ArrayList<>();
     listeners = new CopyOnWriteArrayList<>();
@@ -163,7 +166,7 @@ public class Leelaz {
     // Response handled in parseLine
     isCheckingVersion = true;
     sendCommand("version");
-    sendCommand("boardsize " + Lizzie.config.uiConfig.optInt("board-size", 19));
+    boardSize(Lizzie.board.boardWidth, Lizzie.board.boardHeight);
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -256,7 +259,7 @@ public class Leelaz {
           // This should not be stale data when the command number match
           this.bestMoves = parseInfo(line.substring(5));
           notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+          Lizzie.frame.refresh(1);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
@@ -270,7 +273,7 @@ public class Leelaz {
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
           bestMoves.add(MoveData.fromSummary(line));
           notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+            Lizzie.frame.refresh(1);
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze
@@ -500,6 +503,14 @@ public class Leelaz {
     }
   }
 
+  public void boardSize(int size) {
+    boardSize(size, size);
+  }
+
+  public void boardSize(int width, int height) {
+    sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+  }
+
   public void undo() {
     synchronized (this) {
       sendCommand("undo");
@@ -528,6 +539,7 @@ public class Leelaz {
     } else {
       sendCommand("name"); // ends pondering
     }
+    Lizzie.frame.updateBasicInfo();
   }
 
   /** End the process */

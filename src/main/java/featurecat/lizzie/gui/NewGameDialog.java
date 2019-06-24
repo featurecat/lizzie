@@ -5,19 +5,32 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.analysis.GameInfo;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ResourceBundle;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 /** @author unknown */
 public class NewGameDialog extends JDialog {
+  private static final ResourceBundle resourceBundle =
+      ResourceBundle.getBundle("l10n.DisplayStrings");
   // create formatters
   public static final DecimalFormat FORMAT_KOMI = new DecimalFormat("#0.0");
   public static final DecimalFormat FORMAT_HANDICAP = new DecimalFormat("0");
-  public static final JLabel PLACEHOLDER = new JLabel("");
 
   static {
     FORMAT_HANDICAP.setMaximumIntegerDigits(1);
@@ -36,13 +49,11 @@ public class NewGameDialog extends JDialog {
 
   private boolean cancelled = true;
   private GameInfo gameInfo;
+  private JCheckBox chkNewGame;
 
   public NewGameDialog() {
     initComponents();
   }
-
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
 
   private void initComponents() {
     setMinimumSize(new Dimension(100, 100));
@@ -80,10 +91,14 @@ public class NewGameDialog extends JDialog {
     textFieldBlack = new JTextField();
     textFieldKomi = new JFormattedTextField(FORMAT_KOMI);
     textFieldHandicap = new JFormattedTextField(FORMAT_HANDICAP);
+    textFieldHandicap.setEnabled(false);
     textFieldHandicap.addPropertyChangeListener(evt -> modifyHandicap());
 
     contentPanel.add(checkBoxPlayerIsBlack);
-    contentPanel.add(PLACEHOLDER);
+
+    chkNewGame = new JCheckBox(resourceBundle.getString("NewGameDialog.NewGame"), false);
+    chkNewGame.addChangeListener(evt -> toggleNewGame());
+    contentPanel.add(chkNewGame);
     contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.Black")));
     contentPanel.add(textFieldBlack);
     contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.White")));
@@ -126,7 +141,7 @@ public class NewGameDialog extends JDialog {
     ((GridBagLayout) buttonBar.getLayout()).columnWeights = new double[] {1.0, 0.0};
 
     // ---- okButton ----
-    okButton.setText("OK");
+    okButton.setText(resourceBundle.getString("NewGameDialog.OK"));
     okButton.addActionListener(e -> apply());
 
     int center = GridBagConstraints.CENTER;
@@ -172,6 +187,14 @@ public class NewGameDialog extends JDialog {
     togglePlayerIsBlack();
   }
 
+  private void toggleNewGame() {
+    textFieldHandicap.setEnabled(chkNewGame.isSelected());
+  }
+
+  public boolean isNewGame() {
+    return chkNewGame.isSelected();
+  }
+
   public boolean playerIsBlack() {
     return checkBoxPlayerIsBlack.isSelected();
   }
@@ -180,15 +203,15 @@ public class NewGameDialog extends JDialog {
     return cancelled;
   }
 
-  public static void main(String[] args) {
-    EventQueue.invokeLater(
-        () -> {
-          try {
-            NewGameDialog window = new NewGameDialog();
-            window.setVisible(true);
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-        });
-  }
+  //  public static void main(String[] args) {
+  //    EventQueue.invokeLater(
+  //        () -> {
+  //          try {
+  //            NewGameDialog window = new NewGameDialog();
+  //            window.setVisible(true);
+  //          } catch (Exception e) {
+  //            e.printStackTrace();
+  //          }
+  //        });
+  //  }
 }

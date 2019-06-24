@@ -1,17 +1,31 @@
 package featurecat.lizzie;
 
 import featurecat.lizzie.theme.Theme;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.Color;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
-import javax.swing.*;
-import org.json.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Config {
   public String language = "en";
 
+  public boolean panelUI = true;
   public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
@@ -160,6 +174,7 @@ public class Config {
 
     theme = new Theme(uiConfig);
 
+    panelUI = uiConfig.optBoolean("panel-ui", false);
     showBorder = uiConfig.optBoolean("show-border", false);
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
@@ -185,7 +200,7 @@ public class Config {
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
-    boardPositionProportion = uiConfig.optInt("board-postion-proportion", 4);
+    boardPositionProportion = uiConfig.optInt("board-position-proportion", 4);
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
@@ -414,6 +429,7 @@ public class Config {
     ui.put("append-winrate-to-comment", false);
     ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
+    ui.put("panel-ui", false);
     config.put("ui", ui);
     return config;
   }
@@ -437,10 +453,8 @@ public class Config {
     // ui.put("window-width", 687);
     // ui.put("max-alpha", 240);
 
-    // Main Window Position & Size
-    ui.put("main-window-position", new JSONArray("[]"));
-    ui.put("gtp-console-position", new JSONArray("[]"));
-    ui.put("window-maximized", false);
+    // Window Position & Size
+    ui = WindowPosition.create(ui);
 
     config.put("filesystem", filesys);
 
@@ -464,24 +478,10 @@ public class Config {
   }
 
   public void persist() throws IOException {
-    boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
 
-    JSONArray mainPos = new JSONArray();
-    if (!windowIsMaximized) {
-      mainPos.put(Lizzie.frame.getX());
-      mainPos.put(Lizzie.frame.getY());
-      mainPos.put(Lizzie.frame.getWidth());
-      mainPos.put(Lizzie.frame.getHeight());
-    }
-    persistedUi.put("main-window-position", mainPos);
-    JSONArray gtpPos = new JSONArray();
-    gtpPos.put(Lizzie.gtpConsole.getX());
-    gtpPos.put(Lizzie.gtpConsole.getY());
-    gtpPos.put(Lizzie.gtpConsole.getWidth());
-    gtpPos.put(Lizzie.gtpConsole.getHeight());
-    persistedUi.put("gtp-console-position", gtpPos);
-    persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
-    persistedUi.put("window-maximized", windowIsMaximized);
+    // Save the window position
+    persistedUi = WindowPosition.save(persistedUi);
+
     writeConfig(this.persisted, new File(persistFilename));
   }
 
