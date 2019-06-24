@@ -59,7 +59,7 @@ public class SGFParser {
   public static boolean isPassPos(String pos) {
     // TODO
     String passPos =
-        Lizzie.board.boardSize <= 52
+        Lizzie.board.boardSize <= 51
             ? String.format(
                 "%c%c",
                 alphabet.charAt(Lizzie.board.boardSize), alphabet.charAt(Lizzie.board.boardSize))
