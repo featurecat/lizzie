@@ -61,6 +61,8 @@ public class ConfigDialog extends JDialog {
   private JRadioButton rdoBoardSize7;
   private JRadioButton rdoBoardSize5;
   private JRadioButton rdoBoardSize4;
+  private JRadioButton rdoWinrate;
+  private JRadioButton rdoLcb;
 
   public String enginePath = "";
   public String weightPath = "";
@@ -425,6 +427,23 @@ public class ConfigDialog extends JDialog {
     txtAnalyzeUpdateInterval.setBounds(496, 363, 40, 26);
     engineTab.add(txtAnalyzeUpdateInterval);
 
+    JLabel lblShowLcbWinrate =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.showLcbWinrate"));
+    lblShowLcbWinrate.setBounds(6, 457, 157, 16);
+    engineTab.add(lblShowLcbWinrate);
+
+    rdoLcb = new JRadioButton("Lcb");
+    rdoLcb.setBounds(167, 454, 69, 23);
+    engineTab.add(rdoLcb);
+
+    rdoWinrate = new JRadioButton("Winrate");
+    rdoWinrate.setBounds(250, 454, 92, 23);
+    engineTab.add(rdoWinrate);
+
+    ButtonGroup wrgroup = new ButtonGroup();
+    wrgroup.add(rdoLcb);
+    wrgroup.add(rdoWinrate);
+
     JLabel lblPrintEngineLog =
         new JLabel(resourceBundle.getString("LizzieConfig.title.printEngineLog"));
     lblPrintEngineLog.setBounds(6, 430, 157, 16);
@@ -537,6 +556,7 @@ public class ConfigDialog extends JDialog {
     curPath = (new File("")).getAbsoluteFile().toPath();
     osName = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
     setBoardSize();
+    setShowLcbWinrate();
     setLocationRelativeTo(getOwner());
   }
 
@@ -631,6 +651,7 @@ public class ConfigDialog extends JDialog {
           "analyze-update-interval-centisec", txtFieldValue(txtAnalyzeUpdateInterval));
       leelazConfig.putOpt("max-game-thinking-time-seconds", txtFieldValue(txtMaxGameThinkingTime));
       leelazConfig.putOpt("print-comms", chkPrintEngineLog.isSelected());
+      leelazConfig.putOpt("show-lcb-winrate", getShowLcbWinrate());
       leelazConfig.put("engine-command", txtEngine.getText().trim());
       JSONArray engines = new JSONArray();
       Arrays.asList(txts).forEach(t -> engines.put(t.getText().trim()));
@@ -676,6 +697,28 @@ public class ConfigDialog extends JDialog {
 
   public boolean isWindows() {
     return osName != null && !osName.contains("darwin") && osName.contains("win");
+  }
+
+  private void setShowLcbWinrate() {
+
+    if (Lizzie.config.showLcbWinrate) {
+      rdoLcb.setSelected(true);
+    } else {
+      rdoWinrate.setSelected(true);
+    }
+  }
+
+  private boolean getShowLcbWinrate() {
+
+    if (rdoLcb.isSelected()) {
+      Lizzie.config.showLcbWinrate = true;
+      return true;
+    }
+    if (rdoWinrate.isSelected()) {
+      Lizzie.config.showLcbWinrate = false;
+      return false;
+    }
+    return true;
   }
 
   private void setBoardSize() {

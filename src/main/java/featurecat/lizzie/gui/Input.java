@@ -344,6 +344,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         }
         break;
 
+      case VK_L:
+        Lizzie.config.toggleShowLcbWinrate();
+        break;
+
       case VK_G:
         Lizzie.config.toggleShowVariationGraph();
         refreshType = 2;
