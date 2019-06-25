@@ -1,6 +1,7 @@
 package featurecat.lizzie;
 
 import featurecat.lizzie.theme.Theme;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import javax.swing.JFrame;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -460,10 +460,8 @@ public class Config {
     // ui.put("window-width", 687);
     // ui.put("max-alpha", 240);
 
-    // Main Window Position & Size
-    ui.put("main-window-position", new JSONArray("[]"));
-    ui.put("gtp-console-position", new JSONArray("[]"));
-    ui.put("window-maximized", false);
+    // Window Position & Size
+    ui = WindowPosition.create(ui);
 
     config.put("filesystem", filesys);
 
@@ -487,24 +485,10 @@ public class Config {
   }
 
   public void persist() throws IOException {
-    boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
 
-    JSONArray mainPos = new JSONArray();
-    if (!windowIsMaximized) {
-      mainPos.put(Lizzie.frame.getX());
-      mainPos.put(Lizzie.frame.getY());
-      mainPos.put(Lizzie.frame.getWidth());
-      mainPos.put(Lizzie.frame.getHeight());
-    }
-    persistedUi.put("main-window-position", mainPos);
-    JSONArray gtpPos = new JSONArray();
-    gtpPos.put(Lizzie.gtpConsole.getX());
-    gtpPos.put(Lizzie.gtpConsole.getY());
-    gtpPos.put(Lizzie.gtpConsole.getWidth());
-    gtpPos.put(Lizzie.gtpConsole.getHeight());
-    persistedUi.put("gtp-console-position", gtpPos);
-    persistedUi.put("board-postion-propotion", Lizzie.frame.BoardPositionProportion);
-    persistedUi.put("window-maximized", windowIsMaximized);
+    // Save the window position
+    persistedUi = WindowPosition.save(persistedUi);
+
     writeConfig(this.persisted, new File(persistFilename));
   }
 
