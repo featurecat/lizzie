@@ -127,43 +127,6 @@ public class ConfigDialog extends JDialog {
   private JTextField txtEngine8;
   private JTextField txtEngine9;
   private JTextField[] txts;
-  private JRadioButton rdoBoardSize19;
-  private JRadioButton rdoBoardSize13;
-  private JRadioButton rdoBoardSize9;
-  private JRadioButton rdoBoardSize7;
-  private JRadioButton rdoBoardSize5;
-  private JRadioButton rdoBoardSize4;
-  private JRadioButton rdoWinrate;
-  private JRadioButton rdoLcb;
-
-  public String enginePath = "";
-  public String weightPath = "";
-  public String commandHelp = "";
-
-  private Path curPath;
-  private BufferedInputStream inputStream;
-  private BufferedInputStream inputStream;
-  private JSONObject leelazConfig;
-  private List<String> fontList;
-  private Theme theme;
-
-  public JPanel uiTab;
-  public JPanel themeTab;
-  public JPanel aboutTab;
-  public JButton okButton;
-
-  // Engine Tab
-  private JTextField txtEngine;
-  private JTextField txtEngine1;
-  private JTextField txtEngine2;
-  private JTextField txtEngine3;
-  private JTextField txtEngine4;
-  private JTextField txtEngine5;
-  private JTextField txtEngine6;
-  private JTextField txtEngine7;
-  private JTextField txtEngine8;
-  private JTextField txtEngine9;
-  private JTextField[] txts;
   private JCheckBox chkPreload1;
   private JCheckBox chkPreload2;
   private JCheckBox chkPreload3;
