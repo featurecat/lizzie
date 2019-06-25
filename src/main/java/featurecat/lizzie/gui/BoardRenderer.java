@@ -724,8 +724,7 @@ public class BoardRenderer {
           }
 
           if (!branchOpt.isPresent()
-                  && (hasMaxWinrate
-                      || percentPlayouts >= uiConfig.getDouble("min-playout-ratio-for-stats"))
+                  && (hasMaxWinrate || percentPlayouts >= Lizzie.config.minPlayoutRatioForStats)
               || isMouseOver) {
             double roundedWinrate = round(move.winrate * 10) / 10.0;
             if (flipWinrate) {

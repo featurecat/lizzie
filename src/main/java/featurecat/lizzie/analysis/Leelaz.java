@@ -216,6 +216,10 @@ public class Leelaz {
     String[] variations = line.split(" info ");
     for (String var : variations) {
       if (!var.trim().isEmpty()) {
+        if (Lizzie.config.limitBestMoveNum > 0
+            && bestMoves.size() >= Lizzie.config.limitBestMoveNum) {
+          break;
+        }
         bestMoves.add(MoveData.fromInfo(var));
       }
     }
@@ -275,9 +279,12 @@ public class Leelaz {
         if (isResponseUpToDate()
             || isThinking
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          bestMoves.add(MoveData.fromSummary(line));
-          notifyBestMoveListeners();
-          Lizzie.frame.refresh(1);
+          if (Lizzie.config.limitBestMoveNum == 0
+              || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
+            bestMoves.add(MoveData.fromSummary(line));
+            notifyBestMoveListeners();
+            Lizzie.frame.refresh(1);
+          }
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze
