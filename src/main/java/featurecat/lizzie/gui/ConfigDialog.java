@@ -2278,4 +2278,266 @@ public class ConfigDialog extends JDialog {
       e.printStackTrace();
     }
   }
+
+  private void setShowMoveNumber() {
+    txtShowMoveNumber.setEnabled(false);
+    if (Lizzie.config.showMoveNumber) {
+      if (Lizzie.config.onlyLastMoveNumber > 0) {
+        rdoShowMoveNumberLast.setSelected(true);
+        txtShowMoveNumber.setText(String.valueOf(Lizzie.config.onlyLastMoveNumber));
+        txtShowMoveNumber.setEnabled(true);
+      } else {
+        rdoShowMoveNumberAll.setSelected(true);
+      }
+    } else {
+      rdoShowMoveNumberNo.setSelected(true);
+    }
+  }
+
+  private void setFontValue(JComboBox<String> cmb, String fontName) {
+    cmb.setSelectedIndex(0);
+    cmb.setSelectedItem(fontName);
+  }
+
+  private void readThemeValues() {
+    if (cmbThemes.getSelectedIndex() <= 0) {
+      // Default
+      readDefaultTheme();
+    } else {
+      // Read the Theme
+      String themeName = (String) cmbThemes.getSelectedItem();
+      if (themeName == null || themeName.isEmpty()) {
+        readDefaultTheme();
+      } else {
+        theme = new Theme(themeName);
+        spnWinrateStrokeWidth.setValue(theme.winrateStrokeWidth());
+        spnMinimumBlunderBarWidth.setValue(theme.minimumBlunderBarWidth());
+        spnShadowSize.setValue(theme.shadowSize());
+        setFontValue(cmbFontName, theme.fontName());
+        setFontValue(cmbUiFontName, theme.uiFontName());
+        setFontValue(cmbWinrateFontName, theme.winrateFontName());
+        txtBackgroundPath.setEnabled(true);
+        btnBackgroundPath.setEnabled(true);
+        txtBackgroundPath.setText(theme.backgroundPath());
+        txtBoardPath.setEnabled(true);
+        btnBoardPath.setEnabled(true);
+        txtBoardPath.setText(theme.boardPath());
+        txtBlackStonePath.setEnabled(true);
+        btnBlackStonePath.setEnabled(true);
+        txtBlackStonePath.setText(theme.blackStonePath());
+        txtWhiteStonePath.setEnabled(true);
+        btnWhiteStonePath.setEnabled(true);
+        txtWhiteStonePath.setText(theme.whiteStonePath());
+        lblWinrateLineColor.setColor(theme.winrateLineColor());
+        lblWinrateMissLineColor.setColor(theme.winrateMissLineColor());
+        lblBlunderBarColor.setColor(theme.blunderBarColor());
+        chkSolidStoneIndicator.setSelected(theme.solidStoneIndicator());
+        chkShowCommentNodeColor.setSelected(theme.showCommentNodeColor());
+        lblCommentNodeColor.setColor(theme.commentNodeColor());
+        lblCommentBackgroundColor.setColor(theme.commentBackgroundColor());
+        lblCommentFontColor.setColor(theme.commentFontColor());
+        txtCommentFontSize.setText(String.valueOf(theme.commentFontSize()));
+        tblBlunderNodes.setModel(
+            new BlunderNodeTableModel(
+                theme.blunderWinrateThresholds().orElse(null),
+                theme.blunderNodeColors().orElse(null),
+                columsBlunderNodes));
+        TableColumn colorCol = tblBlunderNodes.getColumnModel().getColumn(1);
+        colorCol.setCellRenderer(new ColorRenderer(false));
+        colorCol.setCellEditor(new ColorEditor(this));
+      }
+    }
+    if (this.pnlBoardPreview != null) {
+      pnlBoardPreview.repaint();
+    }
+  }
+
+  private void writeThemeValues() {
+    if (cmbThemes.getSelectedIndex() <= 0) {
+      // Default
+      writeDefaultTheme();
+    } else {
+      // Write the Theme
+      String themeName = (String) cmbThemes.getSelectedItem();
+      if (themeName == null || themeName.isEmpty()) {
+        writeDefaultTheme();
+      } else {
+        if (theme == null) {
+          theme = new Theme(themeName);
+        }
+        theme.config.put("winrate-stroke-width", spnWinrateStrokeWidth.getValue());
+        theme.config.put("minimum-blunder-bar-width", spnMinimumBlunderBarWidth.getValue());
+        theme.config.put("shadow-size", spnShadowSize.getValue());
+        theme.config.put("font-name", cmbFontName.getSelectedItem());
+        theme.config.put("ui-font-name", cmbUiFontName.getSelectedItem());
+        theme.config.put("winrate-font-name", cmbWinrateFontName.getSelectedItem());
+        theme.config.put("background-image", txtBackgroundPath.getText().trim());
+        theme.config.put("board-image", txtBoardPath.getText().trim());
+        theme.config.put("black-stone-image", txtBlackStonePath.getText().trim());
+        theme.config.put("white-stone-image", txtWhiteStonePath.getText().trim());
+        theme.config.put("winrate-line-color", Theme.color2Array(lblWinrateLineColor.getColor()));
+        theme.config.put(
+            "winrate-miss-line-color", Theme.color2Array(lblWinrateMissLineColor.getColor()));
+        theme.config.put("blunder-bar-color", Theme.color2Array(lblBlunderBarColor.getColor()));
+        theme.config.put("solid-stone-indicator", chkSolidStoneIndicator.isSelected());
+        theme.config.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
+        theme.config.put("comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
+        theme.config.put(
+            "comment-background-color", Theme.color2Array(lblCommentBackgroundColor.getColor()));
+        theme.config.put("comment-font-color", Theme.color2Array(lblCommentFontColor.getColor()));
+        theme.config.put("comment-font-size", txtFieldIntValue(txtCommentFontSize));
+        theme.config.put(
+            "blunder-winrate-thresholds",
+            ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getThresholdArray());
+        theme.config.put(
+            "blunder-node-colors",
+            ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getColorArray());
+        theme.save();
+      }
+    }
+  }
+
+  private void readDefaultTheme() {
+    spnWinrateStrokeWidth.setValue(Lizzie.config.uiConfig.optInt("winrate-stroke-width", 3));
+    spnMinimumBlunderBarWidth.setValue(
+        Lizzie.config.uiConfig.optInt("minimum-blunder-bar-width", 3));
+    spnShadowSize.setValue(Lizzie.config.uiConfig.optInt("shadow-size", 100));
+    cmbFontName.setSelectedItem(Lizzie.config.uiConfig.optString("font-name", null));
+    cmbUiFontName.setSelectedItem(Lizzie.config.uiConfig.optString("ui-font-name", null));
+    cmbWinrateFontName.setSelectedItem(Lizzie.config.uiConfig.optString("winrate-font-name", null));
+    txtBackgroundPath.setEnabled(false);
+    btnBackgroundPath.setEnabled(false);
+    txtBackgroundPath.setText("/assets/background.jpg");
+    txtBoardPath.setEnabled(false);
+    btnBoardPath.setEnabled(false);
+    txtBoardPath.setText("/assets/board.png");
+    txtBlackStonePath.setEnabled(false);
+    btnBlackStonePath.setEnabled(false);
+    txtBlackStonePath.setText("/assets/black0.png");
+    txtWhiteStonePath.setEnabled(false);
+    btnWhiteStonePath.setEnabled(false);
+    txtWhiteStonePath.setText("/assets/white0.png");
+    lblWinrateLineColor.setColor(
+        Theme.array2Color(Lizzie.config.uiConfig.optJSONArray("winrate-line-color"), Color.green));
+    lblWinrateMissLineColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("winrate-miss-line-color"), Color.blue.darker()));
+    lblBlunderBarColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("blunder-bar-color"), new Color(255, 0, 0, 150)));
+    chkSolidStoneIndicator.setSelected(Lizzie.config.uiConfig.optBoolean("solid-stone-indicator"));
+    chkShowCommentNodeColor.setSelected(
+        Lizzie.config.uiConfig.optBoolean("show-comment-node-color"));
+    lblCommentNodeColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("comment-node-color"), Color.BLUE.brighter()));
+    lblCommentBackgroundColor.setColor(
+        Theme.array2Color(
+            Lizzie.config.uiConfig.optJSONArray("comment-background-color"),
+            new Color(0, 0, 0, 200)));
+    lblCommentFontColor.setColor(
+        Theme.array2Color(Lizzie.config.uiConfig.optJSONArray("comment-font-color"), Color.WHITE));
+    txtCommentFontSize.setText(
+        String.valueOf(Lizzie.config.uiConfig.optInt("comment-font-size", 3)));
+    Theme defTheme = new Theme("");
+    tblBlunderNodes.setModel(
+        new BlunderNodeTableModel(
+            defTheme.blunderWinrateThresholds().orElse(null),
+            defTheme.blunderNodeColors().orElse(null),
+            columsBlunderNodes));
+    TableColumn colorCol = tblBlunderNodes.getColumnModel().getColumn(1);
+    colorCol.setCellRenderer(new ColorRenderer(false));
+    colorCol.setCellEditor(new ColorEditor(this));
+  }
+
+  private void writeDefaultTheme() {
+    Lizzie.config.uiConfig.put("winrate-stroke-width", spnWinrateStrokeWidth.getValue());
+    Lizzie.config.uiConfig.put("minimum-blunder-bar-width", spnMinimumBlunderBarWidth.getValue());
+    Lizzie.config.uiConfig.put("shadow-size", spnShadowSize.getValue());
+    Lizzie.config.uiConfig.put("font-name", cmbFontName.getSelectedItem());
+    Lizzie.config.uiConfig.put("ui-font-name", cmbUiFontName.getSelectedItem());
+    Lizzie.config.uiConfig.put("winrate-font-name", cmbWinrateFontName.getSelectedItem());
+    Lizzie.config.uiConfig.put(
+        "winrate-line-color", Theme.color2Array(lblWinrateLineColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "winrate-miss-line-color", Theme.color2Array(lblWinrateMissLineColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "blunder-bar-color", Theme.color2Array(lblBlunderBarColor.getColor()));
+    Lizzie.config.uiConfig.put("solid-stone-indicator", chkSolidStoneIndicator.isSelected());
+    Lizzie.config.uiConfig.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
+    Lizzie.config.uiConfig.put(
+        "comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "comment-background-color", Theme.color2Array(lblCommentBackgroundColor.getColor()));
+    Lizzie.config.uiConfig.put(
+        "comment-font-color", Theme.color2Array(lblCommentFontColor.getColor()));
+    Lizzie.config.uiConfig.put("comment-font-size", txtFieldIntValue(txtCommentFontSize));
+    Lizzie.config.uiConfig.put(
+        "blunder-winrate-thresholds",
+        ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getThresholdArray());
+    Lizzie.config.uiConfig.put(
+        "blunder-node-colors",
+        ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getColorArray());
+  }
+
+  private void saveConfig() {
+    try {
+      leelazConfig.putOpt("max-analyze-time-minutes", txtFieldIntValue(txtMaxAnalyzeTime));
+      leelazConfig.putOpt(
+          "analyze-update-interval-centisec", txtFieldIntValue(txtAnalyzeUpdateInterval));
+      leelazConfig.putOpt(
+          "max-game-thinking-time-seconds", txtFieldIntValue(txtMaxGameThinkingTime));
+      leelazConfig.putOpt("print-comms", chkPrintEngineLog.isSelected());
+      leelazConfig.putOpt("show-lcb-winrate", getShowLcbWinrate());
+      leelazConfig.put("engine-command", txtEngine.getText().trim());
+      JSONArray engines = new JSONArray();
+      Arrays.asList(txts).forEach(t -> engines.put(t.getText().trim()));
+      leelazConfig.put("engine-command-list", engines);
+      JSONArray preloads = new JSONArray();
+      Arrays.asList(chkPreloads).forEach(t -> preloads.put(t.isSelected()));
+      leelazConfig.put("engine-preload-list", preloads);
+      int size = getBoardSize();
+      Lizzie.config.uiConfig.put("board-size", size);
+      Lizzie.config.uiConfig.putOpt("panel-ui", chkPanelUI.isSelected());
+      Lizzie.config.minPlayoutRatioForStats = txtFieldDoubleValue(txtMinPlayoutRatioForStats);
+      Lizzie.config.uiConfig.put(
+          "min-playout-ratio-for-stats", Lizzie.config.minPlayoutRatioForStats);
+      Lizzie.config.uiConfig.putOpt("show-coordinates", chkShowCoordinates.isSelected());
+      Lizzie.config.showMoveNumber = !rdoShowMoveNumberNo.isSelected();
+      Lizzie.config.onlyLastMoveNumber =
+          rdoShowMoveNumberLast.isSelected() ? txtFieldIntValue(txtShowMoveNumber) : 0;
+      Lizzie.config.allowMoveNumber =
+          Lizzie.config.showMoveNumber
+              ? (Lizzie.config.onlyLastMoveNumber > 0 ? Lizzie.config.onlyLastMoveNumber : -1)
+              : 0;
+      Lizzie.config.uiConfig.put("show-move-number", Lizzie.config.showMoveNumber);
+      Lizzie.config.uiConfig.put("only-last-move-number", Lizzie.config.onlyLastMoveNumber);
+
+      Lizzie.config.showBlunderBar = chkShowBlunderBar.isSelected();
+      Lizzie.config.uiConfig.putOpt("show-blunder-bar", Lizzie.config.showBlunderBar);
+      Lizzie.config.dynamicWinrateGraphWidth = chkDynamicWinrateGraphWidth.isSelected();
+      Lizzie.config.uiConfig.putOpt(
+          "dynamic-winrate-graph-width", Lizzie.config.dynamicWinrateGraphWidth);
+      Lizzie.config.appendWinrateToComment = chkAppendWinrateToComment.isSelected();
+      Lizzie.config.uiConfig.putOpt(
+          "append-winrate-to-comment", Lizzie.config.appendWinrateToComment);
+      Lizzie.config.colorByWinrateInsteadOfVisits = chkColorByWinrateInsteadOfVisits.isSelected();
+      Lizzie.config.uiConfig.putOpt(
+          "color-by-winrate-instead-of-visits", Lizzie.config.colorByWinrateInsteadOfVisits);
+      Lizzie.config.boardPositionProportion = sldBoardPositionProportion.getValue();
+      Lizzie.config.uiConfig.putOpt(
+          "board-position-proportion", Lizzie.config.boardPositionProportion);
+      Lizzie.config.limitBestMoveNum = txtFieldIntValue(txtLimitBestMoveNum);
+      Lizzie.config.uiConfig.put("limit-best-move-num", Lizzie.config.limitBestMoveNum);
+      Lizzie.config.limitBranchLength = txtFieldIntValue(txtLimitBranchLength);
+      Lizzie.config.uiConfig.put("limit-branch-length", Lizzie.config.limitBranchLength);
+      Lizzie.config.uiConfig.put("gtp-console-style", tpGtpConsoleStyle.getText());
+      Lizzie.config.uiConfig.put("theme", cmbThemes.getSelectedItem());
+      writeThemeValues();
+
+      Lizzie.config.save();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 }
