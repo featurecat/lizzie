@@ -53,7 +53,7 @@ public class MoveData {
         if (islcb && key.equals("lcb")) {
           // LCB support
           result.winrate =
-              Lizzie.config.isKataGo
+              value.indexOf('.') >= 0 // kata-analyze?
                   ? Double.parseDouble(value) * 100
                   : Integer.parseInt(value) / 100.0;
         }
@@ -61,7 +61,7 @@ public class MoveData {
         if (key.equals("winrate")) {
           // support 0.16 0.15
           result.winrate =
-              Lizzie.config.isKataGo
+              value.indexOf('.') >= 0 // kata-analyze?
                   ? Double.parseDouble(value) * 100
                   : Integer.parseInt(value) / 100.0;
         }
