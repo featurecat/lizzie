@@ -1674,8 +1674,8 @@ public class ConfigDialog extends JDialog {
   }
 
   private void applyChange() {
-    int[] size = getBoardSize();
-    Lizzie.board.reopen(size[0], size[1]);
+    int size = getBoardSize();
+    Lizzie.board.reopen(size);
   }
 
   private Integer txtFieldIntValue(JTextField txt) {
@@ -1967,7 +1967,6 @@ public class ConfigDialog extends JDialog {
 
   private void setBoardSize() {
     int size = Lizzie.config.uiConfig.optInt("board-size", 19);
-    size = width == height ? width : 0;
     txtBoardSize.setEnabled(false);
     switch (size) {
       case 19:

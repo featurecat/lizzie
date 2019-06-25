@@ -1,7 +1,6 @@
 package featurecat.lizzie.gui;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.jhlabs.image.GaussianFilter;
