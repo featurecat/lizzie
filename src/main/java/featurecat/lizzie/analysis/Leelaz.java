@@ -319,11 +319,7 @@ public class Leelaz {
           }
         } else if (isCheckingName) {
           if (params[1].startsWith("KataGo")) {
-            sendCommand("name"); // stop lz-analyze
             Lizzie.config.isKataGo = true;
-            if (isPondering) {
-              ponder(); // re-send kata-analyze
-            }
           }
           isCheckingName = false;
         } else if (isCheckingVersion) {
