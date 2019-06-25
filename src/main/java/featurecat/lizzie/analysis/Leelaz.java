@@ -117,6 +117,7 @@ public class Leelaz {
       return;
     }
 
+    isLoaded = false;
     commands = splitCommand(engineCommand);
 
     // Get weight name
@@ -251,6 +252,9 @@ public class Leelaz {
       } else if (line.equals("\n")) {
         // End of response
       } else if (line.startsWith("info")) {
+        if (!isLoaded) {
+          Lizzie.frame.refresh();
+        }
         isLoaded = true;
         // Clear switching prompt
         switching = false;
@@ -260,7 +264,7 @@ public class Leelaz {
           // This should not be stale data when the command number match
           this.bestMoves = parseInfo(line.substring(5));
           notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+          Lizzie.frame.refresh(1);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
@@ -268,6 +272,9 @@ public class Leelaz {
           }
         }
       } else if (line.contains(" -> ")) {
+        if (!isLoaded) {
+          Lizzie.frame.refresh();
+        }
         isLoaded = true;
         if (isResponseUpToDate()
             || isThinking
@@ -276,7 +283,7 @@ public class Leelaz {
               || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
             bestMoves.add(MoveData.fromSummary(line));
             notifyBestMoveListeners();
-            Lizzie.frame.repaint();
+            Lizzie.frame.refresh(1);
           }
         }
       } else if (line.startsWith("play")) {
@@ -309,7 +316,8 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
             Lizzie.board.place(params[1]);
-            togglePonder();
+            // TODO Do not ponder when playing against Leela Zero
+            //            togglePonder();
             if (!isInputCommand) {
               isPondering = false;
             }
@@ -535,6 +543,7 @@ public class Leelaz {
     } else {
       sendCommand("name"); // ends pondering
     }
+    Lizzie.frame.updateBasicInfo();
   }
 
   /** End the process */
