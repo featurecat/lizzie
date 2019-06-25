@@ -63,13 +63,13 @@ public class BoardData {
     this.bestMoves = new ArrayList<>();
   }
 
-  public static BoardData empty(int size) {
-    Stone[] stones = new Stone[size * size];
+  public static BoardData empty(int width, int height) {
+    Stone[] stones = new Stone[width * height];
     for (int i = 0; i < stones.length; i++) {
       stones[i] = Stone.EMPTY;
     }
 
-    int[] boardArray = new int[size * size];
+    int[] boardArray = new int[width * height];
     return new BoardData(
         stones, Optional.empty(), Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
   }
@@ -210,7 +210,7 @@ public class BoardData {
   }
 
   public BoardData clone() {
-    BoardData data = BoardData.empty(19);
+    BoardData data = BoardData.empty(19, 19);
     data.sync(this);
     return data;
   }

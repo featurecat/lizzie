@@ -282,8 +282,11 @@ public class Leelaz {
         if (isResponseUpToDate()
             || isThinking
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          if (Lizzie.config.limitBestMoveNum == 0
-              || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
+          // TODO Do not update the best moves when playing against Leela Zero
+          // Because it is equivalent to the winrate of the previous move.
+          if (!Lizzie.frame.isPlayingAgainstLeelaz
+              && (Lizzie.config.limitBestMoveNum == 0
+                  || bestMoves.size() < Lizzie.config.limitBestMoveNum)) {
             bestMoves.add(MoveData.fromSummary(line));
             notifyBestMoveListeners();
             Lizzie.frame.refresh(1);

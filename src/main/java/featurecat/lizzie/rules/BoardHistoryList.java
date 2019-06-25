@@ -1,6 +1,5 @@
 package featurecat.lizzie.rules;
 
-import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import java.util.List;
 import java.util.Optional;

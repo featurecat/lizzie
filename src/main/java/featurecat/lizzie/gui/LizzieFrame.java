@@ -475,7 +475,10 @@ public class LizzieFrame extends MainFrame {
       boolean noComment = !Lizzie.config.showComment;
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
-      maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
+      maxSize =
+          max(
+              maxSize,
+              max(Board.boardWidth, Board.boardHeight) + 5); // don't let maxWidth become too small
       int boardX = (width - maxSize) / 8 * boardPositionProportion;
       if (noBasic && noWinrate && noSubBoard) {
         boardX = leftInset;
