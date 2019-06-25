@@ -2,7 +2,13 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.BoardHistoryNode;
-import java.awt.*;
+import featurecat.lizzie.util.Utils;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -124,7 +130,7 @@ public class VariationTree {
                 RING_DIAM,
                 RING_DIAM);
           }
-          g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+          g.setColor(Utils.getBlunderNodeColor(cur));
           g.fillOval(curposx + diff, posy + diff, diam, diam);
           if (startNode == curMove) {
             g.setColor(Color.BLACK);
@@ -144,9 +150,12 @@ public class VariationTree {
     }
 
     // Draw main line
-    while (cur.next().isPresent() && posy + YSPACING < maxposy) {
+    while (cur.next(true).isPresent() && posy + YSPACING < maxposy) {
       posy += YSPACING;
-      cur = cur.next().get();
+      cur = cur.next(true).get();
+      if (cur.isEndDummay()) {
+        continue;
+      }
       if (calc) {
         if (inNode(curposx + dotoffset, posy + dotoffset)) {
           return Optional.of(cur);
@@ -168,7 +177,7 @@ public class VariationTree {
               RING_DIAM,
               RING_DIAM);
         }
-        g.setColor(Lizzie.frame.getBlunderNodeColor(cur));
+        g.setColor(Utils.getBlunderNodeColor(cur));
         g.fillOval(curposx + diff, posy + diff, diam, diam);
         if (cur == curMove) {
           g.setColor(Color.BLACK);

@@ -3,18 +3,22 @@ package featurecat.lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.gui.GtpConsolePane;
 import featurecat.lizzie.gui.LizzieFrame;
+import featurecat.lizzie.gui.LizzieMain;
+import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import javax.swing.*;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import org.json.JSONArray;
 
 /** Main class. */
 public class Lizzie {
   public static Config config;
+  public static MainFrame frame;
   public static GtpConsolePane gtpConsole;
-  public static LizzieFrame frame;
   public static Board board;
   public static Leelaz leelaz;
   public static String lizzieVersion = "0.7";
@@ -26,7 +30,7 @@ public class Lizzie {
     mainArgs = args;
     config = new Config();
     board = new Board();
-    frame = new LizzieFrame();
+    frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
     try {
@@ -67,7 +71,7 @@ public class Lizzie {
           JOptionPane.showConfirmDialog(
               null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
       if (ret == JOptionPane.OK_OPTION) {
-        LizzieFrame.saveFile();
+        frame.saveFile();
       }
     }
     board.autosaveToMemory();
