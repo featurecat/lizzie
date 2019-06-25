@@ -108,7 +108,7 @@ public class NewGameDialog extends JDialog {
     contentPanel.add(new JLabel(resourceBundle.getString("NewGameDialog.Handicap")));
     contentPanel.add(textFieldHandicap);
 
-    textFieldKomi.setEnabled(false);
+    textFieldKomi.setEnabled(true);
 
     dialogPane.add(contentPanel, BorderLayout.CENTER);
   }

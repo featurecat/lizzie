@@ -79,7 +79,6 @@ public class BoardHistoryList {
 
   public void toBranchTop() {
     BoardHistoryNode start = head;
-    BoardHistoryNode top = start;
     while (start.previous().isPresent()) {
       BoardHistoryNode pre = start.previous().get();
       if (pre.next(true).isPresent() && pre.next(true).get() != start) {
@@ -460,8 +459,6 @@ public class BoardHistoryList {
       stones[Board.getIndex(x, y)] = Stone.EMPTY;
       zobrist.toggleStone(x, y, oriColor);
       data.moveNumberList[Board.getIndex(x, y)] = 0;
-
-      Lizzie.frame.refresh();
     }
   }
 

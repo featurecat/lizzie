@@ -19,7 +19,6 @@ public abstract class MainFrame extends JFrame {
   public static Font winrateFont;
   // Force refresh board
   private boolean forceRefresh;
-  public OnlineDialog onlineDialog = null;
 
   public MainFrame(String title) throws HeadlessException {
     super(title);
@@ -32,8 +31,6 @@ public abstract class MainFrame extends JFrame {
   public void toggleDesignMode() {}
 
   public void updateBasicInfo() {}
-
-  public void updateBasicInfo(String bTime, String wTime) {}
 
   public void refresh() {
     repaint();

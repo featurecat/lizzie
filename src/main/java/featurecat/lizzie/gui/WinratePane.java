@@ -87,7 +87,7 @@ public class WinratePane extends LizziePane {
     Graphics2D g = (Graphics2D) cachedImage.getGraphics();
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-    if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
+    if (Lizzie.leelaz != null) { // && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showWinrate) {
         g.drawImage(owner.getWinrateContainer(this), x, y, null);
         int hh = height * 3 / 13;

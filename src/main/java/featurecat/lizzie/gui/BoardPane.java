@@ -130,6 +130,7 @@ public class BoardPane extends LizziePane {
     if (LizzieMain.winratePane != null) {
       LizzieMain.winratePane.clear();
     }
+    started = false;
     owner.updateStatus();
   }
 

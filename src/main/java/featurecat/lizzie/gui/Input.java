@@ -3,8 +3,13 @@ package featurecat.lizzie.gui;
 import static java.awt.event.KeyEvent.*;
 
 import featurecat.lizzie.Lizzie;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
@@ -12,9 +17,13 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) // left click
-    Lizzie.frame.onClicked(e.getX(), e.getY());
-    else if (e.getButton() == MouseEvent.BUTTON3) // right click
+    if (e.getButton() == MouseEvent.BUTTON1) { // left click
+      if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
+        Lizzie.frame.onDoubleClicked(e.getX(), e.getY());
+      } else {
+        Lizzie.frame.onClicked(e.getX(), e.getY());
+      }
+    } else if (e.getButton() == MouseEvent.BUTTON3) // right click
     undo();
   }
 
@@ -171,6 +180,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     // If any controls key is pressed, let's disable analysis mode.
     // This is probably the user attempting to exit analysis mode.
     boolean shouldDisableAnalysis = true;
+    int refreshType = 1;
 
     switch (e.getKeyCode()) {
       case VK_E:
@@ -325,12 +335,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_W:
         if (controlIsPressed(e)) {
           Lizzie.config.toggleLargeWinrate();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         } else if (e.isAltDown()) {
           Lizzie.frame.toggleDesignMode();
         } else {
           Lizzie.config.toggleShowWinrate();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -340,7 +350,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_G:
         Lizzie.config.toggleShowVariationGraph();
-        Lizzie.frame.refresh(2);
+        refreshType = 2;
         break;
 
       case VK_T:
@@ -348,7 +358,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.config.toggleShowCommentNodeColor();
         } else {
           Lizzie.config.toggleShowComment();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -361,7 +371,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -419,14 +429,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_OPEN_BRACKET:
         if (Lizzie.frame.boardPositionProportion > 0) {
           Lizzie.frame.boardPositionProportion--;
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
       case VK_CLOSE_BRACKET:
         if (Lizzie.frame.boardPositionProportion < 8) {
           Lizzie.frame.boardPositionProportion++;
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -447,6 +457,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_9:
         if (controlIsPressed(e)) {
           Lizzie.switchEngine(e.getKeyCode() - VK_0);
+          refreshType = 0;
         }
         break;
       default:
@@ -455,7 +466,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     if (shouldDisableAnalysis && Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
 
-    Lizzie.frame.refresh(1);
+    Lizzie.frame.refresh(refreshType);
   }
 
   private boolean wasPonderingWhenControlsShown = false;

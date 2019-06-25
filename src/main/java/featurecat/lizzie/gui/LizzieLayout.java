@@ -345,7 +345,6 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       int boardY = topInset + (height - topInset - bottomInset - mainBoardParam[3]) / 2;
 
       int panelMargin = (int) (mainBoardParam[0] * 0.02);
-
       // captured stones
       int capx = leftInset;
       int capy = topInset;

@@ -6,7 +6,15 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.util.EncodingDetector;
-import java.io.*;
+import featurecat.lizzie.util.Utils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -214,7 +222,7 @@ public class SGFParser {
               Lizzie.board.place(move[0], move[1], color, newBranch);
             }
             if (newBranch) {
-              processPendingPros(pendingProps);
+              processPendingPros(Lizzie.board.getHistory(), pendingProps);
             }
           } else if (tag.equals("C")) {
             // Support comment

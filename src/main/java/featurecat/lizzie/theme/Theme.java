@@ -2,13 +2,17 @@ package featurecat.lizzie.theme;
 
 import static java.io.File.separator;
 
+import featurecat.lizzie.Lizzie;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,15 +31,31 @@ public class Theme {
   BufferedImage backgroundCached = null;
 
   private String configFile = "theme.txt";
-  private String pathPrefix = "theme" + separator;
-  private String path = null;
-  private JSONObject config = new JSONObject();
+  public static String pathPrefix = "theme" + separator;
+  public String path = null;
+  public JSONObject config = new JSONObject();
   private JSONObject uiConfig = null;
   private Optional<List<Double>> blunderWinrateThresholds = Optional.empty();
 
   public Theme(JSONObject uiConfig) {
     this.uiConfig = uiConfig;
     String themeName = uiConfig.optString("theme");
+    this.path = this.pathPrefix + (themeName.isEmpty() ? "" : themeName + separator);
+    File file = new File(this.path + this.configFile);
+    if (file.canRead()) {
+      FileInputStream fp;
+      try {
+        fp = new FileInputStream(file);
+        config = new JSONObject(new JSONTokener(fp));
+        fp.close();
+      } catch (IOException e) {
+      } catch (JSONException e) {
+      }
+    }
+  }
+
+  public Theme(String themeName) {
+    this.uiConfig = Lizzie.config.uiConfig;
     this.path = this.pathPrefix + (themeName.isEmpty() ? "" : themeName + separator);
     File file = new File(this.path + this.configFile);
     if (file.canRead()) {
@@ -76,6 +96,22 @@ public class Theme {
       backgroundCached = getImageByKey("background-image", "background.png", "background.jpg");
     }
     return backgroundCached;
+  }
+
+  public String blackStonePath() {
+    return getImagePathByKey("black-stone-image");
+  }
+
+  public String whiteStonePath() {
+    return getImagePathByKey("white-stone-image");
+  }
+
+  public String boardPath() {
+    return getImagePathByKey("board-image");
+  }
+
+  public String backgroundPath() {
+    return getImagePathByKey("background-image");
   }
 
   /** Use custom font for general text */
@@ -128,16 +164,12 @@ public class Theme {
     return getIntByKey("comment-font-size", 3);
   }
 
-  /** The size of the shadow */
+  /** The node color mode */
   public int nodeColorMode() {
     return getIntByKey("node-color-mode", 0);
   }
 
-  /**
-   * The background color of the comment panel
-   *
-   * @return
-   */
+  /** The background color of the comment panel */
   public Color commentBackgroundColor() {
     return getColorByKey("comment-background-color", new Color(0, 0, 0, 200));
   }
@@ -211,7 +243,7 @@ public class Theme {
   }
 
   /** Convert option color array to Color */
-  private Color array2Color(JSONArray a, Color defaultColor) {
+  public static Color array2Color(JSONArray a, Color defaultColor) {
     if (a != null) {
       if (a.length() == 3) {
         return new Color(a.getInt(0), a.getInt(1), a.getInt(2));
@@ -222,20 +254,43 @@ public class Theme {
     return defaultColor;
   }
 
+  /** Convert Color to option color array */
+  public static JSONArray color2Array(Color c) {
+    JSONArray a = new JSONArray("[]");
+    if (c != null) {
+      a.put(c.getRed());
+      a.put(c.getGreen());
+      a.put(c.getBlue());
+      if (c.getAlpha() != 255) {
+        a.put(c.getAlpha());
+      }
+    }
+    return a;
+  }
+
+  private String getImagePathByKey(String key) {
+    return config.optString(key);
+  }
+
   private BufferedImage getImageByKey(String key, String defaultValue, String defaultImg) {
     BufferedImage image = null;
-    String p = this.path + config.optString(key, defaultValue);
+    String p = config.optString(key, defaultValue);
     try {
       image = ImageIO.read(new File(p));
-    } catch (IOException e) {
+    } catch (IOException e0) {
       try {
-        p = this.pathPrefix + uiConfig.optString(key, defaultValue);
+        p = this.path + config.optString(key, defaultValue);
         image = ImageIO.read(new File(p));
-      } catch (IOException e1) {
+      } catch (IOException e) {
         try {
-          image = ImageIO.read(getClass().getResourceAsStream("/assets/" + defaultImg));
-        } catch (IOException e2) {
-          e2.printStackTrace();
+          p = this.pathPrefix + uiConfig.optString(key, defaultValue);
+          image = ImageIO.read(new File(p));
+        } catch (IOException e1) {
+          try {
+            image = ImageIO.read(getClass().getResourceAsStream("/assets/" + defaultImg));
+          } catch (IOException e2) {
+            e2.printStackTrace();
+          }
         }
       }
     }
@@ -244,5 +299,31 @@ public class Theme {
 
   private int getIntByKey(String key, int defaultValue) {
     return config.optInt(key, uiConfig.optInt(key, defaultValue));
+  }
+
+  public void save() {
+    try {
+      File file = new File(this.path + this.configFile);
+      file.createNewFile();
+
+      FileOutputStream fp = new FileOutputStream(file);
+      OutputStreamWriter writer = new OutputStreamWriter(fp);
+
+      Iterator<String> keys = config.keys();
+      while (keys.hasNext()) {
+        String key = keys.next();
+        Object value = config.get(key);
+        if (value == null || (value instanceof String && ((String) value).trim().isEmpty())) {
+          keys.remove();
+        }
+      }
+
+      writer.write(config.toString(2));
+
+      writer.close();
+      fp.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 }

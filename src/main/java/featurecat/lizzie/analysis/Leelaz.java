@@ -120,6 +120,7 @@ public class Leelaz {
       return;
     }
 
+    isLoaded = false;
     commands = splitCommand(engineCommand);
 
     // Get weight name
@@ -218,6 +219,10 @@ public class Leelaz {
     String[] variations = line.split(" info ");
     for (String var : variations) {
       if (!var.trim().isEmpty()) {
+        if (Lizzie.config.limitBestMoveNum > 0
+            && bestMoves.size() >= Lizzie.config.limitBestMoveNum) {
+          break;
+        }
         bestMoves.add(MoveData.fromInfo(var));
       }
     }
@@ -250,6 +255,9 @@ public class Leelaz {
       } else if (line.equals("\n")) {
         // End of response
       } else if (line.startsWith("info")) {
+        if (!isLoaded) {
+          Lizzie.frame.refresh();
+        }
         isLoaded = true;
         // Clear switching prompt
         switching = false;
@@ -267,13 +275,19 @@ public class Leelaz {
           }
         }
       } else if (line.contains(" -> ")) {
+        if (!isLoaded) {
+          Lizzie.frame.refresh();
+        }
         isLoaded = true;
         if (isResponseUpToDate()
             || isThinking
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          bestMoves.add(MoveData.fromSummary(line));
-          notifyBestMoveListeners();
+          if (Lizzie.config.limitBestMoveNum == 0
+              || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
+            bestMoves.add(MoveData.fromSummary(line));
+            notifyBestMoveListeners();
             Lizzie.frame.refresh(1);
+          }
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze
@@ -305,7 +319,8 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
             Lizzie.board.place(params[1]);
-            togglePonder();
+            // TODO Do not ponder when playing against Leela Zero
+            //            togglePonder();
             if (!isInputCommand) {
               isPondering = false;
             }

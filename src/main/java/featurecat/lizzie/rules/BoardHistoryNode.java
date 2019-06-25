@@ -473,6 +473,40 @@ public class BoardHistoryNode {
   }
 
   /**
+   * Finds the next node with the comment.
+   *
+   * @return the first next node with comment, if any, Optional.empty otherwise
+   */
+  public Optional<BoardHistoryNode> findNextNodeWithComment() {
+    BoardHistoryNode node = this;
+    while (node.next().isPresent()) {
+      BoardHistoryNode next = node.next().get();
+      if (!next.getData().comment.isEmpty()) {
+        return Optional.ofNullable(next);
+      }
+      node = next;
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Finds the previous node with the comment.
+   *
+   * @return the first previous node with comment, if any, Optional.empty otherwise
+   */
+  public Optional<BoardHistoryNode> findPreviousNodeWithComment() {
+    BoardHistoryNode node = this;
+    while (node.previous().isPresent()) {
+      BoardHistoryNode previous = node.previous().get();
+      if (!previous.getData().comment.isEmpty()) {
+        return Optional.ofNullable(previous);
+      }
+      node = previous;
+    }
+    return Optional.empty();
+  }
+
+  /**
    * Go to the next node with the comment.
    *
    * @return the move count to the next node with comment, 0 otherwise

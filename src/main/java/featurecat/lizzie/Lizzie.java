@@ -8,9 +8,11 @@ import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.json.JSONArray;
 
 /** Main class. */
 public class Lizzie {
