@@ -117,6 +117,7 @@ public class Leelaz {
       return;
     }
 
+    isLoaded = false;
     commands = splitCommand(engineCommand);
 
     // Get weight name
@@ -215,6 +216,10 @@ public class Leelaz {
     String[] variations = line.split(" info ");
     for (String var : variations) {
       if (!var.trim().isEmpty()) {
+        if (Lizzie.config.limitBestMoveNum > 0
+            && bestMoves.size() >= Lizzie.config.limitBestMoveNum) {
+          break;
+        }
         bestMoves.add(MoveData.fromInfo(var));
       }
     }
@@ -247,6 +252,9 @@ public class Leelaz {
       } else if (line.equals("\n")) {
         // End of response
       } else if (line.startsWith("info")) {
+        if (!isLoaded) {
+          Lizzie.frame.refresh();
+        }
         isLoaded = true;
         // Clear switching prompt
         switching = false;
@@ -256,7 +264,7 @@ public class Leelaz {
           // This should not be stale data when the command number match
           this.bestMoves = parseInfo(line.substring(5));
           notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+          Lizzie.frame.refresh(1);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
@@ -264,13 +272,19 @@ public class Leelaz {
           }
         }
       } else if (line.contains(" -> ")) {
+        if (!isLoaded) {
+          Lizzie.frame.refresh();
+        }
         isLoaded = true;
         if (isResponseUpToDate()
             || isThinking
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          bestMoves.add(MoveData.fromSummary(line));
-          notifyBestMoveListeners();
-          Lizzie.frame.repaint();
+          if (Lizzie.config.limitBestMoveNum == 0
+              || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
+            bestMoves.add(MoveData.fromSummary(line));
+            notifyBestMoveListeners();
+            Lizzie.frame.refresh(1);
+          }
         }
       } else if (line.startsWith("play")) {
         // In lz-genmove_analyze
@@ -302,20 +316,21 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
             Lizzie.board.place(params[1]);
-            togglePonder();
             if (Lizzie.frame.isAutoCounting) {
               if (Lizzie.board.getHistory().isBlacksTurn())
                 Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
               else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
               Lizzie.frame.zen.countStones();
             }
-          }
-          if (!isInputCommand) {
-            isPondering = false;
-          }
-          isThinking = false;
-          if (isInputCommand) {
-            isInputCommand = false;
+            // TODO Do not ponder when playing against Leela Zero
+            //            togglePonder();
+            if (!isInputCommand) {
+              isPondering = false;
+            }
+            isThinking = false;
+            if (isInputCommand) {
+              isInputCommand = false;
+            }
           }
         } else if (isCheckingVersion) {
           String[] ver = params[1].split("\\.");
@@ -540,6 +555,7 @@ public class Leelaz {
     } else {
       sendCommand("name"); // ends pondering
     }
+    Lizzie.frame.updateBasicInfo();
   }
 
   /** End the process */
