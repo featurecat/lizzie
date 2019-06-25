@@ -207,7 +207,6 @@ public class Config {
     limitBestMoveNum = uiConfig.optInt("limit-best-move-num", 0);
     limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
     minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.0);
-
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
