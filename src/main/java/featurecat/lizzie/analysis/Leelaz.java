@@ -338,6 +338,7 @@ public class Leelaz {
                     + ")");
           }
           isCheckingVersion = false;
+          Lizzie.initializeAfterVersionCheck();
         }
       }
     }
