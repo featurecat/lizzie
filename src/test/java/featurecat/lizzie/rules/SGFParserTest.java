@@ -24,7 +24,7 @@ public class SGFParserTest {
     lizzie.board = new Board();
     //    lizzie.frame = new LizzieFrame();
     // new Thread( () -> {
-    lizzie.leelaz = new Leelaz();
+    lizzie.leelaz = new Leelaz("");
     // }).start();
 
     testVariaionOnly1();

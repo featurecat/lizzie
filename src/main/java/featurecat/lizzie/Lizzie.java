@@ -9,11 +9,9 @@ import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import org.json.JSONArray;
 
 /** Main class. */
 public class Lizzie {
@@ -24,13 +22,13 @@ public class Lizzie {
   public static Leelaz leelaz;
   public static String lizzieVersion = "0.7";
   private static String[] mainArgs;
+  public static EngineManager engineManager;
 
   /** Launches the game window, and runs the game. */
   public static void main(String[] args) throws IOException {
     setLookAndFeel();
     mainArgs = args;
     config = new Config();
-    board = new Board();
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
