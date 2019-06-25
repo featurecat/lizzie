@@ -340,7 +340,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       int capx = leftInset;
       int capy = topInset;
       int capw = boardX - panelMargin - leftInset;
-      int caph = boardY + maxSize / 8 - topInset;
+      int caph = maxSize / 8;
 
       // move statistics (winrate bar)
       // boardX equals width of space on each side
@@ -383,7 +383,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           int panelH = spaceH / 4;
 
           // captured stones
-          capw = panelW;
+          capw = (noVariation && noComment) ? spaceW : panelW;
           caph = (int) (panelH * 0.2);
           // move statistics (winrate bar)
           staty = capy + caph;
@@ -403,7 +403,7 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardHeight = ponderingY - subBoardY;
           subBoardLength =
               BoardRenderer.availableLength(Math.min(subBoardWidth, subBoardHeight), false);
-          subBoardX = statx + (statw + vw - subBoardLength) / 2;
+          subBoardX = statx + (spaceW - subBoardLength) / 2;
         } else if (Lizzie.config.showLargeWinrate() && !noWinrate) {
           boardX = width - maxSize - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;

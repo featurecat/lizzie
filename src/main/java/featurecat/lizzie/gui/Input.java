@@ -180,6 +180,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     // If any controls key is pressed, let's disable analysis mode.
     // This is probably the user attempting to exit analysis mode.
     boolean shouldDisableAnalysis = true;
+    int refreshType = 1;
 
     switch (e.getKeyCode()) {
       case VK_E:
@@ -236,7 +237,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_N:
         // stop the ponder
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        Lizzie.frame.startNewGame();
+        Lizzie.frame.startGame();
         break;
       case VK_SPACE:
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
@@ -334,18 +335,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_W:
         if (controlIsPressed(e)) {
           Lizzie.config.toggleLargeWinrate();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         } else if (e.isAltDown()) {
           Lizzie.frame.toggleDesignMode();
         } else {
           Lizzie.config.toggleShowWinrate();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
       case VK_G:
         Lizzie.config.toggleShowVariationGraph();
-        Lizzie.frame.refresh(2);
+        refreshType = 2;
         break;
 
       case VK_T:
@@ -353,7 +354,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.config.toggleShowCommentNodeColor();
         } else {
           Lizzie.config.toggleShowComment();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -366,7 +367,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -424,14 +425,14 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_OPEN_BRACKET:
         if (Lizzie.frame.boardPositionProportion > 0) {
           Lizzie.frame.boardPositionProportion--;
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
       case VK_CLOSE_BRACKET:
         if (Lizzie.frame.boardPositionProportion < 8) {
           Lizzie.frame.boardPositionProportion++;
-          Lizzie.frame.refresh(2);
+          refreshType = 2;
         }
         break;
 
@@ -452,6 +453,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_9:
         if (controlIsPressed(e)) {
           Lizzie.switchEngine(e.getKeyCode() - VK_0);
+          refreshType = 0;
         }
         break;
       default:
@@ -460,7 +462,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     if (shouldDisableAnalysis && Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
 
-    Lizzie.frame.refresh(1);
+    Lizzie.frame.refresh(refreshType);
   }
 
   private boolean wasPonderingWhenControlsShown = false;

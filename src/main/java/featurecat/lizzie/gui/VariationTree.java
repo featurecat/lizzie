@@ -150,9 +150,12 @@ public class VariationTree {
     }
 
     // Draw main line
-    while (cur.next().isPresent() && posy + YSPACING < maxposy) {
+    while (cur.next(true).isPresent() && posy + YSPACING < maxposy) {
       posy += YSPACING;
-      cur = cur.next().get();
+      cur = cur.next(true).get();
+      if (cur.isEndDummay()) {
+        continue;
+      }
       if (calc) {
         if (inNode(curposx + dotoffset, posy + dotoffset)) {
           return Optional.of(cur);

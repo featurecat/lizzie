@@ -305,31 +305,45 @@ public class LizzieFrame extends MainFrame {
     }
   }
 
-  public void startNewGame() {
+  @Override
+  public void startGame() {
     GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
 
-    NewGameDialog newGameDialog = new NewGameDialog();
-    newGameDialog.setGameInfo(gameInfo);
-    newGameDialog.setVisible(true);
-    boolean playerIsBlack = newGameDialog.playerIsBlack();
-    newGameDialog.dispose();
-    if (newGameDialog.isCancelled()) return;
+    NewGameDialog gameDialog = new NewGameDialog();
+    gameDialog.setGameInfo(gameInfo);
+    gameDialog.setVisible(true);
+    boolean playerIsBlack = gameDialog.playerIsBlack();
+    boolean isNewGame = gameDialog.isNewGame();
+    //    gameDialog.dispose();
+    if (gameDialog.isCancelled()) return;
 
-    Lizzie.board.clear();
-    Lizzie.board.getHistory().setGameInfo(gameInfo);
+    if (isNewGame) {
+      Lizzie.board.clear();
+    }
     Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
 
     Lizzie.leelaz.time_settings();
     Lizzie.frame.playerIsBlack = playerIsBlack;
+    Lizzie.frame.isNewGame = isNewGame;
     Lizzie.frame.isPlayingAgainstLeelaz = true;
 
     boolean isHandicapGame = gameInfo.getHandicap() != 0;
-    if (isHandicapGame) {
-      Lizzie.board.getHistory().getData().blackToPlay = false;
-      Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
-      if (playerIsBlack) Lizzie.leelaz.genmove("W");
-    } else if (!playerIsBlack) {
-      Lizzie.leelaz.genmove("B");
+    if (isNewGame) {
+      Lizzie.board.getHistory().setGameInfo(gameInfo);
+      if (isHandicapGame) {
+        Lizzie.board.getHistory().getData().blackToPlay = false;
+        Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
+        if (playerIsBlack) Lizzie.leelaz.genmove("W");
+      } else if (!playerIsBlack) {
+        Lizzie.leelaz.genmove("B");
+      }
+    } else {
+      Lizzie.board.getHistory().setGameInfo(gameInfo);
+      if (Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay) {
+        if (!Lizzie.leelaz.isThinking) {
+          Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "B" : "W"));
+        }
+      }
     }
   }
 
@@ -455,10 +469,20 @@ public class LizzieFrame extends MainFrame {
       int bottomInset = this.getInsets().bottom;
       int maxBound = Math.max(width, height);
 
+      boolean noWinrate = !Lizzie.config.showWinrate;
+      boolean noVariation = !Lizzie.config.showVariationGraph;
+      boolean noBasic = !Lizzie.config.showCaptured;
+      boolean noSubBoard = !Lizzie.config.showSubBoard;
+      boolean noComment = !Lizzie.config.showComment;
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
       maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
       int boardX = (width - maxSize) / 8 * boardPositionProportion;
+      if (noBasic && noWinrate && noSubBoard) {
+        boardX = leftInset;
+      } else if (noVariation && noComment) {
+        boardX = (width - maxSize);
+      }
       int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
 
       int panelMargin = (int) (maxSize * 0.02);
@@ -515,7 +539,7 @@ public class LizzieFrame extends MainFrame {
 
       if (width >= height) {
         // Landscape mode
-        if (Lizzie.config.showLargeSubBoard()) {
+        if (Lizzie.config.showLargeSubBoard() && !noSubBoard) {
           boardX = width - maxSize - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;
           int spaceH = height - topInset - bottomInset;
@@ -523,7 +547,7 @@ public class LizzieFrame extends MainFrame {
           int panelH = spaceH / 4;
 
           // captured stones
-          capw = panelW;
+          capw = (noVariation && noComment) ? spaceW : panelW;
           caph = (int) (panelH * 0.2);
           // move statistics (winrate bar)
           staty = capy + caph;
@@ -542,7 +566,7 @@ public class LizzieFrame extends MainFrame {
           subBoardWidth = spaceW;
           subBoardHeight = ponderingY - subBoardY;
           subBoardLength = Math.min(subBoardWidth, subBoardHeight);
-          subBoardX = statx + (statw + vw - subBoardLength) / 2;
+          subBoardX = statx + (spaceW - subBoardLength) / 2;
         } else if (Lizzie.config.showLargeWinrate()) {
           boardX = width - maxSize - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;
@@ -575,7 +599,7 @@ public class LizzieFrame extends MainFrame {
         }
       } else {
         // Portrait mode
-        if (Lizzie.config.showLargeSubBoard()) {
+        if (Lizzie.config.showLargeSubBoard() && !noSubBoard) {
           // board
           maxSize = (int) (maxSize * 0.8);
           boardY = height - maxSize - bottomInset;
@@ -608,7 +632,7 @@ public class LizzieFrame extends MainFrame {
           subBoardY = capy + (gry + grh - capy - subBoardLength) / 2;
           // pondering message
           ponderingY = height;
-        } else if (Lizzie.config.showLargeWinrate()) {
+        } else if (Lizzie.config.showLargeWinrate() && !noWinrate) {
           // board
           maxSize = (int) (maxSize * 0.8);
           boardY = height - maxSize - bottomInset;
@@ -1179,10 +1203,14 @@ public class LizzieFrame extends MainFrame {
     int diam = height / 3;
     int smallDiam = diam / 2;
     int bdiam = diam, wdiam = diam;
-    if (Lizzie.board.inScoreMode()) {
-      // do nothing
-    } else if (Lizzie.board.getHistory().isBlacksTurn()) {
-      wdiam = smallDiam;
+    if (Lizzie.board != null) {
+      if (Lizzie.board.inScoreMode()) {
+        // do nothing
+      } else if (Lizzie.board.getHistory().isBlacksTurn()) {
+        wdiam = smallDiam;
+      } else {
+        bdiam = smallDiam;
+      }
     } else {
       bdiam = smallDiam;
     }
@@ -1197,6 +1225,9 @@ public class LizzieFrame extends MainFrame {
     // Draw captures
     String bval, wval;
     setPanelFont(g, (float) (height * 0.18));
+    if (Lizzie.board == null) {
+      return;
+    }
     if (Lizzie.board.inScoreMode()) {
       double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
       bval = String.format("%.0f", score[0]);
@@ -1459,6 +1490,7 @@ public class LizzieFrame extends MainFrame {
     }
     Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     commentPane.setFont(font);
+    comment = comment.replaceAll("(\r\n)|(\n)", "<br />").replaceAll(" ", "&nbsp;");
     commentPane.setText(comment);
     commentPane.setSize(w, h);
     createCommentImage(!comment.equals(this.cachedComment), w, h);

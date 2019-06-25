@@ -17,6 +17,8 @@ public abstract class MainFrame extends JFrame {
   public boolean showControls = false;
   public static Font uiFont;
   public static Font winrateFont;
+  // Force refresh board
+  private boolean forceRefresh;
 
   public MainFrame(String title) throws HeadlessException {
     super(title);
@@ -41,6 +43,14 @@ public abstract class MainFrame extends JFrame {
    */
   public void refresh(int type) {
     repaint();
+  }
+
+  public boolean isForceRefresh() {
+    return forceRefresh;
+  }
+
+  public void setForceRefresh(boolean forceRefresh) {
+    this.forceRefresh = forceRefresh;
   }
 
   public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
@@ -93,7 +103,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void toggleGtpConsole();
 
-  public abstract void startNewGame();
+  public abstract void startGame();
 
   public abstract void editGameInfo();
 

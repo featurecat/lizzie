@@ -198,7 +198,7 @@ public class SGFParser {
               Lizzie.board.place(move[0], move[1], color, newBranch);
             }
             if (newBranch) {
-              processPendingPros(pendingProps);
+              processPendingPros(Lizzie.board.getHistory(), pendingProps);
             }
           } else if (tag.equals("C")) {
             // Support comment
@@ -225,7 +225,7 @@ public class SGFParser {
                         .replaceAll("[^0-9]", ""));
             Lizzie.board.getData().setPlayouts(numPlayouts);
             if (numPlayouts > 0 && !line2.isEmpty()) {
-              Lizzie.board.getData().bestMoves = Leelaz.parseInfo(line2);
+              Lizzie.board.getData().bestMoves = Lizzie.leelaz.parseInfo(line2);
             }
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
@@ -239,7 +239,7 @@ public class SGFParser {
                 boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
                 Lizzie.board.pass(color, newBranch, true);
                 if (newBranch) {
-                  processPendingPros(pendingProps);
+                  processPendingPros(Lizzie.board.getHistory(), pendingProps);
                 }
                 addPassForMove = false;
               }
@@ -283,7 +283,7 @@ public class SGFParser {
                   boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
                   Lizzie.board.pass(color, newBranch, true);
                   if (newBranch) {
-                    processPendingPros(pendingProps);
+                    processPendingPros(Lizzie.board.getHistory(), pendingProps);
                   }
                   addPassForMove = false;
                 }
@@ -735,8 +735,8 @@ public class SGFParser {
     return sb.toString();
   }
 
-  private static void processPendingPros(Map<String, String> props) {
-    props.forEach((key, value) -> Lizzie.board.addNodeProperty(key, value));
+  private static void processPendingPros(BoardHistoryList history, Map<String, String> props) {
+    props.forEach((key, value) -> history.addNodeProperty(key, value));
     props = new HashMap<String, String>();
   }
 

@@ -105,10 +105,14 @@ public class BasicInfoPane extends LizziePane {
     int diam = height / 3;
     int smallDiam = diam / 2;
     int bdiam = diam, wdiam = diam;
-    if (Lizzie.board.inScoreMode()) {
-      // do nothing
-    } else if (Lizzie.board.getHistory().isBlacksTurn()) {
-      wdiam = smallDiam;
+    if (Lizzie.board != null) {
+      if (Lizzie.board.inScoreMode()) {
+        // do nothing
+      } else if (Lizzie.board.getHistory().isBlacksTurn()) {
+        wdiam = smallDiam;
+      } else {
+        bdiam = smallDiam;
+      }
     } else {
       bdiam = smallDiam;
     }
@@ -123,6 +127,9 @@ public class BasicInfoPane extends LizziePane {
     // Draw captures
     String bval, wval;
     setPanelFont(g, (float) (height * 0.18));
+    if (Lizzie.board == null) {
+      return;
+    }
     if (Lizzie.board.inScoreMode()) {
       double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
       bval = String.format("%.0f", score[0]);

@@ -23,6 +23,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -113,11 +114,14 @@ public class BoardPane extends LizziePane {
           }
         });
     addMouseMotionListener(
-        new MouseAdapter() {
+        new MouseMotionListener() {
           @Override
           public void mouseMoved(MouseEvent e) {
             onMouseMoved(e.getX(), e.getY());
           }
+
+          @Override
+          public void mouseDragged(MouseEvent e) {}
         });
   }
 
@@ -126,6 +130,7 @@ public class BoardPane extends LizziePane {
     if (LizzieMain.winratePane != null) {
       LizzieMain.winratePane.clear();
     }
+    started = false;
     owner.updateStatus();
   }
 
@@ -146,26 +151,13 @@ public class BoardPane extends LizziePane {
 
     if (!owner.showControls) {
       // layout parameters
-
-      int topInset = this.getInsets().top;
-      int leftInset = this.getInsets().left;
-      int rightInset = this.getInsets().right;
-      int bottomInset = this.getInsets().bottom;
-
-      // board
-      int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
-      maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
-      int boardX = (width - maxSize) / 2;
-      int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
-
       // initialize
-
       cachedImage = new BufferedImage(width, height, TYPE_INT_ARGB);
       Graphics2D g = (Graphics2D) cachedImage.getGraphics();
       g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-      boardRenderer.setLocation(boardX, boardY);
-      boardRenderer.setBoardLength(maxSize);
+      boardRenderer.setLocation(0, 0);
+      boardRenderer.setBoardLength(width);
       boardRenderer.draw(g);
 
       owner.repaintSub();

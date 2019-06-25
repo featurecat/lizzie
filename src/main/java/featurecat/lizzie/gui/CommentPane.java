@@ -100,6 +100,7 @@ public class CommentPane extends LizziePane {
         }
         Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
         commentPane.setFont(font);
+        comment = comment.replaceAll("(\r\n)|(\n)", "<br />").replaceAll(" ", "&nbsp;");
         addText("<span class=\"comment\">" + comment + "</span>");
       }
     }

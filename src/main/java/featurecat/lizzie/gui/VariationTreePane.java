@@ -65,7 +65,7 @@ public class VariationTreePane extends LizziePane {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-    if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
+    if (Lizzie.leelaz != null) { // && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showVariationGraph) {
         g.drawImage(owner.getVariationContainer(this), x, y, null);
         if (Lizzie.config.showVariationGraph) {
