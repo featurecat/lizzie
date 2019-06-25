@@ -6,7 +6,15 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.util.EncodingDetector;
-import java.io.*;
+import featurecat.lizzie.util.Utils;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -190,7 +198,7 @@ public class SGFParser {
               Lizzie.board.place(move[0], move[1], color, newBranch);
             }
             if (newBranch) {
-              processPendingPros(pendingProps);
+              processPendingPros(Lizzie.board.getHistory(), pendingProps);
             }
           } else if (tag.equals("C")) {
             // Support comment
@@ -217,7 +225,7 @@ public class SGFParser {
                         .replaceAll("[^0-9]", ""));
             Lizzie.board.getData().setPlayouts(numPlayouts);
             if (numPlayouts > 0 && !line2.isEmpty()) {
-              Lizzie.board.getData().bestMoves = Leelaz.parseInfo(line2);
+              Lizzie.board.getData().bestMoves = Lizzie.leelaz.parseInfo(line2);
             }
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
@@ -231,7 +239,7 @@ public class SGFParser {
                 boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
                 Lizzie.board.pass(color, newBranch, true);
                 if (newBranch) {
-                  processPendingPros(pendingProps);
+                  processPendingPros(Lizzie.board.getHistory(), pendingProps);
                 }
                 addPassForMove = false;
               }
@@ -275,7 +283,7 @@ public class SGFParser {
                   boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
                   Lizzie.board.pass(color, newBranch, true);
                   if (newBranch) {
-                    processPendingPros(pendingProps);
+                    processPendingPros(Lizzie.board.getHistory(), pendingProps);
                   }
                   addPassForMove = false;
                 }
@@ -326,6 +334,7 @@ public class SGFParser {
     // Set AW/AB Comment
     if (!headComment.isEmpty()) {
       Lizzie.board.comment(headComment);
+      Lizzie.frame.refresh();
     }
     if (gameProperties.size() > 0) {
       Lizzie.board.addNodeProperties(gameProperties);
@@ -504,7 +513,7 @@ public class SGFParser {
     String engine = Lizzie.leelaz.currentWeight();
 
     // Playouts
-    String playouts = Lizzie.frame.getPlayoutsString(data.getPlayouts());
+    String playouts = Utils.getPlayoutsString(data.getPlayouts());
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
@@ -569,7 +578,7 @@ public class SGFParser {
     BoardData data = node.getData();
 
     // Playouts
-    String playouts = Lizzie.frame.getPlayoutsString(data.getPlayouts());
+    String playouts = Utils.getPlayoutsString(data.getPlayouts());
 
     // Last winrate
     Optional<BoardData> lastNode = node.previous().flatMap(n -> Optional.of(n.getData()));
@@ -726,8 +735,8 @@ public class SGFParser {
     return sb.toString();
   }
 
-  private static void processPendingPros(Map<String, String> props) {
-    props.forEach((key, value) -> Lizzie.board.addNodeProperty(key, value));
+  private static void processPendingPros(BoardHistoryList history, Map<String, String> props) {
+    props.forEach((key, value) -> history.addNodeProperty(key, value));
     props = new HashMap<String, String>();
   }
 

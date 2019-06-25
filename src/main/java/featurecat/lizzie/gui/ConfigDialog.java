@@ -37,7 +37,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
-import javax.swing.text.DocumentFilter.FilterBypass;
 import javax.swing.text.InternationalFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
