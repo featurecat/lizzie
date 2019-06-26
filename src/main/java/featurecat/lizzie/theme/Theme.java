@@ -189,6 +189,10 @@ public class Theme {
     return getColorByKey("winrate-line-color", Color.green);
   }
 
+  public Color scoreMeanLineColor() {
+    return getColorByKey("scoremean-line-color", Color.MAGENTA.brighter());
+  }
+
   /** The color of the line that missed the winrate */
   public Color winrateMissLineColor() {
     return getColorByKey("winrate-miss-line-color", Color.blue.darker());

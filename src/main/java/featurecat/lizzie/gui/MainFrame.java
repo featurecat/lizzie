@@ -17,6 +17,11 @@ public abstract class MainFrame extends JFrame {
   public boolean showControls = false;
   public static Font uiFont;
   public static Font winrateFont;
+  public BoardRenderer boardRenderer;
+  public BoardRenderer subBoardRenderer;
+  public static BoardPane boardPane;
+  public static SubBoardPane subBoardPane;
+
   // Force refresh board
   private boolean forceRefresh;
 

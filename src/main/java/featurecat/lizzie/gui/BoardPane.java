@@ -75,7 +75,7 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
 
-  private static BoardRenderer boardRenderer;
+  public static BoardRenderer boardRenderer;
 
   //  private final BufferStrategy bs;
   private static boolean started = false;
@@ -157,8 +157,10 @@ public class BoardPane extends LizziePane {
 
       boardRenderer.setLocation(0, 0);
       boardRenderer.setBoardLength(width);
-      boardRenderer.draw(g);
-
+      try {
+        boardRenderer.draw(g);
+      } catch (Exception ex) {
+      }
       owner.repaintSub();
 
       if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded() && !started) {

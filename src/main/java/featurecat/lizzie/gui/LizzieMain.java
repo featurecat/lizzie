@@ -48,8 +48,8 @@ public class LizzieMain extends MainFrame {
   public static BasicInfoPane basicInfoPane;
   private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
 
-  public static BoardPane boardPane;
-  public static SubBoardPane subBoardPane;
+  //  public static BoardPane boardPane;
+  //  public static SubBoardPane subBoardPane;
   public static WinratePane winratePane;
   public static VariationTreePane variationTreePane;
   public static CommentPane commentPane;

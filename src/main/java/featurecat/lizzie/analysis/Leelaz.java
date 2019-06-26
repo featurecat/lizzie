@@ -81,6 +81,10 @@ public class Leelaz {
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN;
   private float dynamicOppKomi = Float.NaN;
+  public boolean isKatago = false;
+  ArrayList<Double> esitmateArray = new ArrayList<Double>();
+  public double scoreMean = 0;
+  public double scoreStdev = 0;
 
   /**
    * Initializes the leelaz process and starts reading output
@@ -113,7 +117,9 @@ public class Leelaz {
       engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
     }
     this.engineCommand = engineCommand;
-
+    if (engineCommand.contains("main")) {
+      this.isKatago = true;
+    }
     // Initialize current engine number and start engine
     currentEngineN = 0;
   }
@@ -236,6 +242,22 @@ public class Leelaz {
     return bestMoves;
   }
 
+  public List<MoveData> parseInfoKatago(String line) {
+    List<MoveData> bestMoves = new ArrayList<>();
+    String[] variations = line.split(" info ");
+    for (String var : variations) {
+      if (!var.trim().isEmpty()) {
+        if (Lizzie.config.limitBestMoveNum > 0
+            && bestMoves.size() >= Lizzie.config.limitBestMoveNum) {
+          break;
+        }
+        bestMoves.add(MoveData.fromInfoKatago(var));
+      }
+    }
+    Lizzie.board.getData().tryToSetBestMoves(bestMoves);
+    return bestMoves;
+  }
+
   /**
    * Parse a line of Leelaz output
    *
@@ -271,7 +293,45 @@ public class Leelaz {
         Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
-          this.bestMoves = parseInfo(line.substring(5));
+          if (isKatago) {
+            this.bestMoves = parseInfoKatago(line.substring(5));
+            if (Lizzie.config.showKataGoEstimate) {
+              if (line.contains("ownership")) {
+                esitmateArray = new ArrayList<Double>();
+                String[] params = line.trim().split("ownership");
+                String[] params2 = params[1].trim().split(" ");
+                for (int i = 0; i < params2.length; i++)
+                  esitmateArray.add(Double.parseDouble(params2[i]));
+                if (Lizzie.config.showKataGoEstimateBySize) {
+                  if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+                    if (Lizzie.config.panelUI)
+                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEsitmateRectKata2(
+                          esitmateArray);
+                    else Lizzie.frame.subBoardRenderer.drawEsitmateRectKata2(esitmateArray);
+                  }
+                  if (Lizzie.config.showKataGoEstimateOnMainbord) {
+                    if (Lizzie.config.panelUI)
+                      Lizzie.frame.boardPane.boardRenderer.drawEsitmateRectKata2(esitmateArray);
+                    else Lizzie.frame.boardRenderer.drawEsitmateRectKata2(esitmateArray);
+                  }
+                } else {
+                  if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+                    if (Lizzie.config.panelUI)
+                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEsitmateRectKata(
+                          esitmateArray);
+                    else Lizzie.frame.subBoardRenderer.drawEsitmateRectKata(esitmateArray);
+                  }
+                  if (Lizzie.config.showKataGoEstimateOnMainbord) {
+                    if (Lizzie.config.panelUI)
+                      Lizzie.frame.boardPane.boardRenderer.drawEsitmateRectKata(esitmateArray);
+                    else Lizzie.frame.boardRenderer.drawEsitmateRectKata(esitmateArray);
+                  }
+                }
+              }
+            }
+          } else {
+            this.bestMoves = parseInfo(line.substring(5));
+          }
           notifyBestMoveListeners();
           Lizzie.frame.refresh(1);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
@@ -436,7 +496,8 @@ public class Leelaz {
    * @param command a GTP command containing no newline characters
    */
   private void sendCommandToLeelaz(String command) {
-    if (command.startsWith("fixed_handicap")) isSettingHandicap = true;
+    if (command.startsWith("fixed_handicap")
+        || (isKatago && command.startsWith("place_free_handicap"))) isSettingHandicap = true;
     if (printCommunication) {
       System.out.printf("> %d %s\n", cmdNumber, command);
     }
@@ -533,15 +594,33 @@ public class Leelaz {
   }
 
   /** This initializes leelaz's pondering mode at its current position */
-  private void ponder() {
+  public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    sendCommand(
-        "lz-analyze "
-            + Lizzie.config
-                .config
-                .getJSONObject("leelaz")
-                .getInt("analyze-update-interval-centisec")); // until it responds to this, incoming
+    if (this.isKatago) {
+      if (Lizzie.config.showKataGoEstimate)
+        sendCommand(
+            "kata-analyze "
+                + Lizzie.config
+                    .config
+                    .getJSONObject("leelaz")
+                    .getInt("analyze-update-interval-centisec")
+                + " ownership true");
+      else
+        sendCommand(
+            "kata-analyze "
+                + Lizzie.config
+                    .config
+                    .getJSONObject("leelaz")
+                    .getInt("analyze-update-interval-centisec"));
+    } else {
+      sendCommand(
+          "lz-analyze "
+              + Lizzie.config
+                  .config
+                  .getJSONObject("leelaz")
+                  .getInt("analyze-update-interval-centisec"));
+    } // until it responds to this, incoming
     // ponder results are obsolete
   }
 

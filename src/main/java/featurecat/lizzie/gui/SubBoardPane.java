@@ -13,7 +13,7 @@ import java.awt.image.BufferedImage;
 /** The window used to display the game. */
 public class SubBoardPane extends LizziePane {
 
-  private static BoardRenderer subBoardRenderer;
+  public static BoardRenderer subBoardRenderer;
   private BufferedImage cachedImage;
 
   //  private final BufferStrategy bs;

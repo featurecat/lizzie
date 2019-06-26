@@ -93,8 +93,8 @@ public class LizzieFrame extends MainFrame {
     resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
   private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
-  private static BoardRenderer boardRenderer;
-  private static BoardRenderer subBoardRenderer;
+  // private static BoardRenderer boardRenderer;
+  // private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
 

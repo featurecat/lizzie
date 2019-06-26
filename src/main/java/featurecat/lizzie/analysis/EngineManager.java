@@ -93,9 +93,20 @@ public class EngineManager {
       }
       curEng.togglePonder();
     }
+
     // TODO: Need keep analyze?
     if (curEng.isPondering()) {
       curEng.togglePonder();
+    }
+
+    if (curEng.isKatago && Lizzie.config.showKataGoEstimate) {
+      if (Lizzie.config.panelUI) {
+        Lizzie.frame.subBoardPane.subBoardRenderer.removeEsitmateRect();
+        Lizzie.frame.boardPane.boardRenderer.removeEsitmateRect();
+      } else {
+        Lizzie.frame.subBoardRenderer.removeEsitmateRect();
+        Lizzie.frame.boardRenderer.removeEsitmateRect();
+      }
     }
     curEng.board.saveMoveNumber();
     try {

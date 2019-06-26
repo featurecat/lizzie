@@ -414,13 +414,46 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_PERIOD:
-        if (!Lizzie.board.getHistory().getNext().isPresent()) {
+        if (e.isAltDown()) {
+          Lizzie.config.showKataGoEstimate = !Lizzie.config.showKataGoEstimate;
+          if (Lizzie.leelaz.isKatago) {
+            Lizzie.leelaz.ponder();
+            if (!Lizzie.config.showKataGoEstimate) {
+              if (Lizzie.config.panelUI) {
+                Lizzie.frame.subBoardPane.subBoardRenderer.removeEsitmateRect();
+                Lizzie.frame.boardPane.boardRenderer.removeEsitmateRect();
+              } else {
+                Lizzie.frame.subBoardRenderer.removeEsitmateRect();
+                Lizzie.frame.boardRenderer.removeEsitmateRect();
+              }
+            }
+          }
+        } else if (!Lizzie.board.getHistory().getNext().isPresent()) {
           Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
         }
+
         break;
 
       case VK_D:
-        toggleShowDynamicKomi();
+        if (e.isAltDown()) {
+          if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate) {
+            Lizzie.config.showKataGoScoreMean = false;
+            Lizzie.config.kataGoNotShowWinrate = false;
+            return;
+          }
+          if (Lizzie.config.showKataGoScoreMean && !Lizzie.config.kataGoNotShowWinrate) {
+            Lizzie.config.kataGoNotShowWinrate = true;
+            return;
+          }
+          if (Lizzie.config.showKataGoScoreMean) {
+            Lizzie.config.showKataGoScoreMean = false;
+            return;
+          }
+          if (!Lizzie.config.showKataGoScoreMean) {
+            Lizzie.config.showKataGoScoreMean = true;
+            Lizzie.config.kataGoNotShowWinrate = false;
+          }
+        } else toggleShowDynamicKomi();
         break;
 
       case VK_R:
