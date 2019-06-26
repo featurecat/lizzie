@@ -1,6 +1,7 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
 import java.io.BufferedInputStream;
@@ -46,6 +47,7 @@ public class Leelaz {
   private boolean printCommunication;
   public boolean gtpConsole;
 
+  public Board board;
   private List<MoveData> bestMoves;
   private List<MoveData> bestMovesTemp;
 
@@ -61,6 +63,8 @@ public class Leelaz {
   public boolean isThinking = false;
   public boolean isInputCommand = false;
 
+  public boolean preload = false;
+  private boolean started = false;
   private boolean isLoaded = false;
   private boolean isCheckingVersion;
 
@@ -83,7 +87,8 @@ public class Leelaz {
    *
    * @throws IOException
    */
-  public Leelaz() throws IOException, JSONException {
+  public Leelaz(String engineCommand) throws IOException, JSONException {
+    board = new Board();
     bestMoves = new ArrayList<>();
     bestMovesTemp = new ArrayList<>();
     listeners = new CopyOnWriteArrayList<>();
@@ -102,17 +107,18 @@ public class Leelaz {
     maxAnalyzeTimeMillis = MINUTE * config.getInt("max-analyze-time-minutes");
 
     // command string for starting the engine
-    engineCommand = config.getString("engine-command");
-    // substitute in the weights file
-    engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
+    if (engineCommand == null || engineCommand.isEmpty()) {
+      engineCommand = config.getString("engine-command");
+      // substitute in the weights file
+      engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
+    }
+    this.engineCommand = engineCommand;
 
     // Initialize current engine number and start engine
     currentEngineN = 0;
-    startEngine(engineCommand);
-    Lizzie.frame.refreshBackground();
   }
 
-  public void startEngine(String engineCommand) throws IOException {
+  public void startEngine() throws IOException {
     if (engineCommand.trim().isEmpty()) {
       return;
     }
@@ -171,9 +177,11 @@ public class Leelaz {
     // can stop engine for switching weights
     executor = Executors.newSingleThreadScheduledExecutor();
     executor.execute(this::read);
+    started = true;
+    Lizzie.frame.refreshBackground();
   }
 
-  public void restartEngine(String engineCommand, int index) throws IOException {
+  public void restartEngine() throws IOException {
     if (engineCommand.trim().isEmpty()) {
       return;
     }
@@ -184,8 +192,8 @@ public class Leelaz {
       Lizzie.leelaz.togglePonder();
     }
     normalQuit();
-    startEngine(engineCommand);
-    currentEngineN = index;
+    startEngine();
+    //    currentEngineN = index;
     togglePonder();
   }
 
@@ -203,6 +211,7 @@ public class Leelaz {
       executor.shutdownNow();
       Thread.currentThread().interrupt();
     }
+    started = false;
   }
 
   /** Initializes the input and output streams */
@@ -731,6 +740,10 @@ public class Leelaz {
       commandList.add(param.toString());
     }
     return commandList;
+  }
+
+  public boolean isStarted() {
+    return started;
   }
 
   public boolean isLoaded() {

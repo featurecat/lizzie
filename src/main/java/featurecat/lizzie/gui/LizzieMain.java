@@ -158,7 +158,7 @@ public class LizzieMain extends MainFrame {
               int maxBound = Math.max(width, height);
               double ponderingSize = .02;
               int ponderingX = 0;
-              int ponderingY = height - (int) (maxBound * ponderingSize);
+              int ponderingY = height - 2 - (int) (maxBound * ponderingSize);
 
               // dynamic komi
               double dynamicKomiSize = .02;
@@ -331,7 +331,7 @@ public class LizzieMain extends MainFrame {
     }
     int stringHeight = fm.getAscent() - fm.getDescent();
     int width = max(stringWidth, 1);
-    int height = max((int) (stringHeight * 1.2), 1);
+    int height = max((int) (stringHeight * 1.7), 1);
 
     BufferedImage result = new BufferedImage(width, height, TYPE_INT_ARGB);
     // commenting this out for now... always causing an exception on startup. will fix in the
