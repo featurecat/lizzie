@@ -464,7 +464,8 @@ public class Leelaz {
   public void sendCommand(String command) {
     synchronized (cmdQueue) {
       // For efficiency, delete unnecessary "lz-analyze" that will be stopped immediately
-      if (!cmdQueue.isEmpty() && cmdQueue.peekLast().startsWith("lz-analyze")) {
+    	if (!cmdQueue.isEmpty() && (cmdQueue.peekLast().startsWith("lz-analyze")
+				|| cmdQueue.peekLast().startsWith("kata-analyze"))) {
         cmdQueue.removeLast();
       }
       cmdQueue.addLast(command);
@@ -480,11 +481,11 @@ public class Leelaz {
     // possible hang-up by missing response for some reason.
     // cmdQueue can be replaced with a mere String variable in this case,
     // but it is kept for future change of our mind.
-    synchronized (cmdQueue) {
-      if (cmdQueue.isEmpty()
-          || cmdQueue.peekFirst().startsWith("lz-analyze") && !isResponseUpToDate()) {
-        return;
-      }
+		synchronized (cmdQueue) {
+			if (cmdQueue.isEmpty() || (cmdQueue.peekFirst().startsWith("lz-analyze")
+					|| cmdQueue.peekFirst().startsWith("kata-analyze")) && !isResponseUpToDate()) {
+				return;
+			}
       String command = cmdQueue.removeFirst();
       sendCommandToLeelaz(command);
     }
