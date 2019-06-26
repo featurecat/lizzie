@@ -245,6 +245,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.leelaz.isThinking = false;
         }
         Lizzie.leelaz.togglePonder();
+        refreshType = 2;
         break;
 
       case VK_P:
