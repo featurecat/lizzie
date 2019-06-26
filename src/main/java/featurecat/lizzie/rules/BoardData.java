@@ -160,6 +160,10 @@ public class BoardData {
       setPlayouts(MoveData.getPlayouts(moves));
       winrate = getWinrateFromBestMoves(moves);
     }
+    if (Lizzie.leelaz.isKatago) {
+      Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
+      Lizzie.leelaz.scoreStdev = moves.get(0).scoreStdev;
+    }
   }
 
   public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {

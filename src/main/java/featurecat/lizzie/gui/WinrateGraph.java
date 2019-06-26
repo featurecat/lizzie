@@ -257,9 +257,9 @@ public class WinrateGraph {
     movenum = node.getData().moveNumber - 1;
 
     if (Lizzie.leelaz.isKatago) {
-      double lastscoreMean = -500;
-      int curmovenum = -1;
-      double drawcurscoreMean = 0;
+      double lastScoreMean = -500;
+      int curMovenum = -1;
+      double curCurscoreMean = 0;
       while (node.previous().isPresent()) {
         if (!node.getData().bestMoves.isEmpty()) {
 
@@ -270,12 +270,12 @@ public class WinrateGraph {
           if (Math.abs(curscoreMean) > maxcoreMean) maxcoreMean = Math.abs(curscoreMean);
 
           if (node == curMove) {
-            curmovenum = movenum;
-            drawcurscoreMean = curscoreMean;
+            curMovenum = movenum;
+            curCurscoreMean = curscoreMean;
           }
           if (lastOkMove > 0) {
 
-            if (lastscoreMean > -500) {
+            if (lastScoreMean > -500) {
               // Color lineColor = g.getColor();
               Stroke previousStroke = g.getStroke();
               g.setColor(Lizzie.config.scoreMeanLineColor);
@@ -286,7 +286,7 @@ public class WinrateGraph {
                   posx + (lastOkMove * width * 95 / 100 / numMoves),
                   posy
                       + height / 2
-                      - (int) (convertScoreMean(lastscoreMean) * height / 2 / maxcoreMean),
+                      - (int) (convertScoreMean(lastScoreMean) * height / 2 / maxcoreMean),
                   posx + (movenum * width * 95 / 100 / numMoves),
                   posy
                       + height / 2
@@ -295,23 +295,23 @@ public class WinrateGraph {
             }
           }
 
-          lastscoreMean = curscoreMean;
+          lastScoreMean = curscoreMean;
           lastOkMove = movenum;
         }
 
         node = node.previous().get();
         movenum--;
       }
-      if (curmovenum > 0) {
+      if (curMovenum > 0) {
         g.setColor(Color.WHITE);
         Font f = new Font("", Font.BOLD, 15);
         g.setFont(f);
         g.drawString(
-            String.format("%.1f", drawcurscoreMean),
-            posx + (curmovenum * width * 95 / 100 / numMoves) - 2 * DOT_RADIUS,
+            String.format("%.1f", curCurscoreMean),
+            posx + (curMovenum * width * 95 / 100 / numMoves) - 2 * DOT_RADIUS,
             posy
                 + height / 2
-                - (int) (convertScoreMean(drawcurscoreMean) * height / 2 / maxcoreMean)
+                - (int) (convertScoreMean(curCurscoreMean) * height / 2 / maxcoreMean)
                 + 2 * DOT_RADIUS);
       }
     }
