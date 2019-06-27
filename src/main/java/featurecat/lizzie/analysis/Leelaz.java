@@ -117,7 +117,7 @@ public class Leelaz {
       engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
     }
     this.engineCommand = engineCommand;
-    if (engineCommand.toLowerCase().contains("main")) {
+    if (engineCommand.toLowerCase().contains("override-version")) {
       this.isKataGo = true;
     }
     // Initialize current engine number and start engine
