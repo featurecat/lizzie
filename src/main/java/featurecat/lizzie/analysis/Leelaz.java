@@ -372,7 +372,7 @@ public class Leelaz {
               isInputCommand = false;
             }
           }
-        } else if (isCheckingVersion) {
+        } else if (isCheckingVersion&&!isKataGo) {
           String[] ver = params[1].split("\\.");
           int minor = Integer.parseInt(ver[1]);
           // Gtp support added in version 15
