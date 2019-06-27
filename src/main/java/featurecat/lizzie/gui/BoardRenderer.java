@@ -1396,11 +1396,11 @@ public class BoardRenderer {
     uiPersist.put("max-alpha", maxAlpha);
   }
 
-  public void removeEsitmateRect() {
+  public void removeEstimateRect() {
     cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
   }
 
-  public void drawEsitmateRectKata(ArrayList<Double> tempcount) {
+  public void drawEstimateRectKata(ArrayList<Double> tempcount) {
     if (boardLength <= 0) {
       return;
     }
@@ -1453,7 +1453,7 @@ public class BoardRenderer {
     }
   }
 
-  public void drawEsitmateRectKata2(ArrayList<Double> tempcount) {
+  public void drawEstimateRectKata2(ArrayList<Double> tempcount) {
     if (boardLength <= 0) {
       return;
     }

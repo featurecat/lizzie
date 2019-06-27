@@ -101,11 +101,11 @@ public class EngineManager {
 
     if (curEng.isKatago && Lizzie.config.showKataGoEstimate) {
       if (Lizzie.config.panelUI) {
-        Lizzie.frame.subBoardPane.subBoardRenderer.removeEsitmateRect();
-        Lizzie.frame.boardPane.boardRenderer.removeEsitmateRect();
+        Lizzie.frame.subBoardPane.subBoardRenderer.removeEstimateRect();
+        Lizzie.frame.boardPane.boardRenderer.removeEstimateRect();
       } else {
-        Lizzie.frame.subBoardRenderer.removeEsitmateRect();
-        Lizzie.frame.boardRenderer.removeEsitmateRect();
+        Lizzie.frame.subBoardRenderer.removeEstimateRect();
+        Lizzie.frame.boardRenderer.removeEstimateRect();
       }
     }
     curEng.board.saveMoveNumber();

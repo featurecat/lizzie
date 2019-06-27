@@ -305,26 +305,26 @@ public class Leelaz {
                 if (Lizzie.config.showKataGoEstimateBySize) {
                   if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
                     if (Lizzie.config.panelUI)
-                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEsitmateRectKata2(
+                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEstimateRectKata2(
                           esitmateArray);
-                    else Lizzie.frame.subBoardRenderer.drawEsitmateRectKata2(esitmateArray);
+                    else Lizzie.frame.subBoardRenderer.drawEstimateRectKata2(esitmateArray);
                   }
                   if (Lizzie.config.showKataGoEstimateOnMainbord) {
                     if (Lizzie.config.panelUI)
-                      Lizzie.frame.boardPane.boardRenderer.drawEsitmateRectKata2(esitmateArray);
-                    else Lizzie.frame.boardRenderer.drawEsitmateRectKata2(esitmateArray);
+                      Lizzie.frame.boardPane.boardRenderer.drawEstimateRectKata2(esitmateArray);
+                    else Lizzie.frame.boardRenderer.drawEstimateRectKata2(esitmateArray);
                   }
                 } else {
                   if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
                     if (Lizzie.config.panelUI)
-                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEsitmateRectKata(
+                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEstimateRectKata(
                           esitmateArray);
-                    else Lizzie.frame.subBoardRenderer.drawEsitmateRectKata(esitmateArray);
+                    else Lizzie.frame.subBoardRenderer.drawEstimateRectKata(esitmateArray);
                   }
                   if (Lizzie.config.showKataGoEstimateOnMainbord) {
                     if (Lizzie.config.panelUI)
-                      Lizzie.frame.boardPane.boardRenderer.drawEsitmateRectKata(esitmateArray);
-                    else Lizzie.frame.boardRenderer.drawEsitmateRectKata(esitmateArray);
+                      Lizzie.frame.boardPane.boardRenderer.drawEstimateRectKata(esitmateArray);
+                    else Lizzie.frame.boardRenderer.drawEstimateRectKata(esitmateArray);
                   }
                 }
               }
