@@ -2,7 +2,11 @@ package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.MoveData;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class BoardData {
   public int moveNumber;
@@ -195,5 +199,34 @@ public class BoardData {
 
   public int getPlayouts() {
     return playouts;
+  }
+
+  public void sync(BoardData data) {
+    this.moveMNNumber = data.moveMNNumber;
+    this.moveNumber = data.moveNumber;
+    this.lastMove = data.lastMove;
+    this.moveNumberList = data.moveNumberList;
+    this.blackToPlay = data.blackToPlay;
+    this.dummy = data.dummy;
+    this.lastMoveColor = data.lastMoveColor;
+    this.stones = data.stones;
+    this.zobrist = data.zobrist;
+    this.verify = data.verify;
+    this.blackCaptures = data.blackCaptures;
+    this.whiteCaptures = data.whiteCaptures;
+    this.comment = data.comment;
+  }
+
+  public BoardData clone() {
+    BoardData data = BoardData.empty(19);
+    data.sync(this);
+    return data;
+  }
+
+  public boolean isSameCoord(int[] coord) {
+    if (coord == null || coord.length < 2 || !this.lastMove.isPresent()) {
+      return false;
+    }
+    return this.lastMove.map(m -> (m[0] == coord[0] && m[1] == coord[1])).orElse(false);
   }
 }

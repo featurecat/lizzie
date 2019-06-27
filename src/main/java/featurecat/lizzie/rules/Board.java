@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.swing.*;
+import javax.swing.JOptionPane;
 import org.json.JSONException;
 
 public class Board implements LeelazListener {
@@ -37,9 +37,6 @@ public class Board implements LeelazListener {
   // Save the node for restore move when in the branch
   private Optional<BoardHistoryNode> saveNode;
 
-  // Force refresh board
-  private boolean forceRefresh;
-
   public Board() {
     initialize();
   }
@@ -51,7 +48,7 @@ public class Board implements LeelazListener {
     analysisMode = false;
     playoutsAnalysis = 100;
     saveNode = Optional.empty();
-    forceRefresh = false;
+    Lizzie.frame.setForceRefresh(false);
     history = new BoardHistoryList(BoardData.empty(boardSize));
   }
 
@@ -166,16 +163,8 @@ public class Board implements LeelazListener {
       Zobrist.init();
       clear();
       Lizzie.leelaz.sendCommand("boardsize " + boardSize);
-      forceRefresh = true;
+      Lizzie.frame.setForceRefresh(true);
     }
-  }
-
-  public boolean isForceRefresh() {
-    return forceRefresh;
-  }
-
-  public void setForceRefresh(boolean forceRefresh) {
-    this.forceRefresh = forceRefresh;
   }
 
   /**
@@ -214,6 +203,37 @@ public class Board implements LeelazListener {
     }
   }
 
+  public int moveNumberByCoord(int[] coord) {
+    int moveNumber = 0;
+    if (Lizzie.board.isValid(coord)) {
+      int index = Lizzie.board.getIndex(coord[0], coord[1]);
+      if (Lizzie.board.getHistory().getStones()[index] != Stone.EMPTY) {
+        BoardHistoryNode cur = Lizzie.board.getHistory().getCurrentHistoryNode();
+        moveNumber = cur.getData().moveNumberList[index];
+        if (!cur.isMainTrunk()) {
+          if (moveNumber > 0) {
+            moveNumber = cur.getData().moveNumber - cur.getData().moveMNNumber + moveNumber;
+          } else {
+            BoardHistoryNode p = cur.firstParentWithVariations().orElse(cur);
+            while (p != cur && moveNumber == 0) {
+              moveNumber = p.getData().moveNumberList[index];
+              if (moveNumber > 0) {
+                BoardHistoryNode topOfTop = p.firstParentWithVariations().orElse(p);
+                if (topOfTop != p) {
+                  moveNumber = p.getData().moveNumber - p.getData().moveMNNumber + moveNumber;
+                }
+              } else {
+                cur = p;
+                p = cur.firstParentWithVariations().orElse(cur);
+              }
+            }
+          }
+        }
+      }
+    }
+    return moveNumber;
+  }
+
   /**
    * Add a stone to the board representation. Thread safe
    *
@@ -232,7 +252,7 @@ public class Board implements LeelazListener {
       stones[getIndex(x, y)] = color;
       zobrist.toggleStone(x, y, color);
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -257,7 +277,7 @@ public class Board implements LeelazListener {
       zobrist.toggleStone(x, y, oriColor);
       data.moveNumberList[Board.getIndex(x, y)] = 0;
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -329,7 +349,7 @@ public class Board implements LeelazListener {
       Zobrist zobrist = history.getZobrist();
       int moveNumber = history.getMoveNumber() + 1;
       int[] moveNumberList =
-          newBranch && history.getNext().isPresent()
+          newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardSize * Board.boardSize]
               : history.getMoveNumberList().clone();
 
@@ -357,7 +377,7 @@ public class Board implements LeelazListener {
       // update history with pass
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -378,7 +398,7 @@ public class Board implements LeelazListener {
   }
 
   public void place(int x, int y, Stone color, boolean newBranch) {
-    place(x, y, color, false, false);
+    place(x, y, color, newBranch, false);
   }
 
   /**
@@ -434,7 +454,7 @@ public class Board implements LeelazListener {
       int moveMNNumber =
           history.getMoveMNNumber() > -1 && !newBranch ? history.getMoveMNNumber() + 1 : -1;
       int[] moveNumberList =
-          newBranch && history.getNext().isPresent()
+          newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardSize * Board.boardSize]
               : history.getMoveNumberList().clone();
 
@@ -478,6 +498,7 @@ public class Board implements LeelazListener {
               nextWinrate,
               0);
       newState.moveMNNumber = moveMNNumber;
+      newState.dummy = false;
 
       // don't make this coordinate if it is suicidal or violates superko
       if (isSuicidal > 0 || history.violatesKoRule(newState)) return;
@@ -494,7 +515,7 @@ public class Board implements LeelazListener {
       // update history with this coordinate
       history.addOrGoto(newState, newBranch, changeMove);
 
-      Lizzie.frame.repaint();
+      Lizzie.frame.refresh();
     }
   }
 
@@ -556,7 +577,7 @@ public class Board implements LeelazListener {
    * @param zobrist the zobrist object to modify
    * @return number of removed stones
    */
-  private int removeDeadChain(int x, int y, Stone color, Stone[] stones, Zobrist zobrist) {
+  public static int removeDeadChain(int x, int y, Stone color, Stone[] stones, Zobrist zobrist) {
     if (!isValid(x, y) || stones[getIndex(x, y)] != color) return 0;
 
     boolean hasLiberties = hasLibertiesHelper(x, y, color, stones);
@@ -575,7 +596,7 @@ public class Board implements LeelazListener {
    * @param stones the stones array to modify
    * @return whether or not this chain has liberties
    */
-  private boolean hasLibertiesHelper(int x, int y, Stone color, Stone[] stones) {
+  private static boolean hasLibertiesHelper(int x, int y, Stone color, Stone[] stones) {
     if (!isValid(x, y)) return false;
 
     if (stones[getIndex(x, y)] == Stone.EMPTY) return true; // a liberty was found
@@ -607,7 +628,7 @@ public class Board implements LeelazListener {
    *     their unrecursed version
    * @return number of removed stones
    */
-  private int cleanupHasLibertiesHelper(
+  private static int cleanupHasLibertiesHelper(
       int x, int y, Stone color, Stone[] stones, Zobrist zobrist, boolean removeStones) {
     int removed = 0;
     if (!isValid(x, y) || stones[getIndex(x, y)] != color) return 0;
@@ -676,7 +697,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -807,7 +828,7 @@ public class Board implements LeelazListener {
         } else {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -963,7 +984,7 @@ public class Board implements LeelazListener {
   public void deleteMove() {
     synchronized (this) {
       BoardHistoryNode currentNode = history.getCurrentHistoryNode();
-      if (currentNode.next().isPresent()) {
+      if (currentNode.next(true).isPresent()) {
         // Will delete more than one move, ask for confirmation
         int ret =
             JOptionPane.showConfirmDialog(
@@ -1020,7 +1041,7 @@ public class Board implements LeelazListener {
       updateWinrate();
       if (history.previous().isPresent()) {
         Lizzie.leelaz.undo();
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh();
         return true;
       }
       return false;
@@ -1115,7 +1136,7 @@ public class Board implements LeelazListener {
         x++;
       }
     }
-    Lizzie.frame.repaint();
+    Lizzie.frame.refresh();
   }
 
   /*
