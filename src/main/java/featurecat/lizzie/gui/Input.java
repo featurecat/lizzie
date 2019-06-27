@@ -414,19 +414,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_PERIOD:
-        if (e.isAltDown()) {
+        if (Lizzie.leelaz.isKataGo) {
           Lizzie.config.showKataGoEstimate = !Lizzie.config.showKataGoEstimate;
-          if (Lizzie.leelaz.isKatago) {
-            Lizzie.leelaz.ponder();
-            if (!Lizzie.config.showKataGoEstimate) {
-              if (Lizzie.config.panelUI) {
-                Lizzie.frame.subBoardPane.subBoardRenderer.removeEstimateRect();
-                Lizzie.frame.boardPane.boardRenderer.removeEstimateRect();
-              } else {
-                Lizzie.frame.subBoardRenderer.removeEstimateRect();
-                Lizzie.frame.boardRenderer.removeEstimateRect();
-              }
-            }
+          Lizzie.leelaz.ponder();
+          if (!Lizzie.config.showKataGoEstimate) {
+            Lizzie.frame.removeEstimateRect();
           }
         } else if (!Lizzie.board.getHistory().getNext().isPresent()) {
           Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
@@ -435,7 +427,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_D:
-        if (e.isAltDown()) {
+        if (Lizzie.leelaz.isKataGo) {
           if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate) {
             Lizzie.config.showKataGoScoreMean = false;
             Lizzie.config.kataGoNotShowWinrate = false;

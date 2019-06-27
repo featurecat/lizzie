@@ -160,7 +160,7 @@ public class BoardData {
       setPlayouts(MoveData.getPlayouts(moves));
       winrate = getWinrateFromBestMoves(moves);
     }
-    if (Lizzie.leelaz.isKatago) {
+    if (Lizzie.leelaz.isKataGo) {
       Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
       Lizzie.leelaz.scoreStdev = moves.get(0).scoreStdev;
     }
@@ -181,8 +181,7 @@ public class BoardData {
       sb.append("move ").append(move.coordinate);
       sb.append(" visits ").append(move.playouts);
       sb.append(" winrate ").append((int) (move.winrate * 100));
-      if(Lizzie.leelaz.isKatago)
-    	  sb.append(" scoreMean ").append(move.scoreMean);
+      if (Lizzie.leelaz.isKataGo) sb.append(" scoreMean ").append(move.scoreMean);
       sb.append(" pv ").append(move.variation.stream().reduce((a, b) -> a + " " + b).get());
       sb.append(" info "); // this order is just because of how the MoveData info parser works
     }

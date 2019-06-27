@@ -99,14 +99,8 @@ public class EngineManager {
       curEng.togglePonder();
     }
 
-    if (curEng.isKatago && Lizzie.config.showKataGoEstimate) {
-      if (Lizzie.config.panelUI) {
-        Lizzie.frame.subBoardPane.subBoardRenderer.removeEstimateRect();
-        Lizzie.frame.boardPane.boardRenderer.removeEstimateRect();
-      } else {
-        Lizzie.frame.subBoardRenderer.removeEstimateRect();
-        Lizzie.frame.boardRenderer.removeEstimateRect();
-      }
+    if (curEng.isKataGo && Lizzie.config.showKataGoEstimate) {
+      Lizzie.frame.removeEstimateRect();
     }
     curEng.board.saveMoveNumber();
     try {

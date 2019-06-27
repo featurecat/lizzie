@@ -81,7 +81,7 @@ public class Leelaz {
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN;
   private float dynamicOppKomi = Float.NaN;
-  public boolean isKatago = false;
+  public boolean isKataGo = false;
   ArrayList<Double> esitmateArray = new ArrayList<Double>();
   public double scoreMean = 0;
   public double scoreStdev = 0;
@@ -118,7 +118,7 @@ public class Leelaz {
     }
     this.engineCommand = engineCommand;
     if (engineCommand.toLowerCase().contains("main")) {
-      this.isKatago = true;
+      this.isKataGo = true;
     }
     // Initialize current engine number and start engine
     currentEngineN = 0;
@@ -293,40 +293,17 @@ public class Leelaz {
         Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
-          if (isKatago) {
+          if (isKataGo) {
             this.bestMoves = parseInfoKatago(line.substring(5));
             if (Lizzie.config.showKataGoEstimate) {
               if (line.contains("ownership")) {
                 esitmateArray = new ArrayList<Double>();
                 String[] params = line.trim().split("ownership");
                 String[] params2 = params[1].trim().split(" ");
-                for (int i = 0; i < params2.length; i++)
+                for (int i = 0; i < params2.length; i++) {
                   esitmateArray.add(Double.parseDouble(params2[i]));
-                if (Lizzie.config.showKataGoEstimateBySize) {
-                  if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
-                    if (Lizzie.config.panelUI)
-                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEstimateRectKata2(
-                          esitmateArray);
-                    else Lizzie.frame.subBoardRenderer.drawEstimateRectKata2(esitmateArray);
-                  }
-                  if (Lizzie.config.showKataGoEstimateOnMainbord) {
-                    if (Lizzie.config.panelUI)
-                      Lizzie.frame.boardPane.boardRenderer.drawEstimateRectKata2(esitmateArray);
-                    else Lizzie.frame.boardRenderer.drawEstimateRectKata2(esitmateArray);
-                  }
-                } else {
-                  if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
-                    if (Lizzie.config.panelUI)
-                      Lizzie.frame.subBoardPane.subBoardRenderer.drawEstimateRectKata(
-                          esitmateArray);
-                    else Lizzie.frame.subBoardRenderer.drawEstimateRectKata(esitmateArray);
-                  }
-                  if (Lizzie.config.showKataGoEstimateOnMainbord) {
-                    if (Lizzie.config.panelUI)
-                      Lizzie.frame.boardPane.boardRenderer.drawEstimateRectKata(esitmateArray);
-                    else Lizzie.frame.boardRenderer.drawEstimateRectKata(esitmateArray);
-                  }
                 }
+                Lizzie.frame.drawEstimateRectKata(esitmateArray);
               }
             }
           } else {
@@ -501,7 +478,7 @@ public class Leelaz {
    */
   private void sendCommandToLeelaz(String command) {
     if (command.startsWith("fixed_handicap")
-        || (isKatago && command.startsWith("place_free_handicap"))) isSettingHandicap = true;
+        || (isKataGo && command.startsWith("place_free_handicap"))) isSettingHandicap = true;
     if (printCommunication) {
       System.out.printf("> %d %s\n", cmdNumber, command);
     }
@@ -601,7 +578,7 @@ public class Leelaz {
   public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    if (this.isKatago) {
+    if (this.isKataGo) {
       if (Lizzie.config.showKataGoEstimate)
         sendCommand(
             "kata-analyze "

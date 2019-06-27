@@ -256,7 +256,7 @@ public class WinrateGraph {
     lastOkMove = -1;
     movenum = node.getData().moveNumber - 1;
 
-    if (Lizzie.leelaz.isKatago) {
+    if (Lizzie.leelaz.isKataGo) {
       double lastScoreMean = -500;
       int curMovenum = -1;
       double curCurscoreMean = 0;

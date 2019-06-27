@@ -75,7 +75,7 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
 
-  public static BoardRenderer boardRenderer;
+  private static BoardRenderer boardRenderer;
 
   //  private final BufferStrategy bs;
   private static boolean started = false;
@@ -465,5 +465,17 @@ public class BoardPane extends LizziePane {
 
   public void updateStatus() {
     owner.updateStatus();
+  }
+
+  public void removeEstimateRect() {
+    boardRenderer.removeEstimateRect();
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      boardRenderer.drawEstimateRectKataBySize(esitmateArray);
+    } else {
+      boardRenderer.drawEstimateRectKata(esitmateArray);
+    }
   }
 }

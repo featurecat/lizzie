@@ -172,7 +172,7 @@ public class WinratePane extends LizziePane {
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
     String text = "";
-    if (Lizzie.leelaz.isKatago) {
+    if (Lizzie.leelaz.isKataGo) {
       double score = Lizzie.leelaz.scoreMean;
       if (Lizzie.board.getHistory().isBlacksTurn()) {
         if (Lizzie.config.showKataGoBoardScoreMean) {
@@ -188,6 +188,7 @@ public class WinratePane extends LizziePane {
       }
       text =
           LizzieMain.resourceBundle.getString("LizzieFrame.katago.scoreMean")
+              + ": "
               + String.format("%.1f", score)
               + " ";
       text =

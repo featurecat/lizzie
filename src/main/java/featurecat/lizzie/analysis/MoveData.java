@@ -117,11 +117,11 @@ public class MoveData {
           // support 0.16 0.15
           result.winrate = Integer.parseInt(value) / 100.0;
         }
-        
+
         if (key.equals("scoreMean")) {
-            // support 0.16 0.15
-            result.scoreMean = Double.parseDouble(value);
-          }
+          // support 0.16 0.15
+          result.scoreMean = Double.parseDouble(value);
+        }
       }
     }
     return result;

@@ -93,8 +93,8 @@ public class LizzieFrame extends MainFrame {
     resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
   private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
-  // private static BoardRenderer boardRenderer;
-  // private static BoardRenderer subBoardRenderer;
+  private static BoardRenderer boardRenderer;
+  private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
 
@@ -1102,7 +1102,7 @@ public class LizzieFrame extends MainFrame {
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
     String text = "";
-    if (Lizzie.leelaz.isKatago) {
+    if (Lizzie.leelaz.isKataGo) {
       double score = Lizzie.leelaz.scoreMean;
       if (Lizzie.board.getHistory().isBlacksTurn()) {
         if (Lizzie.config.showKataGoBoardScoreMean) {
@@ -1118,6 +1118,7 @@ public class LizzieFrame extends MainFrame {
       }
       text =
           resourceBundle.getString("LizzieFrame.katago.scoreMean")
+              + ": "
               + String.format("%.1f", score)
               + " ";
       text =
@@ -1561,5 +1562,30 @@ public class LizzieFrame extends MainFrame {
         };
     Thread thread = new Thread(runnable);
     thread.start();
+  }
+
+  public void removeEstimateRect() {
+    boardRenderer.removeEstimateRect();
+    if (Lizzie.config.showSubBoard) {
+      subBoardRenderer.removeEstimateRect();
+    }
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+    } else {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+    }
   }
 }

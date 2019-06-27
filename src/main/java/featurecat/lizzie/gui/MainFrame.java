@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 
 public abstract class MainFrame extends JFrame {
@@ -17,10 +18,6 @@ public abstract class MainFrame extends JFrame {
   public boolean showControls = false;
   public static Font uiFont;
   public static Font winrateFont;
-  public BoardRenderer boardRenderer;
-  public BoardRenderer subBoardRenderer;
-  public static BoardPane boardPane;
-  public static SubBoardPane subBoardPane;
 
   // Force refresh board
   private boolean forceRefresh;
@@ -61,6 +58,10 @@ public abstract class MainFrame extends JFrame {
   public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
     return false;
   }
+
+  public abstract void removeEstimateRect();
+
+  public abstract void drawEstimateRectKata(ArrayList<Double> esitmateArray);
 
   public abstract void drawControls();
 
