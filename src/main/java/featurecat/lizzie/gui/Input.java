@@ -431,15 +431,15 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate) {
             Lizzie.config.showKataGoScoreMean = false;
             Lizzie.config.kataGoNotShowWinrate = false;
-            return;
+            break;
           }
           if (Lizzie.config.showKataGoScoreMean && !Lizzie.config.kataGoNotShowWinrate) {
             Lizzie.config.kataGoNotShowWinrate = true;
-            return;
+            break;
           }
           if (Lizzie.config.showKataGoScoreMean) {
             Lizzie.config.showKataGoScoreMean = false;
-            return;
+            break;
           }
           if (!Lizzie.config.showKataGoScoreMean) {
             Lizzie.config.showKataGoScoreMean = true;
