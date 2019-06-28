@@ -316,13 +316,23 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       // noComment;
 
       // board
-      int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
-      maxSize =
+      int maxSize0 = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
+      int maxw =
+          maxSize0; // Board.boardWidth > Board.boardHeight ? (width - leftInset - rightInset) * 3 /
+      // 4 : maxSize0;
+      int maxh = maxSize0;
+      if (noBasic && noWinrate && noSubBoard) {
+        maxw = width - leftInset - rightInset;
+      } else if (noVariation && noComment) {
+        maxw = (width - leftInset - rightInset) * 3 / 4;
+      }
+      int[] mainBoardParam =
           BoardRenderer.availableLength(
-              max(maxSize, Board.boardSize + 5),
+              max(maxw, Board.boardWidth + 5),
+              max(maxh, Board.boardHeight + 5),
               Lizzie.config.showCoordinates); // don't let maxWidth become too small
       int boardX =
-          (width - maxSize)
+          (width - mainBoardParam[0])
               / 8
               * ((main == null || !(main instanceof LizzieMain))
                   ? Lizzie.config.boardPositionProportion
@@ -330,33 +340,33 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       if (noBasic && noWinrate && noSubBoard) {
         boardX = leftInset;
       } else if (noVariation && noComment) {
-        boardX = (width - maxSize);
+        boardX = (width - mainBoardParam[0]);
       }
-      int boardY = topInset + (height - topInset - bottomInset - maxSize) / 2;
+      int boardY = topInset + (height - topInset - bottomInset - mainBoardParam[3]) / 2;
 
-      int panelMargin = (int) (maxSize * 0.02);
+      int panelMargin = (int) (mainBoardParam[0] * 0.02);
 
       // captured stones
       int capx = leftInset;
       int capy = topInset;
       int capw = boardX - panelMargin - leftInset;
-      int caph = maxSize / 8;
+      int caph = maxSize0 / 8;
 
       // move statistics (winrate bar)
       // boardX equals width of space on each side
       int statx = capx;
       int staty = capy + caph;
       int statw = capw;
-      int stath = maxSize / 10;
+      int stath = maxSize0 / 10;
 
       // winrate graph
       int grx = statx;
       int gry = staty + stath;
       int grw = statw;
-      int grh = maxSize / 3;
+      int grh = maxSize0 / 3;
 
       // variation tree container
-      int vx = boardX + maxSize + panelMargin;
+      int vx = boardX + mainBoardParam[0] + panelMargin;
       int vy = capy;
       int vw = width - vx - rightInset;
       int vh = height - vy - bottomInset;
@@ -364,19 +374,19 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       // pondering message
       double ponderingSize = .02;
       int ponderingY =
-          height - bottomInset - (int) (maxSize * 0.033) - (int) (maxBound * ponderingSize);
+          height - bottomInset - (int) (maxSize0 * 0.033) - (int) (maxBound * ponderingSize);
 
       // subboard
       int subBoardY = gry + grh + 1;
       int subBoardWidth = grw;
       int subBoardHeight = ponderingY - subBoardY;
-      int subBoardLength = BoardRenderer.availableLength(min(subBoardWidth, subBoardHeight), false);
-      int subBoardX = statx + (statw - subBoardLength) / 2;
+      int[] subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
+      int subBoardX = statx + (statw - subBoardParam[0]) / 2;
 
       if (width >= height) {
         // Landscape mode
         if (Lizzie.config.showLargeSubBoard() && !noSubBoard) {
-          boardX = width - maxSize - panelMargin;
+          boardX = width - mainBoardParam[0] - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;
           int spaceH = height - topInset - bottomInset;
           int panelW = spaceW / 2;
@@ -401,11 +411,10 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardY = gry + grh;
           subBoardWidth = spaceW;
           subBoardHeight = ponderingY - subBoardY;
-          subBoardLength =
-              BoardRenderer.availableLength(Math.min(subBoardWidth, subBoardHeight), false);
-          subBoardX = statx + (spaceW - subBoardLength) / 2;
+          subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
+          subBoardX = statx + (spaceW - subBoardParam[0]) / 2;
         } else if (Lizzie.config.showLargeWinrate() && !noWinrate) {
-          boardX = width - maxSize - panelMargin;
+          boardX = width - mainBoardParam[0] - panelMargin;
           int spaceW = boardX - panelMargin - leftInset;
           int spaceH = height - topInset - bottomInset;
           int panelW = spaceW / 2;
@@ -431,22 +440,22 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardY = topInset;
           subBoardWidth = panelW - leftInset;
           subBoardHeight = panelH;
-          subBoardLength =
-              BoardRenderer.availableLength(Math.min(subBoardWidth, subBoardHeight), false);
-          subBoardX = statx + (vw - subBoardLength) / 2;
+          subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
+          subBoardX = statx + (vw - subBoardParam[0]) / 2;
         }
       } else {
         // Portrait mode
         if (Lizzie.config.showLargeSubBoard() && !noSubBoard) {
           // board
-          maxSize =
-              BoardRenderer.availableLength((int) (maxSize * 0.8), Lizzie.config.showCoordinates);
-          boardY = height - maxSize - bottomInset;
+          mainBoardParam =
+              BoardRenderer.availableLength(
+                  (int) (maxSize0 * 0.8), (int) (maxSize0 * 0.8), Lizzie.config.showCoordinates);
+          boardY = height - mainBoardParam[3] - bottomInset;
           int spaceW = width - leftInset - rightInset;
           int spaceH = boardY - panelMargin - topInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 2;
-          boardX = (spaceW - maxSize) / 2 + leftInset;
+          boardX = (spaceW - mainBoardParam[0]) / 2 + leftInset;
 
           // captured stones
           capw = panelW / 2;
@@ -467,21 +476,21 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardX = vx + vw;
           subBoardWidth = panelW;
           subBoardHeight = boardY - topInset;
-          subBoardLength =
-              BoardRenderer.availableLength(Math.min(subBoardWidth, subBoardHeight), false);
-          subBoardY = capy + (gry + grh - capy - subBoardLength) / 2;
+          subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
+          subBoardY = capy + (gry + grh - capy - subBoardParam[0]) / 2;
           // pondering message
           ponderingY = height;
         } else if (Lizzie.config.showLargeWinrate() && !noWinrate) {
           // board
-          maxSize =
-              BoardRenderer.availableLength((int) (maxSize * 0.8), Lizzie.config.showCoordinates);
-          boardY = height - maxSize - bottomInset;
+          mainBoardParam =
+              BoardRenderer.availableLength(
+                  (int) (maxSize0 * 0.8), (int) (maxSize0 * 0.8), Lizzie.config.showCoordinates);
+          boardY = height - mainBoardParam[3] - bottomInset;
           int spaceW = width - leftInset - rightInset;
           int spaceH = boardY - panelMargin - topInset;
           int panelW = spaceW / 2;
           int panelH = spaceH / 2;
-          boardX = (spaceW - maxSize) / 2 + leftInset;
+          boardX = (spaceW - mainBoardParam[0]) / 2 + leftInset;
 
           // captured stones
           capw = panelW / 2;
@@ -504,15 +513,14 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardY = topInset;
           subBoardWidth = panelW / 2;
           subBoardHeight = gry - topInset;
-          subBoardLength =
-              BoardRenderer.availableLength(Math.min(subBoardWidth, subBoardHeight), false);
+          subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
           subBoardX = vx + vw;
           // pondering message
           ponderingY = height;
         } else {
           // Normal
           // board
-          boardY = (height - maxSize + topInset - bottomInset) / 2;
+          boardY = (height - mainBoardParam[3] + topInset - bottomInset) / 2;
           int spaceW = width - leftInset - rightInset;
           int spaceH = boardY - panelMargin - topInset;
           int panelW = spaceW / 2;
@@ -535,12 +543,11 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           subBoardX = grx + grw;
           subBoardWidth = panelW / 2;
           subBoardHeight = boardY - topInset;
-          subBoardLength =
-              BoardRenderer.availableLength(Math.min(subBoardWidth, subBoardHeight), false);
-          subBoardY = capy + (boardY - topInset - subBoardLength) / 2;
+          subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
+          subBoardY = capy + (boardY - topInset - subBoardParam[3]) / 2;
           // variation tree container
           vx = leftInset + panelW;
-          vy = boardY + maxSize;
+          vy = boardY + mainBoardParam[3];
           vw = panelW;
           vh = height - vy - bottomInset;
         }
@@ -577,11 +584,17 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       }
 
       if ((c = getChild(MAIN_BOARD, ltr)) != null) {
-        c.setBounds(x + boardX, y + boardY, maxSize, maxSize);
+        c.setBounds(x + boardX, y + boardY, mainBoardParam[0], mainBoardParam[3]);
+        if (c instanceof LizziePane) {
+          ((LizziePane) c).boardParams = mainBoardParam;
+        }
         //        c.repaint();
       }
       if ((c = getChild(SUB_BOARD, ltr)) != null) {
-        c.setBounds(x + subBoardX, y + subBoardY, subBoardLength, subBoardLength);
+        c.setBounds(x + subBoardX, y + subBoardY, subBoardParam[0], subBoardParam[3]);
+        if (c instanceof LizziePane) {
+          ((LizziePane) c).boardParams = subBoardParam;
+        }
         //        c.repaint();
       }
       if ((c = getChild(BASIC_INFO, ltr)) != null) {

@@ -176,6 +176,16 @@ public class GtpConsolePane extends JDialog {
         Lizzie.board.clear();
       } else if ("undo".equals(command)) {
         Input.undo();
+      } else if (command.startsWith("boardsize")) {
+        String cmdParams[] = command.split(" ");
+        if (cmdParams.length >= 2) {
+          int width = Integer.parseInt(cmdParams[1]);
+          int height = width;
+          if (cmdParams.length >= 3) {
+            height = Integer.parseInt(cmdParams[2]);
+          }
+          Lizzie.board.reopen(width, height);
+        }
       } else {
         Lizzie.leelaz.sendCommand(command);
       }

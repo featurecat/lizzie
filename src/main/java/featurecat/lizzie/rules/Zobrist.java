@@ -31,8 +31,8 @@ public class Zobrist {
   public static void init() {
 
     Random random = new Random();
-    blackZobrist = new long[Board.boardSize * Board.boardSize];
-    whiteZobrist = new long[Board.boardSize * Board.boardSize];
+    blackZobrist = new long[Board.boardWidth * Board.boardHeight];
+    whiteZobrist = new long[Board.boardWidth * Board.boardHeight];
 
     for (int i = 0; i < blackZobrist.length; i++) {
       blackZobrist[i] = random.nextLong();

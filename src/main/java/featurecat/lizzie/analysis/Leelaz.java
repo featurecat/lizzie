@@ -170,7 +170,7 @@ public class Leelaz {
     // Response handled in parseLine
     isCheckingVersion = true;
     sendCommand("version");
-    sendCommand("boardsize " + Lizzie.config.uiConfig.optInt("board-size", 19));
+    boardSize(Lizzie.board.boardWidth, Lizzie.board.boardHeight);
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -288,8 +288,11 @@ public class Leelaz {
         if (isResponseUpToDate()
             || isThinking
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          if (Lizzie.config.limitBestMoveNum == 0
-              || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
+          // TODO Do not update the best moves when playing against Leela Zero
+          // Because it is equivalent to the winrate of the previous move.
+          if (!Lizzie.frame.isPlayingAgainstLeelaz
+              && (Lizzie.config.limitBestMoveNum == 0
+                  || bestMoves.size() < Lizzie.config.limitBestMoveNum)) {
             bestMoves.add(MoveData.fromSummary(line));
             notifyBestMoveListeners();
             Lizzie.frame.refresh(1);
@@ -522,6 +525,14 @@ public class Leelaz {
       bestMoves = new ArrayList<>();
       if (isPondering) ponder();
     }
+  }
+
+  public void boardSize(int size) {
+    boardSize(size, size);
+  }
+
+  public void boardSize(int width, int height) {
+    sendCommand("boardsize " + width + (width != height ? " " + height : ""));
   }
 
   public void undo() {
