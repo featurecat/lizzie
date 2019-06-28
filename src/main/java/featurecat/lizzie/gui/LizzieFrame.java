@@ -475,7 +475,10 @@ public class LizzieFrame extends MainFrame {
       boolean noComment = !Lizzie.config.showComment;
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
-      maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
+      maxSize =
+          max(
+              maxSize,
+              max(Board.boardWidth, Board.boardHeight) + 5); // don't let maxWidth become too small
       int boardX = (width - maxSize) / 8 * boardPositionProportion;
       if (noBasic && noWinrate && noSubBoard) {
         boardX = leftInset;
@@ -759,7 +762,8 @@ public class LizzieFrame extends MainFrame {
       if (Lizzie.config.showStatus) drawCommandString(g);
 
       boardRenderer.setLocation(boardX, boardY);
-      boardRenderer.setBoardLength(maxSize);
+      boardRenderer.setBoardLength(maxSize, maxSize);
+      boardRenderer.setupSizeParameters();
       boardRenderer.draw(g);
 
       if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
@@ -805,7 +809,8 @@ public class LizzieFrame extends MainFrame {
         if (Lizzie.config.showSubBoard) {
           try {
             subBoardRenderer.setLocation(subBoardX, subBoardY);
-            subBoardRenderer.setBoardLength(subBoardLength);
+            subBoardRenderer.setBoardLength(subBoardLength, subBoardLength);
+            subBoardRenderer.setupSizeParameters();
             subBoardRenderer.draw(g);
           } catch (Exception e) {
             // This can happen when no space is left for subboard.
