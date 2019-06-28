@@ -384,13 +384,14 @@ public class Leelaz {
         } else if (isCheckingName) {
           if (params[1].startsWith("KataGo")) {
             this.isKataGo = true;
+            Lizzie.initializeAfterVersionCheck();
           }
           isCheckingName = false;
         } else if (isCheckingVersion && !isKataGo) {
           String[] ver = params[1].split("\\.");
           int minor = Integer.parseInt(ver[1]);
           // Gtp support added in version 15
-          if (minor < 15 && !this.isKataGo) {
+          if (minor < 15) {
             JOptionPane.showMessageDialog(
                 Lizzie.frame,
                 "Lizzie requires version 0.15 or later of Leela Zero for analysis (found "

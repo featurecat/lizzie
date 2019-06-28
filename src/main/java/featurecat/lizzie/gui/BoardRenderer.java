@@ -1521,8 +1521,8 @@ public class BoardRenderer {
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
         int[] cor = Lizzie.board.getCoord(i);
-        int y = cor[0];
-        int x = cor[1];
+        int x = cor[0];
+        int y = cor[1];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         // g.setColor(Color.BLACK);
@@ -1539,8 +1539,8 @@ public class BoardRenderer {
       if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
         int[] cor = Lizzie.board.getCoord(i);
-        int y = cor[0];
-        int x = cor[1];
+        int x = cor[0];
+        int y = cor[1];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         int alpha = (int) (esitmateArray.get(i) * 255);
@@ -1575,8 +1575,8 @@ public class BoardRenderer {
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
         int[] cor = Lizzie.board.getCoord(i);
-        int y = cor[0];
-        int x = cor[1];
+        int x = cor[0];
+        int y = cor[1];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         Color cl = new Color(0, 0, 0, 180);
@@ -1587,8 +1587,8 @@ public class BoardRenderer {
       if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
         int[] cor = Lizzie.board.getCoord(i);
-        int y = cor[0];
-        int x = cor[1];
+        int x = cor[0];
+        int y = cor[1];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
