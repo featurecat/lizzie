@@ -49,6 +49,7 @@ public class Config {
   public boolean colorByWinrateInsteadOfVisits = false;
   public double minPlayoutRatioForStats = 0.0;
   public boolean showLcbWinrate = false;
+  public boolean isKataGo = false;
 
   public boolean showKataGoScoreMean = true;
   public boolean showKataGoBoardScoreMean = false;

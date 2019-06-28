@@ -174,6 +174,14 @@ public class BoardData {
         .sum();
   }
 
+  public static double getScoreMeanFromBestMoves(List<MoveData> bestMoves) {
+    // return the weighted average winrate of bestMoves
+    return bestMoves
+        .stream()
+        .mapToDouble(move -> move.scoreMean * move.playouts / MoveData.getPlayouts(bestMoves))
+        .sum();
+  }
+
   public String bestMovesToString() {
     StringBuilder sb = new StringBuilder();
     for (MoveData move : bestMoves) {

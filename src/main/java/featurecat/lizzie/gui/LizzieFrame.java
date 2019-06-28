@@ -1053,6 +1053,7 @@ public class LizzieFrame extends MainFrame {
 
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     double curWR = stats.maxWinrate; // winrate on this move
+    double curSM = stats.maxScoreMean; // mean score on this move
     boolean validWinrate = (stats.totalPlayouts > 0); // and whether it was actually calculated
     if (!validWinrate) {
       curWR = Lizzie.board.getHistory().getData().winrate;
@@ -1066,11 +1067,13 @@ public class LizzieFrame extends MainFrame {
     if (!validWinrate) {
       curWR = 100 - lastWR; // display last move's winrate for now (with color difference)
     }
-    double whiteWR, blackWR;
+    double whiteWR, blackWR, blackSM;
     if (Lizzie.board.getData().blackToPlay) {
       blackWR = curWR;
+      blackSM = curSM;
     } else {
       blackWR = 100 - curWR;
+      blackSM = -curSM;
     }
 
     whiteWR = 100 - blackWR;
@@ -1184,6 +1187,14 @@ public class LizzieFrame extends MainFrame {
           winString,
           barPosxB + maxBarwidth - sw - 2 * strokeRadius,
           posY + barHeight - 2 * strokeRadius);
+      if (Lizzie.config.isKataGo) {
+        String scoreString = String.format("%.1f", blackSM);
+        sw = g.getFontMetrics().stringWidth(scoreString);
+        g.drawString(
+            scoreString,
+            barPosxB + maxBarwidth / 2 - sw / 2 - strokeRadius,
+            posY + barHeight - 2 * strokeRadius);
+      }
 
       g.setColor(Color.GRAY);
       Stroke oldstroke = g.getStroke();

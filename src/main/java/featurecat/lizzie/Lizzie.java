@@ -34,20 +34,22 @@ public class Lizzie {
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
     try {
       engineManager = new EngineManager(config);
-
-      if (config.handicapInsteadOfWinrate) {
-        leelaz.estimatePassWinrate();
-      }
-      if (mainArgs.length == 1) {
-        frame.loadFile(new File(mainArgs[0]));
-      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-        board.resumePreviousGame();
-      }
-      leelaz.togglePonder();
     } catch (IOException e) {
       frame.openConfigDialog();
       System.exit(1);
     }
+  }
+
+  public static void initializeAfterVersionCheck() {
+    if (config.handicapInsteadOfWinrate) {
+      leelaz.estimatePassWinrate();
+    }
+    if (mainArgs.length == 1) {
+      frame.loadFile(new File(mainArgs[0]));
+    } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+      board.resumePreviousGame();
+    }
+    leelaz.togglePonder();
   }
 
   public static void setLookAndFeel() {

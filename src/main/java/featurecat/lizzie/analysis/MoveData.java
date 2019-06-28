@@ -12,6 +12,7 @@ public class MoveData {
   public String coordinate;
   public int playouts;
   public double winrate;
+  public double scoreMean;
   public List<String> variation;
   public double scoreMean;
   public double scoreStdev;
@@ -110,12 +111,22 @@ public class MoveData {
         }
         if (islcb && key.equals("lcb")) {
           // LCB support
-          result.winrate = Integer.parseInt(value) / 100.0;
+          result.winrate =
+              value.indexOf('.') >= 0 // kata-analyze?
+                  ? Double.parseDouble(value) * 100
+                  : Integer.parseInt(value) / 100.0;
         }
 
         if (key.equals("winrate")) {
           // support 0.16 0.15
-          result.winrate = Integer.parseInt(value) / 100.0;
+          result.winrate =
+              value.indexOf('.') >= 0 // kata-analyze?
+                  ? Double.parseDouble(value) * 100
+                  : Integer.parseInt(value) / 100.0;
+        }
+        if (key.equals("scoreMean")) {
+          // KataGo
+          result.scoreMean = Double.parseDouble(value);
         }
 
         if (key.equals("scoreMean")) {

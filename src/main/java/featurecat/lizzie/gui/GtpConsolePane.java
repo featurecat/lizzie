@@ -96,8 +96,8 @@ public class GtpConsolePane extends JDialog {
     this.command = command;
     this.isAnalyzeCommand =
         command.startsWith("lz-analyze")
-            || command.startsWith("kata-analyze")
-            || command.startsWith("lz-genmove_analyze");
+            || command.startsWith("lz-genmove_analyze")
+            || command.startsWith("kata-analyze");
     addText(formatCommand(command, commandNumber));
   }
 
