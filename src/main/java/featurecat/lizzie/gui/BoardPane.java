@@ -165,7 +165,10 @@ public class BoardPane extends LizziePane {
                 Lizzie.config.showCoordinates);
       }
       boardRenderer.setBoardParam(boardParams);
-      boardRenderer.draw(g);
+      try {
+        boardRenderer.draw(g);
+      } catch (Exception ex) {
+      }
 
       owner.repaintSub();
 
@@ -471,5 +474,17 @@ public class BoardPane extends LizziePane {
 
   public void updateStatus() {
     owner.updateStatus();
+  }
+
+  public void removeEstimateRect() {
+    boardRenderer.removeEstimateRect();
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      boardRenderer.drawEstimateRectKataBySize(esitmateArray);
+    } else {
+      boardRenderer.drawEstimateRectKata(esitmateArray);
+    }
   }
 }

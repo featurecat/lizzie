@@ -36,6 +36,7 @@ import java.awt.TexturePaint;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,7 @@ public class BoardRenderer {
 
   private BufferedImage branchStonesImage = emptyImage;
   private BufferedImage branchStonesShadowImage;
+  private BufferedImage cachedEsitmateRectImage = emptyImage;
 
   private boolean lastInScoreMode = false;
 
@@ -498,6 +500,7 @@ public class BoardRenderer {
       g.drawImage(branchStonesShadowImage, x, y, null);
     }
     g.drawImage(cachedStonesImage, x, y, null);
+    g.drawImage(cachedEsitmateRectImage, x, y, null);
     if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesImage, x, y, null);
     }
@@ -736,10 +739,10 @@ public class BoardRenderer {
                   g.setColor(color.darker());
                   strokeWidth = 1;
                 } else {
-                  g.setColor(Color.RED);
+                  g.setColor(Color.RED.brighter());
                 }
               } else {
-                g.setColor(Color.BLUE);
+                g.setColor(Color.BLUE.brighter());
               }
             } else {
               g.setColor(color.darker());
@@ -767,25 +770,102 @@ public class BoardRenderer {
               text = String.format("%.1f", roundedWinrate);
             }
 
-            drawString(
-                g,
-                suggestionX,
-                suggestionY,
-                MainFrame.winrateFont,
-                Font.PLAIN,
-                text,
-                stoneRadius,
-                stoneRadius * 1.5,
-                1);
+            if (Lizzie.leelaz.isKataGo && Lizzie.config.showKataGoScoreMean) {
+              if (Lizzie.config.kataGoNotShowWinrate) {
+                double score = move.scoreMean;
+                if (Lizzie.board.getHistory().isBlacksTurn()) {
+                  if (Lizzie.config.showKataGoBoardScoreMean) {
+                    score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+                  }
+                } else {
+                  if (Lizzie.config.showKataGoBoardScoreMean) {
+                    score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+                  }
+                  if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+                    score = -score;
+                  }
+                }
+                drawString(
+                    g,
+                    suggestionX,
+                    suggestionY,
+                    MainFrame.winrateFont,
+                    Font.PLAIN,
+                    String.format("%.1f", score),
+                    stoneRadius,
+                    stoneRadius * 1.5,
+                    1);
 
-            drawString(
-                g,
-                suggestionX,
-                suggestionY + stoneRadius * 2 / 5,
-                MainFrame.uiFont,
-                Utils.getPlayoutsString(move.playouts),
-                (float) (stoneRadius * 0.8),
-                stoneRadius * 1.4);
+                drawString(
+                    g,
+                    suggestionX,
+                    suggestionY + stoneRadius * 2 / 5,
+                    MainFrame.uiFont,
+                    Utils.getPlayoutsString(move.playouts),
+                    (float) (stoneRadius * 0.8),
+                    stoneRadius * 1.4);
+              } else {
+                drawString(
+                    g,
+                    suggestionX,
+                    suggestionY - stoneRadius * 6 / 16,
+                    LizzieFrame.winrateFont,
+                    Font.PLAIN,
+                    text,
+                    stoneRadius,
+                    stoneRadius * 1.45,
+                    1);
+                drawString(
+                    g,
+                    suggestionX,
+                    suggestionY + stoneRadius * 1 / 16,
+                    MainFrame.uiFont,
+                    Utils.getPlayoutsString(move.playouts),
+                    (float) (stoneRadius * 0.8),
+                    stoneRadius * 1.4);
+                double score = move.scoreMean;
+                if (Lizzie.board.getHistory().isBlacksTurn()) {
+                  if (Lizzie.config.showKataGoBoardScoreMean) {
+                    score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+                  }
+                } else {
+                  if (Lizzie.config.showKataGoBoardScoreMean) {
+                    score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+                  }
+                  if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+                    score = -score;
+                  }
+                }
+                drawString(
+                    g,
+                    suggestionX,
+                    suggestionY + stoneRadius * 12 / 16,
+                    LizzieFrame.uiFont,
+                    String.format("%.1f", score),
+                    (float) (stoneRadius * 0.75),
+                    stoneRadius * 1.3);
+              }
+            } else {
+              drawString(
+                  g,
+                  suggestionX,
+                  suggestionY,
+                  MainFrame.winrateFont,
+                  Font.PLAIN,
+                  text,
+                  stoneRadius,
+                  stoneRadius * 1.5,
+                  1);
+
+              drawString(
+                  g,
+                  suggestionX,
+                  suggestionY + stoneRadius * 2 / 5,
+                  MainFrame.uiFont,
+                  Utils.getPlayoutsString(move.playouts),
+                  (float) (stoneRadius * 0.8),
+                  stoneRadius * 1.4);
+            }
           }
         }
       }
@@ -1424,5 +1504,95 @@ public class BoardRenderer {
   public void increaseMaxAlpha(int k) {
     maxAlpha = min(maxAlpha + k, 255);
     uiPersist.put("max-alpha", maxAlpha);
+  }
+
+  public void removeEstimateRect() {
+    cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (boardLength <= 0) {
+      return;
+    }
+    cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+    Graphics2D g = cachedEsitmateRectImage.createGraphics();
+    for (int i = 0; i < esitmateArray.size(); i++) {
+
+      if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
+          || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
+        int y = i / Board.boardSize;
+        int x = i % Board.boardSize;
+        int stoneX = scaledMargin + squareLength * x;
+        int stoneY = scaledMargin + squareLength * y;
+        // g.setColor(Color.BLACK);
+
+        int alpha = (int) (esitmateArray.get(i) * 255);
+        Color cl = new Color(0, 0, 0, Math.abs(alpha));
+        g.setColor(cl);
+        g.fillRect(
+            (int) (stoneX - stoneRadius * 0.6),
+            (int) (stoneY - stoneRadius * 0.6),
+            (int) (stoneRadius * 1.2),
+            (int) (stoneRadius * 1.2));
+      }
+      if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
+          || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
+        int y = i / Board.boardSize;
+        int x = i % Board.boardSize;
+        int stoneX = scaledMargin + squareLength * x;
+        int stoneY = scaledMargin + squareLength * y;
+        int alpha = (int) (esitmateArray.get(i) * 255);
+        Color cl = new Color(255, 255, 255, Math.abs(alpha));
+        g.setColor(cl);
+        g.fillRect(
+            (int) (stoneX - stoneRadius * 0.6),
+            (int) (stoneY - stoneRadius * 0.6),
+            (int) (stoneRadius * 1.2),
+            (int) (stoneRadius * 1.2));
+      }
+    }
+  }
+
+  private double convertLength(double length) {
+    double lengthab = Math.abs(length);
+    if (lengthab > 0.2) {
+      lengthab = lengthab * 7 / 10;
+      return lengthab;
+    } else {
+      return 0;
+    }
+  }
+
+  public void drawEstimateRectKataBySize(ArrayList<Double> esitmateArray) {
+    if (boardLength <= 0) {
+      return;
+    }
+    cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+    Graphics2D g = cachedEsitmateRectImage.createGraphics();
+    for (int i = 0; i < esitmateArray.size(); i++) {
+      if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
+          || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
+        int y = i / Board.boardSize;
+        int x = i % Board.boardSize;
+        int stoneX = scaledMargin + squareLength * x;
+        int stoneY = scaledMargin + squareLength * y;
+        Color cl = new Color(0, 0, 0, 180);
+        g.setColor(cl);
+        int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
+        if (length > 0) g.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
+      }
+      if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
+          || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
+        int y = i / Board.boardSize;
+        int x = i % Board.boardSize;
+        int stoneX = scaledMargin + squareLength * x;
+        int stoneY = scaledMargin + squareLength * y;
+        int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
+
+        Color cl = new Color(255, 255, 255, 180);
+        g.setColor(cl);
+        if (length > 0) g.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
+      }
+    }
   }
 }

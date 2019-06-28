@@ -27,6 +27,7 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
@@ -742,5 +743,23 @@ public class LizzieMain extends MainFrame {
   @Override
   public void clear() {
     boardPane.clear();
+  }
+
+  public void removeEstimateRect() {
+    boardPane.removeEstimateRect();
+    if (Lizzie.config.showSubBoard) {
+      subBoardPane.removeEstimateRect();
+    }
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardPane.drawEstimateRectKata(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardPane.drawEstimateRectKata(esitmateArray);
+      }
+    }
   }
 }

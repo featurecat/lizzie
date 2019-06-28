@@ -1106,21 +1106,51 @@ public class LizzieFrame extends MainFrame {
     g.setColor(Color.WHITE);
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
+    String text = "";
+    if (Lizzie.leelaz.isKataGo) {
+      double score = Lizzie.leelaz.scoreMean;
+      if (Lizzie.board.getHistory().isBlacksTurn()) {
+        if (Lizzie.config.showKataGoBoardScoreMean) {
+          score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+        }
+      } else {
+        if (Lizzie.config.showKataGoBoardScoreMean) {
+          score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+        }
+        if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+          score = -score;
+        }
+      }
+      text =
+          resourceBundle.getString("LizzieFrame.katago.scoreMean")
+              + ": "
+              + String.format("%.1f", score)
+              + " ";
+      text =
+          text
+              + resourceBundle.getString("LizzieFrame.katago.scoreStdev")
+              + ": "
+              + String.format("%.1f", Lizzie.leelaz.scoreStdev)
+              + " ";
+    }
     // Last move
     if (validLastWinrate && validWinrate) {
-      String text;
+
       if (Lizzie.config.handicapInsteadOfWinrate) {
         double currHandicapedWR = Lizzie.leelaz.winrateToHandicap(100 - curWR);
         double lastHandicapedWR = Lizzie.leelaz.winrateToHandicap(lastWR);
-        text = String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
+        text =
+            text
+                + resourceBundle.getString("LizzieFrame.display.lastMove")
+                + String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
       } else {
-        text = String.format(": %.1f%%", 100 - lastWR - curWR);
+        text =
+            text
+                + resourceBundle.getString("LizzieFrame.display.lastMove")
+                + String.format(": %.1f%%", 100 - lastWR - curWR);
       }
-
       g.drawString(
-          resourceBundle.getString("LizzieFrame.display.lastMove") + text,
-          posX + 2 * strokeRadius,
-          posY + height - 2 * strokeRadius); // - font.getSize());
+          text, posX + 2 * strokeRadius, posY + height - 2 * strokeRadius); // - font.getSize());
     } else {
       // I think it's more elegant to just not display anything when we don't have
       // valid data --dfannius
@@ -1537,5 +1567,30 @@ public class LizzieFrame extends MainFrame {
         };
     Thread thread = new Thread(runnable);
     thread.start();
+  }
+
+  public void removeEstimateRect() {
+    boardRenderer.removeEstimateRect();
+    if (Lizzie.config.showSubBoard) {
+      subBoardRenderer.removeEstimateRect();
+    }
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+    } else {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+    }
   }
 }

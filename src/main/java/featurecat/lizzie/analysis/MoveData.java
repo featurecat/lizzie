@@ -13,6 +13,8 @@ public class MoveData {
   public int playouts;
   public double winrate;
   public List<String> variation;
+  public double scoreMean;
+  public double scoreStdev;
 
   private MoveData() {}
 
@@ -27,8 +29,59 @@ public class MoveData {
    *
    * <p>info move Q16 visits 80 winrate 4405 prior 1828 lcb 4379 order 0 pv Q16 D4
    *
+   * <p>katago
+   *
+   * <p>info move Q5 visits 9 utility -0.145503 radius 0.0299435 winrate 0.430823 scoreMean -1.88438 scoreStdev 23.8437 prior 0.000681463 lcb 0.420129 utilityLcb -0.175447 order 15 pv Q5 D16 D4
+   *
    * @param line line of ponder output
    */
+  public static MoveData fromInfoKatago(String line) throws ArrayIndexOutOfBoundsException {
+    MoveData result = new MoveData();
+    String[] data = line.trim().split(" ");
+    boolean islcb = Lizzie.config.showLcbWinrate;
+    // Todo: Proper tag parsing in case gtp protocol is extended(?)/changed
+    for (int i = 0; i < data.length; i++) {
+      String key = data[i];
+      if (key.equals("pv")) {
+        // Read variation to the end of line
+        result.variation = new ArrayList<>(Arrays.asList(data));
+        result.variation =
+            result.variation.subList(
+                i + 1,
+                (Lizzie.config.limitBranchLength > 0
+                        && data.length - i - 1 > Lizzie.config.limitBranchLength)
+                    ? i + 1 + Lizzie.config.limitBranchLength
+                    : data.length);
+        break;
+      } else {
+        String value = data[++i];
+        if (key.equals("move")) {
+          result.coordinate = value;
+        }
+        if (key.equals("visits")) {
+          result.playouts = Integer.parseInt(value);
+        }
+        if (islcb && key.equals("lcb")) {
+          // LCB support
+          result.winrate = Double.parseDouble(value) * 100;
+        }
+
+        if (key.equals("winrate")) {
+          // support 0.16 0.15
+          result.winrate = Double.parseDouble(value) * 100;
+        }
+        if (key.equals("scoreMean")) {
+          result.scoreMean = Double.parseDouble(value);
+        }
+        if (key.equals("scoreStdev")) {
+          result.scoreStdev = Double.parseDouble(value);
+          ;
+        }
+      }
+    }
+    return result;
+  }
+
   public static MoveData fromInfo(String line) throws ArrayIndexOutOfBoundsException {
     MoveData result = new MoveData();
     String[] data = line.trim().split(" ");
@@ -63,6 +116,11 @@ public class MoveData {
         if (key.equals("winrate")) {
           // support 0.16 0.15
           result.winrate = Integer.parseInt(value) / 100.0;
+        }
+
+        if (key.equals("scoreMean")) {
+          // support 0.16 0.15
+          result.scoreMean = Double.parseDouble(value);
         }
       }
     }

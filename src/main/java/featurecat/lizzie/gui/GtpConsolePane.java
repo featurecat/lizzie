@@ -95,7 +95,9 @@ public class GtpConsolePane extends JDialog {
     lblCommand.setText(Lizzie.leelaz == null ? "GTP>" : Lizzie.leelaz.currentShortWeight() + ">");
     this.command = command;
     this.isAnalyzeCommand =
-        command.startsWith("lz-analyze") || command.startsWith("lz-genmove_analyze");
+        command.startsWith("lz-analyze")
+            || command.startsWith("kata-analyze")
+            || command.startsWith("lz-genmove_analyze");
     addText(formatCommand(command, commandNumber));
   }
 
