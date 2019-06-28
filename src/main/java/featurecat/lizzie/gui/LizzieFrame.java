@@ -1574,17 +1574,17 @@ public class LizzieFrame extends MainFrame {
   public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
     if (Lizzie.config.showKataGoEstimateBySize) {
       if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
-        subBoardRenderer.drawEstimateRectKata(esitmateArray);
-      }
-      if (Lizzie.config.showKataGoEstimateOnMainbord) {
-        boardRenderer.drawEstimateRectKata(esitmateArray);
-      }
-    } else {
-      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
         subBoardRenderer.drawEstimateRectKataBySize(esitmateArray);
       }
       if (Lizzie.config.showKataGoEstimateOnMainbord) {
         boardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+    } else {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKata(esitmateArray);
       }
     }
   }
