@@ -1507,23 +1507,24 @@ public class BoardRenderer {
   }
 
   public void removeEstimateRect() {
-    cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
   }
 
   public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
-    if (boardLength <= 0) {
+    if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
-    cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     Graphics2D g = cachedEsitmateRectImage.createGraphics();
     for (int i = 0; i < esitmateArray.size(); i++) {
 
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int y = i / Board.boardSize;
-        int x = i % Board.boardSize;
-        int stoneX = scaledMargin + squareLength * x;
-        int stoneY = scaledMargin + squareLength * y;
+        int[] cor = Lizzie.board.getCoord(i);
+        int y = cor[0];
+        int x = cor[1];
+        int stoneX = scaledMarginWidth + squareWidth * x;
+        int stoneY = scaledMarginHeight + squareHeight * y;
         // g.setColor(Color.BLACK);
 
         int alpha = (int) (esitmateArray.get(i) * 255);
@@ -1537,10 +1538,11 @@ public class BoardRenderer {
       }
       if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int y = i / Board.boardSize;
-        int x = i % Board.boardSize;
-        int stoneX = scaledMargin + squareLength * x;
-        int stoneY = scaledMargin + squareLength * y;
+        int[] cor = Lizzie.board.getCoord(i);
+        int y = cor[0];
+        int x = cor[1];
+        int stoneX = scaledMarginWidth + squareWidth * x;
+        int stoneY = scaledMarginHeight + squareHeight * y;
         int alpha = (int) (esitmateArray.get(i) * 255);
         Color cl = new Color(255, 255, 255, Math.abs(alpha));
         g.setColor(cl);
@@ -1564,18 +1566,19 @@ public class BoardRenderer {
   }
 
   public void drawEstimateRectKataBySize(ArrayList<Double> esitmateArray) {
-    if (boardLength <= 0) {
+    if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
-    cachedEsitmateRectImage = new BufferedImage(boardLength, boardLength, TYPE_INT_ARGB);
+    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     Graphics2D g = cachedEsitmateRectImage.createGraphics();
     for (int i = 0; i < esitmateArray.size(); i++) {
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int y = i / Board.boardSize;
-        int x = i % Board.boardSize;
-        int stoneX = scaledMargin + squareLength * x;
-        int stoneY = scaledMargin + squareLength * y;
+        int[] cor = Lizzie.board.getCoord(i);
+        int y = cor[0];
+        int x = cor[1];
+        int stoneX = scaledMarginWidth + squareWidth * x;
+        int stoneY = scaledMarginHeight + squareHeight * y;
         Color cl = new Color(0, 0, 0, 180);
         g.setColor(cl);
         int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
@@ -1583,10 +1586,11 @@ public class BoardRenderer {
       }
       if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int y = i / Board.boardSize;
-        int x = i % Board.boardSize;
-        int stoneX = scaledMargin + squareLength * x;
-        int stoneY = scaledMargin + squareLength * y;
+        int[] cor = Lizzie.board.getCoord(i);
+        int y = cor[0];
+        int x = cor[1];
+        int stoneX = scaledMarginWidth + squareWidth * x;
+        int stoneY = scaledMarginHeight + squareHeight * y;
         int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
 
         Color cl = new Color(255, 255, 255, 180);

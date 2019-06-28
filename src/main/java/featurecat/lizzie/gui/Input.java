@@ -423,7 +423,6 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (!Lizzie.board.getHistory().getNext().isPresent()) {
           Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
         }
-
         break;
 
       case VK_D:
@@ -445,7 +444,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
             Lizzie.config.showKataGoScoreMean = true;
             Lizzie.config.kataGoNotShowWinrate = false;
           }
-        } else toggleShowDynamicKomi();
+        } else {
+          toggleShowDynamicKomi();
+        }
         break;
 
       case VK_R:
