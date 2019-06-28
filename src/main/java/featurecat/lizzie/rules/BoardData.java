@@ -63,13 +63,13 @@ public class BoardData {
     this.bestMoves = new ArrayList<>();
   }
 
-  public static BoardData empty(int size) {
-    Stone[] stones = new Stone[size * size];
+  public static BoardData empty(int width, int height) {
+    Stone[] stones = new Stone[width * height];
     for (int i = 0; i < stones.length; i++) {
       stones[i] = Stone.EMPTY;
     }
 
-    int[] boardArray = new int[size * size];
+    int[] boardArray = new int[width * height];
     return new BoardData(
         stones, Optional.empty(), Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
   }
@@ -160,6 +160,10 @@ public class BoardData {
       setPlayouts(MoveData.getPlayouts(moves));
       winrate = getWinrateFromBestMoves(moves);
     }
+    if (Lizzie.leelaz.isKataGo) {
+      Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
+      Lizzie.leelaz.scoreStdev = moves.get(0).scoreStdev;
+    }
   }
 
   public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {
@@ -185,6 +189,7 @@ public class BoardData {
       sb.append("move ").append(move.coordinate);
       sb.append(" visits ").append(move.playouts);
       sb.append(" winrate ").append((int) (move.winrate * 100));
+      if (Lizzie.leelaz.isKataGo) sb.append(" scoreMean ").append(move.scoreMean);
       sb.append(" pv ").append(move.variation.stream().reduce((a, b) -> a + " " + b).get());
       sb.append(" info "); // this order is just because of how the MoveData info parser works
     }
@@ -218,7 +223,7 @@ public class BoardData {
   }
 
   public BoardData clone() {
-    BoardData data = BoardData.empty(19);
+    BoardData data = BoardData.empty(19, 19);
     data.sync(this);
     return data;
   }

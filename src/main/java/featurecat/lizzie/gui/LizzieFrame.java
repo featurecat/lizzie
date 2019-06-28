@@ -475,7 +475,10 @@ public class LizzieFrame extends MainFrame {
       boolean noComment = !Lizzie.config.showComment;
       // board
       int maxSize = (int) (min(width - leftInset - rightInset, height - topInset - bottomInset));
-      maxSize = max(maxSize, Board.boardSize + 5); // don't let maxWidth become too small
+      maxSize =
+          max(
+              maxSize,
+              max(Board.boardWidth, Board.boardHeight) + 5); // don't let maxWidth become too small
       int boardX = (width - maxSize) / 8 * boardPositionProportion;
       if (noBasic && noWinrate && noSubBoard) {
         boardX = leftInset;
@@ -759,7 +762,8 @@ public class LizzieFrame extends MainFrame {
       if (Lizzie.config.showStatus) drawCommandString(g);
 
       boardRenderer.setLocation(boardX, boardY);
-      boardRenderer.setBoardLength(maxSize);
+      boardRenderer.setBoardLength(maxSize, maxSize);
+      boardRenderer.setupSizeParameters();
       boardRenderer.draw(g);
 
       if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
@@ -805,7 +809,8 @@ public class LizzieFrame extends MainFrame {
         if (Lizzie.config.showSubBoard) {
           try {
             subBoardRenderer.setLocation(subBoardX, subBoardY);
-            subBoardRenderer.setBoardLength(subBoardLength);
+            subBoardRenderer.setBoardLength(subBoardLength, subBoardLength);
+            subBoardRenderer.setupSizeParameters();
             subBoardRenderer.draw(g);
           } catch (Exception e) {
             // This can happen when no space is left for subboard.
@@ -1104,21 +1109,51 @@ public class LizzieFrame extends MainFrame {
     g.setColor(Color.WHITE);
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
+    String text = "";
+    if (Lizzie.leelaz.isKataGo) {
+      double score = Lizzie.leelaz.scoreMean;
+      if (Lizzie.board.getHistory().isBlacksTurn()) {
+        if (Lizzie.config.showKataGoBoardScoreMean) {
+          score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+        }
+      } else {
+        if (Lizzie.config.showKataGoBoardScoreMean) {
+          score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+        }
+        if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+          score = -score;
+        }
+      }
+      text =
+          resourceBundle.getString("LizzieFrame.katago.scoreMean")
+              + ": "
+              + String.format("%.1f", score)
+              + " ";
+      text =
+          text
+              + resourceBundle.getString("LizzieFrame.katago.scoreStdev")
+              + ": "
+              + String.format("%.1f", Lizzie.leelaz.scoreStdev)
+              + " ";
+    }
     // Last move
     if (validLastWinrate && validWinrate) {
-      String text;
+
       if (Lizzie.config.handicapInsteadOfWinrate) {
         double currHandicapedWR = Lizzie.leelaz.winrateToHandicap(100 - curWR);
         double lastHandicapedWR = Lizzie.leelaz.winrateToHandicap(lastWR);
-        text = String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
+        text =
+            text
+                + resourceBundle.getString("LizzieFrame.display.lastMove")
+                + String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
       } else {
-        text = String.format(": %.1f%%", 100 - lastWR - curWR);
+        text =
+            text
+                + resourceBundle.getString("LizzieFrame.display.lastMove")
+                + String.format(": %.1f%%", 100 - lastWR - curWR);
       }
-
       g.drawString(
-          resourceBundle.getString("LizzieFrame.display.lastMove") + text,
-          posX + 2 * strokeRadius,
-          posY + height - 2 * strokeRadius); // - font.getSize());
+          text, posX + 2 * strokeRadius, posY + height - 2 * strokeRadius); // - font.getSize());
     } else {
       // I think it's more elegant to just not display anything when we don't have
       // valid data --dfannius
@@ -1543,5 +1578,30 @@ public class LizzieFrame extends MainFrame {
         };
     Thread thread = new Thread(runnable);
     thread.start();
+  }
+
+  public void removeEstimateRect() {
+    boardRenderer.removeEstimateRect();
+    if (Lizzie.config.showSubBoard) {
+      subBoardRenderer.removeEstimateRect();
+    }
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKataBySize(esitmateArray);
+      }
+    } else {
+      if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+        subBoardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+      if (Lizzie.config.showKataGoEstimateOnMainbord) {
+        boardRenderer.drawEstimateRectKata(esitmateArray);
+      }
+    }
   }
 }

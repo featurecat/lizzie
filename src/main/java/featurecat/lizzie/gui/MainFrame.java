@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.HeadlessException;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
+import java.util.ArrayList;
 import javax.swing.JFrame;
 
 public abstract class MainFrame extends JFrame {
@@ -56,6 +57,10 @@ public abstract class MainFrame extends JFrame {
   public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
     return false;
   }
+
+  public abstract void removeEstimateRect();
+
+  public abstract void drawEstimateRectKata(ArrayList<Double> esitmateArray);
 
   public abstract void drawControls();
 

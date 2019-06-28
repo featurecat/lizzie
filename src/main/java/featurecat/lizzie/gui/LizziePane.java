@@ -74,6 +74,8 @@ public class LizziePane extends JPanel {
   /** Region from edges that dragging is active from. */
   private static final int BORDER_DRAG_THICKNESS = 5;
 
+  public int[] boardParams = null;
+
   /**
    * <code>Cursor</code> used to track the cursor set by the user. This is initially <code>
    * Cursor.DEFAULT_CURSOR</code>.

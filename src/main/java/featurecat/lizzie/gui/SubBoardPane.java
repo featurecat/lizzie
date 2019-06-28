@@ -1,14 +1,17 @@
 package featurecat.lizzie.gui;
 
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
+import static java.lang.Math.max;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.rules.Board;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /** The window used to display the game. */
 public class SubBoardPane extends LizziePane {
@@ -65,11 +68,17 @@ public class SubBoardPane extends LizziePane {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     if (Lizzie.leelaz != null) { // && Lizzie.leelaz.isLoaded()) {
-
       if (Lizzie.config.showSubBoard) {
         try {
           subBoardRenderer.setLocation(x, y);
-          subBoardRenderer.setBoardLength(width);
+          if (boardParams == null) {
+            boardParams =
+                subBoardRenderer.availableLength(
+                    max(width, Board.boardWidth + 5),
+                    max(height, Board.boardHeight + 5),
+                    Lizzie.config.showCoordinates);
+          }
+          subBoardRenderer.setBoardParam(boardParams);
           subBoardRenderer.draw(g);
         } catch (Exception e) {
           // This can happen when no space is left for subboard.
@@ -108,5 +117,17 @@ public class SubBoardPane extends LizziePane {
 
   public boolean isInside(int x1, int y1) {
     return subBoardRenderer.isInside(x1, y1);
+  }
+
+  public void removeEstimateRect() {
+    subBoardRenderer.removeEstimateRect();
+  }
+
+  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (Lizzie.config.showKataGoEstimateBySize) {
+      subBoardRenderer.drawEstimateRectKataBySize(esitmateArray);
+    } else {
+      subBoardRenderer.drawEstimateRectKata(esitmateArray);
+    }
   }
 }

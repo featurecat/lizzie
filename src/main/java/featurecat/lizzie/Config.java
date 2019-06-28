@@ -25,7 +25,7 @@ import org.json.JSONTokener;
 public class Config {
   public String language = "en";
 
-  public boolean panelUI = false;
+  public boolean panelUI = true;
   public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
@@ -50,6 +50,15 @@ public class Config {
   public double minPlayoutRatioForStats = 0.0;
   public boolean showLcbWinrate = false;
   public boolean isKataGo = false;
+
+  public boolean showKataGoScoreMean = true;
+  public boolean showKataGoBoardScoreMean = false;
+  public boolean kataGoScoreMeanAlwaysBlack = false;
+  public boolean kataGoNotShowWinrate = false;
+  public boolean showKataGoEstimate = false;
+  public boolean showKataGoEstimateBySize = false;
+  public boolean showKataGoEstimateOnSubbord = true;
+  public boolean showKataGoEstimateOnMainbord = true;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -80,6 +89,7 @@ public class Config {
   public Color commentFontColor = null;
   public Color commentBackgroundColor = null;
   public Color winrateLineColor = null;
+  public Color scoreMeanLineColor = null;
   public Color winrateMissLineColor = null;
   public Color blunderBarColor = null;
   public boolean solidStoneIndicator = false;
@@ -89,6 +99,7 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = true;
+  public boolean holdWinrateToMove = false;
   public int boardPositionProportion = 4;
   public int limitBestMoveNum = 0;
   public int limitBranchLength = 0;
@@ -201,6 +212,7 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
+    holdWinrateToMove = uiConfig.optBoolean("hold-winrate-to-move");
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
@@ -214,6 +226,15 @@ public class Config {
     shadowSize = theme.shadowSize();
     showLcbWinrate = config.getJSONObject("leelaz").getBoolean("show-lcb-winrate");
 
+    showKataGoScoreMean = uiConfig.optBoolean("show-katago-scoremean", true);
+    showKataGoBoardScoreMean = uiConfig.optBoolean("show-katago-boardscoremean", false);
+    kataGoScoreMeanAlwaysBlack = uiConfig.optBoolean("katago-scoremean-alwaysblack", false);
+    kataGoNotShowWinrate = uiConfig.optBoolean("katago-notshow-winrate", false);
+    showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", false);
+    showKataGoEstimateBySize = uiConfig.optBoolean("show-katago-estimate-bysize", false);
+    showKataGoEstimateOnSubbord = uiConfig.optBoolean("show-katago-estimate-onsubbord", true);
+    showKataGoEstimateOnMainbord = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
+
     if (theme.fontName() != null) fontName = theme.fontName();
 
     if (theme.uiFontName() != null) uiFontName = theme.uiFontName();
@@ -224,6 +245,7 @@ public class Config {
     commentFontColor = theme.commentFontColor();
     commentBackgroundColor = theme.commentBackgroundColor();
     winrateLineColor = theme.winrateLineColor();
+    scoreMeanLineColor = theme.scoreMeanLineColor();
     winrateMissLineColor = theme.winrateMissLineColor();
     blunderBarColor = theme.blunderBarColor();
     solidStoneIndicator = theme.solidStoneIndicator();
@@ -438,6 +460,14 @@ public class Config {
     ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
     ui.put("panel-ui", false);
+    ui.put("show-katago-scoremean", true);
+    ui.put("show-katago-boardscoremean", false);
+    ui.put("katago-scoremean-alwaysblack", false);
+    ui.put("katago-notshow-winrate", false);
+    ui.put("show-katago-estimate", false);
+    ui.put("show-katago-estimate-bysize", false);
+    ui.put("show-katago-estimate-onsubbord", true);
+    ui.put("show-katago-estimate-onmainboard", true);
     config.put("ui", ui);
     return config;
   }

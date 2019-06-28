@@ -82,6 +82,10 @@ public class Leelaz {
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN;
   private float dynamicOppKomi = Float.NaN;
+  public boolean isKataGo = false;
+  ArrayList<Double> esitmateArray = new ArrayList<Double>();
+  public double scoreMean = 0;
+  public double scoreStdev = 0;
 
   /**
    * Initializes the leelaz process and starts reading output
@@ -114,7 +118,9 @@ public class Leelaz {
       engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
     }
     this.engineCommand = engineCommand;
-
+    if (engineCommand.toLowerCase().contains("override-version")) {
+      this.isKataGo = true;
+    }
     // Initialize current engine number and start engine
     currentEngineN = 0;
   }
@@ -176,7 +182,7 @@ public class Leelaz {
     // Response handled in parseLine
     isCheckingVersion = true;
     sendCommand("version");
-    sendCommand("boardsize " + Lizzie.config.uiConfig.optInt("board-size", 19));
+    boardSize(Lizzie.board.boardWidth, Lizzie.board.boardHeight);
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -242,6 +248,22 @@ public class Leelaz {
     return bestMoves;
   }
 
+  public List<MoveData> parseInfoKatago(String line) {
+    List<MoveData> bestMoves = new ArrayList<>();
+    String[] variations = line.split(" info ");
+    for (String var : variations) {
+      if (!var.trim().isEmpty()) {
+        if (Lizzie.config.limitBestMoveNum > 0
+            && bestMoves.size() >= Lizzie.config.limitBestMoveNum) {
+          break;
+        }
+        bestMoves.add(MoveData.fromInfoKatago(var));
+      }
+    }
+    Lizzie.board.getData().tryToSetBestMoves(bestMoves);
+    return bestMoves;
+  }
+
   /**
    * Parse a line of Leelaz output
    *
@@ -277,7 +299,22 @@ public class Leelaz {
         Lizzie.frame.updateTitle();
         if (isResponseUpToDate()) {
           // This should not be stale data when the command number match
-          this.bestMoves = parseInfo(line.substring(5));
+          if (isKataGo) {
+            this.bestMoves = parseInfoKatago(line.substring(5));
+            if (Lizzie.config.showKataGoEstimate) {
+              if (line.contains("ownership")) {
+                esitmateArray = new ArrayList<Double>();
+                String[] params = line.trim().split("ownership");
+                String[] params2 = params[1].trim().split(" ");
+                for (int i = 0; i < params2.length; i++) {
+                  esitmateArray.add(Double.parseDouble(params2[i]));
+                }
+                Lizzie.frame.drawEstimateRectKata(esitmateArray);
+              }
+            }
+          } else {
+            this.bestMoves = parseInfo(line.substring(5));
+          }
           notifyBestMoveListeners();
           Lizzie.frame.refresh(1);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
@@ -294,8 +331,11 @@ public class Leelaz {
         if (isResponseUpToDate()
             || isThinking
                 && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          if (Lizzie.config.limitBestMoveNum == 0
-              || bestMoves.size() < Lizzie.config.limitBestMoveNum) {
+          // TODO Do not update the best moves when playing against Leela Zero
+          // Because it is equivalent to the winrate of the previous move.
+          if (!Lizzie.frame.isPlayingAgainstLeelaz
+              && (Lizzie.config.limitBestMoveNum == 0
+                  || bestMoves.size() < Lizzie.config.limitBestMoveNum)) {
             bestMoves.add(MoveData.fromSummary(line));
             notifyBestMoveListeners();
             Lizzie.frame.refresh(1);
@@ -346,7 +386,7 @@ public class Leelaz {
             Lizzie.config.isKataGo = true;
           }
           isCheckingName = false;
-        } else if (isCheckingVersion) {
+        } else if (isCheckingVersion && !isKataGo) {
           String[] ver = params[1].split("\\.");
           int minor = Integer.parseInt(ver[1]);
           // Gtp support added in version 15
@@ -452,7 +492,8 @@ public class Leelaz {
    * @param command a GTP command containing no newline characters
    */
   private void sendCommandToLeelaz(String command) {
-    if (command.startsWith("fixed_handicap")) isSettingHandicap = true;
+    if (command.startsWith("fixed_handicap")
+        || (isKataGo && command.startsWith("place_free_handicap"))) isSettingHandicap = true;
     if (printCommunication) {
       System.out.printf("> %d %s\n", cmdNumber, command);
     }
@@ -540,6 +581,14 @@ public class Leelaz {
     }
   }
 
+  public void boardSize(int size) {
+    boardSize(size, size);
+  }
+
+  public void boardSize(int width, int height) {
+    sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+  }
+
   public void undo() {
     synchronized (this) {
       sendCommand("undo");
@@ -549,15 +598,17 @@ public class Leelaz {
   }
 
   /** This initializes leelaz's pondering mode at its current position */
-  private void ponder() {
+  public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
     sendCommand(
-        (Lizzie.config.isKataGo ? "kata-analyze " : "lz-analyze ")
+        (this.isKataGo ? "kata-analyze " : "lz-analyze ")
             + Lizzie.config
                 .config
                 .getJSONObject("leelaz")
-                .getInt("analyze-update-interval-centisec")); // until it responds to this, incoming
+                .getInt("analyze-update-interval-centisec")
+            + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
+    // until it responds to this, incoming
     // ponder results are obsolete
   }
 

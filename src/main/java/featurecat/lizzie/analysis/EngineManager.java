@@ -93,9 +93,14 @@ public class EngineManager {
       }
       curEng.togglePonder();
     }
+
     // TODO: Need keep analyze?
     if (curEng.isPondering()) {
       curEng.togglePonder();
+    }
+
+    if (curEng.isKataGo && Lizzie.config.showKataGoEstimate) {
+      Lizzie.frame.removeEstimateRect();
     }
     curEng.board.saveMoveNumber();
     try {

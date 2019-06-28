@@ -289,7 +289,7 @@ public class BoardHistoryList {
       int moveNumber = this.getMoveNumber() + 1;
       int[] moveNumberList =
           newBranch && this.getNext(true).isPresent()
-              ? new int[Board.boardSize * Board.boardSize]
+              ? new int[Board.boardWidth * Board.boardHeight]
               : this.getMoveNumberList().clone();
 
       // build the new game state
@@ -351,7 +351,7 @@ public class BoardHistoryList {
           this.getMoveMNNumber() > -1 && !newBranch ? this.getMoveMNNumber() + 1 : -1;
       int[] moveNumberList =
           newBranch && this.getNext(true).isPresent()
-              ? new int[Board.boardSize * Board.boardSize]
+              ? new int[Board.boardWidth * Board.boardHeight]
               : this.getMoveNumberList().clone();
 
       moveNumberList[Board.getIndex(x, y)] = moveMNNumber > -1 ? moveMNNumber : moveNumber;
@@ -370,7 +370,7 @@ public class BoardHistoryList {
       // check to see if the player made a suicidal coordinate
       int isSuicidal = Board.removeDeadChain(x, y, color, stones, zobrist);
 
-      for (int i = 0; i < Board.boardSize * Board.boardSize; i++) {
+      for (int i = 0; i < Board.boardWidth * Board.boardHeight; i++) {
         if (stones[i].equals(Stone.EMPTY)) {
           moveNumberList[i] = 0;
         }
@@ -476,7 +476,7 @@ public class BoardHistoryList {
                 blackToPlay,
                 zobrist,
                 0,
-                new int[Board.boardSize * Board.boardSize],
+                new int[Board.boardWidth * Board.boardHeight],
                 0,
                 0,
                 0.0,
