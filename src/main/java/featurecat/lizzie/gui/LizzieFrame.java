@@ -1187,7 +1187,7 @@ public class LizzieFrame extends MainFrame {
           winString,
           barPosxB + maxBarwidth - sw - 2 * strokeRadius,
           posY + barHeight - 2 * strokeRadius);
-      if (Lizzie.config.isKataGo) {
+      if (Lizzie.leelaz.isKataGo) {
         String scoreString = String.format("%.1f", blackSM);
         sw = g.getFontMetrics().stringWidth(scoreString);
         g.drawString(
