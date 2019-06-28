@@ -245,6 +245,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.leelaz.isThinking = false;
         }
         Lizzie.leelaz.togglePonder();
+        refreshType = 2;
         break;
 
       case VK_P:
@@ -456,7 +457,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_8:
       case VK_9:
         if (controlIsPressed(e)) {
-          Lizzie.switchEngine(e.getKeyCode() - VK_0);
+          Lizzie.engineManager.switchEngine(e.getKeyCode() - VK_0);
           refreshType = 0;
         }
         break;
