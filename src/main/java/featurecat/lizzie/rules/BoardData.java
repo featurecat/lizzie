@@ -175,7 +175,7 @@ public class BoardData {
   }
 
   public static double getScoreMeanFromBestMoves(List<MoveData> bestMoves) {
-    // return the weighted average winrate of bestMoves
+    // return the weighted average scoreMean of bestMoves
     return bestMoves
         .stream()
         .mapToDouble(move -> move.scoreMean * move.playouts / MoveData.getPlayouts(bestMoves))

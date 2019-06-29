@@ -1426,9 +1426,6 @@ public class Board implements LeelazListener {
       history.getData().winrate = stats.maxWinrate;
       // we won't set playouts here. but setting winrate is ok... it shows the user that we are
       // computing. i think its fine.
-      if (!Lizzie.config.holdWinrateToMove) {
-        history.getData().setPlayouts(stats.totalPlayouts);
-      }
     }
   }
 

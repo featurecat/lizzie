@@ -428,10 +428,8 @@ public class BoardRenderer {
 
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
-    if (Lizzie.config.holdWinrateToMove) {
-      if (MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
-        bestMoves = Lizzie.board.getData().bestMoves;
-      }
+    if (MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
+      bestMoves = Lizzie.board.getData().bestMoves;
     }
 
     variationOpt = Optional.empty();

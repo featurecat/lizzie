@@ -231,7 +231,7 @@ public class SGFParser {
             } else {
               Lizzie.board.comment(tagContent);
             }
-          } else if (tag.equals("LZ") && Lizzie.config.holdWinrateToMove) {
+          } else if (tag.equals("LZ")) {
             // Content contains data for Lizzie to read
             String[] lines = tagContent.split("\n");
             String[] line1 = lines[0].split(" ");
@@ -502,9 +502,7 @@ public class SGFParser {
         }
 
         // Add LZ specific data to restore on next load
-        if (Lizzie.config.holdWinrateToMove) {
-          builder.append(String.format("LZ[%s]", formatNodeData(node)));
-        }
+        builder.append(String.format("LZ[%s]", formatNodeData(node)));
       }
 
       if (node.numberOfChildren() > 1) {
