@@ -1518,9 +1518,9 @@ public class BoardRenderer {
 
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] cor = Lizzie.board.getCoord(i);
-        int x = cor[0];
-        int y = cor[1];
+        int[] c = Lizzie.board.getCoord(i);
+        int x = c[1];
+        int y = c[0];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         // g.setColor(Color.BLACK);
@@ -1536,9 +1536,9 @@ public class BoardRenderer {
       }
       if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] cor = Lizzie.board.getCoord(i);
-        int x = cor[0];
-        int y = cor[1];
+        int[] c = Lizzie.board.getCoord(i);
+        int x = c[1];
+        int y = c[0];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         int alpha = (int) (esitmateArray.get(i) * 255);
@@ -1572,9 +1572,9 @@ public class BoardRenderer {
     for (int i = 0; i < esitmateArray.size(); i++) {
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] cor = Lizzie.board.getCoord(i);
-        int x = cor[0];
-        int y = cor[1];
+        int[] c = Lizzie.board.getCoord(i);
+        int x = c[1];
+        int y = c[0];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         Color cl = new Color(0, 0, 0, 180);
@@ -1584,9 +1584,9 @@ public class BoardRenderer {
       }
       if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
           || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] cor = Lizzie.board.getCoord(i);
-        int x = cor[0];
-        int y = cor[1];
+        int[] c = Lizzie.board.getCoord(i);
+        int x = c[1];
+        int y = c[0];
         int stoneX = scaledMarginWidth + squareWidth * x;
         int stoneY = scaledMarginHeight + squareHeight * y;
         int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
