@@ -590,6 +590,10 @@ public class Leelaz {
     sendCommand("boardsize " + width + (width != height ? " " + height : ""));
   }
 
+  public void setKomi(double komi) {
+    sendCommand("komi " + komi);
+  }
+
   public void undo() {
     synchronized (this) {
       sendCommand("undo");

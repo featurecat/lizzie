@@ -541,7 +541,7 @@ public class LizzieMain extends MainFrame {
     if (isNewGame) {
       Lizzie.board.clear();
     }
-    Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
+    Lizzie.leelaz.setKomi(gameInfo.getKomi());
 
     Lizzie.leelaz.time_settings();
     Lizzie.frame.playerIsBlack = playerIsBlack;

@@ -353,6 +353,11 @@ public class Board implements LeelazListener {
     }
   }
 
+  public void setKomi(double komi) {
+    getHistory().getGameInfo().setKomi(komi);
+    Lizzie.leelaz.setKomi(komi);
+  }
+
   /**
    * The pass. Thread safe
    *
