@@ -6,9 +6,12 @@ import java.awt.HeadlessException;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.ResourceBundle;
 import javax.swing.JFrame;
 
 public abstract class MainFrame extends JFrame {
+  public static final ResourceBundle resourceBundle =
+      ResourceBundle.getBundle("l10n.DisplayStrings");
 
   public boolean isPlayingAgainstLeelaz = false;
   public boolean playerIsBlack = true;
