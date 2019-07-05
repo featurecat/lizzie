@@ -405,6 +405,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_Z:
         if (e.isShiftDown()) {
           toggleHints();
+        } else if (e.isAltDown()) {
+          Lizzie.config.toggleShowSubBoard();
         } else {
           startTemporaryBoard();
         }

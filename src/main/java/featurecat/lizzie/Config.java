@@ -98,6 +98,8 @@ public class Config {
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
   public boolean appendWinrateToComment = true;
+  public boolean holdBestMovesToSgf = true;
+  public boolean showBestMovesByHold = true;
   public int boardPositionProportion = 4;
   public int limitBestMoveNum = 0;
   public int limitBranchLength = 0;
@@ -210,6 +212,8 @@ public class Config {
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
+    holdBestMovesToSgf = uiConfig.optBoolean("hold-bestmoves-to-sgf", true);
+    showBestMovesByHold = uiConfig.optBoolean("show-bestmoves-by-hold", true);
     showCoordinates = uiConfig.optBoolean("show-coordinates");
     replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
     colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
@@ -300,6 +304,10 @@ public class Config {
     this.showBranch = !this.showBranch;
   }
 
+  public void toggleShowCaptured() {
+    this.showCaptured = !this.showCaptured;
+  }
+
   public void toggleShowWinrate() {
     this.showWinrate = !this.showWinrate;
   }
@@ -346,6 +354,10 @@ public class Config {
 
   public void toggleEvaluationColoring() {
     colorByWinrateInsteadOfVisits = !colorByWinrateInsteadOfVisits;
+  }
+
+  public void toggleShowSubBoard() {
+    showSubBoard = !showSubBoard;
   }
 
   public boolean showLargeSubBoard() {
