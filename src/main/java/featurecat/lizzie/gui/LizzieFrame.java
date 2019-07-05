@@ -319,7 +319,7 @@ public class LizzieFrame extends MainFrame {
     if (isNewGame) {
       Lizzie.board.clear();
     }
-    Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
+    Lizzie.leelaz.komi(gameInfo.getKomi());
 
     Lizzie.leelaz.time_settings();
     Lizzie.frame.playerIsBlack = playerIsBlack;
@@ -331,7 +331,7 @@ public class LizzieFrame extends MainFrame {
       Lizzie.board.getHistory().setGameInfo(gameInfo);
       if (isHandicapGame) {
         Lizzie.board.getHistory().getData().blackToPlay = false;
-        Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
+        Lizzie.leelaz.handicap(gameInfo.getHandicap());
         if (playerIsBlack) Lizzie.leelaz.genmove("W");
       } else if (!playerIsBlack) {
         Lizzie.leelaz.genmove("B");

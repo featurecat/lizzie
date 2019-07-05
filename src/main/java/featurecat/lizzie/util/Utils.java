@@ -130,6 +130,14 @@ public class Utils {
     }
   }
 
+  public static Double txtFieldDoubleValue(JTextField txt) {
+    if (txt.getText().trim().isEmpty()) {
+      return 0.0;
+    } else {
+      return new Double(txt.getText().trim());
+    }
+  }
+
   public static int intOfMap(Map map, String key) {
     if (map == null) {
       return 0;

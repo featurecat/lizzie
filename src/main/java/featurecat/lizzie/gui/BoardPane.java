@@ -112,6 +112,11 @@ public class BoardPane extends LizziePane {
               Input.undo();
             }
           }
+
+          @Override
+          public void mouseExited(MouseEvent e) {
+            onMouseExited(e.getX(), e.getY());
+          }
         });
     addMouseMotionListener(
         new MouseMotionListener() {
@@ -340,6 +345,10 @@ public class BoardPane extends LizziePane {
         }
       }
     }
+  }
+
+  public void onMouseExited(int x, int y) {
+    mouseOverCoordinate = outOfBoundCoordinate;
   }
 
   public void onMouseMoved(int x, int y) {

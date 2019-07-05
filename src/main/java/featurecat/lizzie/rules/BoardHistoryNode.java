@@ -99,6 +99,11 @@ public class BoardHistoryNode {
     if (!this.previous.isPresent()) {
       data.moveMNNumber = 1;
     }
+    Optional<BoardHistoryNode> next = next(true);
+    boolean nextDummy = next.isPresent() && next.get().isEndDummay();
+    if (!newBranch && nextDummy) {
+      changeMove = true;
+    }
     if (Lizzie.config.newMoveNumberInBranch && !variations.isEmpty() && !changeMove) {
       if (!newBranch) {
         data.moveNumberList = new int[Board.boardWidth * Board.boardHeight];
@@ -112,7 +117,6 @@ public class BoardHistoryNode {
     }
     BoardHistoryNode node = new BoardHistoryNode(data);
     if (changeMove) {
-      Optional<BoardHistoryNode> next = next(true);
       next.ifPresent(
           n -> {
             node.variations = n.variations;
@@ -341,7 +345,7 @@ public class BoardHistoryNode {
     BoardHistoryNode top = start;
     while (start.previous().isPresent()) {
       BoardHistoryNode pre = start.previous().get();
-      if (pre.next().isPresent() && pre.next().get() != start) {
+      if (pre.next(true).isPresent() && pre.next(true).get() != start) {
         top = pre;
       }
       start = pre;

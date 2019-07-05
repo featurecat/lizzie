@@ -279,6 +279,15 @@ public class LizzieMain extends MainFrame {
   }
 
   /**
+   * Draws the game board and interface
+   *
+   * @param g0 not used
+   */
+  public void paint(Graphics g0) {
+    super.paintComponents(g0);
+  }
+
+  /**
    * temporary measure to refresh background. ideally we shouldn't need this (but we want to release
    * Lizzie 0.5 today, not tomorrow!). Refactor me out please! (you need to get blurring to work
    * properly on startup).
@@ -541,7 +550,7 @@ public class LizzieMain extends MainFrame {
     if (isNewGame) {
       Lizzie.board.clear();
     }
-    Lizzie.leelaz.sendCommand("komi " + gameInfo.getKomi());
+    Lizzie.leelaz.komi(gameInfo.getKomi());
 
     Lizzie.leelaz.time_settings();
     Lizzie.frame.playerIsBlack = playerIsBlack;
@@ -553,7 +562,7 @@ public class LizzieMain extends MainFrame {
       Lizzie.board.getHistory().setGameInfo(gameInfo);
       if (isHandicapGame) {
         Lizzie.board.getHistory().getData().blackToPlay = false;
-        Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
+        Lizzie.leelaz.handicap(gameInfo.getHandicap());
         if (playerIsBlack) Lizzie.leelaz.genmove("W");
       } else if (!playerIsBlack) {
         Lizzie.leelaz.genmove("B");
