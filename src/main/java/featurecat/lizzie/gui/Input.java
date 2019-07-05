@@ -290,8 +290,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_I:
         // stop the ponder
-        if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+        boolean isPondering = Lizzie.leelaz.isPondering();
+        if (isPondering) Lizzie.leelaz.togglePonder();
         Lizzie.frame.editGameInfo();
+        if (isPondering) Lizzie.leelaz.togglePonder();
         break;
       case VK_S:
         // stop the ponder
@@ -411,6 +413,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_Z:
         if (e.isShiftDown()) {
           toggleHints();
+        } else if (e.isAltDown()) {
+          Lizzie.config.toggleShowSubBoard();
         } else {
           startTemporaryBoard();
         }

@@ -188,13 +188,13 @@ public class WinratePane extends LizziePane {
       }
       text =
           LizzieMain.resourceBundle.getString("LizzieFrame.katago.scoreMean")
-              + ": "
+              + ":"
               + String.format("%.1f", score)
               + " ";
       text =
           text
               + LizzieMain.resourceBundle.getString("LizzieFrame.katago.scoreStdev")
-              + ": "
+              + ":"
               + String.format("%.1f", Lizzie.leelaz.scoreStdev)
               + " ";
     }
@@ -207,12 +207,12 @@ public class WinratePane extends LizziePane {
         text =
             text
                 + LizzieMain.resourceBundle.getString("LizzieFrame.display.lastMove")
-                + String.format(": %.2f", currHandicapedWR - lastHandicapedWR);
+                + String.format(":%.2f", currHandicapedWR - lastHandicapedWR);
       } else {
         text =
             text
                 + LizzieMain.resourceBundle.getString("LizzieFrame.display.lastMove")
-                + String.format(": %.1f%%", 100 - lastWR - curWR);
+                + String.format(":%.1f%%", 100 - lastWR - curWR);
       }
 
       g.drawString(
