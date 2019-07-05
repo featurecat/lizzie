@@ -20,6 +20,7 @@ public abstract class MainFrame extends JFrame {
   public static Font winrateFont;
   // Force refresh board
   private boolean forceRefresh;
+  public boolean isMouseOver = false;
 
   public MainFrame(String title) throws HeadlessException {
     super(title);
@@ -91,6 +92,10 @@ public abstract class MainFrame extends JFrame {
   public abstract void stopRawBoard();
 
   public abstract boolean incrementDisplayedBranchLength(int n);
+
+  public void doBranch(int moveTo) {}
+
+  public void addSuggestionAsBranch() {}
 
   public abstract void increaseMaxAlpha(int k);
 
