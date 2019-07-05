@@ -289,6 +289,7 @@ public class SGFParser {
                 tagContent = "0.0";
               }
               Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
+              Lizzie.leelaz.komi(Lizzie.board.getHistory().getGameInfo().getKomi());
             } catch (NumberFormatException e) {
               e.printStackTrace();
             }
