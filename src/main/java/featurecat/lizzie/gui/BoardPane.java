@@ -35,8 +35,7 @@ import java.util.function.Consumer;
 
 /** The window used to display the game. */
 public class BoardPane extends LizziePane {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   private static final String[] commands = {
     resourceBundle.getString("LizzieFrame.commands.keyN"),
@@ -111,6 +110,11 @@ public class BoardPane extends LizziePane {
             } else if (e.getButton() == MouseEvent.BUTTON3) { // right click
               Input.undo();
             }
+          }
+
+          @Override
+          public void mouseExited(MouseEvent e) {
+            onMouseExited(e.getX(), e.getY());
           }
         });
     addMouseMotionListener(
@@ -340,6 +344,10 @@ public class BoardPane extends LizziePane {
         }
       }
     }
+  }
+
+  public void onMouseExited(int x, int y) {
+    mouseOverCoordinate = outOfBoundCoordinate;
   }
 
   public void onMouseMoved(int x, int y) {

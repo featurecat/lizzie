@@ -24,8 +24,7 @@ import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 
 public class GtpConsolePane extends JDialog {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   // Display Comment
   private HTMLDocument htmlDoc;
@@ -187,6 +186,15 @@ public class GtpConsolePane extends JDialog {
             height = Integer.parseInt(cmdParams[2]);
           }
           Lizzie.board.reopen(width, height);
+        }
+      } else if (command.startsWith("komi")) {
+        String cmdParams[] = command.split(" ");
+        if (cmdParams.length >= 2) {
+          try {
+            double komi = Double.parseDouble(cmdParams[1]);
+            Lizzie.leelaz.komi(komi);
+          } catch (Exception ex) {
+          }
         }
       } else {
         Lizzie.leelaz.sendCommand(command);

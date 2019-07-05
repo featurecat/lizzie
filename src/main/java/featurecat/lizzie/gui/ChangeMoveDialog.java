@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.util.DigitOnlyFilter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -22,13 +23,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 
 public class ChangeMoveDialog extends JDialog {
-  public final ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
+  public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
   private JRadioButton rdoChangeCoord;
   private JRadioButton rdoPass;
   private JRadioButton rdoSwap;
@@ -156,26 +155,6 @@ public class ChangeMoveDialog extends JDialog {
       return 0;
     } else {
       return Integer.parseInt(txt.getText().trim());
-    }
-  }
-
-  private class DigitOnlyFilter extends DocumentFilter {
-    @Override
-    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
-        throws BadLocationException {
-      String newStr = string != null ? string.replaceAll("\\D++", "") : "";
-      if (!newStr.isEmpty()) {
-        fb.insertString(offset, newStr, attr);
-      }
-    }
-
-    @Override
-    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
-        throws BadLocationException {
-      String newStr = text != null ? text.replaceAll("\\D++", "") : "";
-      if (!newStr.isEmpty()) {
-        fb.replace(offset, length, newStr, attrs);
-      }
     }
   }
 

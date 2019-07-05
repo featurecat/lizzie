@@ -6,15 +6,11 @@ import static java.lang.Math.max;
 
 import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.MoveData;
-import featurecat.lizzie.rules.GIBParser;
-import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.util.Utils;
 import featurecat.lizzie.util.WindowPosition;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Graphics;
@@ -25,30 +21,20 @@ import java.awt.TexturePaint;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class LizzieMain extends MainFrame {
-  public static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
 
   public static Input input;
   public static BasicInfoPane basicInfoPane;
-  private static final String DEFAULT_TITLE = resourceBundle.getString("LizzieFrame.title");
-
   public static BoardPane boardPane;
   public static SubBoardPane subBoardPane;
   public static WinratePane winratePane;
@@ -68,41 +54,14 @@ public class LizzieMain extends MainFrame {
   private int cachedBackgroundWidth = 0, cachedBackgroundHeight = 0;
   private boolean redrawBackgroundAnyway = false;
 
-  private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
-  public int[] mouseOverCoordinate = outOfBoundCoordinate;
-
-  // Save the player title
-  private String playerTitle = "";
-
   // Show the playouts in the title
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
   private long lastPlayouts = 0;
-  private String visitsString = "";
   public boolean isDrawVisitsInTitle = true;
-
-  static {
-    // load fonts
-    try {
-      uiFont = new Font("SansSerif", Font.TRUETYPE_FONT, 12);
-      //          Font.createFont(
-      //              Font.TRUETYPE_FONT,
-      //              Thread.currentThread()
-      //                  .getContextClassLoader()
-      //                  .getResourceAsStream("fonts/OpenSans-Regular.ttf"));
-      winrateFont =
-          Font.createFont(
-              Font.TRUETYPE_FONT,
-              Thread.currentThread()
-                  .getContextClassLoader()
-                  .getResourceAsStream("fonts/OpenSans-Semibold.ttf"));
-    } catch (IOException | FontFormatException e) {
-      e.printStackTrace();
-    }
-  }
 
   /** Creates a window */
   public LizzieMain() {
-    super(DEFAULT_TITLE);
+    super();
 
     // TODO
     //    setMinimumSize(new Dimension(640, 400));
@@ -276,6 +235,15 @@ public class LizzieMain extends MainFrame {
 
     setFocusable(true);
     setFocusTraversalKeysEnabled(false);
+  }
+
+  /**
+   * Draws the game board and interface
+   *
+   * @param g0 not used
+   */
+  public void paint(Graphics g0) {
+    super.paintComponents(g0);
   }
 
   /**
@@ -503,166 +471,6 @@ public class LizzieMain extends MainFrame {
     //    commentPane.revalidate();
     commentPane.repaint();
     invalidLayout();
-  }
-
-  public void openConfigDialog() {
-    ConfigDialog configDialog = new ConfigDialog();
-    configDialog.setVisible(true);
-    //    configDialog.dispose();
-  }
-
-  public void openChangeMoveDialog() {
-    ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
-    changeMoveDialog.setVisible(true);
-  }
-
-  public void toggleGtpConsole() {
-    Lizzie.leelaz.toggleGtpConsole();
-    if (Lizzie.gtpConsole != null) {
-      Lizzie.gtpConsole.setVisible(!Lizzie.gtpConsole.isVisible());
-    } else {
-      Lizzie.gtpConsole = new GtpConsolePane(this);
-      Lizzie.gtpConsole.setVisible(true);
-    }
-  }
-
-  @Override
-  public void startGame() {
-    GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
-
-    NewGameDialog gameDialog = new NewGameDialog();
-    gameDialog.setGameInfo(gameInfo);
-    gameDialog.setVisible(true);
-    boolean playerIsBlack = gameDialog.playerIsBlack();
-    boolean isNewGame = gameDialog.isNewGame();
-    //    gameDialog.dispose();
-    if (gameDialog.isCancelled()) return;
-
-    if (isNewGame) {
-      Lizzie.board.clear();
-    }
-    Lizzie.leelaz.setKomi(gameInfo.getKomi());
-
-    Lizzie.leelaz.time_settings();
-    Lizzie.frame.playerIsBlack = playerIsBlack;
-    Lizzie.frame.isNewGame = isNewGame;
-    Lizzie.frame.isPlayingAgainstLeelaz = true;
-
-    boolean isHandicapGame = gameInfo.getHandicap() != 0;
-    if (isNewGame) {
-      Lizzie.board.getHistory().setGameInfo(gameInfo);
-      if (isHandicapGame) {
-        Lizzie.board.getHistory().getData().blackToPlay = false;
-        Lizzie.leelaz.sendCommand("fixed_handicap " + gameInfo.getHandicap());
-        if (playerIsBlack) Lizzie.leelaz.genmove("W");
-      } else if (!playerIsBlack) {
-        Lizzie.leelaz.genmove("B");
-      }
-    } else {
-      Lizzie.board.getHistory().setGameInfo(gameInfo);
-      if (Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay) {
-        if (!Lizzie.leelaz.isThinking) {
-          Lizzie.leelaz.genmove((Lizzie.board.getData().blackToPlay ? "B" : "W"));
-        }
-      }
-    }
-  }
-
-  public void editGameInfo() {
-    GameInfo gameInfo = Lizzie.board.getHistory().getGameInfo();
-
-    GameInfoDialog gameInfoDialog = new GameInfoDialog();
-    gameInfoDialog.setGameInfo(gameInfo);
-    gameInfoDialog.setVisible(true);
-
-    gameInfoDialog.dispose();
-  }
-
-  public void saveFile() {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "SGF");
-    JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
-    chooser.setFileFilter(filter);
-    chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showSaveDialog(null);
-    if (result == JFileChooser.APPROVE_OPTION) {
-      File file = chooser.getSelectedFile();
-      if (file.exists()) {
-        int ret =
-            JOptionPane.showConfirmDialog(
-                null,
-                resourceBundle.getString("LizzieFrame.prompt.sgfExists"),
-                "Warning",
-                JOptionPane.OK_CANCEL_OPTION);
-        if (ret == JOptionPane.CANCEL_OPTION) {
-          return;
-        }
-      }
-      if (!file.getPath().endsWith(".sgf")) {
-        file = new File(file.getPath() + ".sgf");
-      }
-      try {
-        SGFParser.save(Lizzie.board, file.getPath());
-        filesystem.put("last-folder", file.getParent());
-      } catch (IOException err) {
-        JOptionPane.showConfirmDialog(
-            null,
-            resourceBundle.getString("LizzieFrame.prompt.failedTosaveFile"),
-            "Error",
-            JOptionPane.ERROR);
-      }
-    }
-  }
-
-  public void openFile() {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
-    JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
-
-    chooser.setFileFilter(filter);
-    chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showOpenDialog(null);
-    if (result == JFileChooser.APPROVE_OPTION) loadFile(chooser.getSelectedFile());
-  }
-
-  public void loadFile(File file) {
-    JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
-      file = new File(file.getPath() + ".sgf");
-    }
-    try {
-      System.out.println(file.getPath());
-      if (file.getPath().endsWith(".sgf")) {
-        SGFParser.load(file.getPath());
-      } else {
-        GIBParser.load(file.getPath());
-      }
-      filesystem.put("last-folder", file.getParent());
-    } catch (IOException err) {
-      JOptionPane.showConfirmDialog(
-          null,
-          resourceBundle.getString("LizzieFrame.prompt.failedToOpenFile"),
-          "Error",
-          JOptionPane.ERROR);
-    }
-  }
-
-  public void setPlayers(String whitePlayer, String blackPlayer) {
-    playerTitle = String.format("(%s [W] vs %s [B])", whitePlayer, blackPlayer);
-    updateTitle();
-  }
-
-  public void updateTitle() {
-    StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
-    sb.append(playerTitle);
-    sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
-    sb.append(visitsString);
-    setTitle(sb.toString());
-  }
-
-  public void resetTitle() {
-    playerTitle = "";
-    updateTitle();
   }
 
   @Override
