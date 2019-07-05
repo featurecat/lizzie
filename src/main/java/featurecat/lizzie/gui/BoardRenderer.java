@@ -806,7 +806,7 @@ public class BoardRenderer {
                 drawString(
                     g,
                     suggestionX,
-                    suggestionY - stoneRadius * 6 / 16,
+                    suggestionY - stoneRadius * 5 / 16,
                     LizzieFrame.winrateFont,
                     Font.PLAIN,
                     text,
@@ -816,10 +816,10 @@ public class BoardRenderer {
                 drawString(
                     g,
                     suggestionX,
-                    suggestionY + stoneRadius * 1 / 16,
+                    suggestionY + stoneRadius * 2 / 16,
                     MainFrame.uiFont,
                     Utils.getPlayoutsString(move.playouts),
-                    (float) (stoneRadius * 0.8),
+                    (float) (stoneRadius * 0.7),
                     stoneRadius * 1.4);
                 double score = move.scoreMean;
                 if (Lizzie.board.getHistory().isBlacksTurn()) {
@@ -837,7 +837,7 @@ public class BoardRenderer {
                 drawString(
                     g,
                     suggestionX,
-                    suggestionY + stoneRadius * 12 / 16,
+                    suggestionY + stoneRadius * 11 / 16,
                     LizzieFrame.uiFont,
                     String.format("%.1f", score),
                     (float) (stoneRadius * 0.75),

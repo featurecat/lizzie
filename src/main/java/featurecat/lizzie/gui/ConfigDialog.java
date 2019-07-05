@@ -8,6 +8,8 @@ import static java.lang.Math.max;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.theme.Theme;
+import featurecat.lizzie.util.DigitOnlyFilter;
+import featurecat.lizzie.util.Utils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -89,15 +91,13 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ConfigDialog extends JDialog {
-  public final ResourceBundle resourceBundle = ResourceBundle.getBundle("l10n.DisplayStrings");
+  public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public String enginePath = "";
   public String weightPath = "";
@@ -868,7 +868,7 @@ public class ConfigDialog extends JDialog {
                   return filter;
                 }
 
-                private DocumentFilter filter = new NumericFilter();
+                private DocumentFilter filter = new DigitOnlyFilter("[^0-9\\.]++");
               });
       txtMinPlayoutRatioForStats.setColumns(10);
       txtMinPlayoutRatioForStats.setBounds(171, 60, 57, 26);
@@ -1716,54 +1716,6 @@ public class ConfigDialog extends JDialog {
     }
   }
 
-  private Double txtFieldDoubleValue(JTextField txt) {
-    if (txt.getText().trim().isEmpty()) {
-      return 0.0;
-    } else {
-      return new Double(txt.getText().trim());
-    }
-  }
-
-  private class DigitOnlyFilter extends DocumentFilter {
-    @Override
-    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
-        throws BadLocationException {
-      String newStr = string != null ? string.replaceAll("\\D++", "") : "";
-      if (!newStr.isEmpty()) {
-        fb.insertString(offset, newStr, attr);
-      }
-    }
-
-    @Override
-    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
-        throws BadLocationException {
-      String newStr = text != null ? text.replaceAll("\\D++", "") : "";
-      if (!newStr.isEmpty()) {
-        fb.replace(offset, length, newStr, attrs);
-      }
-    }
-  }
-
-  private class NumericFilter extends DocumentFilter {
-    @Override
-    public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
-        throws BadLocationException {
-      String newStr = string != null ? string.replaceAll("[^0-9\\.]++", "") : "";
-      if (!newStr.isEmpty()) {
-        fb.insertString(offset, newStr, attr);
-      }
-    }
-
-    @Override
-    public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
-        throws BadLocationException {
-      String newStr = text != null ? text.replaceAll("[^0-9\\.]++", "") : "";
-      if (!newStr.isEmpty()) {
-        fb.replace(offset, length, newStr, attrs);
-      }
-    }
-  }
-
   private class FontComboBoxRenderer<E> extends JLabel implements ListCellRenderer<E> {
     @Override
     public Component getListCellRendererComponent(
@@ -2289,7 +2241,7 @@ public class ConfigDialog extends JDialog {
       Lizzie.config.uiConfig.put("board-width", size[0]);
       Lizzie.config.uiConfig.put("board-height", size[1]);
       Lizzie.config.uiConfig.putOpt("panel-ui", chkPanelUI.isSelected());
-      Lizzie.config.minPlayoutRatioForStats = txtFieldDoubleValue(txtMinPlayoutRatioForStats);
+      Lizzie.config.minPlayoutRatioForStats = Utils.txtFieldDoubleValue(txtMinPlayoutRatioForStats);
       Lizzie.config.uiConfig.put(
           "min-playout-ratio-for-stats", Lizzie.config.minPlayoutRatioForStats);
       Lizzie.config.uiConfig.putOpt("show-coordinates", chkShowCoordinates.isSelected());

@@ -154,6 +154,15 @@ public class BoardData {
     }
   }
 
+  public void tryToClearBestMoves() {
+    bestMoves = new ArrayList<>();
+    playouts = 0;
+    if (Lizzie.leelaz.isKataGo) {
+      Lizzie.leelaz.scoreMean = 0;
+      Lizzie.leelaz.scoreStdev = 0;
+    }
+  }
+
   public void tryToSetBestMoves(List<MoveData> moves) {
     if (MoveData.getPlayouts(moves) > playouts) {
       bestMoves = moves;

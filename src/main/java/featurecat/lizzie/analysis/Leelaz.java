@@ -1,6 +1,7 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
@@ -29,8 +30,7 @@ import org.json.JSONObject;
  * www.github.com/gcp/leela-zero
  */
 public class Leelaz {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
 
@@ -134,7 +134,7 @@ public class Leelaz {
     commands = splitCommand(engineCommand);
 
     // Get weight name
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^'\" ]+)(?s).*");
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
     Matcher wMatcher = wPattern.matcher(engineCommand);
     if (wMatcher.matches() && wMatcher.groupCount() == 2) {
       currentWeightFile = wMatcher.group(2);
@@ -590,12 +590,43 @@ public class Leelaz {
     sendCommand("boardsize " + width + (width != height ? " " + height : ""));
   }
 
+  public void komi(double komi) {
+    synchronized (this) {
+      sendCommand("komi " + (komi == 0.0 ? "0" : komi));
+      bestMoves = new ArrayList<>();
+      Lizzie.board.getData().tryToClearBestMoves();
+      if (isPondering) ponder();
+    }
+  }
+
+  public void handicap(int num) {
+    Lizzie.leelaz.sendCommand((isKataGo ? "place_free_handicap " : "fixed_handicap ") + num);
+  }
+
   public void undo() {
     synchronized (this) {
       sendCommand("undo");
       bestMoves = new ArrayList<>();
       if (isPondering) ponder();
     }
+  }
+
+  public void analyzeAvoid(String type, String color, String coordList, int untilMove) {
+    analyzeAvoid(
+        String.format("%s %s %s %d", type, color, coordList, untilMove <= 0 ? 1 : untilMove));
+  }
+
+  public void analyzeAvoid(String parameters) {
+    bestMoves = new ArrayList<>();
+    if (!isPondering) {
+      isPondering = true;
+      startPonderTime = System.currentTimeMillis();
+    }
+    sendCommand(
+        String.format(
+            "lz-analyze %d %s",
+            Lizzie.config.config.getJSONObject("leelaz").getInt("analyze-update-interval-centisec"),
+            parameters));
   }
 
   /** This initializes leelaz's pondering mode at its current position */
