@@ -24,8 +24,7 @@ import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 
 public class GtpConsolePane extends JDialog {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   // Display Comment
   private HTMLDocument htmlDoc;

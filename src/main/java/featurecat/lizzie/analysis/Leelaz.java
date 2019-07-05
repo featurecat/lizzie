@@ -1,6 +1,7 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
@@ -29,8 +30,7 @@ import org.json.JSONObject;
  * www.github.com/gcp/leela-zero
  */
 public class Leelaz {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
 

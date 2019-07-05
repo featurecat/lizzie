@@ -35,8 +35,7 @@ import java.util.function.Consumer;
 
 /** The window used to display the game. */
 public class BoardPane extends LizziePane {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   private static final String[] commands = {
     resourceBundle.getString("LizzieFrame.commands.keyN"),
