@@ -94,6 +94,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ConfigDialog extends JDialog {
@@ -1819,6 +1820,13 @@ public class ConfigDialog extends JDialog {
   private void applyChange() {
     int[] size = getBoardSize();
     Lizzie.board.reopen(size[0], size[1]);
+    try {
+      Lizzie.engineManager.refresh();
+    } catch (JSONException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   private Integer txtFieldIntValue(JTextField txt) {
