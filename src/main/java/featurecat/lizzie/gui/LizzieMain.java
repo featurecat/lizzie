@@ -573,7 +573,7 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void estimateByZen() {
-    // TODO Auto-generated method stub
+    if (Lizzie.board.boardHeight != Lizzie.board.boardWidth) return;
     if (isFirstCount) {
       try {
         zen = new YaZenGtp();

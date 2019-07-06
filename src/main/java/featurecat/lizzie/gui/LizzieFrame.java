@@ -1420,6 +1420,7 @@ public class LizzieFrame extends MainFrame {
   }
 
   public void estimateByZen() {
+    if (Lizzie.board.boardHeight != Lizzie.board.boardWidth) return;
     if (isFirstCount) {
       try {
         zen = new YaZenGtp();
