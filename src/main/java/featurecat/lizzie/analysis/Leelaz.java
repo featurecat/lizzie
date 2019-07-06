@@ -5,6 +5,7 @@ import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
+import featurecat.lizzie.util.Utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -121,6 +122,7 @@ public class Leelaz {
     if (engineCommand.toLowerCase().contains("override-version")) {
       this.isKataGo = true;
     }
+    commands = splitCommand(engineCommand);
     // Initialize current engine number and start engine
     currentEngineN = 0;
   }
@@ -131,7 +133,8 @@ public class Leelaz {
     }
 
     isLoaded = false;
-    commands = splitCommand(engineCommand);
+    bestMoves = new ArrayList<>();
+    Lizzie.board.getData().tryToClearBestMoves();
 
     // Get weight name
     Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
@@ -841,6 +844,23 @@ public class Leelaz {
       commandList.add(param.toString());
     }
     return commandList;
+  }
+
+  public boolean isCommandChange(String command) {
+    List<String> newList = splitCommand(command);
+    if (this.commands.size() != newList.size()) {
+      return true;
+    } else {
+      for (int i = 0; i < this.commands.size(); i++) {
+        String param = this.commands.get(i);
+        String newParam = newList.get(i);
+        if ((!Utils.isBlank(param) || !Utils.isBlank(newParam))
+            && (Utils.isBlank(param) || !param.equals(newParam))) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 
   public boolean isStarted() {
