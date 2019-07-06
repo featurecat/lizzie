@@ -130,4 +130,8 @@ public class SubBoardPane extends LizziePane {
       subBoardRenderer.drawEstimateRectKata(esitmateArray);
     }
   }
+
+  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
+    subBoardRenderer.drawEstimateRectZen(esitmateArray);
+  }
 }

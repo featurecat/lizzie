@@ -371,6 +371,12 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
             Lizzie.board.place(params[1]);
+            if (Lizzie.frame.isAutoEstimating) {
+              if (Lizzie.board.getHistory().isBlacksTurn())
+                Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
+              else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
+              Lizzie.frame.zen.countStones();
+            }
             // TODO Do not ponder when playing against Leela Zero
             //            togglePonder();
             if (!isInputCommand) {
@@ -464,6 +470,12 @@ public class Leelaz {
       }
       cmdQueue.addLast(command);
       trySendCommandFromQueue();
+      if (Lizzie.frame.isAutoEstimating) {
+        if (command.startsWith("play") || command.startsWith("undo")) {
+          Lizzie.frame.zen.sendCommand(command);
+          Lizzie.frame.zen.countStones();
+        }
+      }
     }
   }
 
