@@ -635,7 +635,7 @@ public class ConfigDialog extends JDialog {
     aboutTab = new JPanel();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.about"), null, aboutTab, null);
 
-    JLabel lblLizzieName = new JLabel("Lizzie 0.6+");
+    JLabel lblLizzieName = new JLabel("Lizzie " + Lizzie.lizzieVersion);
     lblLizzieName.setFont(new Font("Tahoma", Font.BOLD, 24));
     lblLizzieName.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -685,6 +685,7 @@ public class ConfigDialog extends JDialog {
                 gl.createSequentialGroup()
                     .addGap(18)
                     .addComponent(lblLizzieName)
+                    .addGap(18)
                     .addPreferredGap(ComponentPlacement.RELATED)
                     .addComponent(
                         lblLizzieInfo, GroupLayout.PREFERRED_SIZE, 183, GroupLayout.PREFERRED_SIZE)
