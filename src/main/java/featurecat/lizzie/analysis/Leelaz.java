@@ -203,8 +203,8 @@ public class Leelaz {
     switching = true;
     this.engineCommand = engineCommand;
     // stop the ponder
-    if (Lizzie.leelaz.isPondering()) {
-      Lizzie.leelaz.togglePonder();
+    if (isPondering()) {
+      togglePonder();
     }
     normalQuit();
     startEngine();
@@ -235,7 +235,7 @@ public class Leelaz {
     outputStream = new BufferedOutputStream(process.getOutputStream());
   }
 
-  public static List<MoveData> parseInfo(String line) {
+  public List<MoveData> parseInfo(String line) {
     List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
     for (String var : variations) {
@@ -387,7 +387,7 @@ public class Leelaz {
         } else if (isCheckingName) {
           if (params[1].startsWith("KataGo")) {
             this.isKataGo = true;
-            Lizzie.initializeAfterVersionCheck();
+            Lizzie.initializeAfterVersionCheck(this);
           }
           isCheckingName = false;
         } else if (isCheckingVersion && !isKataGo) {
@@ -402,7 +402,7 @@ public class Leelaz {
                     + ")");
           }
           isCheckingVersion = false;
-          Lizzie.initializeAfterVersionCheck();
+          Lizzie.initializeAfterVersionCheck(this);
         }
       }
     }
@@ -441,7 +441,7 @@ public class Leelaz {
         }
       }
       // this line will be reached when Leelaz shuts down
-      System.out.println("Leelaz process ended.");
+      System.out.println("Engine process ended.");
 
       shutdown();
       // Do no exit for switching weights
@@ -571,7 +571,7 @@ public class Leelaz {
   }
 
   public void time_settings() {
-    Lizzie.leelaz.sendCommand(
+    sendCommand(
         "time_settings 0 "
             + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds")
             + " 1");
@@ -603,7 +603,7 @@ public class Leelaz {
   }
 
   public void handicap(int num) {
-    Lizzie.leelaz.sendCommand((isKataGo ? "place_free_handicap " : "fixed_handicap ") + num);
+    sendCommand((isKataGo ? "place_free_handicap " : "fixed_handicap ") + num);
   }
 
   public void undo() {
