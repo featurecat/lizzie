@@ -15,6 +15,8 @@ import java.awt.image.BufferedImage;
 public class BasicInfoPane extends LizziePane {
 
   private LizzieMain owner;
+  public String bTime = "";
+  public String wTime = "";
 
   public BasicInfoPane(LizzieMain owner) {
     super(owner);
@@ -148,6 +150,9 @@ public class BasicInfoPane extends LizziePane {
 
     g.drawString(bval, posX + width / 4 + bx, posY + height * 7 / 8);
     g.drawString(wval, posX + width * 3 / 4 + wx, posY + height * 7 / 8);
+
+    g.drawString(bTime, posX + width / 10, posY + height / 6);
+    g.drawString(wTime, posX + width * 3 / 5, posY + height / 6);
 
     // Status Indicator
     int statusDiam = height / 8;
