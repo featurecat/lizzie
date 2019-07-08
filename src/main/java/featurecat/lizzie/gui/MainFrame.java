@@ -57,6 +57,7 @@ public abstract class MainFrame extends JFrame {
   protected String visitsString = "";
   // Force refresh board
   private boolean forceRefresh;
+  public boolean isMouseOver = false;
 
   public MainFrame() throws HeadlessException {
     super(DEFAULT_TITLE);
@@ -122,6 +123,10 @@ public abstract class MainFrame extends JFrame {
   public abstract void stopRawBoard();
 
   public abstract boolean incrementDisplayedBranchLength(int n);
+
+  public void doBranch(int moveTo) {}
+
+  public void addSuggestionAsBranch() {}
 
   public abstract void increaseMaxAlpha(int k);
 

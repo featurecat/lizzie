@@ -524,6 +524,15 @@ public class LizzieMain extends MainFrame {
   }
 
   @Override
+  public void doBranch(int moveTo) {
+    boardPane.doBranch(moveTo);
+  }
+
+  public void addSuggestionAsBranch() {
+    boardPane.addSuggestionAsBranch();
+  }
+
+  @Override
   public void increaseMaxAlpha(int k) {
     boardPane.increaseMaxAlpha(k);
   }

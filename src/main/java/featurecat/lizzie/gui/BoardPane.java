@@ -108,7 +108,11 @@ public class BoardPane extends LizziePane {
                 onClicked(e.getX(), e.getY());
               }
             } else if (e.getButton() == MouseEvent.BUTTON3) { // right click
-              Input.undo();
+              if (Lizzie.frame.isMouseOver) {
+                Lizzie.frame.addSuggestionAsBranch();
+              } else {
+                Input.undo();
+              }
             }
           }
 
@@ -346,20 +350,38 @@ public class BoardPane extends LizziePane {
     }
   }
 
+  public void clearMoved() {
+    isReplayVariation = false;
+    if (Lizzie.frame != null && Lizzie.frame.isMouseOver) {
+      Lizzie.frame.isMouseOver = false;
+      boardRenderer.startNormalBoard();
+    }
+  }
+
   public void onMouseExited(int x, int y) {
     mouseOverCoordinate = outOfBoundCoordinate;
+    clearMoved();
   }
 
   public void onMouseMoved(int x, int y) {
     mouseOverCoordinate = outOfBoundCoordinate;
     Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
-    coords.filter(c -> !isMouseOver(c[0], c[1])).ifPresent(c -> repaint());
+    coords
+        .filter(c -> !isMouseOver(c[0], c[1]))
+        .ifPresent(
+            c -> {
+              clearMoved();
+              repaint();
+            });
     coords.ifPresent(
         c -> {
           mouseOverCoordinate = c;
-          isReplayVariation = false;
+          if (Lizzie.frame != null) {
+            Lizzie.frame.isMouseOver = boardRenderer.isShowingBranch();
+          }
         });
     if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
+      clearMoved();
       repaint();
     }
   }
@@ -390,7 +412,7 @@ public class BoardPane extends LizziePane {
     }
   }
 
-  private void setDisplayedBranchLength(int n) {
+  public void setDisplayedBranchLength(int n) {
     boardRenderer.setDisplayedBranchLength(n);
   }
 
@@ -406,6 +428,30 @@ public class BoardPane extends LizziePane {
 
   public boolean incrementDisplayedBranchLength(int n) {
     return boardRenderer.incrementDisplayedBranchLength(n);
+  }
+
+  public void doBranch(int moveTo) {
+    if (moveTo > 0) {
+      if (boardRenderer.isShowingNormalBoard()) {
+        setDisplayedBranchLength(2);
+      } else {
+        if (boardRenderer.getReplayBranch() > boardRenderer.getDisplayedBranchLength()) {
+          boardRenderer.incrementDisplayedBranchLength(1);
+        }
+      }
+    } else {
+      if (boardRenderer.isShowingNormalBoard()) {
+        setDisplayedBranchLength(boardRenderer.getReplayBranch());
+      } else {
+        if (boardRenderer.getDisplayedBranchLength() > 1) {
+          boardRenderer.incrementDisplayedBranchLength(-1);
+        }
+      }
+    }
+  }
+
+  public void addSuggestionAsBranch() {
+    boardRenderer.addSuggestionAsBranch();
   }
 
   public void copySgf() {
