@@ -19,6 +19,29 @@ public class Utils {
     return str == null || str.trim().isEmpty();
   }
 
+  public static boolean needsQuoting(String s) {
+    if (isBlank(s)) {
+      return true;
+    }
+    for (int i = 0; i < s.length(); i++) {
+      switch (s.charAt(i)) {
+        case ' ':
+        case '\t':
+        case '\\':
+        case '"':
+          return true;
+      }
+    }
+    return false;
+  }
+
+  public static String withQuote(String s) {
+    if (!needsQuoting(s)) return s;
+    s = s.replaceAll("([\\\\]*)\"", "$1$1\\\\\"");
+    s = s.replaceAll("([\\\\]*)\\z", "$1$1");
+    return "\"" + s + "\"";
+  }
+
   /**
    * @return a shorter, rounded string version of playouts. e.g. 345 -> 345, 1265 -> 1.3k, 44556 ->
    *     45k, 133523 -> 134k, 1234567 -> 1.2m
