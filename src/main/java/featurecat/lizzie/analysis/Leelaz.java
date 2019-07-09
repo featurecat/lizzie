@@ -830,7 +830,7 @@ public class Leelaz {
             state = ParamState.DOUBLE_QUOTE;
           } else if (" ".equals(nextToken)) {
             if (lastTokenQuoted || param.length() != 0) {
-              commandList.add(param.toString());
+              commandList.add(Utils.withQuote(param.toString()));
               param.delete(0, param.length());
             }
           } else {
