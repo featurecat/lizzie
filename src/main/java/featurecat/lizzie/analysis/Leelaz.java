@@ -186,6 +186,7 @@ public class Leelaz {
     isCheckingVersion = true;
     sendCommand("version");
     boardSize(Lizzie.board.boardWidth, Lizzie.board.boardHeight);
+    komi(Lizzie.board.getHistory().getGameInfo().getKomi());
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -590,7 +591,9 @@ public class Leelaz {
   }
 
   public void boardSize(int width, int height) {
-    sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+    synchronized (this) {
+      sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+    }
   }
 
   public void komi(double komi) {
