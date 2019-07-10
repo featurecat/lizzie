@@ -107,6 +107,20 @@ public class GtpConsolePane extends JDialog {
     addText(format(line));
   }
 
+  public void addLineForce(String line) {
+    if (line == null || line.trim().length() == 0) {
+      return;
+    }
+    addText(format(line));
+  }
+
+  public void addZenCommand(String command, int commandNumber) {
+    if (command == null || command.trim().length() == 0) {
+      return;
+    }
+    addText(formatZenCommand(command, commandNumber));
+  }
+
   private void addText(String text) {
     try {
       htmlKit.insertHTML(htmlDoc, htmlDoc.getLength(), text, 0, 0, null);
@@ -114,6 +128,13 @@ public class GtpConsolePane extends JDialog {
     } catch (BadLocationException | IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public String formatZenCommand(String command, int commandNumber) {
+    return String.format(
+        "<span class=\"command\">" + ("YAZenGtp") + "> %d %s </span><br />",
+        commandNumber,
+        command);
   }
 
   public String formatCommand(String command, int commandNumber) {

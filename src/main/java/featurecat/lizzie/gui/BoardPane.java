@@ -541,4 +541,8 @@ public class BoardPane extends LizziePane {
       boardRenderer.drawEstimateRectKata(esitmateArray);
     }
   }
+
+  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
+    boardRenderer.drawEstimateRectZen(esitmateArray);
+  }
 }

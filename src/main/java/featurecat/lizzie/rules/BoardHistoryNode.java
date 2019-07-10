@@ -598,4 +598,8 @@ public class BoardHistoryNode {
       node = node.next(true).map(n -> n).orElse(null);
     }
   }
+
+  public Optional<BoardHistoryNode> now() {
+    return Optional.of(this);
+  }
 }

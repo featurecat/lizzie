@@ -460,7 +460,7 @@ public class BoardRenderer {
     gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
-    if (!suggestedMove.isPresent()) {
+    if (!suggestedMove.isPresent() || (!isMainBoard && Lizzie.frame.isAutoEstimating)) {
       return;
     }
     List<String> variation = suggestedMove.get().variation;
@@ -1560,6 +1560,9 @@ public class BoardRenderer {
   }
 
   public void removeEstimateRect() {
+    if (boardWidth <= 0 || boardHeight <= 0) {
+      return;
+    }
     cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
   }
 
@@ -1604,6 +1607,34 @@ public class BoardRenderer {
             (int) (stoneY - stoneRadius * 0.6),
             (int) (stoneRadius * 1.2),
             (int) (stoneRadius * 1.2));
+      }
+    }
+  }
+
+  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
+    if (boardWidth <= 0 || boardHeight <= 0) {
+      return;
+    }
+    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
+    Graphics2D g = cachedEsitmateRectImage.createGraphics();
+    for (int i = 0; i < esitmateArray.size(); i++) {
+      if (esitmateArray.get(i) > 0) {
+        int[] c = Lizzie.board.getCoord(i);
+        int x = c[1];
+        int y = c[0];
+        int stoneX = scaledMarginWidth + squareWidth * x;
+        int stoneY = scaledMarginHeight + squareHeight * y;
+        g.setColor(Color.BLACK);
+        g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
+      }
+      if (esitmateArray.get(i) < 0) {
+        int[] c = Lizzie.board.getCoord(i);
+        int x = c[1];
+        int y = c[0];
+        int stoneX = scaledMarginWidth + squareWidth * x;
+        int stoneY = scaledMarginHeight + squareHeight * y;
+        g.setColor(Color.WHITE);
+        g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
       }
     }
   }
