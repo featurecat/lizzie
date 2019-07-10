@@ -64,6 +64,7 @@ public abstract class MainFrame extends JFrame {
   // Force refresh board
   private boolean forceRefresh;
   public boolean isMouseOver = false;
+  public OnlineDialog onlineDialog = null;
 
   public MainFrame() throws HeadlessException {
     super(DEFAULT_TITLE);
@@ -76,6 +77,8 @@ public abstract class MainFrame extends JFrame {
   public void toggleDesignMode() {}
 
   public void updateBasicInfo() {}
+
+  public void updateBasicInfo(String bTime, String wTime) {}
 
   public void refresh() {
     repaint();
@@ -177,6 +180,13 @@ public abstract class MainFrame extends JFrame {
       Lizzie.gtpConsole = new GtpConsolePane(this);
       Lizzie.gtpConsole.setVisible(true);
     }
+  }
+
+  public void openOnlineDialog() {
+    if (onlineDialog == null) {
+      onlineDialog = new OnlineDialog();
+    }
+    onlineDialog.setVisible(true);
   }
 
   public void startGame() {

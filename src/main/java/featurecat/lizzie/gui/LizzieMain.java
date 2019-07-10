@@ -416,6 +416,15 @@ public class LizzieMain extends MainFrame {
   }
 
   @Override
+  public void updateBasicInfo(String bTime, String wTime) {
+    if (basicInfoPane != null) {
+      basicInfoPane.bTime = bTime;
+      basicInfoPane.wTime = wTime;
+      basicInfoPane.repaint();
+    }
+  }
+
+  @Override
   public void updateBasicInfo() {
     if (basicInfoPane != null) {
       basicInfoPane.repaint();
