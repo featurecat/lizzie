@@ -431,14 +431,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_PERIOD:
         if (Lizzie.leelaz.isKataGo) {
-          Lizzie.config.showKataGoEstimate = !Lizzie.config.showKataGoEstimate;
-          Lizzie.leelaz.ponder();
-          if (!Lizzie.config.showKataGoEstimate) {
-            Lizzie.frame.removeEstimateRect();
+          if (e.isAltDown()) {
+            Lizzie.frame.estimateByZen();
+          } else {
+            Lizzie.config.showKataGoEstimate = !Lizzie.config.showKataGoEstimate;
+            Lizzie.leelaz.ponder();
+            if (!Lizzie.config.showKataGoEstimate) {
+              Lizzie.frame.removeEstimateRect();
+            }
           }
-        } else if (!Lizzie.board.getHistory().getNext().isPresent()) {
-          Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
-        }
+        } else Lizzie.frame.estimateByZen();
+        // if (!Lizzie.board.getHistory().getNext().isPresent()) {
+        // Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());}
         break;
 
       case VK_D:

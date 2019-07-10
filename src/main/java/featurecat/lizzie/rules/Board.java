@@ -461,6 +461,9 @@ public class Board implements LeelazListener {
    * @param newBranch add a new branch
    */
   public void place(int x, int y, Stone color, boolean newBranch, boolean changeMove) {
+    if (Lizzie.frame.isEstimating) {
+      Lizzie.frame.noEstimateByZen();
+    }
     synchronized (this) {
       if (scoreMode) {
         // Mark clicked stone as dead
@@ -736,6 +739,9 @@ public class Board implements LeelazListener {
 
   /** Goes to the next coordinate, thread safe */
   public boolean nextMove() {
+    if (Lizzie.frame.isEstimating) {
+      Lizzie.frame.noEstimateByZen();
+    }
     synchronized (this) {
       updateWinrate();
       if (history.next().isPresent()) {
@@ -1087,6 +1093,9 @@ public class Board implements LeelazListener {
 
   /** Goes to the previous coordinate, thread safe */
   public boolean previousMove() {
+    if (Lizzie.frame.isEstimating) {
+      Lizzie.frame.noEstimateByZen();
+    }
     synchronized (this) {
       if (inScoreMode()) setScoreMode(false);
       updateWinrate();
@@ -1524,5 +1533,37 @@ public class Board implements LeelazListener {
     goToMoveNumber(currentMoveNumber);
 
     return true;
+  }
+
+  public ArrayList<MoveList> getMoveList() {
+    ArrayList<MoveList> moveList = new ArrayList<MoveList>();
+
+    Optional<BoardHistoryNode> node = history.getCurrentHistoryNode().now();
+    Optional<int[]> passstep = Optional.empty();
+    while (node.isPresent()) {
+      Optional<int[]> lastMove = node.get().getData().lastMove;
+      if (lastMove == passstep) {
+        MoveList move = new MoveList();
+        move.isPass = true;
+        move.isBlack = node.get().getData().lastMoveColor.isBlack();
+        moveList.add(move);
+        node = node.get().previous();
+      } else {
+        if (lastMove.isPresent()) {
+
+          int[] n = lastMove.get();
+          MoveList move = new MoveList();
+          move.x = n[0];
+          move.y = n[1];
+          move.isPass = false;
+          move.isBlack = node.get().getData().lastMoveColor.isBlack();
+          move.moveNum = node.get().getData().moveNumber;
+          moveList.add(move);
+          node = node.get().previous();
+        }
+      }
+    }
+    moveList.remove(moveList.size() - 1);
+    return moveList;
   }
 }

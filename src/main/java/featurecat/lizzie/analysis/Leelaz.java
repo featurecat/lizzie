@@ -186,6 +186,7 @@ public class Leelaz {
     isCheckingVersion = true;
     sendCommand("version");
     boardSize(Lizzie.board.boardWidth, Lizzie.board.boardHeight);
+    komi(Lizzie.board.getHistory().getGameInfo().getKomi());
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -374,6 +375,12 @@ public class Leelaz {
         } else if (isThinking && !isPondering) {
           if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
             Lizzie.board.place(params[1]);
+            if (Lizzie.frame.isAutoEstimating) {
+              if (Lizzie.board.getHistory().isBlacksTurn())
+                Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
+              else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
+              Lizzie.frame.zen.countStones();
+            }
             // TODO Do not ponder when playing against Leela Zero
             //            togglePonder();
             if (!isInputCommand) {
@@ -467,6 +474,12 @@ public class Leelaz {
       }
       cmdQueue.addLast(command);
       trySendCommandFromQueue();
+      if (Lizzie.frame.isAutoEstimating) {
+        if (command.startsWith("play") || command.startsWith("undo")) {
+          Lizzie.frame.zen.sendCommand(command);
+          Lizzie.frame.zen.countStones();
+        }
+      }
     }
   }
 
@@ -590,7 +603,9 @@ public class Leelaz {
   }
 
   public void boardSize(int width, int height) {
-    sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+    synchronized (this) {
+      sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+    }
   }
 
   public void komi(double komi) {
@@ -830,7 +845,7 @@ public class Leelaz {
             state = ParamState.DOUBLE_QUOTE;
           } else if (" ".equals(nextToken)) {
             if (lastTokenQuoted || param.length() != 0) {
-              commandList.add(param.toString());
+              commandList.add(Utils.withQuote(param.toString()));
               param.delete(0, param.length());
             }
           } else {

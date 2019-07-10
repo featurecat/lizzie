@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
+import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import java.awt.Font;
@@ -31,6 +32,11 @@ public abstract class MainFrame extends JFrame {
   public boolean showControls = false;
   public static Font uiFont;
   public static Font winrateFont;
+  public YaZenGtp zen;
+  public static CountResults countResults;
+  public boolean isEstimating = false;
+  public boolean isFirstCount = true;
+  public boolean isAutoEstimating = false;
 
   static {
     // load fonts
@@ -306,4 +312,12 @@ public abstract class MainFrame extends JFrame {
   public abstract boolean playCurrentVariation();
 
   public abstract void playBestMove();
+
+  public abstract void estimateByZen();
+
+  public abstract void noAutoEstimateByZen();
+
+  public abstract void noEstimateByZen();
+
+  public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
 }

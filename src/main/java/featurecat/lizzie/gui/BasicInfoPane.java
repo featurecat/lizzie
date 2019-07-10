@@ -108,7 +108,7 @@ public class BasicInfoPane extends LizziePane {
     int smallDiam = diam / 2;
     int bdiam = diam, wdiam = diam;
     if (Lizzie.board != null) {
-      if (Lizzie.board.inScoreMode()) {
+      if (Lizzie.board.inScoreMode() || Lizzie.frame.isEstimating) {
         // do nothing
       } else if (Lizzie.board.getHistory().isBlacksTurn()) {
         wdiam = smallDiam;
@@ -127,7 +127,7 @@ public class BasicInfoPane extends LizziePane {
         posX + width * 3 / 4 - wdiam / 2, posY + height * 3 / 8 + (diam - wdiam) / 2, wdiam, wdiam);
 
     // Draw captures
-    String bval, wval;
+    String bval = "", wval = "";
     setPanelFont(g, (float) (height * 0.18));
     if (Lizzie.board == null) {
       return;
@@ -136,6 +136,9 @@ public class BasicInfoPane extends LizziePane {
       double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
       bval = String.format("%.0f", score[0]);
       wval = String.format("%.1f", score[1]);
+    } else if (Lizzie.frame.isEstimating || Lizzie.frame.isAutoEstimating) {
+      bval = String.format("%d", Lizzie.frame.countResults.allBlackCounts);
+      wval = String.format("%d", Lizzie.frame.countResults.allWhiteCounts);
     } else {
       bval = String.format("%d", Lizzie.board.getData().blackCaptures);
       wval = String.format("%d", Lizzie.board.getData().whiteCaptures);

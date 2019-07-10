@@ -7,6 +7,7 @@ import static java.lang.Math.max;
 import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.util.Utils;
 import featurecat.lizzie.util.WindowPosition;
 import java.awt.Color;
@@ -171,6 +172,7 @@ public class LizzieMain extends MainFrame {
     winratePane = new WinratePane(this);
     variationTreePane = new VariationTreePane(this);
     commentPane = new CommentPane(this);
+    countResults = new CountResults();
     getContentPane().add(boardPane, LizzieLayout.MAIN_BOARD);
     getContentPane().add(basicInfoPane, LizzieLayout.BASIC_INFO);
     getContentPane().add(winratePane, LizzieLayout.WINRATE);
@@ -584,6 +586,61 @@ public class LizzieMain extends MainFrame {
     }
     if (Lizzie.config.showKataGoEstimateOnMainbord) {
       boardPane.drawEstimateRectKata(esitmateArray);
+    }
+  }
+
+  @Override
+  public void estimateByZen() {
+    if (Lizzie.board.boardHeight != Lizzie.board.boardWidth) return;
+    if (isFirstCount) {
+      try {
+        zen = new YaZenGtp();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+      isFirstCount = false;
+    } else if (!zen.process.isAlive()) {
+      try {
+        zen = new YaZenGtp();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+    }
+    zen.noRead = false;
+    zen.syncBoradStat();
+    zen.countStones();
+    isEstimating = true;
+  }
+
+  @Override
+  public void noAutoEstimateByZen() {
+    // TODO Auto-generated method stub
+    this.isAutoEstimating = false;
+    removeEstimateRect();
+    Lizzie.frame.repaint();
+    countResults.button2.setText(
+        resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
+  }
+
+  @Override
+  public void noEstimateByZen() {
+    // TODO Auto-generated method stub
+    removeEstimateRect();
+    isEstimating = false;
+    countResults.button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
+  }
+
+  @Override
+  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
+    // TODO Auto-generated method stub
+    if (!Lizzie.frame.isAutoEstimating) boardPane.drawEstimateRectZen(esitmateArray);
+    else {
+      if (Lizzie.config.showSubBoard) {
+        try {
+          subBoardPane.drawEstimateRectZen(esitmateArray);
+        } catch (Exception e) {
+        }
+      } else boardPane.drawEstimateRectZen(esitmateArray);
     }
   }
 }

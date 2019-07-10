@@ -9,6 +9,7 @@ import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.SGFParser;
@@ -121,6 +122,7 @@ public class LizzieFrame extends MainFrame {
     subBoardRenderer = new BoardRenderer(false);
     variationTree = new VariationTree();
     winrateGraph = new WinrateGraph();
+    countResults = new CountResults();
 
     setMinimumSize(new Dimension(640, 400));
     boolean persisted = Lizzie.config.persistedUi != null;
@@ -1076,7 +1078,7 @@ public class LizzieFrame extends MainFrame {
     int smallDiam = diam / 2;
     int bdiam = diam, wdiam = diam;
     if (Lizzie.board != null) {
-      if (Lizzie.board.inScoreMode()) {
+      if (Lizzie.board.inScoreMode() || isEstimating) {
         // do nothing
       } else if (Lizzie.board.getHistory().isBlacksTurn()) {
         wdiam = smallDiam;
@@ -1095,7 +1097,7 @@ public class LizzieFrame extends MainFrame {
         posX + width * 3 / 4 - wdiam / 2, posY + height * 3 / 8 + (diam - wdiam) / 2, wdiam, wdiam);
 
     // Draw captures
-    String bval, wval;
+    String bval = "", wval = "";
     setPanelFont(g, (float) (height * 0.18));
     if (Lizzie.board == null) {
       return;
@@ -1104,6 +1106,9 @@ public class LizzieFrame extends MainFrame {
       double score[] = Lizzie.board.getScore(Lizzie.board.scoreStones());
       bval = String.format("%.0f", score[0]);
       wval = String.format("%.1f", score[1]);
+    } else if (isEstimating || isAutoEstimating) {
+      bval = String.format("%d", countResults.allBlackCounts);
+      wval = String.format("%d", countResults.allWhiteCounts);
     } else {
       bval = String.format("%d", Lizzie.board.getData().blackCaptures);
       wval = String.format("%d", Lizzie.board.getData().whiteCaptures);
@@ -1412,5 +1417,53 @@ public class LizzieFrame extends MainFrame {
         boardRenderer.drawEstimateRectKata(esitmateArray);
       }
     }
+  }
+
+  public void estimateByZen() {
+    if (Lizzie.board.boardHeight != Lizzie.board.boardWidth) return;
+    if (isFirstCount) {
+      try {
+        zen = new YaZenGtp();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+      isFirstCount = false;
+    } else if (!zen.process.isAlive()) {
+      try {
+        zen = new YaZenGtp();
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+    }
+    zen.noRead = false;
+    zen.syncBoradStat();
+    zen.countStones();
+    isEstimating = true;
+  }
+
+  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
+    if (!Lizzie.frame.isAutoEstimating) boardRenderer.drawEstimateRectZen(esitmateArray);
+    else {
+      if (Lizzie.config.showSubBoard) {
+        try {
+          subBoardRenderer.drawEstimateRectZen(esitmateArray);
+        } catch (Exception e) {
+        }
+      } else boardRenderer.drawEstimateRectZen(esitmateArray);
+    }
+  }
+
+  public void noAutoEstimateByZen() {
+    this.isAutoEstimating = false;
+    removeEstimateRect();
+    Lizzie.frame.repaint();
+    countResults.button2.setText(
+        resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
+  }
+
+  public void noEstimateByZen() {
+    removeEstimateRect();
+    isEstimating = false;
+    countResults.button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
   }
 }
