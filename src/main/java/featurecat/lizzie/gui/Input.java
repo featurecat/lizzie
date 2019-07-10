@@ -212,7 +212,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           undo(10);
         } else {
-          undo();
+          if (Lizzie.frame.isMouseOver) {
+            Lizzie.frame.doBranch(-1);
+          } else {
+            undo();
+          }
         }
         break;
 
@@ -230,7 +234,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           redo(10);
         } else {
-          redo();
+          if (Lizzie.frame.isMouseOver) {
+            Lizzie.frame.doBranch(1);
+          } else {
+            redo();
+          }
         }
         break;
 
@@ -282,8 +290,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_I:
         // stop the ponder
-        if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+        boolean isPondering = Lizzie.leelaz.isPondering();
+        if (isPondering) Lizzie.leelaz.togglePonder();
         Lizzie.frame.editGameInfo();
+        if (isPondering) Lizzie.leelaz.togglePonder();
         break;
       case VK_S:
         // stop the ponder
@@ -403,6 +413,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_Z:
         if (e.isShiftDown()) {
           toggleHints();
+        } else if (e.isAltDown()) {
+          Lizzie.config.toggleShowSubBoard();
         } else {
           startTemporaryBoard();
         }
@@ -527,9 +539,17 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       wheelWhen = e.getWhen();
       if (Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
       if (e.getWheelRotation() > 0) {
-        redo();
+        if (Lizzie.frame.isMouseOver) {
+          Lizzie.frame.doBranch(1);
+        } else {
+          redo();
+        }
       } else if (e.getWheelRotation() < 0) {
-        undo();
+        if (Lizzie.frame.isMouseOver) {
+          Lizzie.frame.doBranch(-1);
+        } else {
+          undo();
+        }
       }
       Lizzie.frame.refresh();
     }

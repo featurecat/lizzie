@@ -88,7 +88,7 @@ public class SGFParser {
 
   private static boolean parse(String value) {
     // Drop anything outside "(;...)"
-    final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;.*\\)).*?");
+    final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;{0,1}.*\\))(?s).*?");
     Matcher sgfMatcher = SGF_PATTERN.matcher(value);
     if (sgfMatcher.matches()) {
       value = sgfMatcher.group(1);
@@ -99,6 +99,8 @@ public class SGFParser {
     // Determine the SZ property
     Pattern szPattern = Pattern.compile("(?s).*?SZ\\[([\\d:]+)\\](?s).*");
     Matcher szMatcher = szPattern.matcher(value);
+    int boardWidth = 19;
+    int boardHeight = 19;
     if (szMatcher.matches()) {
       String sizeStr = szMatcher.group(1);
       Pattern sizePattern = Pattern.compile("([\\d]+):([\\d]+)");
@@ -111,8 +113,16 @@ public class SGFParser {
         Lizzie.board.reopen(boardSize, boardSize);
       }
     } else {
-      Lizzie.board.reopen(19, 19);
+      Lizzie.board.reopen(boardWidth, boardHeight);
     }
+
+    parseValue(value, null, false);
+
+    return true;
+  }
+
+  private static BoardHistoryList parseValue(
+      String value, BoardHistoryList history, boolean isBranch) {
 
     int subTreeDepth = 0;
     // Save the variation step count
@@ -135,6 +145,11 @@ public class SGFParser {
     // Other 's branch: (Main Branch (Branch) Main Branch)
     if (value.matches("(?s).*\\)\\s*\\)")) {
       isMultiGo = true;
+    }
+    if (isBranch) {
+      subTreeDepth += 1;
+      // Initialize the step count
+      subTreeStepMap.put(subTreeDepth, 0);
     }
 
     String blackPlayer = "", whitePlayer = "";
@@ -170,7 +185,11 @@ public class SGFParser {
               // Restore to the variation node
               int varStep = subTreeStepMap.get(subTreeDepth);
               for (int s = 0; s < varStep; s++) {
-                Lizzie.board.previousMove();
+                if (history == null) {
+                  Lizzie.board.previousMove();
+                } else {
+                  history.previous();
+                }
               }
             }
             subTreeDepth -= 1;
@@ -217,21 +236,37 @@ public class SGFParser {
             Stone color = tag.equals("B") ? Stone.BLACK : Stone.WHITE;
             boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
             if (move == null) {
-              Lizzie.board.pass(color, newBranch, false);
+              if (history == null) {
+                Lizzie.board.pass(color, newBranch, false);
+              } else {
+                history.pass(color, newBranch, false);
+              }
             } else {
-              Lizzie.board.place(move[0], move[1], color, newBranch);
+              if (history == null) {
+                Lizzie.board.place(move[0], move[1], color, newBranch);
+              } else {
+                history.place(move[0], move[1], color, newBranch);
+              }
             }
             if (newBranch) {
-              processPendingPros(Lizzie.board.getHistory(), pendingProps);
+              if (history == null) {
+                processPendingPros(Lizzie.board.getHistory(), pendingProps);
+              } else {
+                processPendingPros(history, pendingProps);
+              }
             }
           } else if (tag.equals("C")) {
             // Support comment
             if (!moveStart) {
               headComment = tagContent;
             } else {
-              Lizzie.board.comment(tagContent);
+              if (history == null) {
+                Lizzie.board.comment(tagContent);
+              } else {
+                history.getData().comment = tagContent;
+              }
             }
-          } else if (tag.equals("LZ")) {
+          } else if (tag.equals("LZ") && Lizzie.config.holdBestMovesToSgf && history == null) {
             // Content contains data for Lizzie to read
             String[] lines = tagContent.split("\n");
             String[] line1 = lines[0].split(" ");
@@ -256,39 +291,99 @@ public class SGFParser {
             Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
             if (moveStart) {
               // add to node properties
-              Lizzie.board.addNodeProperty(tag, tagContent);
+              if (history == null) {
+                Lizzie.board.addNodeProperty(tag, tagContent);
+              } else {
+                history.addNodeProperty(tag, tagContent);
+              }
               if (addPassForMove) {
                 // Save the step count
                 subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                 boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
-                Lizzie.board.pass(color, newBranch, true);
+                if (history == null) {
+                  Lizzie.board.pass(color, newBranch, true);
+                } else {
+                  history.pass(color, newBranch, true);
+                }
                 if (newBranch) {
-                  processPendingPros(Lizzie.board.getHistory(), pendingProps);
+                  if (history == null) {
+                    processPendingPros(Lizzie.board.getHistory(), pendingProps);
+                  } else {
+                    processPendingPros(history, pendingProps);
+                  }
                 }
                 addPassForMove = false;
               }
-              Lizzie.board.addNodeProperty(tag, tagContent);
+              if (history == null) {
+                Lizzie.board.addNodeProperty(tag, tagContent);
+              } else {
+                history.addNodeProperty(tag, tagContent);
+              }
               if (move != null) {
-                Lizzie.board.addStone(move[0], move[1], color);
+                if (history == null) {
+                  Lizzie.board.addStone(move[0], move[1], color);
+                } else {
+                  history.addStone(move[0], move[1], color);
+                }
               }
             } else {
               if (move == null) {
-                Lizzie.board.pass(color);
+                if (history == null) {
+                  Lizzie.board.pass(color);
+                } else {
+                  history.pass(color);
+                }
               } else {
-                Lizzie.board.place(move[0], move[1], color);
+                if (history == null) {
+                  Lizzie.board.place(move[0], move[1], color);
+                } else {
+                  history.place(move[0], move[1], color);
+                }
               }
-              Lizzie.board.flatten();
+              if (history == null) {
+                Lizzie.board.flatten();
+              } else {
+                history.flatten();
+              }
             }
           } else if (tag.equals("PB")) {
             blackPlayer = tagContent;
+            if (history == null) {
+              Lizzie.board.getHistory().getGameInfo().setPlayerBlack(blackPlayer);
+            } else {
+              history.getGameInfo().setPlayerBlack(blackPlayer);
+            }
           } else if (tag.equals("PW")) {
             whitePlayer = tagContent;
+            if (history == null) {
+              Lizzie.board.getHistory().getGameInfo().setPlayerWhite(whitePlayer);
+            } else {
+              history.getGameInfo().setPlayerWhite(whitePlayer);
+            }
           } else if (tag.equals("KM")) {
             try {
               if (tagContent.trim().isEmpty()) {
                 tagContent = "0.0";
               }
-              Lizzie.board.getHistory().getGameInfo().setKomi(Double.parseDouble(tagContent));
+              if (history == null) {
+                Lizzie.board.setKomi(Double.parseDouble(tagContent));
+              } else {
+                history.getGameInfo().setKomi(Double.parseDouble(tagContent));
+              }
+            } catch (NumberFormatException e) {
+              e.printStackTrace();
+            }
+          } else if (tag.equals("HA")) {
+            try {
+              if (tagContent.trim().isEmpty()) {
+                tagContent = "0";
+              }
+              int handicap = Integer.parseInt(tagContent);
+              if (history == null) {
+                Lizzie.board.getHistory().getGameInfo().setHandicap(handicap);
+              } else {
+                history.getGameInfo().setHandicap(handicap);
+              }
             } catch (NumberFormatException e) {
               e.printStackTrace();
             }
@@ -301,28 +396,51 @@ public class SGFParser {
                   // Save the step count
                   subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                   Stone color =
-                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
+                      ((history == null
+                                  && Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE)
+                              || (history != null && history.getLastMoveColor() == Stone.WHITE))
                           ? Stone.BLACK
                           : Stone.WHITE;
                   boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
-                  Lizzie.board.pass(color, newBranch, true);
+                  if (history == null) {
+                    Lizzie.board.pass(color, newBranch, true);
+                  } else {
+                    history.pass(color, newBranch, true);
+                  }
                   if (newBranch) {
-                    processPendingPros(Lizzie.board.getHistory(), pendingProps);
+                    if (history == null) {
+                      processPendingPros(Lizzie.board.getHistory(), pendingProps);
+                    } else {
+                      processPendingPros(history, pendingProps);
+                    }
                   }
                   addPassForMove = false;
                 }
-                Lizzie.board.addNodeProperty(tag, tagContent);
+                if (history == null) {
+                  Lizzie.board.addNodeProperty(tag, tagContent);
+                } else {
+                  history.addNodeProperty(tag, tagContent);
+                }
                 int[] move = convertSgfPosToCoord(tagContent);
                 if (move != null) {
-                  Lizzie.board.removeStone(
-                      move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                  if (history == null) {
+                    Lizzie.board.removeStone(
+                        move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                  } else {
+                    history.removeStone(
+                        move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                  }
                 }
               } else {
                 boolean firstProp = (subTreeStepMap.get(subTreeDepth) == 0);
                 if (firstProp) {
                   addProperty(pendingProps, tag, tagContent);
                 } else {
-                  Lizzie.board.addNodeProperty(tag, tagContent);
+                  if (history == null) {
+                    Lizzie.board.addNodeProperty(tag, tagContent);
+                  } else {
+                    history.addNodeProperty(tag, tagContent);
+                  }
                 }
               }
             } else {
@@ -350,21 +468,45 @@ public class SGFParser {
       }
     }
 
-    Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
+    if (isBranch) {
+      history.toBranchTop();
+    } else {
+      Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
+      if (history == null) {
+        if (!Utils.isBlank(gameProperties.get("RE"))
+            && Utils.isBlank(Lizzie.board.getHistory().getData().comment)) {
+          Lizzie.board.getHistory().getData().comment = gameProperties.get("RE");
+        }
 
-    // Rewind to game start
-    while (Lizzie.board.previousMove()) ;
+        // Rewind to game start
+        while (Lizzie.board.previousMove()) ;
 
-    // Set AW/AB Comment
-    if (!headComment.isEmpty()) {
-      Lizzie.board.comment(headComment);
-      Lizzie.frame.refresh();
+        // Set AW/AB Comment
+        if (!headComment.isEmpty()) {
+          Lizzie.board.comment(headComment);
+          Lizzie.frame.refresh();
+        }
+        if (gameProperties.size() > 0) {
+          Lizzie.board.addNodeProperties(gameProperties);
+        }
+      } else {
+        if (!Utils.isBlank(gameProperties.get("RE")) && Utils.isBlank(history.getData().comment)) {
+          history.getData().comment = gameProperties.get("RE");
+        }
+
+        // Rewind to game start
+        while (history.previous().isPresent()) ;
+
+        // Set AW/AB Comment
+        if (!headComment.isEmpty()) {
+          history.getData().comment = headComment;
+        }
+        if (gameProperties.size() > 0) {
+          history.getData().addProperties(gameProperties);
+        }
+      }
     }
-    if (gameProperties.size() > 0) {
-      Lizzie.board.addNodeProperties(gameProperties);
-    }
-
-    return true;
+    return history;
   }
 
   public static String saveToString() throws IOException {
@@ -502,7 +644,9 @@ public class SGFParser {
         }
 
         // Add LZ specific data to restore on next load
-        builder.append(String.format("LZ[%s]", formatNodeData(node)));
+        if (Lizzie.config.holdBestMovesToSgf) {
+          builder.append(String.format("LZ[%s]", formatNodeData(node)));
+        }
       }
 
       if (node.numberOfChildren() > 1) {
@@ -761,6 +905,52 @@ public class SGFParser {
   public static String Escaping(String in) {
     String out = in.replaceAll("\\\\", "\\\\\\\\");
     return out.replaceAll("\\]", "\\\\]");
+  }
+
+  public static BoardHistoryList parseSgf(String value) {
+    BoardHistoryList history = null;
+
+    // Drop anything outside "(;...)"
+    final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;{0,1}.*\\))(?s).*?");
+    Matcher sgfMatcher = SGF_PATTERN.matcher(value);
+    if (sgfMatcher.matches()) {
+      value = sgfMatcher.group(1);
+    } else {
+      return history;
+    }
+
+    // Determine the SZ property
+    Pattern szPattern = Pattern.compile("(?s).*?SZ\\[(\\d+)\\](?s).*");
+    Matcher szMatcher = szPattern.matcher(value);
+    int boardWidth = 19;
+    int boardHeight = 19;
+    if (szMatcher.matches()) {
+      String sizeStr = szMatcher.group(1);
+      Pattern sizePattern = Pattern.compile("([\\d]+):([\\d]+)");
+      Matcher sizeMatcher = sizePattern.matcher(sizeStr);
+      if (sizeMatcher.matches()) {
+        boardWidth = Integer.parseInt(sizeMatcher.group(1));
+        boardHeight = Integer.parseInt(sizeMatcher.group(2));
+      } else {
+        boardWidth = boardHeight = Integer.parseInt(sizeStr);
+      }
+    }
+    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight));
+
+    parseValue(value, history, false);
+
+    return history;
+  }
+
+  public static int parseBranch(BoardHistoryList history, String value) {
+    parseValue(value, history, true);
+    return history.getCurrentHistoryNode().numberOfChildren() - 1;
+  }
+
+  private static boolean isSgf(String value) {
+    final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;{0,1}.*\\))(?s).*?");
+    Matcher sgfMatcher = SGF_PATTERN.matcher(value);
+    return sgfMatcher.matches();
   }
 
   private static String asCoord(int i) {

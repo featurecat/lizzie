@@ -71,7 +71,7 @@ public class SubBoardPane extends LizziePane {
       if (Lizzie.config.showSubBoard) {
         try {
           subBoardRenderer.setLocation(x, y);
-          if (boardParams == null) {
+          if (boardParams == null || width != boardParams[0] || height != boardParams[3]) {
             boardParams =
                 subBoardRenderer.availableLength(
                     max(width, Board.boardWidth + 5),

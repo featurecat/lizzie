@@ -443,7 +443,8 @@ public class BoardRenderer {
 
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
-    if (MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
+    if (Lizzie.config.showBestMovesByHold
+        && MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
       bestMoves = Lizzie.board.getData().bestMoves;
     }
 
@@ -490,7 +491,7 @@ public class BoardRenderer {
     gShadow.dispose();
   }
 
-  private Optional<MoveData> mouseOveredMove() {
+  public Optional<MoveData> mouseOveredMove() {
     return bestMoves
         .stream()
         .filter(
@@ -836,7 +837,7 @@ public class BoardRenderer {
           drawString(
               g,
               textData.suggestionX,
-              textData.suggestionY - stoneRadius * 6 / 16,
+              textData.suggestionY - stoneRadius * 5 / 16,
               LizzieFrame.winrateFont,
               Font.PLAIN,
               text,
@@ -846,15 +847,15 @@ public class BoardRenderer {
           drawString(
               g,
               textData.suggestionX,
-              textData.suggestionY + stoneRadius * 1 / 16,
+              textData.suggestionY + stoneRadius * 2 / 16,
               MainFrame.uiFont,
               Utils.getPlayoutsString(textData.move.playouts),
-              (float) (stoneRadius * 0.8),
+              (float) (stoneRadius * 0.7),
               stoneRadius * 1.4);
           drawString(
               g,
               textData.suggestionX,
-              textData.suggestionY + stoneRadius * 12 / 16,
+              textData.suggestionY + stoneRadius * 11 / 16,
               LizzieFrame.uiFont,
               String.format("%.1f", score),
               (float) (stoneRadius * 0.75),
@@ -900,7 +901,7 @@ public class BoardRenderer {
               nextMove -> {
                 int moveX = x + scaledMarginWidth + squareWidth * nextMove[0];
                 int moveY = y + scaledMarginHeight + squareHeight * nextMove[1];
-                if (first) g.setStroke(new BasicStroke(3.0f));
+                if (first) g.setStroke(new BasicStroke(2.0f));
                 drawCircle(g, moveX, moveY, stoneRadius + 1); // Slightly outside best move circle
                 if (first) g.setStroke(new BasicStroke(1.0f));
               });
@@ -1462,8 +1463,12 @@ public class BoardRenderer {
     return availableHeight / (Board.boardHeight - 1);
   }
 
-  private boolean isShowingRawBoard() {
+  public boolean isShowingRawBoard() {
     return (displayedBranchLength == SHOW_RAW_BOARD || displayedBranchLength == 0);
+  }
+
+  public boolean isShowingNormalBoard() {
+    return displayedBranchLength == SHOW_NORMAL_BOARD;
   }
 
   private int maxBranchMoves() {
@@ -1481,6 +1486,10 @@ public class BoardRenderer {
     return showingBranch;
   }
 
+  public void startNormalBoard() {
+    setDisplayedBranchLength(SHOW_NORMAL_BOARD);
+  }
+
   public void setDisplayedBranchLength(int n) {
     displayedBranchLength = n;
   }
@@ -1491,6 +1500,38 @@ public class BoardRenderer {
 
   public int getReplayBranch() {
     return mouseOveredMove().isPresent() ? mouseOveredMove().get().variation.size() : 0;
+  }
+
+  public void addSuggestionAsBranch() {
+    mouseOveredMove()
+        .ifPresent(
+            m -> {
+              if (m.variation.size() > 0) {
+                if (Lizzie.board.getHistory().getCurrentHistoryNode().numberOfChildren() == 0) {
+                  Stone color =
+                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
+                          ? Stone.BLACK
+                          : Stone.WHITE;
+                  Lizzie.board.getHistory().pass(color, false, true);
+                  Lizzie.board.getHistory().previous();
+                }
+                for (int i = 0; i < m.variation.size(); i++) {
+                  Stone color =
+                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
+                          ? Stone.BLACK
+                          : Stone.WHITE;
+                  Optional<int[]> coordOpt = Board.asCoordinates(m.variation.get(i));
+                  if (!coordOpt.isPresent()
+                      || !Board.isValid(coordOpt.get()[0], coordOpt.get()[1])) {
+                    break;
+                  }
+                  int[] coord = coordOpt.get();
+                  Lizzie.board.getHistory().place(coord[0], coord[1], color, i == 0);
+                }
+                Lizzie.board.getHistory().toBranchTop();
+                Lizzie.frame.refresh(2);
+              }
+            });
   }
 
   public boolean incrementDisplayedBranchLength(int n) {

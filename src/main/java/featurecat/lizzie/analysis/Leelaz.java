@@ -1,9 +1,11 @@
 package featurecat.lizzie.analysis;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.Stone;
+import featurecat.lizzie.util.Utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -29,8 +31,7 @@ import org.json.JSONObject;
  * www.github.com/gcp/leela-zero
  */
 public class Leelaz {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   private static final long MINUTE = 60 * 1000; // number of milliseconds in a minute
 
@@ -121,6 +122,7 @@ public class Leelaz {
     if (engineCommand.toLowerCase().contains("override-version")) {
       this.isKataGo = true;
     }
+    commands = splitCommand(engineCommand);
     // Initialize current engine number and start engine
     currentEngineN = 0;
   }
@@ -131,10 +133,11 @@ public class Leelaz {
     }
 
     isLoaded = false;
-    commands = splitCommand(engineCommand);
+    bestMoves = new ArrayList<>();
+    Lizzie.board.getData().tryToClearBestMoves();
 
     // Get weight name
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w )([^'\" ]+)(?s).*");
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
     Matcher wMatcher = wPattern.matcher(engineCommand);
     if (wMatcher.matches() && wMatcher.groupCount() == 2) {
       currentWeightFile = wMatcher.group(2);
@@ -183,6 +186,7 @@ public class Leelaz {
     isCheckingVersion = true;
     sendCommand("version");
     boardSize(Lizzie.board.boardWidth, Lizzie.board.boardHeight);
+    komi(Lizzie.board.getHistory().getGameInfo().getKomi());
 
     // start a thread to continuously read Leelaz output
     // new Thread(this::read).start();
@@ -200,8 +204,8 @@ public class Leelaz {
     switching = true;
     this.engineCommand = engineCommand;
     // stop the ponder
-    if (Lizzie.leelaz.isPondering()) {
-      Lizzie.leelaz.togglePonder();
+    if (isPondering()) {
+      togglePonder();
     }
     normalQuit();
     startEngine();
@@ -232,7 +236,7 @@ public class Leelaz {
     outputStream = new BufferedOutputStream(process.getOutputStream());
   }
 
-  public static List<MoveData> parseInfo(String line) {
+  public List<MoveData> parseInfo(String line) {
     List<MoveData> bestMoves = new ArrayList<>();
     String[] variations = line.split(" info ");
     for (String var : variations) {
@@ -384,7 +388,7 @@ public class Leelaz {
         } else if (isCheckingName) {
           if (params[1].startsWith("KataGo")) {
             this.isKataGo = true;
-            Lizzie.initializeAfterVersionCheck();
+            Lizzie.initializeAfterVersionCheck(this);
           }
           isCheckingName = false;
         } else if (isCheckingVersion && !isKataGo) {
@@ -399,7 +403,7 @@ public class Leelaz {
                     + ")");
           }
           isCheckingVersion = false;
-          Lizzie.initializeAfterVersionCheck();
+          Lizzie.initializeAfterVersionCheck(this);
         }
       }
     }
@@ -438,7 +442,7 @@ public class Leelaz {
         }
       }
       // this line will be reached when Leelaz shuts down
-      System.out.println("Leelaz process ended.");
+      System.out.println("Engine process ended.");
 
       shutdown();
       // Do no exit for switching weights
@@ -568,7 +572,7 @@ public class Leelaz {
   }
 
   public void time_settings() {
-    Lizzie.leelaz.sendCommand(
+    sendCommand(
         "time_settings 0 "
             + Lizzie.config.config.getJSONObject("leelaz").getInt("max-game-thinking-time-seconds")
             + " 1");
@@ -587,7 +591,22 @@ public class Leelaz {
   }
 
   public void boardSize(int width, int height) {
-    sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+    synchronized (this) {
+      sendCommand("boardsize " + width + (width != height ? " " + height : ""));
+    }
+  }
+
+  public void komi(double komi) {
+    synchronized (this) {
+      sendCommand("komi " + (komi == 0.0 ? "0" : komi));
+      bestMoves = new ArrayList<>();
+      Lizzie.board.getData().tryToClearBestMoves();
+      if (isPondering) ponder();
+    }
+  }
+
+  public void handicap(int num) {
+    sendCommand((isKataGo ? "place_free_handicap " : "fixed_handicap ") + num);
   }
 
   public void undo() {
@@ -596,6 +615,24 @@ public class Leelaz {
       bestMoves = new ArrayList<>();
       if (isPondering) ponder();
     }
+  }
+
+  public void analyzeAvoid(String type, String color, String coordList, int untilMove) {
+    analyzeAvoid(
+        String.format("%s %s %s %d", type, color, coordList, untilMove <= 0 ? 1 : untilMove));
+  }
+
+  public void analyzeAvoid(String parameters) {
+    bestMoves = new ArrayList<>();
+    if (!isPondering) {
+      isPondering = true;
+      startPonderTime = System.currentTimeMillis();
+    }
+    sendCommand(
+        String.format(
+            "lz-analyze %d %s",
+            Lizzie.config.config.getJSONObject("leelaz").getInt("analyze-update-interval-centisec"),
+            parameters));
   }
 
   /** This initializes leelaz's pondering mode at its current position */
@@ -796,7 +833,7 @@ public class Leelaz {
             state = ParamState.DOUBLE_QUOTE;
           } else if (" ".equals(nextToken)) {
             if (lastTokenQuoted || param.length() != 0) {
-              commandList.add(param.toString());
+              commandList.add(Utils.withQuote(param.toString()));
               param.delete(0, param.length());
             }
           } else {
@@ -810,6 +847,23 @@ public class Leelaz {
       commandList.add(param.toString());
     }
     return commandList;
+  }
+
+  public boolean isCommandChange(String command) {
+    List<String> newList = splitCommand(command);
+    if (this.commands.size() != newList.size()) {
+      return true;
+    } else {
+      for (int i = 0; i < this.commands.size(); i++) {
+        String param = this.commands.get(i);
+        String newParam = newList.get(i);
+        if ((!Utils.isBlank(param) || !Utils.isBlank(newParam))
+            && (Utils.isBlank(param) || !param.equals(newParam))) {
+          return true;
+        }
+      }
+      return false;
+    }
   }
 
   public boolean isStarted() {
