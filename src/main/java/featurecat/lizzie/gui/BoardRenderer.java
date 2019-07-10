@@ -95,6 +95,15 @@ public class BoardRenderer {
 
   private int maxAlpha = 240;
 
+  // Computed in drawLeelazSuggestionsBackground and stored for
+  // display in drawLeelazSuggestionsForeground
+  private class TextData {
+    MoveData move;
+    int suggestionX;
+    int suggestionY;
+    boolean flipWinrate;
+  }
+
   public BoardRenderer(boolean isMainBoard) {
     uiConfig = Lizzie.config.uiConfig;
     uiPersist = Lizzie.config.persisted.getJSONObject("ui-persist");
@@ -125,19 +134,25 @@ public class BoardRenderer {
     //        timer.lap("rendering images");
 
     if (!isMainBoard) {
-      drawMoveNumbers(g);
+      if (Lizzie.config.showBranchNow()) {
+        drawMoveNumbers(g);
+      }
       return;
     }
 
     if (!isShowingRawBoard()) {
       drawMoveNumbers(g);
       //        timer.lap("movenumbers");
+      List<TextData> textDatas = new ArrayList<>();
       if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMovesNow())
-        drawLeelazSuggestions(g);
+        drawLeelazSuggestionsBackground(g, textDatas);
 
       if (Lizzie.config.showNextMoves) {
         drawNextMoves(g);
       }
+
+      if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMovesNow())
+        drawLeelazSuggestionsForeground(g, textDatas);
 
       drawStoneMarkup(g);
     }
@@ -607,9 +622,10 @@ public class BoardRenderer {
   }
 
   /**
-   * Draw all of Leelaz's suggestions as colored stones with winrate/playout statistics overlayed
+   * Draw all of Leelaz's suggestions as colored stones and store statistics into textDatas for
+   * future use by drawLeelazSuggestionsForeground
    */
-  private void drawLeelazSuggestions(Graphics2D g) {
+  private void drawLeelazSuggestionsBackground(Graphics2D g, List<TextData> textDatas) {
     int minAlpha = 32;
     float winrateHueFactor = 0.9f;
     float alphaFactor = 5.0f;
@@ -754,119 +770,117 @@ public class BoardRenderer {
           if (!branchOpt.isPresent()
                   && (hasMaxWinrate || percentPlayouts >= Lizzie.config.minPlayoutRatioForStats)
               || isMouseOver) {
-            double roundedWinrate = round(move.winrate * 10) / 10.0;
-            if (flipWinrate) {
-              roundedWinrate = 100.0 - roundedWinrate;
-            }
-            g.setColor(Color.BLACK);
-            if (branchOpt.isPresent() && Lizzie.board.getData().blackToPlay)
-              g.setColor(Color.WHITE);
-
-            String text;
-            if (Lizzie.config.handicapInsteadOfWinrate) {
-              text = String.format("%.2f", Lizzie.leelaz.winrateToHandicap(move.winrate));
-            } else {
-              text = String.format("%.1f", roundedWinrate);
-            }
-
-            if (Lizzie.leelaz.isKataGo && Lizzie.config.showKataGoScoreMean) {
-              if (Lizzie.config.kataGoNotShowWinrate) {
-                double score = move.scoreMean;
-                if (Lizzie.board.getHistory().isBlacksTurn()) {
-                  if (Lizzie.config.showKataGoBoardScoreMean) {
-                    score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
-                  }
-                } else {
-                  if (Lizzie.config.showKataGoBoardScoreMean) {
-                    score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
-                  }
-                  if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
-                    score = -score;
-                  }
-                }
-                drawString(
-                    g,
-                    suggestionX,
-                    suggestionY,
-                    MainFrame.winrateFont,
-                    Font.PLAIN,
-                    String.format("%.1f", score),
-                    stoneRadius,
-                    stoneRadius * 1.5,
-                    1);
-
-                drawString(
-                    g,
-                    suggestionX,
-                    suggestionY + stoneRadius * 2 / 5,
-                    MainFrame.uiFont,
-                    Utils.getPlayoutsString(move.playouts),
-                    (float) (stoneRadius * 0.8),
-                    stoneRadius * 1.4);
-              } else {
-                drawString(
-                    g,
-                    suggestionX,
-                    suggestionY - stoneRadius * 5 / 16,
-                    LizzieFrame.winrateFont,
-                    Font.PLAIN,
-                    text,
-                    stoneRadius,
-                    stoneRadius * 1.45,
-                    1);
-                drawString(
-                    g,
-                    suggestionX,
-                    suggestionY + stoneRadius * 2 / 16,
-                    MainFrame.uiFont,
-                    Utils.getPlayoutsString(move.playouts),
-                    (float) (stoneRadius * 0.7),
-                    stoneRadius * 1.4);
-                double score = move.scoreMean;
-                if (Lizzie.board.getHistory().isBlacksTurn()) {
-                  if (Lizzie.config.showKataGoBoardScoreMean) {
-                    score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
-                  }
-                } else {
-                  if (Lizzie.config.showKataGoBoardScoreMean) {
-                    score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
-                  }
-                  if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
-                    score = -score;
-                  }
-                }
-                drawString(
-                    g,
-                    suggestionX,
-                    suggestionY + stoneRadius * 11 / 16,
-                    LizzieFrame.uiFont,
-                    String.format("%.1f", score),
-                    (float) (stoneRadius * 0.75),
-                    stoneRadius * 1.3);
-              }
-            } else {
-              drawString(
-                  g,
-                  suggestionX,
-                  suggestionY,
-                  MainFrame.winrateFont,
-                  Font.PLAIN,
-                  text,
-                  stoneRadius,
-                  stoneRadius * 1.5,
-                  1);
-
-              drawString(
-                  g,
-                  suggestionX,
-                  suggestionY + stoneRadius * 2 / 5,
-                  MainFrame.uiFont,
-                  Utils.getPlayoutsString(move.playouts),
-                  (float) (stoneRadius * 0.8),
-                  stoneRadius * 1.4);
-            }
+            TextData textData = new TextData();
+            textData.move = move;
+            textData.suggestionX = suggestionX;
+            textData.suggestionY = suggestionY;
+            textData.flipWinrate = flipWinrate;
+            textDatas.add(textData);
           }
         }
+      }
+    }
+  }
+
+  /** Draw winrate/playout/score statistics from textDatas */
+  private void drawLeelazSuggestionsForeground(Graphics2D g, List<TextData> textDatas) {
+    for (TextData textData : textDatas) {
+      double roundedWinrate = round(textData.move.winrate * 10) / 10.0;
+      if (textData.flipWinrate) {
+        roundedWinrate = 100.0 - roundedWinrate;
+      }
+      g.setColor(Color.BLACK);
+      if (branchOpt.isPresent() && Lizzie.board.getData().blackToPlay) g.setColor(Color.WHITE);
+
+      String text;
+      if (Lizzie.config.handicapInsteadOfWinrate) {
+        text = String.format("%.2f", Lizzie.leelaz.winrateToHandicap(textData.move.winrate));
+      } else {
+        text = String.format("%.1f", roundedWinrate);
+      }
+
+      if (Lizzie.leelaz.isKataGo && Lizzie.config.showKataGoScoreMean) {
+        double score = textData.move.scoreMean;
+        if (Lizzie.board.getHistory().isBlacksTurn()) {
+          if (Lizzie.config.showKataGoBoardScoreMean) {
+            score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+          }
+        } else {
+          if (Lizzie.config.showKataGoBoardScoreMean) {
+            score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+          }
+          if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+            score = -score;
+          }
+        }
+        if (Lizzie.config.kataGoNotShowWinrate) {
+          drawString(
+              g,
+              textData.suggestionX,
+              textData.suggestionY,
+              MainFrame.winrateFont,
+              Font.PLAIN,
+              String.format("%.1f", score),
+              stoneRadius,
+              stoneRadius * 1.5,
+              1);
+
+          drawString(
+              g,
+              textData.suggestionX,
+              textData.suggestionY + stoneRadius * 2 / 5,
+              MainFrame.uiFont,
+              Utils.getPlayoutsString(textData.move.playouts),
+              (float) (stoneRadius * 0.8),
+              stoneRadius * 1.4);
+        } else {
+          drawString(
+              g,
+              textData.suggestionX,
+              textData.suggestionY - stoneRadius * 5 / 16,
+              LizzieFrame.winrateFont,
+              Font.PLAIN,
+              text,
+              stoneRadius,
+              stoneRadius * 1.45,
+              1);
+          drawString(
+              g,
+              textData.suggestionX,
+              textData.suggestionY + stoneRadius * 2 / 16,
+              MainFrame.uiFont,
+              Utils.getPlayoutsString(textData.move.playouts),
+              (float) (stoneRadius * 0.7),
+              stoneRadius * 1.4);
+          drawString(
+              g,
+              textData.suggestionX,
+              textData.suggestionY + stoneRadius * 11 / 16,
+              LizzieFrame.uiFont,
+              String.format("%.1f", score),
+              (float) (stoneRadius * 0.75),
+              stoneRadius * 1.3);
+        }
+      } else {
+        drawString(
+            g,
+            textData.suggestionX,
+            textData.suggestionY,
+            MainFrame.winrateFont,
+            Font.PLAIN,
+            text,
+            stoneRadius,
+            stoneRadius * 1.5,
+            1);
+
+        drawString(
+            g,
+            textData.suggestionX,
+            textData.suggestionY + stoneRadius * 2 / 5,
+            MainFrame.uiFont,
+            Utils.getPlayoutsString(textData.move.playouts),
+            (float) (stoneRadius * 0.8),
+            stoneRadius * 1.4);
       }
     }
   }
@@ -887,7 +901,7 @@ public class BoardRenderer {
               nextMove -> {
                 int moveX = x + scaledMarginWidth + squareWidth * nextMove[0];
                 int moveY = y + scaledMarginHeight + squareHeight * nextMove[1];
-                if (first) g.setStroke(new BasicStroke(3.0f));
+                if (first) g.setStroke(new BasicStroke(2.0f));
                 drawCircle(g, moveX, moveY, stoneRadius + 1); // Slightly outside best move circle
                 if (first) g.setStroke(new BasicStroke(1.0f));
               });
