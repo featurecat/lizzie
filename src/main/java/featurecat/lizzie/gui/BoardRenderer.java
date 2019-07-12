@@ -539,9 +539,10 @@ public class BoardRenderer {
         boolean isWhite = board.getStones()[Board.getIndex(lastMove[0], lastMove[1])].isWhite();
         g.setColor(isWhite ? Color.BLACK : Color.WHITE);
 
-        if (Lizzie.config.solidStoneIndicator) {
+        if (Lizzie.config.stoneIndicatorType == 2) {
           // Use a solid circle instead of
           fillCircle(g, stoneX, stoneY, (int) (lastMoveMarkerRadius * 0.65));
+        } else if (Lizzie.config.stoneIndicatorType == 0) {
         } else {
           drawCircle(g, stoneX, stoneY, lastMoveMarkerRadius);
         }

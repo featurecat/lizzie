@@ -132,10 +132,10 @@ public class Theme {
     return config.optString(key, uiConfig.optString(key, null));
   }
 
-  /** Use solid current stone indicator */
-  public boolean solidStoneIndicator() {
-    String key = "solid-stone-indicator";
-    return config.optBoolean(key, uiConfig.optBoolean(key));
+  /** Current stone indicator type */
+  public int stoneIndicatorType() {
+    String key = "stone-indicator-type";
+    return config.optInt(key, uiConfig.optInt(key, 1));
   }
 
   /** Show the node with the comment color */

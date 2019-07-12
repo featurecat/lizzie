@@ -198,7 +198,9 @@ public class ConfigDialog extends JDialog {
   public ColorLabel lblCommentBackgroundColor;
   public ColorLabel lblCommentFontColor;
   public JTextField txtCommentFontSize;
-  public JCheckBox chkSolidStoneIndicator;
+  public JRadioButton rdoStoneIndicatorCircle;
+  public JRadioButton rdoStoneIndicatorSolid;
+  public JRadioButton rdoStoneIndicatorNo;
   public JCheckBox chkShowCommentNodeColor;
   public ColorLabel lblCommentNodeColor;
   public JTable tblBlunderNodes;
@@ -1126,6 +1128,27 @@ public class ConfigDialog extends JDialog {
     tpGtpConsoleStyle.setBounds(170, 416, 460, 80);
     uiTab.add(tpGtpConsoleStyle);
 
+    setBoardSize();
+    setShowMoveNumber();
+    chkPanelUI.setSelected(Lizzie.config.panelUI);
+    txtMinPlayoutRatioForStats.setText(String.valueOf(Lizzie.config.minPlayoutRatioForStats));
+    chkShowCaptured.setSelected(Lizzie.config.showCaptured);
+    chkShowWinrate.setSelected(Lizzie.config.showWinrate);
+    chkShowVariationGraph.setSelected(Lizzie.config.showVariationGraph);
+    chkShowComment.setSelected(Lizzie.config.showComment);
+    chkShowSubBoard.setSelected(Lizzie.config.showSubBoard);
+    chkShowCoordinates.setSelected(Lizzie.config.showCoordinates);
+    chkShowBlunderBar.setSelected(Lizzie.config.showBlunderBar);
+    chkDynamicWinrateGraphWidth.setSelected(Lizzie.config.dynamicWinrateGraphWidth);
+    chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
+    chkHoldBestMovesToSgf.setSelected(Lizzie.config.holdBestMovesToSgf);
+    chkShowBestMovesByHold.setSelected(Lizzie.config.showBestMovesByHold);
+    chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
+    sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
+    txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
+    txtLimitBranchLength.setText(String.valueOf(Lizzie.config.limitBranchLength));
+    tpGtpConsoleStyle.setText(Lizzie.config.gtpConsoleStyle);
+
     new ComsWorker(this).execute();
     setLocationRelativeTo(getOwner());
   }
@@ -1368,13 +1391,27 @@ public class ConfigDialog extends JDialog {
       themeTab.add(txtCommentFontSize);
       txtLimitBranchLength.setColumns(10);
 
-      JLabel lblSolidStoneIndicator =
-          new JLabel(resourceBundle.getString("LizzieConfig.title.solidStoneIndicator"));
-      lblSolidStoneIndicator.setBounds(10, 442, 163, 16);
-      themeTab.add(lblSolidStoneIndicator);
-      chkSolidStoneIndicator = new JCheckBox("");
-      chkSolidStoneIndicator.setBounds(170, 439, 57, 23);
-      themeTab.add(chkSolidStoneIndicator);
+      JLabel lblStoneIndicatorType =
+          new JLabel(resourceBundle.getString("LizzieConfig.title.stoneIndicatorType"));
+      lblStoneIndicatorType.setBounds(10, 442, 163, 16);
+      themeTab.add(lblStoneIndicatorType);
+      rdoStoneIndicatorCircle =
+          new JRadioButton(resourceBundle.getString("LizzieConfig.title.stoneIndicatorCircle"));
+      rdoStoneIndicatorCircle.setBounds(170, 439, 57, 23);
+      themeTab.add(rdoStoneIndicatorCircle);
+      rdoStoneIndicatorSolid =
+          new JRadioButton(resourceBundle.getString("LizzieConfig.title.stoneIndicatorSolid"));
+      rdoStoneIndicatorSolid.setBounds(230, 439, 57, 23);
+      themeTab.add(rdoStoneIndicatorSolid);
+      rdoStoneIndicatorNo =
+          new JRadioButton(resourceBundle.getString("LizzieConfig.title.stoneIndicatorNo"));
+      rdoStoneIndicatorNo.setBounds(290, 439, 57, 23);
+      themeTab.add(rdoStoneIndicatorNo);
+
+      ButtonGroup stoneIndicatorTypeGroup = new ButtonGroup();
+      stoneIndicatorTypeGroup.add(rdoStoneIndicatorCircle);
+      stoneIndicatorTypeGroup.add(rdoStoneIndicatorSolid);
+      stoneIndicatorTypeGroup.add(rdoStoneIndicatorNo);
 
       JLabel lblShowCommentNodeColor =
           new JLabel(resourceBundle.getString("LizzieConfig.title.showCommentNodeColor"));
@@ -1486,25 +1523,6 @@ public class ConfigDialog extends JDialog {
       btnWhiteStonePath.setBounds(598, 312, 40, 26);
       themeTab.add(btnWhiteStonePath);
 
-      setBoardSize();
-      chkPanelUI.setSelected(Lizzie.config.panelUI);
-      txtMinPlayoutRatioForStats.setText(String.valueOf(Lizzie.config.minPlayoutRatioForStats));
-      chkShowCaptured.setSelected(Lizzie.config.showCaptured);
-      chkShowWinrate.setSelected(Lizzie.config.showWinrate);
-      chkShowVariationGraph.setSelected(Lizzie.config.showVariationGraph);
-      chkShowComment.setSelected(Lizzie.config.showComment);
-      chkShowSubBoard.setSelected(Lizzie.config.showSubBoard);
-      chkShowCoordinates.setSelected(Lizzie.config.showCoordinates);
-      chkShowBlunderBar.setSelected(Lizzie.config.showBlunderBar);
-      chkDynamicWinrateGraphWidth.setSelected(Lizzie.config.dynamicWinrateGraphWidth);
-      chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
-      chkHoldBestMovesToSgf.setSelected(Lizzie.config.holdBestMovesToSgf);
-      chkShowBestMovesByHold.setSelected(Lizzie.config.showBestMovesByHold);
-      chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
-      sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
-      txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
-      txtLimitBranchLength.setText(String.valueOf(Lizzie.config.limitBranchLength));
-      tpGtpConsoleStyle.setText(Lizzie.config.gtpConsoleStyle);
       cmbThemes.setSelectedItem(
           Lizzie.config.uiConfig.optString(
               "theme", resourceBundle.getString("LizzieConfig.title.defaultTheme")));
@@ -1701,8 +1719,6 @@ public class ConfigDialog extends JDialog {
           };
       pnlBoardPreview.setBounds(422, 11, 200, 200);
       themeTab.add(pnlBoardPreview);
-
-      setShowMoveNumber();
       return null;
     }
 
@@ -2146,6 +2162,26 @@ public class ConfigDialog extends JDialog {
     }
   }
 
+  private void setStoneIndicatorType(int type) {
+    if (type == 2) {
+      rdoStoneIndicatorSolid.setSelected(true);
+    } else if (type == 0) {
+      rdoStoneIndicatorNo.setSelected(true);
+    } else {
+      rdoStoneIndicatorCircle.setSelected(true);
+    }
+  }
+
+  private int getStoneIndicatorType() {
+    if (rdoStoneIndicatorSolid.isSelected()) {
+      return 2;
+    } else if (rdoStoneIndicatorNo.isSelected()) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+
   private void setFontValue(JComboBox<String> cmb, String fontName) {
     cmb.setSelectedIndex(0);
     cmb.setSelectedItem(fontName);
@@ -2184,7 +2220,7 @@ public class ConfigDialog extends JDialog {
         lblWinrateMissLineColor.setColor(theme.winrateMissLineColor());
         lblBlunderBarColor.setColor(theme.blunderBarColor());
         lblScoreMeanLineColor.setColor(theme.scoreMeanLineColor());
-        chkSolidStoneIndicator.setSelected(theme.solidStoneIndicator());
+        setStoneIndicatorType(theme.stoneIndicatorType());
         chkShowCommentNodeColor.setSelected(theme.showCommentNodeColor());
         lblCommentNodeColor.setColor(theme.commentNodeColor());
         lblCommentBackgroundColor.setColor(theme.commentBackgroundColor());
@@ -2234,7 +2270,8 @@ public class ConfigDialog extends JDialog {
         theme.config.put("blunder-bar-color", Theme.color2Array(lblBlunderBarColor.getColor()));
         theme.config.put(
             "scoremean-line-color", Theme.color2Array(lblScoreMeanLineColor.getColor()));
-        theme.config.put("solid-stone-indicator", chkSolidStoneIndicator.isSelected());
+        Lizzie.config.stoneIndicatorType = getStoneIndicatorType();
+        theme.config.put("stone-indicator-type", Lizzie.config.stoneIndicatorType);
         theme.config.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
         theme.config.put("comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
         theme.config.put(
@@ -2283,7 +2320,7 @@ public class ConfigDialog extends JDialog {
     lblScoreMeanLineColor.setColor(
         Theme.array2Color(
             Lizzie.config.uiConfig.optJSONArray("scoremean-line-color"), Color.magenta.brighter()));
-    chkSolidStoneIndicator.setSelected(Lizzie.config.uiConfig.optBoolean("solid-stone-indicator"));
+    setStoneIndicatorType(Lizzie.config.uiConfig.optInt("stone-indicator-type", 1));
     chkShowCommentNodeColor.setSelected(
         Lizzie.config.uiConfig.optBoolean("show-comment-node-color"));
     lblCommentNodeColor.setColor(
@@ -2323,7 +2360,8 @@ public class ConfigDialog extends JDialog {
         "blunder-bar-color", Theme.color2Array(lblBlunderBarColor.getColor()));
     Lizzie.config.uiConfig.put(
         "scoremean-line-color", Theme.color2Array(lblScoreMeanLineColor.getColor()));
-    Lizzie.config.uiConfig.put("solid-stone-indicator", chkSolidStoneIndicator.isSelected());
+    Lizzie.config.stoneIndicatorType = getStoneIndicatorType();
+    Lizzie.config.uiConfig.put("stone-indicator-type", Lizzie.config.stoneIndicatorType);
     Lizzie.config.uiConfig.put("show-comment-node-color", chkShowCommentNodeColor.isSelected());
     Lizzie.config.uiConfig.put(
         "comment-node-color", Theme.color2Array(lblCommentNodeColor.getColor()));
