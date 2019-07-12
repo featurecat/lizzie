@@ -8,6 +8,7 @@ import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -25,6 +26,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,6 +34,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import javax.imageio.ImageIO;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import org.json.JSONObject;
 
 /** The window used to display the game. */
 public class BoardPane extends LizziePane {
@@ -496,10 +503,41 @@ public class BoardPane extends LizziePane {
     boardRenderer.increaseMaxAlpha(k);
   }
 
-  public void replayBranch() {
+  private String gifPath = null;
+
+  public void replayBranch(boolean generateGif) {
     if (isReplayVariation) return;
     int replaySteps = boardRenderer.getReplayBranch();
     if (replaySteps <= 0) return; // Bad steps or no branch
+    List<BufferedImage> frames = new ArrayList<BufferedImage>();
+    gifPath = null;
+    if (generateGif) {
+      FileNameExtensionFilter filter = new FileNameExtensionFilter("*.gif", "GIF");
+      JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
+      JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+      chooser.setAcceptAllFileFilterUsed(false);
+      chooser.setFileFilter(filter);
+      chooser.setMultiSelectionEnabled(false);
+      int result = chooser.showSaveDialog(null);
+      if (result == JFileChooser.APPROVE_OPTION) {
+        File file = chooser.getSelectedFile();
+        if (file.exists()) {
+          int ret =
+              JOptionPane.showConfirmDialog(
+                  null,
+                  resourceBundle.getString("LizzieFrame.prompt.fileExists"),
+                  "Warning",
+                  JOptionPane.OK_CANCEL_OPTION);
+          if (ret == JOptionPane.YES_OPTION) {
+            gifPath = file.getAbsolutePath() + (!file.getPath().endsWith(".gif") ? ".gif" : "");
+          }
+        } else {
+          gifPath = file.getAbsolutePath() + (!file.getPath().endsWith(".gif") ? ".gif" : "");
+        }
+      }
+    }
+    int width = this.getWidth();
+    int height = this.getHeight();
     int oriBranchLength = boardRenderer.getDisplayedBranchLength();
     isReplayVariation = true;
     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
@@ -511,11 +549,21 @@ public class BoardPane extends LizziePane {
               if (!isReplayVariation) break;
               setDisplayedBranchLength(i);
               repaint();
+              if (gifPath != null) {
+                BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D cg = img.createGraphics();
+                paintAll(cg);
+                frames.add(img);
+              }
               try {
                 Thread.sleep(secs);
               } catch (InterruptedException e) {
                 e.printStackTrace();
               }
+            }
+            if (gifPath != null) {
+              Utils.toGif(
+                  gifPath, frames, (int) (Lizzie.config.replayBranchIntervalSeconds * 100), true);
             }
             boardRenderer.setDisplayedBranchLength(oriBranchLength);
             isReplayVariation = false;
@@ -544,5 +592,54 @@ public class BoardPane extends LizziePane {
 
   public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
     boardRenderer.drawEstimateRectZen(esitmateArray);
+  }
+
+  public void saveImage() {
+    JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
+    JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+    chooser.setAcceptAllFileFilterUsed(false);
+    //    String writerNames[] = ImageIO.getWriterFormatNames();
+    FileNameExtensionFilter filter1 = new FileNameExtensionFilter("*.png", "PNG");
+    FileNameExtensionFilter filter2 = new FileNameExtensionFilter("*.jpg", "JPG", "JPEG");
+    FileNameExtensionFilter filter3 = new FileNameExtensionFilter("*.gif", "GIF");
+    FileNameExtensionFilter filter4 = new FileNameExtensionFilter("*.bmp", "BMP");
+    chooser.addChoosableFileFilter(filter1);
+    chooser.addChoosableFileFilter(filter2);
+    chooser.addChoosableFileFilter(filter3);
+    chooser.addChoosableFileFilter(filter4);
+    chooser.setMultiSelectionEnabled(false);
+    int result = chooser.showSaveDialog(null);
+    if (result == JFileChooser.APPROVE_OPTION) {
+      File file = chooser.getSelectedFile();
+      if (file.exists()) {
+        int ret =
+            JOptionPane.showConfirmDialog(
+                null,
+                resourceBundle.getString("LizzieFrame.prompt.fileExists"),
+                "Warning",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (ret == JOptionPane.CANCEL_OPTION) {
+          return;
+        }
+      }
+      String ext =
+          chooser.getFileFilter() instanceof FileNameExtensionFilter
+              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
+              : "";
+      if (!Utils.isBlank(ext)) {
+        if (!file.getPath().toLowerCase().endsWith("." + ext)) {
+          file = new File(file.getPath() + "." + ext);
+        }
+      }
+      BufferedImage bImg =
+          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+      Graphics2D cg = bImg.createGraphics();
+      paintAll(cg);
+      try {
+        ImageIO.write(bImg, ext, file);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
 }

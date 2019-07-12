@@ -111,7 +111,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void drawControls();
 
-  public abstract void replayBranch();
+  public abstract void replayBranch(boolean generateGif);
 
   public abstract void refreshBackground();
 
@@ -320,4 +320,6 @@ public abstract class MainFrame extends JFrame {
   public abstract void noEstimateByZen();
 
   public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
+
+  public void saveImage() {};
 }

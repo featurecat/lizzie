@@ -1364,7 +1364,7 @@ public class LizzieFrame extends MainFrame {
     cachedComment = comment;
   }
 
-  public void replayBranch() {
+  public void replayBranch(boolean generateGif) {
     if (isReplayVariation) return;
     int replaySteps = boardRenderer.getReplayBranch();
     if (replaySteps <= 0) return; // Bad steps or no branch
