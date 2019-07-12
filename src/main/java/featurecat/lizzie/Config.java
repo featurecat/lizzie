@@ -58,6 +58,7 @@ public class Config {
   public boolean showKataGoEstimateBySize = false;
   public boolean showKataGoEstimateOnSubbord = true;
   public boolean showKataGoEstimateOnMainbord = true;
+  public boolean showKataGoEstimateLarge = true;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -235,6 +236,7 @@ public class Config {
     showKataGoEstimateBySize = uiConfig.optBoolean("show-katago-estimate-bysize", false);
     showKataGoEstimateOnSubbord = uiConfig.optBoolean("show-katago-estimate-onsubbord", true);
     showKataGoEstimateOnMainbord = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
+    showKataGoEstimateLarge = uiConfig.optBoolean("show-katago-estimate-large", true);
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
