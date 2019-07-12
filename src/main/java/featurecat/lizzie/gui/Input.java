@@ -299,10 +299,15 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         Lizzie.frame.editGameInfo();
         if (isPondering) Lizzie.leelaz.togglePonder();
         break;
+
       case VK_S:
-        // stop the ponder
-        if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        Lizzie.frame.saveFile();
+        if (e.isAltDown()) {
+          Lizzie.frame.saveImage();
+        } else {
+          // stop the ponder
+          if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+          Lizzie.frame.saveFile();
+        }
         break;
 
       case VK_O:
@@ -470,7 +475,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_R:
-        Lizzie.frame.replayBranch();
+        Lizzie.frame.replayBranch(e.isAltDown());
         break;
 
       case VK_OPEN_BRACKET:

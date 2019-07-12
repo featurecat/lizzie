@@ -490,8 +490,8 @@ public class LizzieMain extends MainFrame {
   }
 
   @Override
-  public void replayBranch() {
-    boardPane.replayBranch();
+  public void replayBranch(boolean generateGif) {
+    boardPane.replayBranch(generateGif);
   }
 
   @Override
@@ -643,4 +643,9 @@ public class LizzieMain extends MainFrame {
       } else boardPane.drawEstimateRectZen(esitmateArray);
     }
   }
+
+  @Override
+  public void saveImage() {
+    boardPane.saveImage();
+  };
 }

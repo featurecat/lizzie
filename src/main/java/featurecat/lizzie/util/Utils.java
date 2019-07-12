@@ -8,10 +8,24 @@ import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JTextField;
+import org.w3c.dom.Node;
 
 public class Utils {
 
@@ -188,6 +202,57 @@ public class Utils {
       return (String) s.get(0);
     } catch (NumberFormatException e) {
       return "";
+    }
+  }
+
+  public static void toGif(
+      String path, List<BufferedImage> frames, int delayTime, boolean override) {
+    if (Utils.isBlank(path) || frames == null || frames.size() == 0) return;
+    Iterator<ImageWriter> it = ImageIO.getImageWritersByFormatName("gif");
+    try {
+      File file = new File(path);
+      if (override) {
+        file.deleteOnExit();
+      }
+
+      ImageWriter writer = it.hasNext() ? it.next() : null;
+      ImageOutputStream stream = ImageIO.createImageOutputStream(file);
+      if (Objects.isNull(writer)) {
+        throw new IOException();
+      }
+      writer.setOutput(stream);
+      writer.prepareWriteSequence(null);
+
+      IIOMetadataNode gce = new IIOMetadataNode("GraphicControlExtension");
+      gce.setAttribute("disposalMethod", "none");
+      gce.setAttribute("userInputFlag", "FALSE");
+      gce.setAttribute("transparentColorFlag", "FALSE");
+      gce.setAttribute("transparentColorIndex", "0");
+      gce.setAttribute("delayTime", Objects.toString(delayTime));
+
+      IIOMetadataNode ae = new IIOMetadataNode("ApplicationExtension");
+      ae.setAttribute("applicationID", "NETSCAPE");
+      ae.setAttribute("authenticationCode", "2.0");
+      ae.setUserObject(new byte[] {0x1, 0x0, 0x0});
+
+      IIOMetadataNode aes = new IIOMetadataNode("ApplicationExtensions");
+      aes.appendChild(ae);
+
+      for (BufferedImage image : frames) {
+        ImageWriteParam iwp = writer.getDefaultWriteParam();
+        IIOMetadata metadata = writer.getDefaultImageMetadata(new ImageTypeSpecifier(image), iwp);
+        String metaFormat = metadata.getNativeMetadataFormatName();
+        Node root = metadata.getAsTree(metaFormat);
+        root.appendChild(gce);
+        root.appendChild(aes);
+        metadata.setFromTree(metaFormat, root);
+        writer.writeToSequence(new IIOImage(image, null, metadata), null);
+        metadata = null;
+      }
+      writer.endWriteSequence();
+      stream.close();
+    } catch (IOException ex) {
+      ex.printStackTrace();
     }
   }
 }
