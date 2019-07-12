@@ -509,7 +509,7 @@ public class BoardRenderer {
   /** Render the shadows and stones in correct background-foreground order */
   private void renderImages(Graphics2D g) {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
-    if (!Lizzie.config.showKataGoEstimateLarge) {
+    if (Lizzie.config.showKataGoEstimateLarge) {
       // full-size squares should go behind stones
       g.drawImage(cachedEsitmateRectImage, x, y, null);
     }
@@ -521,7 +521,7 @@ public class BoardRenderer {
     if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesImage, x, y, null);
     }
-    if (Lizzie.config.showKataGoEstimateLarge) {
+    if (!Lizzie.config.showKataGoEstimateLarge) {
       // small squares should go on top of stones
       g.drawImage(cachedEsitmateRectImage, x, y, null);
     }
