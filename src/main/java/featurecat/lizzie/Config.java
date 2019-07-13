@@ -66,6 +66,9 @@ public class Config {
   public boolean showSubBoard = true;
   public boolean largeSubBoard = false;
   public boolean startMaximized = true;
+  public boolean showWinrateInSuggestion = true;
+  public boolean showPlayoutsInSuggestion = true;
+  public boolean showScoremeanInSuggestion = true;
 
   public JSONObject config;
   public JSONObject leelazConfig;
@@ -235,6 +238,9 @@ public class Config {
     showKataGoEstimateBySize = uiConfig.optBoolean("show-katago-estimate-bysize", false);
     showKataGoEstimateOnSubbord = uiConfig.optBoolean("show-katago-estimate-onsubbord", true);
     showKataGoEstimateOnMainbord = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
+    showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
+    showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
+    showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
 
     if (theme.fontName() != null) fontName = theme.fontName();
 

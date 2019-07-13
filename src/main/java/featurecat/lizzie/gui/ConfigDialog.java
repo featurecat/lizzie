@@ -177,6 +177,9 @@ public class ConfigDialog extends JDialog {
   public JSlider sldBoardPositionProportion;
   public JTextField txtLimitBestMoveNum;
   public JTextField txtLimitBranchLength;
+  public JCheckBox chkShowWinrateInSuggestion;
+  public JCheckBox chkShowPlayoutsInSuggestion;
+  public JCheckBox chkShowScoremeanInSuggestion;
   public JTextPane tpGtpConsoleStyle;
 
   // Theme Tab
@@ -1120,12 +1123,29 @@ public class ConfigDialog extends JDialog {
     uiTab.add(txtLimitBranchLength);
     txtLimitBranchLength.setColumns(10);
 
+    JLabel lblSuggestionMoveInfo =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.suggestionMoveInfo"));
+    lblSuggestionMoveInfo.setBounds(6, 416, 163, 16);
+    uiTab.add(lblSuggestionMoveInfo);
+    chkShowWinrateInSuggestion =
+        new JCheckBox(resourceBundle.getString("LizzieConfig.title.showWinrateInSuggestion"));
+    chkShowWinrateInSuggestion.setBounds(170, 416, 100, 23);
+    uiTab.add(chkShowWinrateInSuggestion);
+    chkShowPlayoutsInSuggestion =
+        new JCheckBox(resourceBundle.getString("LizzieConfig.title.showPlayoutsInSuggestion"));
+    chkShowPlayoutsInSuggestion.setBounds(270, 416, 100, 23);
+    uiTab.add(chkShowPlayoutsInSuggestion);
+    chkShowScoremeanInSuggestion =
+        new JCheckBox(resourceBundle.getString("LizzieConfig.title.showScoremeanInSuggestion"));
+    chkShowScoremeanInSuggestion.setBounds(370, 416, 100, 23);
+    uiTab.add(chkShowScoremeanInSuggestion);
+
     JLabel lblGtpConsoleStyle =
         new JLabel(resourceBundle.getString("LizzieConfig.title.gtpConsoleStyle"));
-    lblGtpConsoleStyle.setBounds(6, 416, 157, 16);
+    lblGtpConsoleStyle.setBounds(6, 446, 157, 16);
     uiTab.add(lblGtpConsoleStyle);
     tpGtpConsoleStyle = new JTextPane();
-    tpGtpConsoleStyle.setBounds(170, 416, 460, 80);
+    tpGtpConsoleStyle.setBounds(170, 446, 460, 80);
     uiTab.add(tpGtpConsoleStyle);
 
     setBoardSize();
@@ -1147,7 +1167,28 @@ public class ConfigDialog extends JDialog {
     sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
     txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
     txtLimitBranchLength.setText(String.valueOf(Lizzie.config.limitBranchLength));
+    chkShowWinrateInSuggestion.setSelected(Lizzie.config.showWinrateInSuggestion);
+    chkShowPlayoutsInSuggestion.setSelected(Lizzie.config.showPlayoutsInSuggestion);
+    chkShowScoremeanInSuggestion.setSelected(Lizzie.config.showScoremeanInSuggestion);
     tpGtpConsoleStyle.setText(Lizzie.config.gtpConsoleStyle);
+    chkShowWinrateInSuggestion.addChangeListener(
+        new ChangeListener() {
+          public void stateChanged(ChangeEvent e) {
+            suggestionMoveInfoChanged();
+          }
+        });
+    chkShowPlayoutsInSuggestion.addChangeListener(
+        new ChangeListener() {
+          public void stateChanged(ChangeEvent e) {
+            suggestionMoveInfoChanged();
+          }
+        });
+    chkShowScoremeanInSuggestion.addChangeListener(
+        new ChangeListener() {
+          public void stateChanged(ChangeEvent e) {
+            suggestionMoveInfoChanged();
+          }
+        });
 
     new ComsWorker(this).execute();
     setLocationRelativeTo(getOwner());
@@ -2182,6 +2223,12 @@ public class ConfigDialog extends JDialog {
     }
   }
 
+  private void suggestionMoveInfoChanged() {
+    Lizzie.config.showWinrateInSuggestion = chkShowWinrateInSuggestion.isSelected();
+    Lizzie.config.showPlayoutsInSuggestion = chkShowPlayoutsInSuggestion.isSelected();
+    Lizzie.config.showScoremeanInSuggestion = chkShowScoremeanInSuggestion.isSelected();
+  }
+
   private void setFontValue(JComboBox<String> cmb, String fontName) {
     cmb.setSelectedIndex(0);
     cmb.setSelectedItem(fontName);
@@ -2448,6 +2495,13 @@ public class ConfigDialog extends JDialog {
       Lizzie.config.uiConfig.put("limit-best-move-num", Lizzie.config.limitBestMoveNum);
       Lizzie.config.limitBranchLength = txtFieldIntValue(txtLimitBranchLength);
       Lizzie.config.uiConfig.put("limit-branch-length", Lizzie.config.limitBranchLength);
+      suggestionMoveInfoChanged();
+      Lizzie.config.uiConfig.putOpt(
+          "show-winrate-in-suggestion", Lizzie.config.showWinrateInSuggestion);
+      Lizzie.config.uiConfig.putOpt(
+          "show-playouts-in-suggestion", Lizzie.config.showPlayoutsInSuggestion);
+      Lizzie.config.uiConfig.putOpt(
+          "show-scoremean-in-suggestion", Lizzie.config.showScoremeanInSuggestion);
       Lizzie.config.uiConfig.put("gtp-console-style", tpGtpConsoleStyle.getText());
       Lizzie.config.uiConfig.put("theme", cmbThemes.getSelectedItem());
       writeThemeValues();
