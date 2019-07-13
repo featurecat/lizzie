@@ -185,7 +185,7 @@ public class Config {
 
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
-    persistedUi = persisted.getJSONObject("ui-persist");
+    persistedUi = persisted.getJSONObject("ui-persist");    
 
     theme = new Theme(uiConfig);
 
@@ -425,6 +425,7 @@ public class Config {
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
     leelaz.put("show-lcb-winrate", false);
+    leelaz.put("avoid-keep-vairations", 30);
 
     config.put("leelaz", leelaz);
 

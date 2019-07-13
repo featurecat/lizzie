@@ -24,7 +24,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         Lizzie.frame.onClicked(e.getX(), e.getY());
       }
     } else if (e.getButton() == MouseEvent.BUTTON3) // right click
-    undo();
+    {
+    	if(!Lizzie.frame.openRightClickMenu(e.getX(), e.getY()))
+    		undo(1);
+    }
   }
 
   @Override
@@ -43,6 +46,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseMoved(MouseEvent e) {
+	  if(!Lizzie.frame.isShowingRightMenu)	  
     Lizzie.frame.onMouseMoved(e.getX(), e.getY());
   }
 

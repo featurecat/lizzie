@@ -13,6 +13,7 @@ import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.rules.Stone;
 import featurecat.lizzie.util.Utils;
 import java.awt.*;
 import java.awt.BasicStroke;
@@ -36,6 +37,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -113,6 +115,7 @@ public class LizzieFrame extends MainFrame {
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
   private long lastPlayouts = 0;
   public boolean isDrawVisitsInTitle = true;
+  RightClickMenu rightClickMenu;
 
   /** Creates a window */
   public LizzieFrame() {
@@ -1466,4 +1469,41 @@ public class LizzieFrame extends MainFrame {
     isEstimating = false;
     countResults.button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
   }
+  
+  public Optional<int[]> convertScreenToCoordinates(int x, int y) {
+	  return boardRenderer.convertScreenToCoordinates(x, y);
+  }
+  
+  public boolean openRightClickMenu(int x, int y) {
+	    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+	    if (!boardCoordinates.isPresent()) {
+	      return false;
+	    }
+	    if (isPlayingAgainstLeelaz) {
+	      return false;
+	    }
+	    if (Lizzie.leelaz.isPondering()) {
+	      Lizzie.leelaz.sendCommand("name");
+	    }
+	    isShowingRightMenu = true;
+	    
+	     rightClickMenu= new RightClickMenu();
+	   
+	     rightClickMenu.storeXY(x, y);
+	      Timer timer = new Timer();
+	      timer.schedule(
+	          new TimerTask() {
+	            public void run() {
+	              showMenu(x, y);
+	              this.cancel();
+	            }
+	          },
+	          50);
+	      return true;	   
+	  }
+
+	  private void showMenu(int x, int y) {
+	    rightClickMenu.show(this, x, y);
+	  }
+
 }
