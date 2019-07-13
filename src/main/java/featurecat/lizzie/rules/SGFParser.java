@@ -133,12 +133,7 @@ public class SGFParser {
 
     if (extend) {
       BoardHistoryList history = Lizzie.board.getHistory();
-      BoardHistoryNode current = history.getCurrentHistoryNode();
-      history.goToMoveNumber(0, false);
-
       parseValue(value, history, false, extend);
-
-      history.setCurrentHistoryNode(current);
     } else {
       parseValue(value, null, false, extend);
     }
@@ -495,7 +490,7 @@ public class SGFParser {
 
     if (isBranch) {
       history.toBranchTop();
-    } else {
+    } else if (!extend) {
       Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
       if (history == null) {
         if (!Utils.isBlank(gameProperties.get("RE"))

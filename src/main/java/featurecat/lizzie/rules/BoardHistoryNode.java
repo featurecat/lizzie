@@ -2,6 +2,7 @@ package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -187,6 +188,63 @@ public class BoardHistoryNode {
     } else {
       return Optional.of(variations.get(idx));
     }
+  }
+
+  /**
+   * nodeが何番目の変化になるか調べます。
+   *
+   * @param node 次ノードの候補になるノード
+   */
+  public Optional<Integer> getVariationIdx(BoardHistoryNode node) {
+    for (int idx = 0; idx < variations.size(); ++idx) {
+      if (variations.get(idx) == node) {
+        return Optional.of(idx);
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  /**
+   * 開始局面からこのtargetの途中にこのノードがあるか調べます。
+   *
+   * @param endNode 調べる経路の末端となるノード
+   */
+  public boolean inTheMiddle(BoardHistoryNode endNode) {
+    while (endNode != this) {
+      if (!endNode.previous().isPresent()) return false;
+      endNode = endNode.previous().get();
+    }
+
+    return true;
+  }
+
+  /**
+   * this から endNode に移動するため必要なvariationsのidxのリストを返します。
+   * この戻り値の通りにvariationsのidxをたどるとthisからendNodeにノードの移動ができます。
+   *
+   * @param endNode
+   */
+  public Optional<ArrayList<Integer>> getGotoVariationIdxList(BoardHistoryNode endNode) {
+    ArrayList<Integer> idxList = new ArrayList<Integer>();
+
+    while (endNode != this) {
+      if (!endNode.previous().isPresent()) {
+        return Optional.empty();
+      }
+
+      BoardHistoryNode previous = endNode.previous().get();
+      Optional<Integer> idx = previous.getVariationIdx(endNode);
+      if (!idx.isPresent()) {
+        return Optional.empty();
+      }
+
+      idxList.add(idx.get());
+      endNode = previous;
+    }
+
+    Collections.reverse(idxList);
+    return Optional.of(idxList);
   }
 
   public void moveUp() {
