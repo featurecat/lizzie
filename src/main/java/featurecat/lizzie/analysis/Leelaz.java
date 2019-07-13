@@ -514,7 +514,9 @@ public class Leelaz {
     if (printCommunication) {
       System.out.printf("> %d %s\n", cmdNumber, command);
     }
-    Lizzie.gtpConsole.addCommand(command, cmdNumber);
+    if (Lizzie.gtpConsole != null) {
+      Lizzie.gtpConsole.addCommand(command, cmdNumber);
+    }
     command = cmdNumber + " " + command;
     cmdNumber++;
     try {

@@ -8,24 +8,20 @@ import common.Util;
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.gui.LizzieFrame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
 public class SGFParserTest {
-
-  private Lizzie lizzie;
-
   @Test
   public void run() throws IOException {
-    lizzie = new Lizzie();
-    lizzie.config = new Config();
-    lizzie.board = new Board();
-    //    lizzie.frame = new LizzieFrame();
-    // new Thread( () -> {
-    lizzie.leelaz = new Leelaz("");
-    // }).start();
+    Lizzie.config = new Config();
+    Lizzie.board = new Board();
+    Lizzie.frame = new LizzieFrame();
+    Lizzie.leelaz = new Leelaz("");
+    Lizzie.leelaz.startEngine();
 
     testVariaionOnly1();
     testFull1();
@@ -56,7 +52,7 @@ public class SGFParserTest {
 
     // Variations
     List<String> moveList = new ArrayList<String>();
-    Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
+    Util.getVariationTree(moveList, 0, Lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
     assertEquals(moveList.size(), variationNum);
     assertEquals(moveList.get(0), mainBranch);
@@ -96,7 +92,7 @@ public class SGFParserTest {
 
     // Variations
     List<String> moveList = new ArrayList<String>();
-    Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
+    Util.getVariationTree(moveList, 0, Lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
     assertEquals(moveList.size(), variationNum);
     assertEquals(moveList.get(0), mainBranch);
@@ -147,7 +143,7 @@ public class SGFParserTest {
 
     // Variations
     List<String> moveList = new ArrayList<String>();
-    Util.getVariationTree(moveList, 0, lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
+    Util.getVariationTree(moveList, 0, Lizzie.board.getHistory().getCurrentHistoryNode(), 0, true);
 
     assertEquals(moveList.size(), variationNum);
     assertEquals(moveList.get(0), mainBranch);
