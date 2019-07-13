@@ -31,37 +31,48 @@ public class SGFParser {
   private static final String[] markupProps = new String[] {"LB", "CR", "SQ", "MA", "TR"};
 
   public static boolean load(String filename) throws IOException {
-    // Clear the board
-    Lizzie.board.clear();
+    return load(filename, false);
+  }
 
+  public static boolean load(String filename, boolean extend) throws IOException {
     File file = new File(filename);
     if (!file.exists() || !file.canRead()) {
       return false;
     }
 
-    String encoding = EncodingDetector.detect(filename);
-    FileInputStream fp = new FileInputStream(file);
-    InputStreamReader reader = new InputStreamReader(fp, encoding);
     StringBuilder builder = new StringBuilder();
-    while (reader.ready()) {
-      builder.append((char) reader.read());
+    String encoding = EncodingDetector.detect(filename);
+    try (FileInputStream fp = new FileInputStream(file);
+        InputStreamReader reader = new InputStreamReader(fp, encoding)) {
+      while (reader.ready()) {
+        builder.append((char) reader.read());
+      }
     }
-    reader.close();
-    fp.close();
+
     String value = builder.toString();
     if (value.isEmpty()) {
       return false;
     }
 
-    boolean returnValue = parse(value);
-    return returnValue;
+    if (!extend) {
+      // Clear the board
+      Lizzie.board.clear();
+    }
+
+    return parse(value, extend);
   }
 
   public static boolean loadFromString(String sgfString) {
-    // Clear the board
-    Lizzie.board.clear();
+    return loadFromString(sgfString, false);
+  }
 
-    return parse(sgfString);
+  public static boolean loadFromString(String sgfString, boolean extend) {
+    if (!extend) {
+      // Clear the board
+      Lizzie.board.clear();
+    }
+
+    return parse(sgfString, extend);
   }
 
   public static String passPos() {
@@ -87,6 +98,10 @@ public class SGFParser {
   }
 
   private static boolean parse(String value) {
+    return parse(value, false);
+  }
+
+  private static boolean parse(String value, boolean extend) {
     // Drop anything outside "(;...)"
     final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;{0,1}.*\\))(?s).*?");
     Matcher sgfMatcher = SGF_PATTERN.matcher(value);
@@ -116,13 +131,23 @@ public class SGFParser {
       Lizzie.board.reopen(boardWidth, boardHeight);
     }
 
-    parseValue(value, null, false);
+    if (extend) {
+      BoardHistoryList history = Lizzie.board.getHistory();
+      BoardHistoryNode current = history.getCurrentHistoryNode();
+      history.goToMoveNumber(0, false);
+
+      parseValue(value, history, false, extend);
+
+      history.setCurrentHistoryNode(current);
+    } else {
+      parseValue(value, null, false, extend);
+    }
 
     return true;
   }
 
   private static BoardHistoryList parseValue(
-      String value, BoardHistoryList history, boolean isBranch) {
+      String value, BoardHistoryList history, boolean isBranch, boolean extend) {
 
     int subTreeDepth = 0;
     // Save the variation step count
@@ -234,7 +259,7 @@ public class SGFParser {
             // Save the step count
             subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
             Stone color = tag.equals("B") ? Stone.BLACK : Stone.WHITE;
-            boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
+            boolean newBranch = (!extend && subTreeStepMap.get(subTreeDepth) == 1);
             if (move == null) {
               if (history == null) {
                 Lizzie.board.pass(color, newBranch, false);
@@ -299,7 +324,7 @@ public class SGFParser {
               if (addPassForMove) {
                 // Save the step count
                 subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
-                boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
+                boolean newBranch = (!extend && subTreeStepMap.get(subTreeDepth) == 1);
                 if (history == null) {
                   Lizzie.board.pass(color, newBranch, true);
                 } else {
@@ -401,7 +426,7 @@ public class SGFParser {
                               || (history != null && history.getLastMoveColor() == Stone.WHITE))
                           ? Stone.BLACK
                           : Stone.WHITE;
-                  boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
+                  boolean newBranch = (!extend && subTreeStepMap.get(subTreeDepth) == 1);
                   if (history == null) {
                     Lizzie.board.pass(color, newBranch, true);
                   } else {
@@ -937,13 +962,13 @@ public class SGFParser {
     }
     history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight));
 
-    parseValue(value, history, false);
+    parseValue(value, history, false, false);
 
     return history;
   }
 
   public static int parseBranch(BoardHistoryList history, String value) {
-    parseValue(value, history, true);
+    parseValue(value, history, true, false);
     return history.getCurrentHistoryNode().numberOfChildren() - 1;
   }
 

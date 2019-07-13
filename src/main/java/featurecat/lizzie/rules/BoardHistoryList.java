@@ -88,6 +88,7 @@ public class BoardHistoryList {
       start = pre;
     }
   }
+
   /**
    * moves the pointer to the right, returns the data stored there
    *
@@ -191,6 +192,10 @@ public class BoardHistoryList {
 
   public BoardHistoryNode getCurrentHistoryNode() {
     return head;
+  }
+
+  public void setCurrentHistoryNode(BoardHistoryNode node) {
+    head = node;
   }
 
   /**
@@ -329,17 +334,20 @@ public class BoardHistoryList {
       double nextWinrate = -100;
       if (this.getData().winrate >= 0) nextWinrate = 100 - this.getData().winrate;
 
-      // check to see if this coordinate is being replayed in history
-      Optional<int[]> nextLast = this.getNext().flatMap(n -> n.lastMove);
-      if (nextLast.isPresent()
-          && nextLast.get()[0] == x
-          && nextLast.get()[1] == y
-          && !newBranch
-          && !changeMove) {
-        // this is the next coordinate in history. Just increment history so that we don't erase the
-        // redo's
-        this.next();
-        return;
+      // check to see if this coordinate is being replayed in variation history
+      for (int i = 0; i < this.getNexts().size(); ++i) {
+        Optional<int[]> nextLast = this.getNexts().get(i).getData().lastMove;
+        if (nextLast.isPresent()
+            && nextLast.get()[0] == x
+            && nextLast.get()[1] == y
+            && !newBranch
+            && !changeMove) {
+          // this is the next coordinate in history. Just increment history so that we don't erase
+          // the
+          // redo's
+          this.nextVariation(i);
+          return;
+        }
       }
 
       // load a copy of the data at the current node of history
