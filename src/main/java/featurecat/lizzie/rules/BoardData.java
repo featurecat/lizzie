@@ -15,6 +15,7 @@ public class BoardData {
   public int[] moveNumberList;
   public boolean blackToPlay;
   public boolean dummy;
+  public boolean main;
 
   public Stone lastMoveColor;
   public Stone[] stones;
@@ -50,6 +51,7 @@ public class BoardData {
     this.moveNumberList = moveNumberList;
     this.blackToPlay = blackToPlay;
     this.dummy = false;
+    this.main = false;
 
     this.lastMoveColor = lastMoveColor;
     this.stones = stones;

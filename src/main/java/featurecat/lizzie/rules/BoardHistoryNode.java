@@ -182,6 +182,15 @@ public class BoardHistoryNode {
     return previous.flatMap(p -> p.next().map(n -> n == this)).orElse(false);
   }
 
+  /** サブツリーすべてにおいてmain属性を解除します。 */
+  public void resetMainSubTree() {
+    for (BoardHistoryNode node : variations) {
+      node.resetMainSubTree();
+    }
+
+    this.data.main = false;
+  }
+
   public Optional<BoardHistoryNode> getVariation(int idx) {
     if (variations.size() <= idx) {
       return Optional.empty();

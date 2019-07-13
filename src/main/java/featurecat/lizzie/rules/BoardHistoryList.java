@@ -327,6 +327,11 @@ public class BoardHistoryList {
   }
 
   public void place(int x, int y, Stone color, boolean newBranch, boolean changeMove) {
+    place(x, y, color, newBranch, changeMove, false);
+  }
+
+  public void place(
+      int x, int y, Stone color, boolean newBranch, boolean changeMove, boolean mainMove) {
     synchronized (this) {
       if (!Board.isValid(x, y)
           || (this.getStones()[Board.getIndex(x, y)] != Stone.EMPTY && !newBranch)) return;
@@ -345,7 +350,8 @@ public class BoardHistoryList {
           // this is the next coordinate in history. Just increment history so that we don't erase
           // the
           // redo's
-          this.nextVariation(i);
+          Optional<BoardData> data = this.nextVariation(i);
+          data.ifPresent(n -> n.main = mainMove);
           return;
         }
       }
