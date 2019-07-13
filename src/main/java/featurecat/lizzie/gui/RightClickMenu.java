@@ -140,6 +140,7 @@ public class RightClickMenu extends JPopupMenu {
           Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w",
           Lizzie.board.allowCoords,
           1);
+      Lizzie.board.getHistory().getData().tryToClearBestMoves();
     }
   }
 
@@ -147,6 +148,7 @@ public class RightClickMenu extends JPopupMenu {
     Lizzie.board.addAllowCoords(mousex, mousey);
     Lizzie.leelaz.analyzeAvoid(
         "allow", Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w", Lizzie.board.allowCoords, 1);
+    Lizzie.board.getHistory().getData().tryToClearBestMoves();
   }
 
   public void avoid() {
@@ -159,16 +161,19 @@ public class RightClickMenu extends JPopupMenu {
         Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w",
         Lizzie.board.avoidCoords,
         Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-vairations"));
+    Lizzie.board.getHistory().getData().tryToClearBestMoves();
   }
 
   private void keepingAvoid() {
     Lizzie.board.isKeepingAvoid = !Lizzie.board.isKeepingAvoid;
-    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid)
+    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid) {
       Lizzie.leelaz.analyzeAvoid(
           "avoid",
           Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w",
           Lizzie.board.avoidCoords,
           Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-vairations"));
+      Lizzie.board.getHistory().getData().tryToClearBestMoves();
+    }
   }
 
   public void storeXY(int x, int y) {

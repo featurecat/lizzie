@@ -164,7 +164,7 @@ public class BoardData {
   }
 
   public void tryToSetBestMoves(List<MoveData> moves) {
-    if (MoveData.getPlayouts(moves) > playouts || Lizzie.board.isForcing) {
+    if (MoveData.getPlayouts(moves) > playouts) {
       bestMoves = moves;
       setPlayouts(MoveData.getPlayouts(moves));
       winrate = getWinrateFromBestMoves(moves);
