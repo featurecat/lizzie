@@ -598,33 +598,29 @@ public class ConfigDialog extends JDialog {
     txtAnalyzeUpdateInterval.setColumns(10);
     txtAnalyzeUpdateInterval.setBounds(496, 363, 40, 26);
     engineTab.add(txtAnalyzeUpdateInterval);
-        
-    
 
     JLabel lblAvoidKeepVairations =
-            new JLabel(resourceBundle.getString("LizzieConfig.title.avoidKeepVaitrations"));
+        new JLabel(resourceBundle.getString("LizzieConfig.title.avoidKeepVaitrations"));
     lblAvoidKeepVairations.setBounds(331, 400, 157, 16);
-        engineTab.add(lblAvoidKeepVairations);
+    engineTab.add(lblAvoidKeepVairations);
 
     JLabel lblAvoidKeepVairationsMoves =
-                new JLabel(resourceBundle.getString("LizzieConfig.title.moves"));
+        new JLabel(resourceBundle.getString("LizzieConfig.title.moves"));
     lblAvoidKeepVairationsMoves.setBounds(538, 400, 82, 16);
-            engineTab.add(lblAvoidKeepVairationsMoves);
+    engineTab.add(lblAvoidKeepVairationsMoves);
 
-        txtAvoidKeepVairations =
-            new JFormattedTextField(
-                new InternationalFormatter(nf) {
-                  protected DocumentFilter getDocumentFilter() {
-                    return filter;
-                  }
+    txtAvoidKeepVairations =
+        new JFormattedTextField(
+            new InternationalFormatter(nf) {
+              protected DocumentFilter getDocumentFilter() {
+                return filter;
+              }
 
-                  private DocumentFilter filter = new DigitOnlyFilter();
-                });
-        txtAvoidKeepVairations.setColumns(10);
-        txtAvoidKeepVairations.setBounds(496, 395, 40, 26);
-        engineTab.add(txtAvoidKeepVairations);
-        
-        
+              private DocumentFilter filter = new DigitOnlyFilter();
+            });
+    txtAvoidKeepVairations.setColumns(10);
+    txtAvoidKeepVairations.setBounds(496, 395, 40, 26);
+    engineTab.add(txtAvoidKeepVairations);
 
     JLabel lblShowLcbWinrate =
         new JLabel(resourceBundle.getString("LizzieConfig.title.showLcbWinrate"));
@@ -2412,8 +2408,7 @@ public class ConfigDialog extends JDialog {
       leelazConfig.putOpt("max-analyze-time-minutes", txtFieldIntValue(txtMaxAnalyzeTime));
       leelazConfig.putOpt(
           "analyze-update-interval-centisec", txtFieldIntValue(txtAnalyzeUpdateInterval));
-      leelazConfig.putOpt(
-              "avoid-keep-vairations", txtFieldIntValue(txtAvoidKeepVairations));
+      leelazConfig.putOpt("avoid-keep-vairations", txtFieldIntValue(txtAvoidKeepVairations));
       leelazConfig.putOpt(
           "max-game-thinking-time-seconds", txtFieldIntValue(txtMaxGameThinkingTime));
       leelazConfig.putOpt("print-comms", chkPrintEngineLog.isSelected());

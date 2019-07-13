@@ -185,7 +185,7 @@ public class Config {
 
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
-    persistedUi = persisted.getJSONObject("ui-persist");    
+    persistedUi = persisted.getJSONObject("ui-persist");
 
     theme = new Theme(uiConfig);
 

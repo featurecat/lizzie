@@ -632,7 +632,7 @@ public class Leelaz {
   public void analyzeAvoid(String type, String color, String coordList, int untilMove) {
     analyzeAvoid(
         String.format("%s %s %s %d", type, color, coordList, untilMove <= 0 ? 1 : untilMove));
-   }
+  }
 
   public void analyzeAvoid(String parameters) {
     bestMoves = new ArrayList<>();
@@ -651,19 +651,20 @@ public class Leelaz {
   public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    if(Lizzie.board.isAvoding&&Lizzie.board.isKeepingAvoid)
-    	analyzeAvoid("avoid", Lizzie.board.getHistory().isBlacksTurn()? "w" : "b", Lizzie.board.avoidCoords,  + Lizzie.config
-                .config
-                .getJSONObject("leelaz")
-                .getInt("avoid-keep-vairations"));
+    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid)
+      analyzeAvoid(
+          "avoid",
+          Lizzie.board.getHistory().isBlacksTurn() ? "w" : "b",
+          Lizzie.board.avoidCoords,
+          +Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-vairations"));
     else
-    sendCommand(
-        (this.isKataGo ? "kata-analyze " : "lz-analyze ")
-            + Lizzie.config
-                .config
-                .getJSONObject("leelaz")
-                .getInt("analyze-update-interval-centisec")
-            + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
+      sendCommand(
+          (this.isKataGo ? "kata-analyze " : "lz-analyze ")
+              + Lizzie.config
+                  .config
+                  .getJSONObject("leelaz")
+                  .getInt("analyze-update-interval-centisec")
+              + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
     // until it responds to this, incoming
     // ponder results are obsolete
   }

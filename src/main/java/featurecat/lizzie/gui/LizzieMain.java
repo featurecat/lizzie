@@ -651,40 +651,40 @@ public class LizzieMain extends MainFrame {
   public void saveImage() {
     boardPane.saveImage();
   };
-  
-  public Optional<int[]> convertScreenToCoordinates(int x, int y) {
-	  return boardPane.convertScreenToCoordinates(x, y);
-  }
-  
-  public boolean openRightClickMenu(int x, int y) {
-	    Optional<int[]> boardCoordinates = convertScreenToCoordinates(x, y);
-	    if (!boardCoordinates.isPresent()) {
-	      return false;
-	    }
-	    if (isPlayingAgainstLeelaz) {
-	      return false;
-	    }
-	    if (Lizzie.leelaz.isPondering()) {
-	      Lizzie.leelaz.sendCommand("name");
-	    }
-	    isShowingRightMenu = true;
-	    
-	     rightClickMenu= new RightClickMenu();
-	   
-	     rightClickMenu.storeXY(x, y);
-	      Timer timer = new Timer();
-	      timer.schedule(
-	          new TimerTask() {
-	            public void run() {
-	              showMenu(x, y);
-	              this.cancel();
-	            }
-	          },
-	          50);
-	      return true;	   
-	  }
 
-	  private void showMenu(int x, int y) {
-	    rightClickMenu.show(boardPane, x, y);
-	  }
+  public Optional<int[]> convertScreenToCoordinates(int x, int y) {
+    return boardPane.convertScreenToCoordinates(x, y);
+  }
+
+  public boolean openRightClickMenu(int x, int y) {
+    Optional<int[]> boardCoordinates = convertScreenToCoordinates(x, y);
+    if (!boardCoordinates.isPresent()) {
+      return false;
+    }
+    if (isPlayingAgainstLeelaz) {
+      return false;
+    }
+    if (Lizzie.leelaz.isPondering()) {
+      Lizzie.leelaz.sendCommand("name");
+    }
+    isShowingRightMenu = true;
+
+    rightClickMenu = new RightClickMenu();
+
+    rightClickMenu.storeXY(x, y);
+    Timer timer = new Timer();
+    timer.schedule(
+        new TimerTask() {
+          public void run() {
+            showMenu(x, y);
+            this.cancel();
+          }
+        },
+        50);
+    return true;
+  }
+
+  private void showMenu(int x, int y) {
+    rightClickMenu.show(boardPane, x, y);
+  }
 }

@@ -38,9 +38,8 @@ public abstract class MainFrame extends JFrame {
   public boolean isEstimating = false;
   public boolean isFirstCount = true;
   public boolean isAutoEstimating = false;
-  public boolean isShowingRightMenu=false;
- 
-  
+  public boolean isShowingRightMenu = false;
+
   static {
     // load fonts
     try {
@@ -325,9 +324,8 @@ public abstract class MainFrame extends JFrame {
   public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
 
   public void saveImage() {};
-  
+
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
-  
+
   public abstract boolean openRightClickMenu(int x, int y);
-  
 }

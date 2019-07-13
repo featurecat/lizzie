@@ -500,8 +500,8 @@ public class BoardRenderer {
                     .map(c -> Lizzie.frame.isMouseOver(c[0], c[1]))
                     .orElse(false))
         .findFirst();
-  }  
-  
+  }
+
   private Optional<MoveData> getBestMove() {
     return bestMoves.isEmpty() ? Optional.empty() : Optional.of(bestMoves.get(0));
   }
