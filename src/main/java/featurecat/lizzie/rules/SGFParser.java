@@ -54,12 +54,7 @@ public class SGFParser {
       return false;
     }
 
-    if (!extend) {
-      // Clear the board
-      Lizzie.board.clear();
-    }
-
-    return parse(value, extend);
+    return loadFromString(value, extend);
   }
 
   public static boolean loadFromString(String sgfString) {
@@ -76,10 +71,9 @@ public class SGFParser {
   }
 
   public static String passPos() {
-    return (Lizzie.board.boardWidth <= 51 && Lizzie.board.boardHeight <= 51)
+    return (Board.boardWidth <= 51 && Board.boardHeight <= 51)
         ? String.format(
-            "%c%c",
-            alphabet.charAt(Lizzie.board.boardWidth), alphabet.charAt(Lizzie.board.boardHeight))
+            "%c%c", alphabet.charAt(Board.boardWidth), alphabet.charAt(Board.boardHeight))
         : "";
   }
 
@@ -95,10 +89,6 @@ public class SGFParser {
     ret[0] = alphabet.indexOf(pos.charAt(0));
     ret[1] = alphabet.indexOf(pos.charAt(1));
     return ret;
-  }
-
-  private static boolean parse(String value) {
-    return parse(value, false);
   }
 
   private static boolean parse(String value, boolean extend) {
