@@ -842,7 +842,7 @@ public class OnlineDialog extends JDialog {
           if (size > 0) {
             boardSize = size;
             Lizzie.board.reopen(boardSize, boardSize);
-            history = new BoardHistoryList(BoardData.empty(size, size)); // TODO boardSize
+            history = new BoardHistoryList(BoardData.empty(size, size, true)); // TODO boardSize
             JSONObject a309 = ((JSONObject) f.line.opt("AAA309"));
             blackPlayer =
                 a309 == null
@@ -2039,7 +2039,7 @@ public class OnlineDialog extends JDialog {
     int size = info.optInt("boardSize", 19);
     boardSize = size;
     Lizzie.board.reopen(boardSize, boardSize);
-    history = new BoardHistoryList(BoardData.empty(size, size)); // TODO boardSize
+    history = new BoardHistoryList(BoardData.empty(size, size, true)); // TODO boardSize
     blackPlayer = info.optString("blackName");
     whitePlayer = info.optString("whiteName");
     history = SGFParser.parseSgf(info.optString("sgf"));

@@ -142,7 +142,7 @@ public class Utils {
   public static Color getBlunderNodeColor(BoardHistoryNode node) {
     if (Lizzie.config.nodeColorMode == 1 && node.getData().blackToPlay
         || Lizzie.config.nodeColorMode == 2 && !node.getData().blackToPlay) {
-      return Color.WHITE;
+      return node.getData().main ? Color.WHITE : Color.GRAY;
     }
     double diffWinrate = lastWinrateDiff(node);
     Optional<Double> st =
@@ -151,11 +151,12 @@ public class Utils {
                 l -> l.stream().filter(t -> (t > 0 && t <= diffWinrate)).reduce((f, s) -> s))
             : Lizzie.config.blunderWinrateThresholds.flatMap(
                 l -> l.stream().filter(t -> (t < 0 && t >= diffWinrate)).reduce((f, s) -> f));
-    if (st.isPresent()) {
+    /*if (st.isPresent()) {
       return Lizzie.config.blunderNodeColors.map(m -> m.get(st.get())).get();
     } else {
-      return Color.WHITE;
-    }
+      return node.getData().main ? Color.WHITE : Color.GRAY;
+    }*/
+    return node.getData().main ? Color.WHITE : Color.GRAY;
   }
 
   public static Integer txtFieldValue(JTextField txt) {

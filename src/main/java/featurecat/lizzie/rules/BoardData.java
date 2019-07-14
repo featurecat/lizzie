@@ -65,15 +65,18 @@ public class BoardData {
     this.bestMoves = new ArrayList<>();
   }
 
-  public static BoardData empty(int width, int height) {
+  public static BoardData empty(int width, int height, boolean main) {
     Stone[] stones = new Stone[width * height];
     for (int i = 0; i < stones.length; i++) {
       stones[i] = Stone.EMPTY;
     }
 
     int[] boardArray = new int[width * height];
-    return new BoardData(
-        stones, Optional.empty(), Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
+    BoardData data =
+        new BoardData(
+            stones, Optional.empty(), Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
+    data.main = main;
+    return data;
   }
 
   /**
@@ -231,10 +234,11 @@ public class BoardData {
     this.blackCaptures = data.blackCaptures;
     this.whiteCaptures = data.whiteCaptures;
     this.comment = data.comment;
+    this.main = data.main;
   }
 
   public BoardData clone() {
-    BoardData data = BoardData.empty(19, 19);
+    BoardData data = BoardData.empty(19, 19, false);
     data.sync(this);
     return data;
   }

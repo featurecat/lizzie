@@ -65,7 +65,7 @@ public class Board implements LeelazListener {
     analysisMode = false;
     playoutsAnalysis = 100;
     saveNode = Optional.empty();
-    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight));
+    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight, true));
 
     if (Lizzie.frame != null) {
       Lizzie.frame.setForceRefresh(false);
