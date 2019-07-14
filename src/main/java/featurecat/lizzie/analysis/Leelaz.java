@@ -656,7 +656,7 @@ public class Leelaz {
           "avoid",
           Lizzie.board.getHistory().isBlacksTurn() ? "w" : "b",
           Lizzie.board.avoidCoords,
-          +Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-vairations"));
+          +Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
     else
       sendCommand(
           (this.isKataGo ? "kata-analyze " : "lz-analyze ")

@@ -160,7 +160,7 @@ public class RightClickMenu extends JPopupMenu {
         "avoid",
         Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w",
         Lizzie.board.avoidCoords,
-        Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-vairations"));
+        Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
     Lizzie.board.getHistory().getData().tryToClearBestMoves();
   }
 
@@ -171,7 +171,7 @@ public class RightClickMenu extends JPopupMenu {
           "avoid",
           Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w",
           Lizzie.board.avoidCoords,
-          Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-vairations"));
+          Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
       Lizzie.board.getHistory().getData().tryToClearBestMoves();
     }
   }
