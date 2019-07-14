@@ -133,16 +133,16 @@ public class SGFParser {
 
     if (extend) {
       BoardHistoryList history = Lizzie.board.getHistory();
-      parseValue(value, history, false, extend);
+      parseValue(value, history, false, extend, true);
     } else {
-      parseValue(value, null, false, extend);
+      parseValue(value, null, false, extend, true);
     }
 
     return true;
   }
 
   private static BoardHistoryList parseValue(
-      String value, BoardHistoryList history, boolean isBranch, boolean extend) {
+      String value, BoardHistoryList history, boolean isBranch, boolean extend, boolean mainMove) {
 
     int subTreeDepth = 0;
     // Save the variation step count
@@ -263,9 +263,9 @@ public class SGFParser {
               }
             } else {
               if (history == null) {
-                Lizzie.board.place(move[0], move[1], color, newBranch);
+                Lizzie.board.place(move[0], move[1], color, newBranch, false, mainMove);
               } else {
-                history.place(move[0], move[1], color, newBranch);
+                history.place(move[0], move[1], color, newBranch, false, mainMove);
               }
             }
             if (newBranch) {
@@ -955,15 +955,15 @@ public class SGFParser {
         boardWidth = boardHeight = Integer.parseInt(sizeStr);
       }
     }
-    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight));
+    history = new BoardHistoryList(BoardData.empty(boardWidth, boardHeight, true));
 
-    parseValue(value, history, false, false);
+    parseValue(value, history, false, false, false);
 
     return history;
   }
 
   public static int parseBranch(BoardHistoryList history, String value) {
-    parseValue(value, history, true, false);
+    parseValue(value, history, true, false, false);
     return history.getCurrentHistoryNode().numberOfChildren() - 1;
   }
 

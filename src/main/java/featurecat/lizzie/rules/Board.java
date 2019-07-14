@@ -499,7 +499,9 @@ public class Board implements LeelazListener {
           // the
           // redo's
           Optional<BoardData> data = history.nextVariation(i);
-          data.ifPresent(n -> n.main = mainMove);
+          if (mainMove) {
+            data.ifPresent(n -> n.main = mainMove);
+          }
 
           if (Lizzie.frame != null) {
             // should be opposite from the bottom case
@@ -568,6 +570,7 @@ public class Board implements LeelazListener {
               0);
       newState.moveMNNumber = moveMNNumber;
       newState.dummy = false;
+      newState.main = mainMove;
 
       // don't make this coordinate if it is suicidal or violates superko
       if (isSuicidal > 0 || history.violatesKoRule(newState)) return;

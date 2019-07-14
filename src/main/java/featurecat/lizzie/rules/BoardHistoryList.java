@@ -351,7 +351,9 @@ public class BoardHistoryList {
           // the
           // redo's
           Optional<BoardData> data = this.nextVariation(i);
-          data.ifPresent(n -> n.main = mainMove);
+          if (mainMove) {
+            data.ifPresent(n -> n.main = mainMove);
+          }
           return;
         }
       }
@@ -408,6 +410,7 @@ public class BoardHistoryList {
               nextWinrate,
               0);
       newState.moveMNNumber = moveMNNumber;
+      newState.main = mainMove;
 
       // don't make this coordinate if it is suicidal or violates superko
       if (isSuicidal > 0 || this.violatesKoRule(newState)) return;

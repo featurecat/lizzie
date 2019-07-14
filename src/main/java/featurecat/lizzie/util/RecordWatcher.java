@@ -30,32 +30,40 @@ public class RecordWatcher implements ActionListener {
     try {
       BoardHistoryList history = Lizzie.board.getHistory();
       BoardHistoryNode current = history.getCurrentHistoryNode();
-      int variationSize = current.numberOfChildren();
+      boolean currentWasMain = current.getData().main;
+      Optional<BoardHistoryNode> oldMainChild = current.getMainChild();
 
       history.toStart();
+      history.root().resetMainSubTree();
       SGFParser.load(file.getPath(), true);
 
       // 以下のすべての条件が満たされる場合は自動的に棋譜を進めます。
-      // (1) currentから読み込んだ棋譜に打ち手を戻さず移動できる
-      // (2) currentに変化が増えている（currentノードに手が読み込まれた場合）
+      // (1) 読み込み前にcurrentが本譜であった。
+      // (2) currentから読み込んだ棋譜に打ち手を戻さず移動できる
+      // (3) currentに本譜の手が増えている or 次の手に新しく本譜のマークがついた
       //
       // 考えられる状況
       // 成功 case1)
-      //   currentが最新局面にいる＆後続する変化がないときにそこからの手が追加された場合は
-      //   条件(1),(2)は両方とも満たされます。
+      //   currentが最新局面にいる＆後続する変化がないとき、
+      //   本譜の手が追加された場合は条件がすべて満たされます。
       // 成功 case2)
-      //   currentは最新局面にいるが検討された手がいくつかある場合
-      //   条件(1),(2)は両方とも満たされます。
+      //   currentは最新局面にいるが検討された手がいくつかある場合でも、
+      //   本譜の手が増えたときは条件がすべて満たされます。
       //
       // 失敗 case1)
       //   currentが過去局面にいて、すでに読み込まれた手を再度読み込んだ場合は
-      //   条件(2)が満たされないため自動的に移動しません。
+      //   条件(3)が満たされないため移動しません。
       // 失敗 case2)
       // 　currentが最新局面より新しい手を検討している場合は
-      //   条件(1)が満たされないため自動的に移動しません。
+      //   条件(1)が満たされないため移動しません。
       BoardHistoryNode endNode = history.getCurrentHistoryNode();
+      Optional<BoardHistoryNode> newMainChild = current.getMainChild();
       Optional<ArrayList<Integer>> idxList = current.getGotoVariationIdxList(endNode);
-      boolean needToMove = (idxList.isPresent() && current.numberOfChildren() != variationSize);
+      boolean needToMove =
+          (currentWasMain // (1)
+              && idxList.isPresent() // (2)
+              && newMainChild.isPresent() // (3)
+              && (!oldMainChild.isPresent() || newMainChild.get() != oldMainChild.get()));
 
       // restore the starting node
       history.setCurrentHistoryNode(current);
@@ -63,6 +71,7 @@ public class RecordWatcher implements ActionListener {
       if (needToMove) {
         gotoNode(idxList.get());
         Lizzie.frame.refresh();
+        System.out.println("need to move");
       }
     } catch (IOException err) {
       System.err.println(
