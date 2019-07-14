@@ -12,22 +12,20 @@ import featurecat.lizzie.gui.LizzieFrame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class SGFParserTest {
-  @Test
-  public void run() throws IOException {
+  @BeforeClass
+  public static void setup() throws IOException {
     Lizzie.config = new Config();
     Lizzie.board = new Board();
     Lizzie.frame = new LizzieFrame();
     Lizzie.leelaz = new Leelaz("");
     Lizzie.leelaz.startEngine();
-
-    testVariaionOnly1();
-    testFull1();
-    testMore1();
   }
 
+  @Test
   public void testVariaionOnly1() throws IOException {
 
     String sgfString =
@@ -64,9 +62,10 @@ public class SGFParserTest {
     String saveSgf = SGFParser.saveToString();
     assertTrue(saveSgf.trim().length() > 0);
 
-    assertEquals(sgfString, Util.trimGameInfo(saveSgf));
+    assertEquals(sgfString, Util.removeLzSgf(Util.trimGameInfo(saveSgf)));
   }
 
+  @Test
   public void testFull1() throws IOException {
 
     String sgfInfo = "(;CA[utf8]AP[MultiGo:4.4.4]SZ[19]";
@@ -113,9 +112,10 @@ public class SGFParserTest {
     assertArrayEquals(expectStones, actualStones);
 
     // Content
-    assertEquals("(" + sgfContent, ret[1]);
+    assertEquals("(" + sgfContent, Util.removeLzSgf(ret[1]));
   }
 
+  @Test
   public void testMore1() throws IOException {
 
     String sgfInfo = "(;CA[gb2312]AP[MultiGo:4.4.4]SZ[19]EV[Question 1 Ko]US[new]CP[newnet]";
@@ -177,6 +177,6 @@ public class SGFParserTest {
     assertArrayEquals(expectStones, actualStones);
 
     // Content
-    assertEquals("(" + headComment + sgfContent, ret[1]);
+    assertEquals("(" + headComment + sgfContent, Util.removeLzSgf(ret[1]));
   }
 }

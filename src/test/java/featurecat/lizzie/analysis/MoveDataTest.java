@@ -17,8 +17,6 @@ public class MoveDataTest {
     Lizzie.config = new Config();
     Lizzie.board = new Board();
     Lizzie.frame = new LizzieFrame();
-    Lizzie.leelaz = new Leelaz("");
-    Lizzie.leelaz.startEngine();
   }
 
   @Test

@@ -112,6 +112,11 @@ public class Util {
     return ret;
   }
 
+  public static String removeLzSgf(String sgf) {
+    String regex = "(LZ\\[([^\\]]+)\\])";
+    return sgf.replaceAll(regex, "");
+  }
+
   public static Stone[] convertStones(String awAb) {
     Stone[] stones = new Stone[Board.boardWidth * Board.boardHeight];
     for (int i = 0; i < stones.length; i++) {
