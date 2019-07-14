@@ -123,6 +123,8 @@ public class SGFParser {
 
     if (extend) {
       BoardHistoryList history = Lizzie.board.getHistory();
+      history.toStart();
+      history.root().resetMainSubTree();
       parseValue(value, history, false, extend, true);
     } else {
       parseValue(value, null, false, extend, true);
