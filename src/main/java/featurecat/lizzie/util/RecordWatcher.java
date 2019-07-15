@@ -26,6 +26,10 @@ public class RecordWatcher implements ActionListener {
 
   public void setFilePath(String filePath) {
     file = filePath != null ? new File(filePath) : null;
+    if (Lizzie.frame != null) {
+      Lizzie.config.persisted.put("watchFilePath", filePath);
+      Lizzie.frame.updateTitle();
+    }
   }
 
   public void actionPerformed(ActionEvent e) {

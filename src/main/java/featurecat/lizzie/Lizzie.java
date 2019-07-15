@@ -7,6 +7,7 @@ import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.gui.LizzieMain;
 import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.util.RecordWatcher;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JOptionPane;
@@ -23,6 +24,8 @@ public class Lizzie {
   public static String lizzieVersion = "0.7";
   private static String[] mainArgs;
   public static EngineManager engineManager;
+  public static RecordWatcher watcher;
+  private static javax.swing.Timer timer;
 
   /** Launches the game window, and runs the game. */
   public static void main(String[] args) throws IOException {
@@ -32,6 +35,16 @@ public class Lizzie {
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
+
+    // timer start
+    Lizzie.watcher = new RecordWatcher();
+    String path = config.persisted.getString("watchFilePath");
+    if (path != null && !path.isEmpty()) {
+      Lizzie.watcher.setFilePath(path);
+    }
+    timer = new javax.swing.Timer(500, Lizzie.watcher);
+    timer.start();
+
     try {
       engineManager = new EngineManager(config);
       if (mainArgs.length == 1) {

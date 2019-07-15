@@ -13,7 +13,6 @@ import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.SGFParser;
-import featurecat.lizzie.util.RecordWatcher;
 import featurecat.lizzie.util.Utils;
 import java.awt.*;
 import java.awt.BasicStroke;
@@ -99,7 +98,6 @@ public class LizzieFrame extends MainFrame {
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
-  private javax.swing.Timer timer;
 
   // Display Comment
   private HTMLDocument htmlDoc;
@@ -247,10 +245,6 @@ public class LizzieFrame extends MainFrame {
         1,
         1,
         TimeUnit.SECONDS);
-
-    // timer start
-    timer = new javax.swing.Timer(500, new RecordWatcher());
-    timer.start();
   }
 
   /** Clears related status from empty board. */

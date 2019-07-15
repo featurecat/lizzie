@@ -150,11 +150,12 @@ public abstract class MainFrame extends JFrame {
 
   public void updateTitle() {
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
-    sb.append(playerTitle);
-    if (Lizzie.leelaz != null) {
-      sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
+    if (Lizzie.watcher != null) {
+      File file = Lizzie.watcher.getFile();
+      if (file != null) {
+        sb.append(" [watching: " + file.getPath() + "]");
+      }
     }
-    sb.append(visitsString);
     setTitle(sb.toString());
   }
 
@@ -278,7 +279,7 @@ public abstract class MainFrame extends JFrame {
     }
   }
 
-  public void openFile() {
+  public File chooseFile() {
     FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
@@ -286,7 +287,16 @@ public abstract class MainFrame extends JFrame {
     chooser.setFileFilter(filter);
     chooser.setMultiSelectionEnabled(false);
     int result = chooser.showOpenDialog(null);
-    if (result == JFileChooser.APPROVE_OPTION) loadFile(chooser.getSelectedFile());
+    if (result == JFileChooser.APPROVE_OPTION) {
+      return chooser.getSelectedFile();
+    }
+
+    return null;
+  }
+
+  public void openFile() {
+    File file = chooseFile();
+    if (file != null) loadFile(file);
   }
 
   public void loadFile(File file) {

@@ -76,6 +76,7 @@ public class Config {
   private Boolean macAppBundle = System.getenv().containsKey("MAC_APP_BUNDLE");
   private String configFilename = "config.txt";
   private String persistFilename = "persist";
+  private String watchFilePath = "";
 
   public Theme theme;
   public float winrateStrokeWidth = 3;
@@ -492,6 +493,7 @@ public class Config {
 
     // About autosave
     config.put("autosave", "");
+    config.put("watchFilePath", "");
 
     // About User Interface display
     JSONObject ui = new JSONObject();
