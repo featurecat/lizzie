@@ -151,7 +151,9 @@ public abstract class MainFrame extends JFrame {
   public void updateTitle() {
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
     sb.append(playerTitle);
-    sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
+    if (Lizzie.leelaz != null) {
+      sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
+    }
     sb.append(visitsString);
     setTitle(sb.toString());
   }

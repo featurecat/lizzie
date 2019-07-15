@@ -48,6 +48,8 @@ public class RecordWatcher implements ActionListener {
       boolean currentWasMain = current.getData().main;
       Optional<BoardHistoryNode> oldMainChild = current.getMainChild();
 
+      history.toStart();
+      history.root().resetMainSubTree();
       SGFParser.load(file.getPath(), true);
 
       BoardHistoryNode endNode = history.getCurrentHistoryNode();

@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import common.Util;
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.gui.LizzieFrame;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,8 +20,6 @@ public class SGFParserTest {
     Lizzie.config = new Config();
     Lizzie.board = new Board();
     Lizzie.frame = new LizzieFrame();
-    Lizzie.leelaz = new Leelaz("");
-    Lizzie.leelaz.startEngine();
   }
 
   @Test

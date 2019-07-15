@@ -9,10 +9,12 @@ import org.mozilla.universalchardet.UniversalDetector;
 
 public class EncodingDetector {
 
-  public static String detect(String fileName) {
+  public static String detect(String fileName) throws IOException {
     String encoding = "UTF-8";
     try {
-      encoding = detect(new FileInputStream(fileName));
+      try (FileInputStream stream = new FileInputStream(fileName)) {
+        encoding = detect(stream);
+      }
     } catch (FileNotFoundException e) {
     }
     return encoding;
