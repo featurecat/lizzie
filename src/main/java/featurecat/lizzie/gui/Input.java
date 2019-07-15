@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.File;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
@@ -313,6 +314,17 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_O:
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
         Lizzie.frame.openFile();
+        break;
+
+      case VK_B:
+        if (controlIsPressed(e)) {
+          Lizzie.watcher.setFilePath(null);
+        } else {
+          File file = Lizzie.frame.chooseFile();
+          if (file != null) {
+            Lizzie.watcher.setFilePath(file.getPath());
+          }
+        }
         break;
 
       case VK_V:
