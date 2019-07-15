@@ -69,6 +69,13 @@ public class RightClickMenu extends JPopupMenu {
     } else {
       keepingAvoid.setState(false);
     }
+    if (Lizzie.leelaz.isKataGo) {
+      allow.setVisible(false);
+      addAllow.setVisible(false);
+      avoid.setVisible(false);
+      keepingAvoid.setVisible(false);
+      clearAvoidAllow.setVisible(false);
+    }
     addSuggestionAsBranch.addActionListener(
         new ActionListener() {
           @Override

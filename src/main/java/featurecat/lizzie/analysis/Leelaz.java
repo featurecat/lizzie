@@ -651,7 +651,7 @@ public class Leelaz {
   public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid)
+    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid && !isKataGo)
       analyzeAvoid(
           "avoid",
           Lizzie.board.getHistory().isBlacksTurn() ? "w" : "b",
