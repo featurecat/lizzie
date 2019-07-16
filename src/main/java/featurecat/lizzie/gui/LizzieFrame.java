@@ -90,6 +90,7 @@ public class LizzieFrame extends MainFrame {
   private static BoardRenderer subBoardRenderer;
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
+  private static Menu menu;
 
   private final BufferStrategy bs;
 
@@ -123,7 +124,9 @@ public class LizzieFrame extends MainFrame {
     variationTree = new VariationTree();
     winrateGraph = new WinrateGraph();
     countResults = new CountResults();
-
+    menu = new Menu();
+    setJMenuBar(menu);
+    
     setMinimumSize(new Dimension(640, 400));
     boolean persisted = Lizzie.config.persistedUi != null;
     if (persisted

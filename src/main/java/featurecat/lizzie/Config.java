@@ -365,6 +365,17 @@ public class Config {
   public void toggleShowSubBoard() {
     showSubBoard = !showSubBoard;
   }
+  
+  public void toggleShowStatus() {
+	    this.showStatus = !this.showStatus;
+	    Lizzie.config.uiConfig.put("show-status", showStatus);
+	    try {
+	      Lizzie.config.save();
+	    } catch (IOException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+	  }
 
   public boolean showLargeSubBoard() {
     return showSubBoard && largeSubBoard;
