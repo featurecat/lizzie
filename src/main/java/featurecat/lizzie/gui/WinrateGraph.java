@@ -158,6 +158,7 @@ public class WinrateGraph {
         int mw = g.getFontMetrics().stringWidth(moveNumString);
         int margin = strokeRadius;
         int mx = x - posx < width / 2 ? x + margin : x - mw - margin;
+        g.setColor(Color.black);
         g.drawString(moveNumString, mx, posy + height - margin);
         g.setStroke(previousStroke);
       }
