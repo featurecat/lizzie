@@ -174,6 +174,11 @@ public abstract class MainFrame extends JFrame {
     changeMoveDialog.setVisible(true);
   }
 
+  public void openAvoidMoveDialog() {
+    AvoidMoveDialog avoidMoveDialog = new AvoidMoveDialog();
+    avoidMoveDialog.setVisible(true);
+  }
+
   public void toggleGtpConsole() {
     Lizzie.leelaz.toggleGtpConsole();
     if (Lizzie.gtpConsole != null) {

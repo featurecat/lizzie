@@ -593,7 +593,7 @@ public class LizzieFrame extends MainFrame {
       if (Lizzie.config.showStatus) drawCommandString(g);
 
       boardRenderer.setLocation(boardX, boardY);
-      boardRenderer.setBoardLength(maxSize, maxSize);
+      boardRenderer.setBoardLength(maxSize, maxSize); // TODO boardSize
       boardRenderer.setupSizeParameters();
       boardRenderer.draw(g);
 
@@ -640,7 +640,7 @@ public class LizzieFrame extends MainFrame {
         if (Lizzie.config.showSubBoard) {
           try {
             subBoardRenderer.setLocation(subBoardX, subBoardY);
-            subBoardRenderer.setBoardLength(subBoardLength, subBoardLength);
+            subBoardRenderer.setBoardLength(subBoardLength, subBoardLength); // TODO boardSize
             subBoardRenderer.setupSizeParameters();
             subBoardRenderer.draw(g);
           } catch (Exception e) {
