@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,17 +20,15 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 
 public class GtpConsolePane extends JDialog {
-  private static final ResourceBundle resourceBundle =
-      ResourceBundle.getBundle("l10n.DisplayStrings");
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   // Display Comment
   private HTMLDocument htmlDoc;
-  private HTMLEditorKit htmlKit;
+  private LizziePane.HtmlKit htmlKit;
   private StyleSheet htmlStyle;
   private JScrollPane scrollPane;
   private JTextPane console;
@@ -44,12 +43,8 @@ public class GtpConsolePane extends JDialog {
     super(owner);
     setTitle("Gtp Console");
 
-    boolean persisted =
-        Lizzie.config.persistedUi != null
-            && Lizzie.config.persistedUi.optJSONArray("gtp-console-position") != null
-            && Lizzie.config.persistedUi.optJSONArray("gtp-console-position").length() == 4;
-    if (persisted) {
-      JSONArray pos = Lizzie.config.persistedUi.getJSONArray("gtp-console-position");
+    JSONArray pos = WindowPosition.gtpWindowPos();
+    if (pos != null) {
       this.setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
     } else {
       Insets oi = owner.getInsets();
@@ -60,7 +55,7 @@ public class GtpConsolePane extends JDialog {
           Math.max(owner.getHeight() + oi.top + oi.bottom, 300));
     }
 
-    htmlKit = new HTMLEditorKit();
+    htmlKit = new LizziePane.HtmlKit();
     htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
     htmlStyle = htmlKit.getStyleSheet();
     htmlStyle.addRule(Lizzie.config.gtpConsoleStyle);
@@ -99,7 +94,9 @@ public class GtpConsolePane extends JDialog {
     lblCommand.setText(Lizzie.leelaz == null ? "GTP>" : Lizzie.leelaz.currentShortWeight() + ">");
     this.command = command;
     this.isAnalyzeCommand =
-        command.startsWith("lz-analyze") || command.startsWith("lz-genmove_analyze");
+        command.startsWith("lz-analyze")
+            || command.startsWith("kata-analyze")
+            || command.startsWith("lz-genmove_analyze");
     addText(formatCommand(command, commandNumber));
   }
 
@@ -110,6 +107,20 @@ public class GtpConsolePane extends JDialog {
     addText(format(line));
   }
 
+  public void addLineForce(String line) {
+    if (line == null || line.trim().length() == 0) {
+      return;
+    }
+    addText(format(line));
+  }
+
+  public void addZenCommand(String command, int commandNumber) {
+    if (command == null || command.trim().length() == 0) {
+      return;
+    }
+    addText(formatZenCommand(command, commandNumber));
+  }
+
   private void addText(String text) {
     try {
       htmlKit.insertHTML(htmlDoc, htmlDoc.getLength(), text, 0, 0, null);
@@ -117,6 +128,13 @@ public class GtpConsolePane extends JDialog {
     } catch (BadLocationException | IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public String formatZenCommand(String command, int commandNumber) {
+    return String.format(
+        "<span class=\"command\">" + ("YAZenGtp") + "> %d %s </span><br />",
+        commandNumber,
+        command);
   }
 
   public String formatCommand(String command, int commandNumber) {
@@ -180,6 +198,25 @@ public class GtpConsolePane extends JDialog {
         Lizzie.board.clear();
       } else if ("undo".equals(command)) {
         Input.undo();
+      } else if (command.startsWith("boardsize")) {
+        String cmdParams[] = command.split(" ");
+        if (cmdParams.length >= 2) {
+          int width = Integer.parseInt(cmdParams[1]);
+          int height = width;
+          if (cmdParams.length >= 3) {
+            height = Integer.parseInt(cmdParams[2]);
+          }
+          Lizzie.board.reopen(width, height);
+        }
+      } else if (command.startsWith("komi")) {
+        String cmdParams[] = command.split(" ");
+        if (cmdParams.length >= 2) {
+          try {
+            double komi = Double.parseDouble(cmdParams[1]);
+            Lizzie.leelaz.komi(komi);
+          } catch (Exception ex) {
+          }
+        }
       } else {
         Lizzie.leelaz.sendCommand(command);
       }

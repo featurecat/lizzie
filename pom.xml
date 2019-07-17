@@ -62,6 +62,7 @@
                 <configuration>
                     <!-- Required to get the test failure reports in stdout -->
                     <useFile>false</useFile>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
@@ -73,6 +74,24 @@
                         <goals>
                             <goal>format</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>sh.tak.appbundler</groupId>
+                <artifactId>appbundle-maven-plugin</artifactId>
+                <version>1.2.0</version>
+                <configuration>
+                    <mainClass>featurecat.lizzie.Lizzie</mainClass>
+                    <iconFile>assets/icon.icns</iconFile>
+                    <dictionaryFile>config/Info.plist</dictionaryFile>
+                </configuration>
+                <executions>
+                    <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>bundle</goal>
+                    </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -107,6 +126,23 @@
             <groupId>com.jhlabs</groupId>
             <artifactId>filters</artifactId>
             <version>2.0.235</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.java-websocket</groupId>
+            <artifactId>Java-WebSocket</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.socket</groupId>
+            <artifactId>socket.io-client</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 </project>

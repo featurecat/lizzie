@@ -8,7 +8,6 @@ import common.Util;
 import featurecat.lizzie.Config;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
-import featurecat.lizzie.gui.LizzieFrame;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +22,9 @@ public class SGFParserTest {
     lizzie = new Lizzie();
     lizzie.config = new Config();
     lizzie.board = new Board();
-    lizzie.frame = new LizzieFrame();
+    //    lizzie.frame = new LizzieFrame();
     // new Thread( () -> {
-    lizzie.leelaz = new Leelaz();
+    lizzie.leelaz = new Leelaz("");
     // }).start();
 
     testVariaionOnly1();

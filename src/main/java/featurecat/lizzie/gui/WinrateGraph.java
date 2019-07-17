@@ -3,7 +3,13 @@ package featurecat.lizzie.gui;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.rules.BoardHistoryNode;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.Optional;
 
@@ -13,6 +19,7 @@ public class WinrateGraph {
   private int[] origParams = {0, 0, 0, 0};
   private int[] params = {0, 0, 0, 0, 0};
   private int numMovesOfPlayed = 0;
+  double maxcoreMean = 30.0;
 
   public void draw(Graphics2D g, int posx, int posy, int width, int height) {
     BoardHistoryNode curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
@@ -127,7 +134,7 @@ public class WinrateGraph {
 
     while (node.previous().isPresent()) {
       double wr = node.getData().winrate;
-      int playouts = node.getData().playouts;
+      int playouts = node.getData().getPlayouts();
       if (node == curMove) {
         if (Lizzie.config.dynamicWinrateGraphWidth
             && node.getData().moveNumber - 1 > this.numMovesOfPlayed) {
@@ -151,6 +158,7 @@ public class WinrateGraph {
         int mw = g.getFontMetrics().stringWidth(moveNumString);
         int margin = strokeRadius;
         int mx = x - posx < width / 2 ? x + margin : x - mw - margin;
+        g.setColor(Color.black);
         g.drawString(moveNumString, mx, posy + height - margin);
         g.setStroke(previousStroke);
       }
@@ -221,7 +229,7 @@ public class WinrateGraph {
           if (!node.getData().blackToPlay) lastWr = 100 - lastWr;
           g.setStroke(new BasicStroke(3));
           topOfVariation = Optional.empty();
-          if (node.getData().playouts == 0) {
+          if (node.getData().getPlayouts() == 0) {
             lastNodeOk = false;
           }
           inFirstPath = false;
@@ -237,12 +245,91 @@ public class WinrateGraph {
 
     g.setStroke(new BasicStroke(1));
 
+    node = curMove;
+    while (node.next().isPresent()) {
+      node = node.next().get();
+    }
+    if (numMoves < node.getData().moveNumber - 1) {
+      numMoves = node.getData().moveNumber - 1;
+    }
+
+    if (numMoves < 1) return;
+    lastOkMove = -1;
+    movenum = node.getData().moveNumber - 1;
+
+    if (Lizzie.leelaz.isKataGo) {
+      double lastScoreMean = -500;
+      int curMovenum = -1;
+      double curCurscoreMean = 0;
+      while (node.previous().isPresent()) {
+        if (!node.getData().bestMoves.isEmpty()) {
+
+          double curscoreMean = node.getData().bestMoves.get(0).scoreMean;
+          if (!node.getData().blackToPlay) {
+            curscoreMean = -curscoreMean;
+          }
+          if (Math.abs(curscoreMean) > maxcoreMean) maxcoreMean = Math.abs(curscoreMean);
+
+          if (node == curMove) {
+            curMovenum = movenum;
+            curCurscoreMean = curscoreMean;
+          }
+          if (lastOkMove > 0) {
+
+            if (lastScoreMean > -500) {
+              // Color lineColor = g.getColor();
+              Stroke previousStroke = g.getStroke();
+              g.setColor(Lizzie.config.scoreMeanLineColor);
+              if (!node.isMainTrunk()) {
+                g.setStroke(dashed);
+              } else g.setStroke(new BasicStroke(1));
+              g.drawLine(
+                  posx + (lastOkMove * width * 95 / 100 / numMoves),
+                  posy
+                      + height / 2
+                      - (int) (convertScoreMean(lastScoreMean) * height / 2 / maxcoreMean),
+                  posx + (movenum * width * 95 / 100 / numMoves),
+                  posy
+                      + height / 2
+                      - (int) (convertScoreMean(curscoreMean) * height / 2 / maxcoreMean));
+              g.setStroke(previousStroke);
+            }
+          }
+
+          lastScoreMean = curscoreMean;
+          lastOkMove = movenum;
+        }
+
+        node = node.previous().get();
+        movenum--;
+      }
+      if (curMovenum > 0) {
+        g.setColor(Color.WHITE);
+        Font f = new Font("", Font.BOLD, 15);
+        g.setFont(f);
+        g.drawString(
+            String.format("%.1f", curCurscoreMean),
+            posx + (curMovenum * width * 95 / 100 / numMoves) - 2 * DOT_RADIUS,
+            posy
+                + height / 2
+                - (int) (convertScoreMean(curCurscoreMean) * height / 2 / maxcoreMean)
+                + 2 * DOT_RADIUS);
+      }
+    }
+
     // record parameters for calculating moveNumber
     params[0] = posx;
     params[1] = posy;
     params[2] = width;
     params[3] = height;
     params[4] = numMoves;
+  }
+
+  private double convertScoreMean(double coreMean) {
+
+    if (coreMean > maxcoreMean) return maxcoreMean;
+    if (coreMean < 0 && Math.abs(coreMean) > maxcoreMean) return -maxcoreMean;
+    return coreMean;
   }
 
   private double convertWinrate(double winrate) {

@@ -1,20 +1,31 @@
 package featurecat.lizzie;
 
 import featurecat.lizzie.theme.Theme;
+import featurecat.lizzie.util.WindowPosition;
 import java.awt.Color;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 public class Config {
+  public String language = "en";
 
+  public boolean panelUI = true;
   public boolean showBorder = false;
   public boolean showMoveNumber = false;
   public int onlyLastMoveNumber = 0;
@@ -33,7 +44,20 @@ public class Config {
   public boolean showCaptured = true;
   public boolean handicapInsteadOfWinrate = false;
   public boolean showDynamicKomi = true;
+  public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
+  public boolean colorByWinrateInsteadOfVisits = false;
+  public double minPlayoutRatioForStats = 0.0;
+  public boolean showLcbWinrate = false;
+
+  public boolean showKataGoScoreMean = true;
+  public boolean showKataGoBoardScoreMean = false;
+  public boolean kataGoScoreMeanAlwaysBlack = false;
+  public boolean kataGoNotShowWinrate = false;
+  public boolean showKataGoEstimate = false;
+  public boolean showKataGoEstimateBySize = false;
+  public boolean showKataGoEstimateOnSubbord = true;
+  public boolean showKataGoEstimateOnMainbord = true;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -42,6 +66,9 @@ public class Config {
   public boolean showSubBoard = true;
   public boolean largeSubBoard = false;
   public boolean startMaximized = true;
+  public boolean showWinrateInSuggestion = true;
+  public boolean showPlayoutsInSuggestion = true;
+  public boolean showScoremeanInSuggestion = true;
 
   public JSONObject config;
   public JSONObject leelazConfig;
@@ -49,6 +76,7 @@ public class Config {
   public JSONObject persisted;
   public JSONObject persistedUi;
 
+  private Boolean macAppBundle = System.getenv().containsKey("MAC_APP_BUNDLE");
   private String configFilename = "config.txt";
   private String persistFilename = "persist";
 
@@ -63,15 +91,21 @@ public class Config {
   public Color commentFontColor = null;
   public Color commentBackgroundColor = null;
   public Color winrateLineColor = null;
+  public Color scoreMeanLineColor = null;
   public Color winrateMissLineColor = null;
   public Color blunderBarColor = null;
-  public boolean solidStoneIndicator = false;
+  public int stoneIndicatorType = 1; // 0: non, 1: circle, 2: solid
   public boolean showCommentNodeColor = true;
   public Color commentNodeColor = null;
   public Optional<List<Double>> blunderWinrateThresholds;
   public Optional<Map<Double, Color>> blunderNodeColors;
   public int nodeColorMode = 0;
-  public boolean appendWinrateToComment = false;
+  public boolean appendWinrateToComment = true;
+  public boolean holdBestMovesToSgf = true;
+  public boolean showBestMovesByHold = true;
+  public int boardPositionProportion = 4;
+  public int limitBestMoveNum = 0;
+  public int limitBranchLength = 0;
   public String gtpConsoleStyle = "";
   private final String defaultGtpConsoleStyle =
       "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}";
@@ -110,8 +144,8 @@ public class Config {
   /**
    * Check settings to ensure its consistency, especially for those whose types are not <code>
    * boolean</code>. If any inconsistency is found, try to correct it or to report it. <br>
-   * For example, we only support 9x9, 13x13 or 19x19(default) sized boards. If the configured board
-   * size is not in the list above, we should correct it.
+   * For example, we only support square boards of size >= 2x2. If the configured board size is not
+   * in the list above, we should correct it.
    *
    * @param config The config json object to check
    * @return if any correction has been made.
@@ -122,7 +156,7 @@ public class Config {
     // Check ui configs
     JSONObject ui = config.getJSONObject("ui");
 
-    // Check board-size. We support only 9x9, 13x13 or 19x19
+    // Check board-size
     int boardSize = ui.optInt("board-size", 19);
     if (boardSize < 2) {
       // Correct it to default 19x19
@@ -158,6 +192,7 @@ public class Config {
 
     theme = new Theme(uiConfig);
 
+    panelUI = uiConfig.optBoolean("panel-ui", false);
     showBorder = uiConfig.optBoolean("show-border", false);
     showMoveNumber = uiConfig.getBoolean("show-move-number");
     onlyLastMoveNumber = uiConfig.optInt("only-last-move-number");
@@ -178,24 +213,49 @@ public class Config {
     showSubBoard = uiConfig.getBoolean("show-subboard");
     largeSubBoard = uiConfig.getBoolean("large-subboard");
     handicapInsteadOfWinrate = uiConfig.getBoolean("handicap-instead-of-winrate");
-    startMaximized = uiConfig.getBoolean("window-maximized");
     showDynamicKomi = uiConfig.getBoolean("show-dynamic-komi");
     appendWinrateToComment = uiConfig.optBoolean("append-winrate-to-comment");
+    holdBestMovesToSgf = uiConfig.optBoolean("hold-bestmoves-to-sgf", true);
+    showBestMovesByHold = uiConfig.optBoolean("show-bestmoves-by-hold", true);
     showCoordinates = uiConfig.optBoolean("show-coordinates");
+    replayBranchIntervalSeconds = uiConfig.optDouble("replay-branch-interval-seconds", 1.0);
+    colorByWinrateInsteadOfVisits = uiConfig.optBoolean("color-by-winrate-instead-of-visits");
+    boardPositionProportion = uiConfig.optInt("board-position-proportion", 4);
+    limitBestMoveNum = uiConfig.optInt("limit-best-move-num", 0);
+    limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
+    minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.0);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
     shadowSize = theme.shadowSize();
-    fontName = theme.fontName();
-    uiFontName = theme.uiFontName();
-    winrateFontName = theme.winrateFontName();
+    showLcbWinrate = config.getJSONObject("leelaz").optBoolean("show-lcb-winrate");
+
+    showKataGoScoreMean = uiConfig.optBoolean("show-katago-scoremean", true);
+    showKataGoBoardScoreMean = uiConfig.optBoolean("show-katago-boardscoremean", false);
+    kataGoScoreMeanAlwaysBlack = uiConfig.optBoolean("katago-scoremean-alwaysblack", false);
+    kataGoNotShowWinrate = uiConfig.optBoolean("katago-notshow-winrate", false);
+    showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", false);
+    showKataGoEstimateBySize = uiConfig.optBoolean("show-katago-estimate-bysize", false);
+    showKataGoEstimateOnSubbord = uiConfig.optBoolean("show-katago-estimate-onsubbord", true);
+    showKataGoEstimateOnMainbord = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
+    showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
+    showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
+    showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
+
+    if (theme.fontName() != null) fontName = theme.fontName();
+
+    if (theme.uiFontName() != null) uiFontName = theme.uiFontName();
+
+    if (theme.winrateFontName() != null) winrateFontName = theme.winrateFontName();
+
     commentFontSize = theme.commentFontSize();
     commentFontColor = theme.commentFontColor();
     commentBackgroundColor = theme.commentBackgroundColor();
     winrateLineColor = theme.winrateLineColor();
+    scoreMeanLineColor = theme.scoreMeanLineColor();
     winrateMissLineColor = theme.winrateMissLineColor();
     blunderBarColor = theme.blunderBarColor();
-    solidStoneIndicator = theme.solidStoneIndicator();
+    stoneIndicatorType = theme.stoneIndicatorType();
     showCommentNodeColor = theme.showCommentNodeColor();
     commentNodeColor = theme.commentNodeColor();
     blunderWinrateThresholds = theme.blunderWinrateThresholds();
@@ -203,6 +263,9 @@ public class Config {
     nodeColorMode = theme.nodeColorMode();
 
     gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
+
+    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
+    setLanguage(Locale.getDefault().getLanguage());
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -247,12 +310,20 @@ public class Config {
     this.showBranch = !this.showBranch;
   }
 
+  public void toggleShowCaptured() {
+    this.showCaptured = !this.showCaptured;
+  }
+
   public void toggleShowWinrate() {
     this.showWinrate = !this.showWinrate;
   }
 
   public void toggleLargeWinrate() {
     this.largeWinrate = !this.largeWinrate;
+  }
+
+  public void toggleShowLcbWinrate() {
+    this.showLcbWinrate = !this.showLcbWinrate;
   }
 
   public void toggleShowVariationGraph() {
@@ -285,6 +356,14 @@ public class Config {
 
   public void toggleCoordinates() {
     showCoordinates = !showCoordinates;
+  }
+
+  public void toggleEvaluationColoring() {
+    colorByWinrateInsteadOfVisits = !colorByWinrateInsteadOfVisits;
+  }
+
+  public void toggleShowSubBoard() {
+    showSubBoard = !showSubBoard;
   }
 
   public boolean showLargeSubBoard() {
@@ -333,15 +412,26 @@ public class Config {
     // About engine parameter
     JSONObject leelaz = new JSONObject();
     leelaz.put("network-file", "network.gz");
-    leelaz.put(
-        "engine-command",
-        String.format(
-            "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
+    if (this.macAppBundle) {
+      // Mac Apps don't really expect the user to modify the current working directory, since that
+      // resides inside the app bundle. So a more sensible default in this context is to expect
+      // the user to already have a ~/.local/share/leela-zero/best-network file, which has been
+      // standard since Leela 0.16.
+      leelaz.put(
+          "engine-command", String.format("%s --gtp --lagbuffer 0", getBestDefaultLeelazPath()));
+    } else {
+      leelaz.put(
+          "engine-command",
+          String.format(
+              "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
+    }
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 5);
     leelaz.put("max-game-thinking-time-seconds", 2);
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
+    leelaz.put("show-lcb-winrate", false);
+    leelaz.put("avoid-keep-variations", 30);
 
     config.put("leelaz", leelaz);
 
@@ -377,15 +467,23 @@ public class Config {
     ui.put("autosave-interval-seconds", -1);
     ui.put("handicap-instead-of-winrate", false);
     ui.put("board-size", 19);
-    ui.put("window-size", new JSONArray("[1024, 768]"));
-    ui.put("window-maximized", false);
     ui.put("show-dynamic-komi", true);
     ui.put("min-playout-ratio-for-stats", 0.0);
     ui.put("theme", "default");
     ui.put("only-last-move-number", 0);
     ui.put("new-move-number-in-branch", true);
     ui.put("append-winrate-to-comment", false);
+    ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
+    ui.put("panel-ui", false);
+    ui.put("show-katago-scoremean", true);
+    ui.put("show-katago-boardscoremean", false);
+    ui.put("katago-scoremean-alwaysblack", false);
+    ui.put("katago-notshow-winrate", false);
+    ui.put("show-katago-estimate", false);
+    ui.put("show-katago-estimate-bysize", false);
+    ui.put("show-katago-estimate-onsubbord", true);
+    ui.put("show-katago-estimate-onmainboard", true);
     config.put("ui", ui);
     return config;
   }
@@ -409,6 +507,11 @@ public class Config {
     // ui.put("window-width", 687);
     // ui.put("max-alpha", 240);
 
+    // Window Position & Size
+    ui = WindowPosition.create(ui);
+
+    config.put("filesystem", filesys);
+
     // Avoid the key "ui" because it was used to distinguish "config" and "persist"
     // in old version of validateAndCorrectSettings().
     // If we use "ui" here, we will have trouble to run old lizzie.
@@ -429,10 +532,28 @@ public class Config {
   }
 
   public void persist() throws IOException {
+
+    // Save the window position
+    persistedUi = WindowPosition.save(persistedUi);
+
     writeConfig(this.persisted, new File(persistFilename));
   }
 
   public void save() throws IOException {
     writeConfig(this.config, new File(configFilename));
+  }
+
+  public void setLanguage(String code) {
+    // currently will not set the resource bundle. TODO.
+    if (code.equals("ko")) {
+      // korean
+      if (fontName == null) {
+        fontName = "Malgun Gothic";
+      }
+      if (uiFontName == null) {
+        uiFontName = "Malgun Gothic";
+      }
+      winrateFontName = null;
+    }
   }
 }

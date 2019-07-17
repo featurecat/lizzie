@@ -5,7 +5,8 @@ Lizzie is a graphical interface allowing the user to analyze games in
 real time using [Leela Zero](https://github.com/gcp/leela-zero). You
 need Java 8 or higher to run this program.
 
-<img src="https://travis-ci.org/featurecat/lizzie.svg?branch=master">
+[![Build Status](https://travis-ci.org/featurecat/lizzie.svg?branch=master)](https://travis-ci.org/featurecat/lizzie?branch=master)
+
 
 ## Running a release
 
@@ -44,3 +45,13 @@ To build the code and package it:
 
 (or whatever the current version of the shaded `jar` file is in
 `target/`).
+
+After you run this command you should see a GUI start. Lizzie will also start a Leela Zero
+process that it will communicate with. You can configure the location of Leela Zero from the
+`config.txt` file from the folder you started the `java` command. If Lizzie is unable to start
+Leela Zero it will display an error and you can fiddle with the `config.txt` file
+until you get all the paths correct.
+
+Lizzie will provide multitude of options to load and save SGF files, run an auto analysis and
+configure the board. To see all the options just hold down the key **x** (yes, just press and hold
+the letter **x**) and you will see all the commands listed in the GUI.
