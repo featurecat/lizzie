@@ -3,8 +3,13 @@ package featurecat.lizzie.gui;
 import static java.awt.event.KeyEvent.*;
 
 import featurecat.lizzie.Lizzie;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
@@ -12,10 +17,16 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mousePressed(MouseEvent e) {
-    if (e.getButton() == MouseEvent.BUTTON1) // left click
-    Lizzie.frame.onClicked(e.getX(), e.getY());
-    else if (e.getButton() == MouseEvent.BUTTON3) // right click
-    undo();
+    if (e.getButton() == MouseEvent.BUTTON1) { // left click
+      if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
+        Lizzie.frame.onDoubleClicked(e.getX(), e.getY());
+      } else {
+        Lizzie.frame.onClicked(e.getX(), e.getY());
+      }
+    } else if (e.getButton() == MouseEvent.BUTTON3) // right click
+    {
+      if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) undo(1);
+    }
   }
 
   @Override
@@ -34,7 +45,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseMoved(MouseEvent e) {
-    Lizzie.frame.onMouseMoved(e.getX(), e.getY());
+    if (!Lizzie.frame.isShowingRightMenu) Lizzie.frame.onMouseMoved(e.getX(), e.getY());
   }
 
   @Override
@@ -171,6 +182,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     // If any controls key is pressed, let's disable analysis mode.
     // This is probably the user attempting to exit analysis mode.
     boolean shouldDisableAnalysis = true;
+    int refreshType = 1;
 
     switch (e.getKeyCode()) {
       case VK_E:
@@ -202,7 +214,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           undo(10);
         } else {
-          undo();
+          if (Lizzie.frame.isMouseOver) {
+            Lizzie.frame.doBranch(-1);
+          } else {
+            undo();
+          }
         }
         break;
 
@@ -220,14 +236,18 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           redo(10);
         } else {
-          redo();
+          if (Lizzie.frame.isMouseOver) {
+            Lizzie.frame.doBranch(1);
+          } else {
+            redo();
+          }
         }
         break;
 
       case VK_N:
         // stop the ponder
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        LizzieFrame.startNewGame();
+        Lizzie.frame.startGame();
         break;
       case VK_SPACE:
         if (Lizzie.frame.isPlayingAgainstLeelaz) {
@@ -235,6 +255,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.leelaz.isThinking = false;
         }
         Lizzie.leelaz.togglePonder();
+        refreshType = 2;
         break;
 
       case VK_P:
@@ -251,6 +272,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else {
           Lizzie.config.toggleShowMoveNumber();
         }
+        break;
+
+      case VK_Q:
+        Lizzie.frame.openOnlineDialog();
         break;
 
       case VK_F:
@@ -271,18 +296,25 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
       case VK_I:
         // stop the ponder
-        if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+        boolean isPondering = Lizzie.leelaz.isPondering();
+        if (isPondering) Lizzie.leelaz.togglePonder();
         Lizzie.frame.editGameInfo();
+        if (isPondering) Lizzie.leelaz.togglePonder();
         break;
+
       case VK_S:
-        // stop the ponder
-        if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        LizzieFrame.saveFile();
+        if (e.isAltDown()) {
+          Lizzie.frame.saveImage();
+        } else {
+          // stop the ponder
+          if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+          Lizzie.frame.saveFile();
+        }
         break;
 
       case VK_O:
         if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
-        LizzieFrame.openFile();
+        Lizzie.frame.openFile();
         break;
 
       case VK_V:
@@ -325,13 +357,22 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_W:
         if (controlIsPressed(e)) {
           Lizzie.config.toggleLargeWinrate();
+          refreshType = 2;
+        } else if (e.isAltDown()) {
+          Lizzie.frame.toggleDesignMode();
         } else {
           Lizzie.config.toggleShowWinrate();
+          refreshType = 2;
         }
+        break;
+
+      case VK_L:
+        Lizzie.config.toggleShowLcbWinrate();
         break;
 
       case VK_G:
         Lizzie.config.toggleShowVariationGraph();
+        refreshType = 2;
         break;
 
       case VK_T:
@@ -339,6 +380,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.config.toggleShowCommentNodeColor();
         } else {
           Lizzie.config.toggleShowComment();
+          refreshType = 2;
         }
         break;
 
@@ -351,6 +393,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
+          refreshType = 2;
         }
         break;
 
@@ -381,6 +424,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_Z:
         if (e.isShiftDown()) {
           toggleHints();
+        } else if (e.isAltDown()) {
+          Lizzie.config.toggleShowSubBoard();
         } else {
           startTemporaryBoard();
         }
@@ -396,21 +441,65 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_PERIOD:
-        if (!Lizzie.board.getHistory().getNext().isPresent()) {
-          Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());
-        }
+        if (Lizzie.leelaz.isKataGo) {
+          if (e.isAltDown()) {
+            Lizzie.frame.estimateByZen();
+          } else {
+            Lizzie.config.showKataGoEstimate = !Lizzie.config.showKataGoEstimate;
+            Lizzie.leelaz.ponder();
+            if (!Lizzie.config.showKataGoEstimate) {
+              Lizzie.frame.removeEstimateRect();
+            }
+          }
+        } else Lizzie.frame.estimateByZen();
+        // if (!Lizzie.board.getHistory().getNext().isPresent()) {
+        // Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());}
         break;
 
       case VK_D:
-        toggleShowDynamicKomi();
+        if (Lizzie.leelaz.isKataGo) {
+          if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate) {
+            Lizzie.config.showKataGoScoreMean = false;
+            Lizzie.config.kataGoNotShowWinrate = false;
+            break;
+          }
+          if (Lizzie.config.showKataGoScoreMean && !Lizzie.config.kataGoNotShowWinrate) {
+            Lizzie.config.kataGoNotShowWinrate = true;
+            break;
+          }
+          if (Lizzie.config.showKataGoScoreMean) {
+            Lizzie.config.showKataGoScoreMean = false;
+            break;
+          }
+          if (!Lizzie.config.showKataGoScoreMean) {
+            Lizzie.config.showKataGoScoreMean = true;
+            Lizzie.config.kataGoNotShowWinrate = false;
+          }
+        } else {
+          toggleShowDynamicKomi();
+        }
+        break;
+
+      case VK_R:
+        Lizzie.frame.replayBranch(e.isAltDown());
         break;
 
       case VK_OPEN_BRACKET:
-        if (Lizzie.frame.BoardPositionProportion > 0) Lizzie.frame.BoardPositionProportion--;
+        if (Lizzie.frame.boardPositionProportion > 0) {
+          Lizzie.frame.boardPositionProportion--;
+          refreshType = 2;
+        }
         break;
 
       case VK_CLOSE_BRACKET:
-        if (Lizzie.frame.BoardPositionProportion < 8) Lizzie.frame.BoardPositionProportion++;
+        if (Lizzie.frame.boardPositionProportion < 8) {
+          Lizzie.frame.boardPositionProportion++;
+          refreshType = 2;
+        }
+        break;
+
+      case VK_K:
+        Lizzie.config.toggleEvaluationColoring();
         break;
 
         // Use Ctrl+Num to switching multiple engine
@@ -425,7 +514,8 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_8:
       case VK_9:
         if (controlIsPressed(e)) {
-          Lizzie.switchEngine(e.getKeyCode() - VK_0);
+          Lizzie.engineManager.switchEngine(e.getKeyCode() - VK_0);
+          refreshType = 0;
         }
         break;
       default:
@@ -434,7 +524,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
     if (shouldDisableAnalysis && Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
 
-    Lizzie.frame.repaint();
+    Lizzie.frame.refresh(refreshType);
   }
 
   private boolean wasPonderingWhenControlsShown = false;
@@ -445,29 +535,42 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_X:
         if (wasPonderingWhenControlsShown) Lizzie.leelaz.togglePonder();
         Lizzie.frame.showControls = false;
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh(1);
         break;
 
       case VK_Z:
         stopTemporaryBoard();
-        Lizzie.frame.repaint();
+        Lizzie.frame.refresh(1);
         break;
 
       default:
     }
   }
 
+  private long wheelWhen;
+
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
       return;
     }
-    if (Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
-    if (e.getWheelRotation() > 0) {
-      redo();
-    } else if (e.getWheelRotation() < 0) {
-      undo();
+    if (e.getWhen() - wheelWhen > 0) {
+      wheelWhen = e.getWhen();
+      if (Lizzie.board.inAnalysisMode()) Lizzie.board.toggleAnalysis();
+      if (e.getWheelRotation() > 0) {
+        if (Lizzie.frame.isMouseOver) {
+          Lizzie.frame.doBranch(1);
+        } else {
+          redo();
+        }
+      } else if (e.getWheelRotation() < 0) {
+        if (Lizzie.frame.isMouseOver) {
+          Lizzie.frame.doBranch(-1);
+        } else {
+          undo();
+        }
+      }
+      Lizzie.frame.refresh();
     }
-    Lizzie.frame.repaint();
   }
 }
