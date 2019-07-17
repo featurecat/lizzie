@@ -276,53 +276,7 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(allMove);
 
-    final JCheckBoxMenuItem bigSubBoard = new JCheckBoxMenuItem("放大小棋盘(ALT+V)");
-    bigSubBoard.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.config.toggleLargeSubBoard();
-            Lizzie.frame.refresh(2);
-          }
-        });
-    viewMenu.add(bigSubBoard);
-
-    final JCheckBoxMenuItem bigWinGraph = new JCheckBoxMenuItem("放大胜率图(Ctrl+W)");
-    bigWinGraph.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.config.toggleLargeWinrate();
-            Lizzie.frame.refresh(2);
-          }
-        });
-    viewMenu.add(bigWinGraph);
-
-    final JCheckBoxMenuItem winrateAlwaysBlack = new JCheckBoxMenuItem("总是显示黑胜率");
-    winrateAlwaysBlack.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black")) {
-              Lizzie.config.uiConfig.put("win-rate-always-black", false);
-              try {
-                Lizzie.config.save();
-              } catch (IOException es) {
-                // TODO Auto-generated catch block
-              }
-            } else {
-              Lizzie.config.uiConfig.put("win-rate-always-black", true);
-              try {
-                Lizzie.config.save();
-              } catch (IOException es) {
-                // TODO Auto-generated catch block
-              }
-            }
-          }
-        });
-    viewMenu.add(winrateAlwaysBlack);
-
-    final JMenu panelView = new JMenu("面板显示");
+    final JMenu panelView = new JMenu("面板");
     viewMenu.add(panelView);
 
     final JCheckBoxMenuItem subBoard = new JCheckBoxMenuItem("小棋盘(ALT+Z)");
@@ -395,6 +349,56 @@ public class Menu extends JMenuBar {
         });
     panelView.add(gtpConsole);
 
+    viewMenu.addSeparator();
+
+    final JCheckBoxMenuItem bigSubBoard = new JCheckBoxMenuItem("放大小棋盘(ALT+V)");
+    bigSubBoard.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleLargeSubBoard();
+            Lizzie.frame.refresh(2);
+          }
+        });
+    viewMenu.add(bigSubBoard);
+
+    final JCheckBoxMenuItem bigWinGraph = new JCheckBoxMenuItem("放大胜率图(Ctrl+W)");
+    bigWinGraph.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleLargeWinrate();
+            Lizzie.frame.refresh(2);
+          }
+        });
+    viewMenu.add(bigWinGraph);
+
+    final JCheckBoxMenuItem winrateAlwaysBlack = new JCheckBoxMenuItem("总是显示黑胜率");
+    winrateAlwaysBlack.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black")) {
+              Lizzie.config.uiConfig.put("win-rate-always-black", false);
+              try {
+                Lizzie.config.save();
+              } catch (IOException es) {
+                // TODO Auto-generated catch block
+              }
+            } else {
+              Lizzie.config.uiConfig.put("win-rate-always-black", true);
+              try {
+                Lizzie.config.save();
+              } catch (IOException es) {
+                // TODO Auto-generated catch block
+              }
+            }
+          }
+        });
+    viewMenu.add(winrateAlwaysBlack);
+
+    viewMenu.addSeparator();
+
     final JMenuItem defaultView = new JMenuItem("默认模式");
     defaultView.addActionListener(
         new ActionListener() {
@@ -461,6 +465,8 @@ public class Menu extends JMenuBar {
             Lizzie.frame.refresh(2);
           }
         });
+
+    viewMenu.addSeparator();
 
     final JMenu kataGo = new JMenu("KataGo相关设置");
     viewMenu.add(kataGo);
@@ -1062,6 +1068,13 @@ public class Menu extends JMenuBar {
     engineMenu = new JMenu(" 引擎  ");
     this.add(engineMenu);
 
+    for (int i = 0; i < engine.length; i++) {
+      engine[i] = new JMenuItem();
+      engineMenu.add(engine[i]);
+      engine[i].setText("引擎" + i);
+      engine[i].setVisible(false);
+    }
+
     running = new ImageIcon();
     try {
       running.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/running.png")));
@@ -1123,16 +1136,11 @@ public class Menu extends JMenuBar {
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
-    for (int i = 0; i < engine.length; i++) {
-      engine[i] = new JMenuItem();
-      engineMenu.add(engine[i]);
-      engine[i].setText("引擎" + (i + 1) + ":");
-      engine[i].setVisible(false);
-    }
     for (int i = 0; i < engineList.size(); i++) {
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
-        engine[i].setText("引擎" + (i + 1) + ":" + engineDt.currentWeight());
+        if (engineDt.currentWeight() != "")
+          engine[i].setText(engine[i].getText() + ": " + engineDt.currentWeight());
         engine[i].setVisible(true);
         int a = i;
         engine[i].addActionListener(
@@ -1149,7 +1157,7 @@ public class Menu extends JMenuBar {
     for (int i = 0; i < engineList.size(); i++) {
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
-        if (engineDt.currentEngineN() == currentEngineNo) engine[i].setIcon(running);
+        if (i == currentEngineNo) engine[i].setIcon(running);
         else if (engineDt.isLoaded()) engine[i].setIcon(ready);
       }
     }

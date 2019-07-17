@@ -72,10 +72,10 @@ public class EngineManager {
                                 engineList.add(null);
                               }
                             });
+                    Lizzie.frame.updateEngineMenu(engineList);
                   });
             })
         .start();
-    Lizzie.frame.updateEngineMenu(engineList);
   }
 
   /**
@@ -177,9 +177,9 @@ public class EngineManager {
                               }
                             });
                   });
+              Lizzie.frame.updateEngineMenu(engineList);
             })
         .start();
-    Lizzie.frame.updateEngineMenu(engineList);
   }
 
   public void forceRestart(int index, String command, boolean preload) {

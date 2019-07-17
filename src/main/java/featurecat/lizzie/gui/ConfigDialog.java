@@ -46,6 +46,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -2515,5 +2517,16 @@ public class ConfigDialog extends JDialog {
 
   public void switchTab(int index) {
     tabbedPane.setSelectedIndex(index);
+    if (index == 2) {
+      Timer timer = new Timer();
+      timer.schedule(
+          new TimerTask() {
+            public void run() {
+              tabbedPane.repaint();
+              this.cancel();
+            }
+          },
+          100);
+    }
   }
 }
