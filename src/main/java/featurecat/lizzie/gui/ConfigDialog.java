@@ -213,6 +213,7 @@ public class ConfigDialog extends JDialog {
   public JButton btnBlackStonePath;
   public JButton btnWhiteStonePath;
   public JPanel pnlBoardPreview;
+  JTabbedPane tabbedPane;
 
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
@@ -245,7 +246,7 @@ public class ConfigDialog extends JDialog {
         });
     cancelButton.setActionCommand("Cancel");
     buttonPane.add(cancelButton);
-    JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+    tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
     JPanel engineTab = new JPanel();
@@ -2510,5 +2511,9 @@ public class ConfigDialog extends JDialog {
     } catch (IOException e) {
       e.printStackTrace();
     }
+  }
+
+  public void switchTab(int index) {
+    tabbedPane.setSelectedIndex(index);
   }
 }
