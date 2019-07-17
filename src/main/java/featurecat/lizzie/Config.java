@@ -431,6 +431,7 @@ public class Config {
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
     leelaz.put("show-lcb-winrate", false);
+    leelaz.put("avoid-keep-variations", 30);
 
     config.put("leelaz", leelaz);
 

@@ -115,11 +115,11 @@ public class BoardPane extends LizziePane {
                 onClicked(e.getX(), e.getY());
               }
             } else if (e.getButton() == MouseEvent.BUTTON3) { // right click
-              if (Lizzie.frame.isMouseOver) {
-                Lizzie.frame.addSuggestionAsBranch();
-              } else {
-                Input.undo();
-              }
+              // if (Lizzie.frame.isMouseOver) {
+              //  Lizzie.frame.addSuggestionAsBranch();
+              // } else {
+              if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) Input.undo();
+              // }
             }
           }
 
@@ -366,11 +366,13 @@ public class BoardPane extends LizziePane {
   }
 
   public void onMouseExited(int x, int y) {
+    if (Lizzie.frame.isShowingRightMenu) return;
     mouseOverCoordinate = outOfBoundCoordinate;
     clearMoved();
   }
 
   public void onMouseMoved(int x, int y) {
+    if (Lizzie.frame.isShowingRightMenu) return;
     mouseOverCoordinate = outOfBoundCoordinate;
     Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
     coords
@@ -641,5 +643,9 @@ public class BoardPane extends LizziePane {
         e.printStackTrace();
       }
     }
+  }
+
+  public Optional<int[]> convertScreenToCoordinates(int x, int y) {
+    return boardRenderer.convertScreenToCoordinates(x, y);
   }
 }

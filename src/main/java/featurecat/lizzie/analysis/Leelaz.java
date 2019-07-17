@@ -651,13 +651,20 @@ public class Leelaz {
   public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    sendCommand(
-        (this.isKataGo ? "kata-analyze " : "lz-analyze ")
-            + Lizzie.config
-                .config
-                .getJSONObject("leelaz")
-                .getInt("analyze-update-interval-centisec")
-            + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
+    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid && !isKataGo)
+      analyzeAvoid(
+          "avoid",
+          Lizzie.board.getHistory().isBlacksTurn() ? "w" : "b",
+          Lizzie.board.avoidCoords,
+          +Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
+    else
+      sendCommand(
+          (this.isKataGo ? "kata-analyze " : "lz-analyze ")
+              + Lizzie.config
+                  .config
+                  .getJSONObject("leelaz")
+                  .getInt("analyze-update-interval-centisec")
+              + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
     // until it responds to this, incoming
     // ponder results are obsolete
   }
