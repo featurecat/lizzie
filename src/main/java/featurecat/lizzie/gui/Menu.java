@@ -1094,7 +1094,7 @@ public class Menu extends JMenuBar {
     final JMenu configMenu = new JMenu(" 设置  ");
     this.add(configMenu);
 
-    final JMenuItem engineConfig = new JMenuItem("引擎设置");
+    final JMenuItem engineConfig = new JMenuItem("引擎");
     engineConfig.addActionListener(
         new ActionListener() {
           @Override
@@ -1104,7 +1104,7 @@ public class Menu extends JMenuBar {
         });
     configMenu.add(engineConfig);
 
-    final JMenuItem viewConfig = new JMenuItem("界面设置");
+    final JMenuItem viewConfig = new JMenuItem("界面");
     viewConfig.addActionListener(
         new ActionListener() {
           @Override
@@ -1114,7 +1114,7 @@ public class Menu extends JMenuBar {
         });
     configMenu.add(viewConfig);
 
-    final JMenuItem themeConfig = new JMenuItem("主题设置");
+    final JMenuItem themeConfig = new JMenuItem("主题");
     themeConfig.addActionListener(
         new ActionListener() {
           @Override
