@@ -101,7 +101,7 @@ public class EngineManager {
       curEng.togglePonder();
     }
 
-    if (curEng.isKataGo && Lizzie.config.showKataGoEstimate) {
+    if (curEng.isKataGo && Lizzie.config.kataGoEstimateMode != "none") {
       Lizzie.frame.removeEstimateRect();
     }
     curEng.board.saveMoveNumber();
@@ -198,7 +198,7 @@ public class EngineManager {
     if (curEng.isPondering()) {
       curEng.togglePonder();
     }
-    if (curEng.isKataGo && Lizzie.config.showKataGoEstimate) {
+    if (curEng.isKataGo && Lizzie.config.kataGoEstimateMode != "none") {
       Lizzie.frame.removeEstimateRect();
     }
     Lizzie.board.saveMoveNumber();

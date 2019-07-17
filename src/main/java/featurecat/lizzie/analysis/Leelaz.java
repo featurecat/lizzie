@@ -305,7 +305,7 @@ public class Leelaz {
           // This should not be stale data when the command number match
           if (isKataGo) {
             this.bestMoves = parseInfoKatago(line.substring(5));
-            if (Lizzie.config.showKataGoEstimate) {
+            if (Lizzie.config.kataGoEstimateMode != "none") {
               if (line.contains("ownership")) {
                 esitmateArray = new ArrayList<Double>();
                 String[] params = line.trim().split("ownership");
@@ -657,7 +657,7 @@ public class Leelaz {
                 .config
                 .getJSONObject("leelaz")
                 .getInt("analyze-update-interval-centisec")
-            + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
+            + (Lizzie.config.kataGoEstimateMode == "none" ? "" : " ownership true"));
     // until it responds to this, incoming
     // ponder results are obsolete
   }
