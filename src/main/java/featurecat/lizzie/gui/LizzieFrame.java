@@ -1531,6 +1531,6 @@ public class LizzieFrame extends MainFrame {
   }
 
   private void showMenu(int x, int y) {
-    rightClickMenu.show(this, x, y);
+    rightClickMenu.show(mainPanel, x, y);
   }
 }
