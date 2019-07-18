@@ -20,7 +20,7 @@ public class Menu extends JMenuBar {
   Font headFont;
   public static ImageIcon running;
   public static ImageIcon ready;
-  public static JMenuItem[] engine = new JMenuItem[10];
+  public static JMenuItem[] engine;
   public static JMenu engineMenu;
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
@@ -1167,13 +1167,6 @@ public class Menu extends JMenuBar {
     engineMenu = new JMenu(resourceBundle.getString("Menu.engineMenu"));
     this.add(engineMenu);
 
-    for (int i = 0; i < engine.length; i++) {
-      engine[i] = new JMenuItem();
-      engineMenu.add(engine[i]);
-      engine[i].setText(resourceBundle.getString("Menu.engineMenu") + " " + i);
-      engine[i].setVisible(false);
-    }
-
     running = new ImageIcon();
     try {
       running.setImage(ImageIO.read(getClass().getResourceAsStream("/assets/running.png")));
@@ -1192,11 +1185,17 @@ public class Menu extends JMenuBar {
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
+    engine = new JMenuItem[engineList.size()];
+    engineMenu.removeAll();
     for (int i = 0; i < engineList.size(); i++) {
+      engine[i] = new JMenuItem();
+      engineMenu.add(engine[i]);
+      engine[i].setText(resourceBundle.getString("Menu.engineMenu") + i);
+      engine[i].setVisible(false);
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
         if (engineDt.currentWeight() != "")
-          engine[i].setText(engine[i].getText() + ": " + engineDt.currentWeight());
+          engine[i].setText(engine[i].getText() + " : " + engineDt.currentWeight());
         engine[i].setVisible(true);
         int a = i;
         engine[i].addActionListener(
