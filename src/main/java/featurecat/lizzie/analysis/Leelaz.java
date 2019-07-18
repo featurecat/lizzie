@@ -919,4 +919,14 @@ public class Leelaz {
   public void toggleGtpConsole() {
     gtpConsole = !gtpConsole;
   }
+
+  public void setWeightName() {
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
+    Matcher wMatcher = wPattern.matcher(engineCommand);
+    if (wMatcher.matches() && wMatcher.groupCount() == 2) {
+      currentWeightFile = wMatcher.group(2);
+      String[] names = currentWeightFile.split("[\\\\|/]");
+      currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
+    }
+  }
 }

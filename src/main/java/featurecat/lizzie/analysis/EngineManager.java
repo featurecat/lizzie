@@ -60,6 +60,8 @@ public class EngineManager {
                                       enginePreloadOpt.map(p -> p.optBoolean(i)).orElse(false);
                                   if (e.preload) {
                                     e.startEngine();
+                                  } else {
+                                    e.setWeightName();
                                   }
                                   // TODO: Need keep analyze?
                                   // e.togglePonder();
@@ -235,6 +237,8 @@ public class EngineManager {
           e.preload = preload;
           if (e.preload) {
             e.startEngine();
+          } else {
+            e.setWeightName();
           }
           engineList.set(index, e);
         } catch (JSONException | IOException e1) {
