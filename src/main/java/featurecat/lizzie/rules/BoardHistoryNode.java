@@ -80,6 +80,11 @@ public class BoardHistoryNode {
     //                }
     //            }
     //        }
+    Optional<BoardHistoryNode> next = next(true);
+    boolean nextDummy = next.isPresent() && next.get().isEndDummay();
+    if (!newBranch && nextDummy) {
+      changeMove = true;
+    }
     if (!newBranch) {
       for (int i = 0; i < variations.size(); i++) {
         if (variations.get(i).data.zobrist.equals(data.zobrist)) {
@@ -98,11 +103,6 @@ public class BoardHistoryNode {
     }
     if (!this.previous.isPresent()) {
       data.moveMNNumber = 1;
-    }
-    Optional<BoardHistoryNode> next = next(true);
-    boolean nextDummy = next.isPresent() && next.get().isEndDummay();
-    if (!newBranch && nextDummy) {
-      changeMove = true;
     }
     if (Lizzie.config.newMoveNumberInBranch && !variations.isEmpty() && !changeMove) {
       if (!newBranch) {
