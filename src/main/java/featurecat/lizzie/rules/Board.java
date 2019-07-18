@@ -51,6 +51,13 @@ public class Board implements LeelazListener {
   private boolean analysisMode;
   private int playoutsAnalysis;
 
+  public String allowCoords = "";
+  public String avoidCoords = "";
+  public boolean isForcing = false;
+  public boolean isAllowing = false;
+  public boolean isAvoding = false;
+  public boolean isKeepingAvoid = false;
+
   // Save the node for restore move when in the branch
   private Optional<BoardHistoryNode> saveNode;
 
@@ -1565,5 +1572,56 @@ public class Board implements LeelazListener {
     }
     moveList.remove(moveList.size() - 1);
     return moveList;
+  }
+
+  public boolean setAvoidCoords(int x, int y) {
+    Optional<int[]> boardCoordinates = Lizzie.frame.convertScreenToCoordinates(x, y);
+    if (boardCoordinates.isPresent()) {
+      if (isCoordsEmpty(boardCoordinates.get()[0], boardCoordinates.get()[1])) {
+        if (avoidCoords == "")
+          avoidCoords =
+              convertCoordinatesToName(boardCoordinates.get()[0], boardCoordinates.get()[1]);
+        else
+          avoidCoords =
+              avoidCoords
+                  + ","
+                  + convertCoordinatesToName(boardCoordinates.get()[0], boardCoordinates.get()[1]);
+        return true;
+      } else return false;
+    }
+    return false;
+  }
+
+  public boolean setAllowCoords(int x, int y) {
+    Optional<int[]> boardCoordinates = Lizzie.frame.convertScreenToCoordinates(x, y);
+    if (boardCoordinates.isPresent()) {
+      if (isCoordsEmpty(boardCoordinates.get()[0], boardCoordinates.get()[1])) {
+        allowCoords =
+            convertCoordinatesToName(boardCoordinates.get()[0], boardCoordinates.get()[1]);
+        return true;
+      } else return false;
+    }
+    return false;
+  }
+
+  public boolean addAllowCoords(int x, int y) {
+    Optional<int[]> boardCoordinates = Lizzie.frame.convertScreenToCoordinates(x, y);
+    if (boardCoordinates.isPresent()) {
+      if (isCoordsEmpty(boardCoordinates.get()[0], boardCoordinates.get()[1])) {
+        allowCoords =
+            allowCoords
+                + ","
+                + convertCoordinatesToName(boardCoordinates.get()[0], boardCoordinates.get()[1]);
+        return true;
+      } else return false;
+    }
+    return false;
+  }
+
+  public boolean isCoordsEmpty(int x, int y) {
+    if (history.getStones()[getIndex(x, y)] != Stone.EMPTY) {
+      return false;
+    }
+    return true;
   }
 }

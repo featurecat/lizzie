@@ -36,6 +36,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -115,6 +116,7 @@ public class LizzieFrame extends MainFrame {
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
   private long lastPlayouts = 0;
   public boolean isDrawVisitsInTitle = true;
+  RightClickMenu rightClickMenu;
 
   /** Creates a window */
   public LizzieFrame() {
@@ -605,7 +607,7 @@ public class LizzieFrame extends MainFrame {
       if (Lizzie.config.showStatus) drawCommandString(g);
 
       boardRenderer.setLocation(boardX, boardY);
-      boardRenderer.setBoardLength(maxSize, maxSize);
+      boardRenderer.setBoardLength(maxSize, maxSize); // TODO boardSize
       boardRenderer.setupSizeParameters();
       boardRenderer.draw(g);
 
@@ -652,7 +654,7 @@ public class LizzieFrame extends MainFrame {
         if (Lizzie.config.showSubBoard) {
           try {
             subBoardRenderer.setLocation(subBoardX, subBoardY);
-            subBoardRenderer.setBoardLength(subBoardLength, subBoardLength);
+            subBoardRenderer.setBoardLength(subBoardLength, subBoardLength); // TODO boardSize
             subBoardRenderer.setupSizeParameters();
             subBoardRenderer.draw(g);
           } catch (Exception e) {
@@ -1494,5 +1496,41 @@ public class LizzieFrame extends MainFrame {
 
   public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
     menu.updateEngineIcon(engineList, currentEngineNo);
+  }
+
+  public Optional<int[]> convertScreenToCoordinates(int x, int y) {
+    return boardRenderer.convertScreenToCoordinates(x, y);
+  }
+
+  public boolean openRightClickMenu(int x, int y) {
+    Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
+    if (!boardCoordinates.isPresent()) {
+      return false;
+    }
+    if (isPlayingAgainstLeelaz) {
+      return false;
+    }
+    if (Lizzie.leelaz.isPondering()) {
+      Lizzie.leelaz.sendCommand("name");
+    }
+    isShowingRightMenu = true;
+
+    rightClickMenu = new RightClickMenu();
+
+    rightClickMenu.storeXY(x, y);
+    Timer timer = new Timer();
+    timer.schedule(
+        new TimerTask() {
+          public void run() {
+            showMenu(x, y);
+            this.cancel();
+          }
+        },
+        50);
+    return true;
+  }
+
+  private void showMenu(int x, int y) {
+    rightClickMenu.show(this, x, y);
   }
 }

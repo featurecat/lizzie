@@ -1606,8 +1606,8 @@ public class BoardRenderer {
     if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
-    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
-    Graphics2D g = cachedEsitmateRectImage.createGraphics();
+    BufferedImage newEstimateImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
+    Graphics2D g = newEstimateImage.createGraphics();
     for (int i = 0; i < esitmateArray.size(); i++) {
 
       if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
@@ -1645,6 +1645,7 @@ public class BoardRenderer {
             (int) (stoneRadius * 1.2));
       }
     }
+    cachedEsitmateRectImage = newEstimateImage;
   }
 
   public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
