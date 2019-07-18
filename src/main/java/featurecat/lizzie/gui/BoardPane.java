@@ -366,13 +366,13 @@ public class BoardPane extends LizziePane {
   }
 
   public void onMouseExited(int x, int y) {
-    if (Lizzie.frame.isShowingRightMenu) return;
+    if (Lizzie.frame != null && Lizzie.frame.isShowingRightMenu) return;
     mouseOverCoordinate = outOfBoundCoordinate;
     clearMoved();
   }
 
   public void onMouseMoved(int x, int y) {
-    if (Lizzie.frame.isShowingRightMenu) return;
+    if (Lizzie.frame != null && Lizzie.frame.isShowingRightMenu) return;
     mouseOverCoordinate = outOfBoundCoordinate;
     Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
     coords
