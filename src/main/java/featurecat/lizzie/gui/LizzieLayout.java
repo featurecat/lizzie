@@ -292,10 +292,10 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
       Container main = getMain(target);
       Insets insets = target.getInsets();
 
-      int x =0; 
-    		//  target.getX();
+      int x = 0;
+      //  target.getX();
       int y = 0;
-    		  //target.getY();
+      // target.getY();
       int width = target.getWidth();
       int height = target.getHeight();
 

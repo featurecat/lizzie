@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -21,13 +22,14 @@ public class Menu extends JMenuBar {
   public static ImageIcon ready;
   public static JMenuItem[] engine = new JMenuItem[10];
   public static JMenu engineMenu;
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public Menu() {
     setBorder(new EmptyBorder(0, 0, 0, 0));
-    final JMenu fileMenu = new JMenu(" 文件  ");
+    final JMenu fileMenu = new JMenu(resourceBundle.getString("Menu.file"));
     this.add(fileMenu);
 
-    final JMenuItem open = new JMenuItem("打开棋谱(O)");
+    final JMenuItem open = new JMenuItem(resourceBundle.getString("Menu.file.open"));
     open.addActionListener(
         new ActionListener() {
           @Override
@@ -37,7 +39,7 @@ public class Menu extends JMenuBar {
         });
     fileMenu.add(open);
 
-    final JMenuItem save = new JMenuItem("保存棋谱(S)");
+    final JMenuItem save = new JMenuItem(resourceBundle.getString("Menu.file.save"));
     save.addActionListener(
         new ActionListener() {
           @Override
@@ -47,7 +49,7 @@ public class Menu extends JMenuBar {
         });
     fileMenu.add(save);
 
-    final JMenuItem openUrl = new JMenuItem("打开在线棋谱(Q)");
+    final JMenuItem openUrl = new JMenuItem(resourceBundle.getString("Menu.file.openUrl"));
     openUrl.addActionListener(
         new ActionListener() {
           @Override
@@ -58,7 +60,7 @@ public class Menu extends JMenuBar {
     fileMenu.add(openUrl);
 
     fileMenu.addSeparator();
-    final JMenuItem copy = new JMenuItem("复制到剪贴板(CTRL+C)");
+    final JMenuItem copy = new JMenuItem(resourceBundle.getString("Menu.file.copy"));
     copy.addActionListener(
         new ActionListener() {
           @Override
@@ -68,7 +70,7 @@ public class Menu extends JMenuBar {
         });
     fileMenu.add(copy);
 
-    final JMenuItem paste = new JMenuItem("从剪贴板粘贴(CTRL+V)");
+    final JMenuItem paste = new JMenuItem(resourceBundle.getString("Menu.file.paste"));
     paste.addActionListener(
         new ActionListener() {
           @Override
@@ -80,17 +82,8 @@ public class Menu extends JMenuBar {
 
     fileMenu.addSeparator();
 
-    final JMenuItem resume = new JMenuItem("恢复棋谱");
-    fileMenu.add(resume);
-    resume.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.board.resumePreviousGame();
-          }
-        });
-
-    final JCheckBoxMenuItem autoSave = new JCheckBoxMenuItem("自动保存棋谱(10秒一次)");
+    final JCheckBoxMenuItem autoSave =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.file.autoSave"));
     autoSave.addActionListener(
         new ActionListener() {
           @Override
@@ -116,9 +109,19 @@ public class Menu extends JMenuBar {
         });
     fileMenu.add(autoSave);
 
+    final JMenuItem resume = new JMenuItem(resourceBundle.getString("Menu.file.resume"));
+    fileMenu.add(resume);
+    resume.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.board.resumePreviousGame();
+          }
+        });
+
     fileMenu.addSeparator();
 
-    final JMenuItem forceExit = new JMenuItem("强制退出");
+    final JMenuItem forceExit = new JMenuItem(resourceBundle.getString("Menu.file.forceExit"));
     forceExit.addActionListener(
         new ActionListener() {
           @Override
@@ -129,7 +132,7 @@ public class Menu extends JMenuBar {
     fileMenu.add(forceExit);
 
     final JMenuItem exit = new JMenuItem();
-    exit.setText("退出");
+    exit.setText(resourceBundle.getString("Menu.file.exit"));
     exit.addActionListener(
         new ActionListener() {
           @Override
@@ -154,13 +157,13 @@ public class Menu extends JMenuBar {
           public void menuCanceled(MenuEvent e) {}
         });
 
-    final JMenu viewMenu = new JMenu(" 显示  ");
+    final JMenu viewMenu = new JMenu(resourceBundle.getString("Menu.view"));
     this.add(viewMenu);
 
-    final JMenu mainBoardPos = new JMenu("主棋盘位置");
+    final JMenu mainBoardPos = new JMenu(resourceBundle.getString("Menu.view.mainBoardPos"));
     viewMenu.add(mainBoardPos);
 
-    final JMenuItem left = new JMenuItem("左移([)");
+    final JMenuItem left = new JMenuItem(resourceBundle.getString("Menu.view.mainBoardPos.left"));
     left.addActionListener(
         new ActionListener() {
           @Override
@@ -171,7 +174,7 @@ public class Menu extends JMenuBar {
         });
     mainBoardPos.add(left);
 
-    final JMenuItem right = new JMenuItem("右移(])");
+    final JMenuItem right = new JMenuItem(resourceBundle.getString("Menu.view.mainBoardPos.right"));
     right.addActionListener(
         new ActionListener() {
           @Override
@@ -182,7 +185,8 @@ public class Menu extends JMenuBar {
         });
     mainBoardPos.add(right);
 
-    final JCheckBoxMenuItem coords = new JCheckBoxMenuItem("坐标(C)");
+    final JCheckBoxMenuItem coords =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.coords"));
     coords.addActionListener(
         new ActionListener() {
           @Override
@@ -192,10 +196,11 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(coords);
 
-    final JMenu moveMenu = new JMenu("手数(M)");
+    final JMenu moveMenu = new JMenu(resourceBundle.getString("Menu.view.move"));
     viewMenu.add(moveMenu);
 
-    final JCheckBoxMenuItem noMove = new JCheckBoxMenuItem("不显示");
+    final JCheckBoxMenuItem noMove =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.move.noMove"));
     noMove.addActionListener(
         new ActionListener() {
           @Override
@@ -210,7 +215,8 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(noMove);
 
-    final JCheckBoxMenuItem oneMove = new JCheckBoxMenuItem("最近1手");
+    final JCheckBoxMenuItem oneMove =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.move.oneMove"));
     oneMove.addActionListener(
         new ActionListener() {
           @Override
@@ -227,7 +233,8 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(oneMove);
 
-    final JCheckBoxMenuItem fiveMove = new JCheckBoxMenuItem("最近5手");
+    final JCheckBoxMenuItem fiveMove =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.move.fiveMove"));
     fiveMove.addActionListener(
         new ActionListener() {
           @Override
@@ -244,7 +251,8 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(fiveMove);
 
-    final JCheckBoxMenuItem tenMove = new JCheckBoxMenuItem("最近10手");
+    final JCheckBoxMenuItem tenMove =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.move.tenMove"));
     tenMove.addActionListener(
         new ActionListener() {
           @Override
@@ -261,7 +269,8 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(tenMove);
 
-    final JCheckBoxMenuItem allMove = new JCheckBoxMenuItem("全部");
+    final JCheckBoxMenuItem allMove =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.move.allMove"));
     allMove.addActionListener(
         new ActionListener() {
           @Override
@@ -276,10 +285,11 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(allMove);
 
-    final JMenu panelView = new JMenu("面板");
+    final JMenu panelView = new JMenu(resourceBundle.getString("Menu.view.panelView"));
     viewMenu.add(panelView);
 
-    final JCheckBoxMenuItem subBoard = new JCheckBoxMenuItem("小棋盘(ALT+Z)");
+    final JCheckBoxMenuItem subBoard =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.subBoard"));
     subBoard.addActionListener(
         new ActionListener() {
           @Override
@@ -289,7 +299,8 @@ public class Menu extends JMenuBar {
         });
     panelView.add(subBoard);
 
-    final JCheckBoxMenuItem winrateGraph = new JCheckBoxMenuItem("胜率面板(W)");
+    final JCheckBoxMenuItem winrateGraph =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.winrateGraph"));
     winrateGraph.addActionListener(
         new ActionListener() {
           @Override
@@ -299,7 +310,8 @@ public class Menu extends JMenuBar {
         });
     panelView.add(winrateGraph);
 
-    final JCheckBoxMenuItem comment = new JCheckBoxMenuItem("评论面板(T)");
+    final JCheckBoxMenuItem comment =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.comment"));
     comment.addActionListener(
         new ActionListener() {
           @Override
@@ -309,7 +321,8 @@ public class Menu extends JMenuBar {
         });
     panelView.add(comment);
 
-    final JCheckBoxMenuItem variationGraph = new JCheckBoxMenuItem("分支面板(G)");
+    final JCheckBoxMenuItem variationGraph =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.variationGraph"));
     variationGraph.addActionListener(
         new ActionListener() {
           @Override
@@ -319,7 +332,8 @@ public class Menu extends JMenuBar {
         });
     panelView.add(variationGraph);
 
-    final JCheckBoxMenuItem captured = new JCheckBoxMenuItem("左上角面板");
+    final JCheckBoxMenuItem captured =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.captured"));
     captured.addActionListener(
         new ActionListener() {
           @Override
@@ -329,7 +343,8 @@ public class Menu extends JMenuBar {
         });
     panelView.add(captured);
 
-    final JCheckBoxMenuItem status = new JCheckBoxMenuItem("左下角状态");
+    final JCheckBoxMenuItem status =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.status"));
     status.addActionListener(
         new ActionListener() {
           @Override
@@ -339,7 +354,8 @@ public class Menu extends JMenuBar {
         });
     panelView.add(status);
 
-    final JCheckBoxMenuItem gtpConsole = new JCheckBoxMenuItem("命令窗口(E)");
+    final JCheckBoxMenuItem gtpConsole =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.gtpConsole"));
     gtpConsole.addActionListener(
         new ActionListener() {
           @Override
@@ -351,7 +367,8 @@ public class Menu extends JMenuBar {
 
     viewMenu.addSeparator();
 
-    final JCheckBoxMenuItem bigSubBoard = new JCheckBoxMenuItem("放大小棋盘(ALT+V)");
+    final JCheckBoxMenuItem bigSubBoard =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.bigSubBoard"));
     bigSubBoard.addActionListener(
         new ActionListener() {
           @Override
@@ -362,7 +379,8 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(bigSubBoard);
 
-    final JCheckBoxMenuItem bigWinGraph = new JCheckBoxMenuItem("放大胜率图(Ctrl+W)");
+    final JCheckBoxMenuItem bigWinGraph =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.bigWinGraph"));
     bigWinGraph.addActionListener(
         new ActionListener() {
           @Override
@@ -373,7 +391,8 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(bigWinGraph);
 
-    final JCheckBoxMenuItem winrateAlwaysBlack = new JCheckBoxMenuItem("总是显示黑胜率");
+    final JCheckBoxMenuItem winrateAlwaysBlack =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.winrateAlwaysBlack"));
     winrateAlwaysBlack.addActionListener(
         new ActionListener() {
           @Override
@@ -399,7 +418,7 @@ public class Menu extends JMenuBar {
 
     viewMenu.addSeparator();
 
-    final JMenuItem defaultView = new JMenuItem("默认模式");
+    final JMenuItem defaultView = new JMenuItem(resourceBundle.getString("Menu.view.defaultView"));
     defaultView.addActionListener(
         new ActionListener() {
           @Override
@@ -423,7 +442,7 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(defaultView);
 
-    final JMenuItem classicView = new JMenuItem("经典模式");
+    final JMenuItem classicView = new JMenuItem(resourceBundle.getString("Menu.view.classicView"));
     classicView.addActionListener(
         new ActionListener() {
           @Override
@@ -447,7 +466,7 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(classicView);
 
-    final JMenuItem simpleView = new JMenuItem("精简模式");
+    final JMenuItem simpleView = new JMenuItem(resourceBundle.getString("Menu.view.simpleView"));
     viewMenu.add(simpleView);
     simpleView.addActionListener(
         new ActionListener() {
@@ -459,7 +478,10 @@ public class Menu extends JMenuBar {
             if (Lizzie.config.showStatus) Lizzie.config.toggleShowStatus();
             if (Lizzie.config.showVariationGraph) Lizzie.config.toggleShowVariationGraph();
             if (Lizzie.config.showWinrate) Lizzie.config.toggleShowWinrate();
-            int minlength = Math.min(Lizzie.frame.getWidth(), Lizzie.frame.getHeight());
+            int minlength =
+                Math.min(Lizzie.frame.getWidth(), Lizzie.frame.getHeight()) < 681
+                    ? 681
+                    : Math.min(Lizzie.frame.getWidth(), Lizzie.frame.getHeight());
             Lizzie.frame.setBounds(
                 Lizzie.frame.getX(), Lizzie.frame.getY(), (int) (minlength * 0.94), minlength);
             Lizzie.frame.refresh(2);
@@ -468,13 +490,15 @@ public class Menu extends JMenuBar {
 
     viewMenu.addSeparator();
 
-    final JMenu kataGo = new JMenu("KataGo相关设置");
+    final JMenu kataGo = new JMenu(resourceBundle.getString("Menu.view.kataGo"));
     viewMenu.add(kataGo);
 
-    final JMenu kataGoSugg = new JMenu("KataGo推荐点显示");
+    final JMenu kataGoSugg = new JMenu(resourceBundle.getString("Menu.view.kataGo.kataGoSugg"));
     kataGo.add(kataGoSugg);
 
-    final JCheckBoxMenuItem kataGoSuggestion1 = new JCheckBoxMenuItem("胜率+计算量", false);
+    final JCheckBoxMenuItem kataGoSuggestion1 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataGoSugg.kataGoSuggestion1"));
     kataGoSuggestion1.addActionListener(
         new ActionListener() {
           @Override
@@ -490,7 +514,9 @@ public class Menu extends JMenuBar {
         });
     kataGoSugg.add(kataGoSuggestion1);
 
-    final JCheckBoxMenuItem kataGoSuggestion2 = new JCheckBoxMenuItem("目差+计算量");
+    final JCheckBoxMenuItem kataGoSuggestion2 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataGoSugg.kataGoSuggestion2"));
     kataGoSuggestion2.addActionListener(
         new ActionListener() {
           @Override
@@ -509,7 +535,9 @@ public class Menu extends JMenuBar {
         });
     kataGoSugg.add(kataGoSuggestion2);
 
-    final JCheckBoxMenuItem kataGoSuggestion3 = new JCheckBoxMenuItem("胜率+计算量+目差");
+    final JCheckBoxMenuItem kataGoSuggestion3 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataGoSugg.kataGoSuggestion3"));
     kataGoSuggestion3.addActionListener(
         new ActionListener() {
           @Override
@@ -528,10 +556,13 @@ public class Menu extends JMenuBar {
         });
     kataGoSugg.add(kataGoSuggestion3);
 
-    final JMenu kataScoreMean = new JMenu("KataGo目差显示");
+    final JMenu kataScoreMean =
+        new JMenu(resourceBundle.getString("Menu.view.kataGo.kataScoreMean"));
     kataGo.add(kataScoreMean);
 
-    final JCheckBoxMenuItem kataScoreMean1 = new JCheckBoxMenuItem("目差");
+    final JCheckBoxMenuItem kataScoreMean1 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataScoreMean.kataScoreMean1"));
     kataScoreMean1.addActionListener(
         new ActionListener() {
           @Override
@@ -548,7 +579,9 @@ public class Menu extends JMenuBar {
         });
     kataScoreMean.add(kataScoreMean1);
 
-    final JCheckBoxMenuItem kataScoreMean2 = new JCheckBoxMenuItem("盘面差");
+    final JCheckBoxMenuItem kataScoreMean2 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataScoreMean.kataScoreMean2"));
     kataScoreMean2.addActionListener(
         new ActionListener() {
           @Override
@@ -565,10 +598,12 @@ public class Menu extends JMenuBar {
         });
     kataScoreMean.add(kataScoreMean2);
 
-    final JMenu kataMeanView = new JMenu("KataGo目差视角");
+    final JMenu kataMeanView = new JMenu(resourceBundle.getString("Menu.view.kataGo.kataMeanView"));
     kataGo.add(kataMeanView);
 
-    final JCheckBoxMenuItem kataMeanAlwaysBlack = new JCheckBoxMenuItem("永远为黑视角");
+    final JCheckBoxMenuItem kataMeanAlwaysBlack =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataMeanView.kataMeanAlwaysBlack"));
     kataMeanAlwaysBlack.addActionListener(
         new ActionListener() {
           @Override
@@ -585,7 +620,9 @@ public class Menu extends JMenuBar {
         });
     kataMeanView.add(kataMeanAlwaysBlack);
 
-    final JCheckBoxMenuItem kataMeanBlackWhite = new JCheckBoxMenuItem("黑白交替视角");
+    final JCheckBoxMenuItem kataMeanBlackWhite =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataMeanView.kataMeanBlackWhite"));
     kataMeanBlackWhite.addActionListener(
         new ActionListener() {
           @Override
@@ -602,10 +639,12 @@ public class Menu extends JMenuBar {
         });
     kataMeanView.add(kataMeanBlackWhite);
 
-    final JMenu kataEstimate = new JMenu("KataGo评估显示");
+    final JMenu kataEstimate = new JMenu(resourceBundle.getString("Menu.view.kataGo.kataEstimate"));
     kataGo.add(kataEstimate);
 
-    final JCheckBoxMenuItem kataEstimate1 = new JCheckBoxMenuItem("关闭评估");
+    final JCheckBoxMenuItem kataEstimate1 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate1"));
     kataEstimate.add(kataEstimate1);
     kataEstimate1.addActionListener(
         new ActionListener() {
@@ -617,7 +656,9 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate2 = new JCheckBoxMenuItem("显示在大棋盘上");
+    final JCheckBoxMenuItem kataEstimate2 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate2"));
     kataEstimate.add(kataEstimate2);
     kataEstimate2.addActionListener(
         new ActionListener() {
@@ -641,7 +682,9 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate3 = new JCheckBoxMenuItem("显示在小棋盘上");
+    final JCheckBoxMenuItem kataEstimate3 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate3"));
     kataEstimate.add(kataEstimate3);
     kataEstimate3.addActionListener(
         new ActionListener() {
@@ -665,7 +708,9 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate4 = new JCheckBoxMenuItem("显示在大小棋盘上");
+    final JCheckBoxMenuItem kataEstimate4 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate4"));
     kataEstimate.add(kataEstimate4);
     kataEstimate4.addActionListener(
         new ActionListener() {
@@ -690,13 +735,15 @@ public class Menu extends JMenuBar {
 
     kataEstimate.addSeparator();
 
-    final JCheckBoxMenuItem kataEstimate5 = new JCheckBoxMenuItem("以方块大小表示占有率");
+    final JCheckBoxMenuItem kataEstimate5 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate5"));
     kataEstimate.add(kataEstimate5);
     kataEstimate5.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoEstimateBySize = true;
+            Lizzie.config.showKataGoEstimateBySize = false;
             Lizzie.config.uiConfig.put(
                 "show-katago-estimate-bysize", Lizzie.config.showKataGoEstimateBySize);
             try {
@@ -707,13 +754,15 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate6 = new JCheckBoxMenuItem("以方块透明度表示占有率");
+    final JCheckBoxMenuItem kataEstimate6 =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate6"));
     kataEstimate.add(kataEstimate6);
     kataEstimate6.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoEstimateBySize = false;
+            Lizzie.config.showKataGoEstimateBySize = true;
             Lizzie.config.uiConfig.put(
                 "show-katago-estimate-bysize", Lizzie.config.showKataGoEstimateBySize);
             try {
@@ -855,10 +904,10 @@ public class Menu extends JMenuBar {
           public void menuCanceled(MenuEvent e) {}
         });
 
-    final JMenu gameMenu = new JMenu(" 棋局  ");
+    final JMenu gameMenu = new JMenu(resourceBundle.getString("Menu.game"));
     this.add(gameMenu);
 
-    final JMenuItem newGame = new JMenuItem("新对局(N)");
+    final JMenuItem newGame = new JMenuItem(resourceBundle.getString("Menu.game.newGame"));
     gameMenu.add(newGame);
     newGame.addActionListener(
         new ActionListener() {
@@ -869,7 +918,8 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JMenuItem continueGameBlack = new JMenuItem("续弈[执黑](回车)");
+    final JMenuItem continueGameBlack =
+        new JMenuItem(resourceBundle.getString("Menu.game.continueGameBlack"));
     continueGameBlack.addActionListener(
         new ActionListener() {
           @Override
@@ -891,7 +941,8 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(continueGameBlack);
 
-    final JMenuItem continueGameWhite = new JMenuItem("续弈[执白](回车)");
+    final JMenuItem continueGameWhite =
+        new JMenuItem(resourceBundle.getString("Menu.game.continueGameWhite"));
     continueGameWhite.addActionListener(
         new ActionListener() {
           @Override
@@ -914,7 +965,7 @@ public class Menu extends JMenuBar {
     gameMenu.add(continueGameWhite);
 
     gameMenu.addSeparator();
-    final JMenuItem breakGame = new JMenuItem("中断对局(空格)");
+    final JMenuItem breakGame = new JMenuItem(resourceBundle.getString("Menu.game.breakGame"));
     breakGame.addActionListener(
         new ActionListener() {
           @Override
@@ -928,7 +979,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(breakGame);
 
-    final JMenuItem setInfo = new JMenuItem("设置棋局信息(I)");
+    final JMenuItem setInfo = new JMenuItem(resourceBundle.getString("Menu.game.setInfo"));
     setInfo.addActionListener(
         new ActionListener() {
           @Override
@@ -938,7 +989,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(setInfo);
 
-    final JMenuItem bestOne = new JMenuItem("落最佳一手(逗号)");
+    final JMenuItem bestOne = new JMenuItem(resourceBundle.getString("Menu.game.bestOne"));
     bestOne.addActionListener(
         new ActionListener() {
           @Override
@@ -948,7 +999,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(bestOne);
 
-    final JMenuItem pass = new JMenuItem("停一手(P)");
+    final JMenuItem pass = new JMenuItem(resourceBundle.getString("Menu.game.pass"));
     pass.addActionListener(
         new ActionListener() {
           @Override
@@ -959,7 +1010,7 @@ public class Menu extends JMenuBar {
     gameMenu.add(pass);
     gameMenu.addSeparator();
 
-    final JMenuItem clearBoard = new JMenuItem("清空棋盘(Ctrl+Home)");
+    final JMenuItem clearBoard = new JMenuItem(resourceBundle.getString("Menu.game.clearBoard"));
     clearBoard.addActionListener(
         new ActionListener() {
           @Override
@@ -970,7 +1021,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(clearBoard);
 
-    final JMenuItem backToMain = new JMenuItem("返回主分支(CTRL+左)");
+    final JMenuItem backToMain = new JMenuItem(resourceBundle.getString("Menu.game.backToMain"));
     backToMain.addActionListener(
         new ActionListener() {
           @Override
@@ -982,7 +1033,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(backToMain);
 
-    final JMenuItem gotoStart = new JMenuItem("跳转到最前(Home)");
+    final JMenuItem gotoStart = new JMenuItem(resourceBundle.getString("Menu.game.gotoStart"));
     gotoStart.addActionListener(
         new ActionListener() {
           @Override
@@ -992,7 +1043,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoStart);
 
-    final JMenuItem gotoEnd = new JMenuItem("跳转到最后(End)");
+    final JMenuItem gotoEnd = new JMenuItem(resourceBundle.getString("Menu.game.gotoEnd"));
     gotoEnd.addActionListener(
         new ActionListener() {
           @Override
@@ -1002,7 +1053,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoEnd);
 
-    final JMenuItem gotoLeft = new JMenuItem("跳转到左分支(左)");
+    final JMenuItem gotoLeft = new JMenuItem(resourceBundle.getString("Menu.game.gotoLeft"));
     gotoLeft.addActionListener(
         new ActionListener() {
           @Override
@@ -1015,7 +1066,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoLeft);
 
-    final JMenuItem gotoRight = new JMenuItem("跳转到右分支(右)");
+    final JMenuItem gotoRight = new JMenuItem(resourceBundle.getString("Menu.game.gotoRight"));
     gotoRight.addActionListener(
         new ActionListener() {
           @Override
@@ -1028,10 +1079,11 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoRight);
 
-    final JMenu analyzeMenu = new JMenu(" 分析  ", false);
+    final JMenu analyzeMenu = new JMenu(resourceBundle.getString("Menu.analyze"));
     this.add(analyzeMenu);
 
-    final JMenuItem toggleAnalyze = new JMenuItem("分析/停止(空格)");
+    final JMenuItem toggleAnalyze =
+        new JMenuItem(resourceBundle.getString("Menu.analyze.toggleAnalyze"));
     toggleAnalyze.addActionListener(
         new ActionListener() {
           @Override
@@ -1045,7 +1097,8 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(toggleAnalyze);
 
-    final JMenuItem autoAnalyze = new JMenuItem("自动分析(A)");
+    final JMenuItem autoAnalyze =
+        new JMenuItem(resourceBundle.getString("Menu.analyze.autoAnalyze"));
     autoAnalyze.addActionListener(
         new ActionListener() {
           @Override
@@ -1055,7 +1108,7 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(autoAnalyze);
 
-    final JMenuItem estimate = new JMenuItem("形势判断(点)");
+    final JMenuItem estimate = new JMenuItem(resourceBundle.getString("Menu.analyze.estimate"));
     estimate.addActionListener(
         new ActionListener() {
           @Override
@@ -1065,13 +1118,59 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(estimate);
 
-    engineMenu = new JMenu(" 引擎  ");
+    final JMenu configMenu = new JMenu(resourceBundle.getString("Menu.configMenu"));
+    this.add(configMenu);
+
+    final JMenuItem engineConfig =
+        new JMenuItem(resourceBundle.getString("Menu.configMenu.engineConfig"));
+    engineConfig.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.openConfigDialog(0);
+          }
+        });
+    configMenu.add(engineConfig);
+
+    final JMenuItem viewConfig =
+        new JMenuItem(resourceBundle.getString("Menu.configMenu.viewConfig"));
+    viewConfig.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.openConfigDialog(1);
+          }
+        });
+    configMenu.add(viewConfig);
+
+    final JMenuItem themeConfig =
+        new JMenuItem(resourceBundle.getString("Menu.configMenu.themeConfig"));
+    themeConfig.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.openConfigDialog(2);
+          }
+        });
+    configMenu.add(themeConfig);
+
+    final JMenuItem about = new JMenuItem(resourceBundle.getString("Menu.configMenu.about"));
+    about.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.openConfigDialog(3);
+          }
+        });
+    configMenu.add(about);
+
+    engineMenu = new JMenu(resourceBundle.getString("Menu.engineMenu"));
     this.add(engineMenu);
 
     for (int i = 0; i < engine.length; i++) {
       engine[i] = new JMenuItem();
       engineMenu.add(engine[i]);
-      engine[i].setText("引擎" + i);
+      engine[i].setText(resourceBundle.getString("Menu.engineMenu") + " " + i);
       engine[i].setVisible(false);
     }
 
@@ -1090,49 +1189,6 @@ public class Menu extends JMenuBar {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-
-    final JMenu configMenu = new JMenu(" 设置  ");
-    this.add(configMenu);
-
-    final JMenuItem engineConfig = new JMenuItem("引擎");
-    engineConfig.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.openConfigDialog(0);
-          }
-        });
-    configMenu.add(engineConfig);
-
-    final JMenuItem viewConfig = new JMenuItem("界面");
-    viewConfig.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.openConfigDialog(1);
-          }
-        });
-    configMenu.add(viewConfig);
-
-    final JMenuItem themeConfig = new JMenuItem("主题");
-    themeConfig.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.openConfigDialog(2);
-          }
-        });
-    configMenu.add(themeConfig);
-
-    final JMenuItem about = new JMenuItem("关于");
-    about.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.frame.openConfigDialog(3);
-          }
-        });
-    configMenu.add(about);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
@@ -1157,8 +1213,10 @@ public class Menu extends JMenuBar {
     for (int i = 0; i < engineList.size(); i++) {
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
-        if (i == currentEngineNo) engine[i].setIcon(running);
-        else if (engineDt.isLoaded()) engine[i].setIcon(ready);
+        if (i == currentEngineNo) {
+          engine[i].setIcon(running);
+          engineMenu.setText(engine[i].getText());
+        } else if (engineDt.isLoaded()) engine[i].setIcon(ready);
       }
     }
   }
