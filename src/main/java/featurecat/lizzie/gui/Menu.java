@@ -192,6 +192,7 @@ public class Menu extends JMenuBar {
           @Override
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.toggleCoordinates();
+            Lizzie.frame.refresh(2);
           }
         });
     viewMenu.add(coords);
