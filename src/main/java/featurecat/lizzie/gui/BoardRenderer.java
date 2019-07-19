@@ -1611,46 +1611,39 @@ public class BoardRenderer {
     if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
-    boolean drawLarge = false, drawSmall = false, drawSmart = false, drawSize = false;
-    switch (Lizzie.config.kataGoEstimateMode) {
-      default:
-      case "none":
-        drawLarge = false;
-        drawSmall = false;
-        drawSmart = false;
-        drawSize = false;
-        break;
-      case "small":
-        drawLarge = false;
-        drawSmall = true;
-        drawSmart = false;
-        drawSize = false;
-        break;
-      case "large":
-        drawLarge = true;
-        drawSmall = false;
-        drawSmart = false;
-        drawSize = false;
-        break;
-      case "both":
-        drawLarge = true;
-        drawSmall = true;
-        drawSmart = false;
-        drawSize = false;
-        break;
-      case "smart":
-        drawLarge = true;
-        drawSmall = true;
-        drawSmart = true;
-        drawSize = false;
-        break;
-      case "size":
-        drawLarge = false;
-        drawSmall = true;
-        drawSmart = false;
-        drawSize = true;
-        break;
+    boolean drawLarge = false, drawSmall = false, drawSize = false;
+    int drawSmart = 0;
+    if (Lizzie.config.showKataGoEstimate) {
+      switch (Lizzie.config.kataGoEstimateMode) {
+        case "small":
+          drawSmall = true;
+          break;
+        case "large":
+          drawLarge = true;
+          break;
+        case "large+small":
+          drawLarge = true;
+          drawSmall = true;
+          break;
+        default:
+        case "large+dead":
+          drawLarge = true;
+          drawSmall = true;
+          drawSmart = 1;
+          break;
+        case "large+stones":
+          drawLarge = true;
+          drawSmall = true;
+          drawSmart = 2;
+          break;
+        case "size":
+          drawSmall = true;
+          drawSize = true;
+          break;
+      }
     }
+    BufferedImage oldLargeRectImage = cachedEstimateLargeRectImage;
+    BufferedImage oldSmallRectImage = cachedEstimateSmallRectImage;
     BufferedImage newLargeRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     BufferedImage newSmallRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     Graphics2D gl = newLargeRectImage.createGraphics();
@@ -1694,7 +1687,10 @@ public class BoardRenderer {
 
       Stone stoneHere = Lizzie.board.getStones()[Board.getIndex(x, y)];
       boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
-      if (drawSmall && (differentColor || !drawSmart)) {
+      boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
+      boolean allowed =
+          drawSmart == 0 || (drawSmart == 1 && differentColor) || (drawSmart == 2 && anyColor);
+      if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);
         int ialpha = drawSize ? 180 : (int) (255 * alpha);
@@ -1703,8 +1699,14 @@ public class BoardRenderer {
         gs.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
       }
     }
-    cachedEstimateLargeRectImage = newLargeRectImage;
-    cachedEstimateSmallRectImage = newSmallRectImage;
+    // Lizzie isn't very careful about threading and removeEstimateRect may have been
+    // called while this was running. So only replace images if same object as at start.
+    if (cachedEstimateLargeRectImage == oldLargeRectImage) {
+      cachedEstimateLargeRectImage = newLargeRectImage;
+    }
+    if (cachedEstimateSmallRectImage == oldSmallRectImage) {
+      cachedEstimateSmallRectImage = newSmallRectImage;
+    }
   }
 
   private double convertLength(double length) {

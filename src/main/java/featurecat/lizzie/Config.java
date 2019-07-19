@@ -54,9 +54,10 @@ public class Config {
   public boolean showKataGoBoardScoreMean = false;
   public boolean kataGoScoreMeanAlwaysBlack = false;
   public boolean kataGoNotShowWinrate = false;
+  public boolean showKataGoEstimate = true;
   public boolean showKataGoEstimateOnSubbord = true;
   public boolean showKataGoEstimateOnMainbord = true;
-  public String kataGoEstimateMode = "none";
+  public String kataGoEstimateMode = "large+dead";
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -233,9 +234,10 @@ public class Config {
     showKataGoBoardScoreMean = uiConfig.optBoolean("show-katago-boardscoremean", false);
     kataGoScoreMeanAlwaysBlack = uiConfig.optBoolean("katago-scoremean-alwaysblack", false);
     kataGoNotShowWinrate = uiConfig.optBoolean("katago-notshow-winrate", false);
+    showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", true);
     showKataGoEstimateOnSubbord = uiConfig.optBoolean("show-katago-estimate-onsubbord", true);
     showKataGoEstimateOnMainbord = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
-    kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "small");
+    kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "large+dead");
     showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
@@ -364,28 +366,30 @@ public class Config {
     showSubBoard = !showSubBoard;
   }
 
+  public void toggleKataGoEstimate() {
+    showKataGoEstimate = !showKataGoEstimate;
+  }
+
   public void cycleKataGoEstimateMode() {
     switch (kataGoEstimateMode) {
-      case "none":
-        kataGoEstimateMode = "small";
-        break;
       case "small":
         kataGoEstimateMode = "large";
         break;
       case "large":
-        kataGoEstimateMode = "both";
+        kataGoEstimateMode = "large+small";
         break;
-      case "both":
-        kataGoEstimateMode = "smart";
+      case "large+small":
+        kataGoEstimateMode = "large+dead";
         break;
-      case "smart":
+      default:
+      case "large+dead":
+        kataGoEstimateMode = "large+stones";
+        break;
+      case "large+stones":
         kataGoEstimateMode = "size";
         break;
       case "size":
-        kataGoEstimateMode = "none";
-        break;
-      default:
-        kataGoEstimateMode = "none";
+        kataGoEstimateMode = "small";
         break;
     }
   }
@@ -503,9 +507,10 @@ public class Config {
     ui.put("show-katago-boardscoremean", false);
     ui.put("katago-scoremean-alwaysblack", false);
     ui.put("katago-notshow-winrate", false);
+    ui.put("show-katago-estimate", true);
     ui.put("show-katago-estimate-onsubbord", true);
     ui.put("show-katago-estimate-onmainboard", true);
-    ui.put("katago-estimate-mode", "none");
+    ui.put("katago-estimate-mode", "large+dead");
     config.put("ui", ui);
     return config;
   }
