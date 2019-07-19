@@ -16,6 +16,7 @@ import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.TexturePaint;
@@ -23,8 +24,12 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +64,7 @@ public class LizzieMain extends MainFrame {
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
   private long lastPlayouts = 0;
   public boolean isDrawVisitsInTitle = true;
+  RightClickMenu rightClickMenu;
 
   /** Creates a window */
   public LizzieMain() {
@@ -187,7 +193,24 @@ public class LizzieMain extends MainFrame {
     WindowPosition.restorePane(Lizzie.config.persistedUi, commentPane);
 
     try {
-      this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/assets/logo.png")));
+      if (System.getProperty("os.name").contains("Mac")
+          && Utils.classExists("com.apple.eawt.Application")) {
+        try {
+          Class c = Class.forName("com.apple.eawt.Application");
+          Method m = c.getDeclaredMethod("getApplication");
+          Object o = m.invoke(null);
+          Method mset = c.getDeclaredMethod("setDockIconImage", Image.class);
+          mset.invoke(o, ImageIO.read(getClass().getResourceAsStream("/assets/logo.png")));
+        } catch (ClassNotFoundException e1) {
+        } catch (NoSuchMethodException e1) {
+        } catch (SecurityException e1) {
+        } catch (IllegalAccessException e1) {
+        } catch (IllegalArgumentException e1) {
+        } catch (InvocationTargetException e1) {
+        }
+      } else {
+        this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/assets/logo.png")));
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -648,4 +671,40 @@ public class LizzieMain extends MainFrame {
   public void saveImage() {
     boardPane.saveImage();
   };
+
+  public Optional<int[]> convertScreenToCoordinates(int x, int y) {
+    return boardPane.convertScreenToCoordinates(x, y);
+  }
+
+  public boolean openRightClickMenu(int x, int y) {
+    Optional<int[]> boardCoordinates = convertScreenToCoordinates(x, y);
+    if (!boardCoordinates.isPresent()) {
+      return false;
+    }
+    if (isPlayingAgainstLeelaz) {
+      return false;
+    }
+    if (Lizzie.leelaz.isPondering()) {
+      Lizzie.leelaz.sendCommand("name");
+    }
+    isShowingRightMenu = true;
+
+    rightClickMenu = new RightClickMenu();
+
+    rightClickMenu.storeXY(x, y);
+    Timer timer = new Timer();
+    timer.schedule(
+        new TimerTask() {
+          public void run() {
+            showMenu(x, y);
+            this.cancel();
+          }
+        },
+        50);
+    return true;
+  }
+
+  private void showMenu(int x, int y) {
+    rightClickMenu.show(boardPane, x, y);
+  }
 }

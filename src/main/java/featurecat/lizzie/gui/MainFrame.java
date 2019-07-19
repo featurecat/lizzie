@@ -12,6 +12,7 @@ import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -37,6 +38,7 @@ public abstract class MainFrame extends JFrame {
   public boolean isEstimating = false;
   public boolean isFirstCount = true;
   public boolean isAutoEstimating = false;
+  public boolean isShowingRightMenu = false;
 
   static {
     // load fonts
@@ -170,6 +172,11 @@ public abstract class MainFrame extends JFrame {
   public void openChangeMoveDialog() {
     ChangeMoveDialog changeMoveDialog = new ChangeMoveDialog();
     changeMoveDialog.setVisible(true);
+  }
+
+  public void openAvoidMoveDialog() {
+    AvoidMoveDialog avoidMoveDialog = new AvoidMoveDialog();
+    avoidMoveDialog.setVisible(true);
   }
 
   public void toggleGtpConsole() {
@@ -322,4 +329,8 @@ public abstract class MainFrame extends JFrame {
   public abstract void drawEstimateRectZen(ArrayList<Double> esitmateArray);
 
   public void saveImage() {};
+
+  public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
+
+  public abstract boolean openRightClickMenu(int x, int y);
 }

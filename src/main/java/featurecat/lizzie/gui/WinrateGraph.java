@@ -284,11 +284,11 @@ public class WinrateGraph {
                 g.setStroke(dashed);
               } else g.setStroke(new BasicStroke(1));
               g.drawLine(
-                  posx + (lastOkMove * width * 95 / 100 / numMoves),
+                  posx + (lastOkMove * width / numMoves),
                   posy
                       + height / 2
                       - (int) (convertScoreMean(lastScoreMean) * height / 2 / maxcoreMean),
-                  posx + (movenum * width * 95 / 100 / numMoves),
+                  posx + (movenum * width / numMoves),
                   posy
                       + height / 2
                       - (int) (convertScoreMean(curscoreMean) * height / 2 / maxcoreMean));
@@ -309,7 +309,7 @@ public class WinrateGraph {
         g.setFont(f);
         g.drawString(
             String.format("%.1f", curCurscoreMean),
-            posx + (curMovenum * width * 95 / 100 / numMoves) - 2 * DOT_RADIUS,
+            posx + (curMovenum * width / numMoves) - 2 * DOT_RADIUS,
             posy
                 + height / 2
                 - (int) (convertScoreMean(curCurscoreMean) * height / 2 / maxcoreMean)
