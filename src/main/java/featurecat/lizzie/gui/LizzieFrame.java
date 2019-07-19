@@ -1404,10 +1404,10 @@ public class LizzieFrame extends MainFrame {
   }
 
   public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
-    if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
+    if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubboard) {
       subBoardRenderer.drawEstimateRect(esitmateArray, false);
     }
-    if (Lizzie.config.showKataGoEstimateOnMainbord) {
+    if (Lizzie.config.showKataGoEstimateOnMainboard) {
       boardRenderer.drawEstimateRect(esitmateArray, false);
     }
   }
