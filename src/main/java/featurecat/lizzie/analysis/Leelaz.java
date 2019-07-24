@@ -664,7 +664,7 @@ public class Leelaz {
                   .config
                   .getJSONObject("leelaz")
                   .getInt("analyze-update-interval-centisec")
-              + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
+              + (this.isKataGo && Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
     // until it responds to this, incoming
     // ponder results are obsolete
   }

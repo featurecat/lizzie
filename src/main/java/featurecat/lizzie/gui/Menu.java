@@ -286,6 +286,63 @@ public class Menu extends JMenuBar {
         });
     moveMenu.add(allMove);
 
+    final JMenu Suggestions = new JMenu(resourceBundle.getString("Menu.view.Suggestions"));
+    viewMenu.add(Suggestions);
+
+    final JCheckBoxMenuItem suggestion1 =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.Suggestions.Suggestion1"));
+    suggestion1.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.showWinrateInSuggestion = !Lizzie.config.showWinrateInSuggestion;
+            Lizzie.config.uiConfig.put(
+                "show-winrate-in-suggestion", Lizzie.config.showWinrateInSuggestion);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    Suggestions.add(suggestion1);
+
+    final JCheckBoxMenuItem suggestion2 =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.Suggestions.Suggestion2"));
+    suggestion2.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.showPlayoutsInSuggestion = !Lizzie.config.showPlayoutsInSuggestion;
+            Lizzie.config.uiConfig.put(
+                "show-playouts-in-suggestion", Lizzie.config.showPlayoutsInSuggestion);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    Suggestions.add(suggestion2);
+
+    final JCheckBoxMenuItem suggestion3 =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.Suggestions.Suggestion3"));
+    suggestion3.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.showScoremeanInSuggestion = !Lizzie.config.showScoremeanInSuggestion;
+            Lizzie.config.uiConfig.put(
+                "show-scoremean-in-suggestion", Lizzie.config.showScoremeanInSuggestion);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    Suggestions.add(suggestion3);
+
     final JMenu panelView = new JMenu(resourceBundle.getString("Menu.view.panelView"));
     viewMenu.add(panelView);
 
@@ -493,69 +550,6 @@ public class Menu extends JMenuBar {
 
     final JMenu kataGo = new JMenu(resourceBundle.getString("Menu.view.kataGo"));
     viewMenu.add(kataGo);
-
-    final JMenu kataGoSugg = new JMenu(resourceBundle.getString("Menu.view.kataGo.kataGoSugg"));
-    kataGo.add(kataGoSugg);
-
-    final JCheckBoxMenuItem kataGoSuggestion1 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataGoSugg.kataGoSuggestion1"));
-    kataGoSuggestion1.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoScoreMean = false;
-            Lizzie.config.uiConfig.put("show-katago-scoremean", Lizzie.config.showKataGoScoreMean);
-            try {
-              Lizzie.config.save();
-            } catch (IOException es) {
-              // TODO Auto-generated catch block
-            }
-          }
-        });
-    kataGoSugg.add(kataGoSuggestion1);
-
-    final JCheckBoxMenuItem kataGoSuggestion2 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataGoSugg.kataGoSuggestion2"));
-    kataGoSuggestion2.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoScoreMean = true;
-            Lizzie.config.kataGoNotShowWinrate = true;
-            Lizzie.config.uiConfig.put("show-katago-scoremean", Lizzie.config.showKataGoScoreMean);
-            Lizzie.config.uiConfig.put(
-                "katago-notshow-winrate", Lizzie.config.kataGoNotShowWinrate);
-            try {
-              Lizzie.config.save();
-            } catch (IOException es) {
-              // TODO Auto-generated catch block
-            }
-          }
-        });
-    kataGoSugg.add(kataGoSuggestion2);
-
-    final JCheckBoxMenuItem kataGoSuggestion3 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataGoSugg.kataGoSuggestion3"));
-    kataGoSuggestion3.addActionListener(
-        new ActionListener() {
-          @Override
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoScoreMean = true;
-            Lizzie.config.kataGoNotShowWinrate = false;
-            Lizzie.config.uiConfig.put("show-katago-scoremean", Lizzie.config.showKataGoScoreMean);
-            Lizzie.config.uiConfig.put(
-                "katago-notshow-winrate", Lizzie.config.kataGoNotShowWinrate);
-            try {
-              Lizzie.config.save();
-            } catch (IOException es) {
-              // TODO Auto-generated catch block
-            }
-          }
-        });
-    kataGoSugg.add(kataGoSuggestion3);
 
     final JMenu kataScoreMean =
         new JMenu(resourceBundle.getString("Menu.view.kataGo.kataScoreMean"));
@@ -777,14 +771,12 @@ public class Menu extends JMenuBar {
     viewMenu.addMenuListener(
         new MenuListener() {
           public void menuSelected(MenuEvent e) {
-            if (!Lizzie.config.showKataGoScoreMean) kataGoSuggestion1.setState(true);
-            else kataGoSuggestion1.setState(false);
-            if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate)
-              kataGoSuggestion2.setState(true);
-            else kataGoSuggestion2.setState(false);
-            if (Lizzie.config.showKataGoScoreMean && !Lizzie.config.kataGoNotShowWinrate)
-              kataGoSuggestion3.setState(true);
-            else kataGoSuggestion3.setState(false);
+            if (Lizzie.config.showWinrateInSuggestion) suggestion1.setState(true);
+            else suggestion1.setState(false);
+            if (Lizzie.config.showPlayoutsInSuggestion) suggestion2.setState(true);
+            else suggestion2.setState(false);
+            if (Lizzie.config.showScoremeanInSuggestion) suggestion3.setState(true);
+            else suggestion3.setState(false);
             if (Lizzie.config.showKataGoBoardScoreMean) {
               kataScoreMean1.setState(false);
               kataScoreMean2.setState(true);

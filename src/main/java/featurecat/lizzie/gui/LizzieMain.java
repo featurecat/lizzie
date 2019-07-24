@@ -589,6 +589,9 @@ public class LizzieMain extends MainFrame {
   }
 
   public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (!Lizzie.config.showKataGoEstimate) {
+      return;
+    }
     if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
       subBoardPane.drawEstimateRectKata(esitmateArray);
     }
