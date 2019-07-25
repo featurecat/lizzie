@@ -6,6 +6,7 @@ import static java.lang.Math.max;
 
 import com.jhlabs.image.GaussianFilter;
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.util.Utils;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,6 +48,7 @@ public class LizzieMain extends MainFrame {
   public static WinratePane winratePane;
   public static VariationTreePane variationTreePane;
   public static CommentPane commentPane;
+  private static Menu menu;
   public static boolean designMode;
   private LizzieLayout layout;
 
@@ -179,6 +182,8 @@ public class LizzieMain extends MainFrame {
     variationTreePane = new VariationTreePane(this);
     commentPane = new CommentPane(this);
     countResults = new CountResults();
+    menu = new Menu();
+    setJMenuBar(menu);
     getContentPane().add(boardPane, LizzieLayout.MAIN_BOARD);
     getContentPane().add(basicInfoPane, LizzieLayout.BASIC_INFO);
     getContentPane().add(winratePane, LizzieLayout.WINRATE);
@@ -604,6 +609,9 @@ public class LizzieMain extends MainFrame {
   }
 
   public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+    if (!Lizzie.config.showKataGoEstimate) {
+      return;
+    }
     if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubbord) {
       subBoardPane.drawEstimateRectKata(esitmateArray);
     }
@@ -671,6 +679,14 @@ public class LizzieMain extends MainFrame {
   public void saveImage() {
     boardPane.saveImage();
   };
+
+  public void updateEngineMenu(List<Leelaz> engineList) {
+    menu.updateEngineMenu(engineList);
+  }
+
+  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+    menu.updateEngineIcon(engineList, currentEngineNo);
+  }
 
   public Optional<int[]> convertScreenToCoordinates(int x, int y) {
     return boardPane.convertScreenToCoordinates(x, y);

@@ -2,6 +2,7 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
+import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
@@ -12,6 +13,7 @@ import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javax.swing.JFileChooser;
@@ -167,6 +169,12 @@ public abstract class MainFrame extends JFrame {
     ConfigDialog configDialog = new ConfigDialog();
     configDialog.setVisible(true);
     //    configDialog.dispose();
+  }
+
+  public void openConfigDialog(int index) {
+    ConfigDialog configDialog = new ConfigDialog();
+    configDialog.switchTab(index);
+    configDialog.setVisible(true);
   }
 
   public void openChangeMoveDialog() {
@@ -329,6 +337,10 @@ public abstract class MainFrame extends JFrame {
   public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
 
   public void saveImage() {};
+
+  public abstract void updateEngineMenu(List<Leelaz> engineList);
+
+  public abstract void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo);
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
 

@@ -46,6 +46,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -214,6 +216,7 @@ public class ConfigDialog extends JDialog {
   public JButton btnBlackStonePath;
   public JButton btnWhiteStonePath;
   public JPanel pnlBoardPreview;
+  JTabbedPane tabbedPane;
 
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
@@ -246,7 +249,7 @@ public class ConfigDialog extends JDialog {
         });
     cancelButton.setActionCommand("Cancel");
     buttonPane.add(cancelButton);
-    JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+    tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
     JPanel engineTab = new JPanel();
@@ -2535,6 +2538,21 @@ public class ConfigDialog extends JDialog {
       Lizzie.config.save();
     } catch (IOException e) {
       e.printStackTrace();
+    }
+  }
+
+  public void switchTab(int index) {
+    tabbedPane.setSelectedIndex(index);
+    if (index == 2) {
+      Timer timer = new Timer();
+      timer.schedule(
+          new TimerTask() {
+            public void run() {
+              tabbedPane.repaint();
+              this.cancel();
+            }
+          },
+          100);
     }
   }
 }
