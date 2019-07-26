@@ -52,6 +52,7 @@ public class Lizzie {
     if (lz == leelaz) {
       leelaz.togglePonder();
     }
+    Lizzie.engineManager.updateEngineIcon();
   }
 
   public static void setLookAndFeel() {

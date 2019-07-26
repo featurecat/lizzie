@@ -319,6 +319,7 @@ public class Config {
   }
 
   public void toggleLargeWinrate() {
+    this.largeSubBoard = false;
     this.largeWinrate = !this.largeWinrate;
   }
 
@@ -351,6 +352,7 @@ public class Config {
   }
 
   public void toggleLargeSubBoard() {
+    this.largeWinrate = false;
     this.largeSubBoard = !this.largeSubBoard;
   }
 
@@ -391,6 +393,17 @@ public class Config {
       case "size":
         kataGoEstimateMode = "small";
         break;
+    }
+  }
+
+  public void toggleShowStatus() {
+    this.showStatus = !this.showStatus;
+    Lizzie.config.uiConfig.put("show-status", showStatus);
+    try {
+      Lizzie.config.save();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 

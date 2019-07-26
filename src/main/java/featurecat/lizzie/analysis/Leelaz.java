@@ -664,7 +664,7 @@ public class Leelaz {
                   .config
                   .getJSONObject("leelaz")
                   .getInt("analyze-update-interval-centisec")
-              + (Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
+              + (this.isKataGo && Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
     // until it responds to this, incoming
     // ponder results are obsolete
   }
@@ -918,5 +918,15 @@ public class Leelaz {
 
   public void toggleGtpConsole() {
     gtpConsole = !gtpConsole;
+  }
+
+  public void setWeightName() {
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
+    Matcher wMatcher = wPattern.matcher(engineCommand);
+    if (wMatcher.matches() && wMatcher.groupCount() == 2) {
+      currentWeightFile = wMatcher.group(2);
+      String[] names = currentWeightFile.split("[\\\\|/]");
+      currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
+    }
   }
 }
