@@ -69,6 +69,21 @@ public class ToolBar extends JToolBar {
     add(kataEstimate);
     addSeparator();
 
+    JButton estimate = new JButton(resourceBundle.getString("ToolBar.estimate"));
+    estimate.setFocusable(false);
+    estimate.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            if (Lizzie.frame.isEstimating) {
+              Lizzie.frame.noEstimateByZen();
+            } else {
+              Lizzie.frame.estimateByZen();
+            }
+          }
+        });
+    add(estimate);
+    addSeparator();
+
     JButton backMain = new JButton(resourceBundle.getString("ToolBar.backMain"));
     backMain.setFocusable(false);
     backMain.addActionListener(
@@ -91,6 +106,18 @@ public class ToolBar extends JToolBar {
           }
         });
     add(setMain);
+    addSeparator();
+
+    JButton clearBoard = new JButton(resourceBundle.getString("ToolBar.clearBoard"));
+    clearBoard.setFocusable(false);
+    clearBoard.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.board.clear();
+            Lizzie.frame.refresh(2);
+          }
+        });
+    add(clearBoard);
     addSeparator();
 
     JButton gotoFirst = new JButton("|<");
@@ -154,34 +181,7 @@ public class ToolBar extends JToolBar {
     add(gotoEnd);
     addSeparator();
 
-    JButton clearBoard = new JButton(resourceBundle.getString("ToolBar.clearBoard"));
-    clearBoard.setFocusable(false);
-    clearBoard.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            Lizzie.board.clear();
-            Lizzie.frame.refresh(2);
-          }
-        });
-    add(clearBoard);
-    addSeparator();
-
-    JButton estimate = new JButton(resourceBundle.getString("ToolBar.estimate"));
-    estimate.setFocusable(false);
-    estimate.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            if (Lizzie.frame.isEstimating) {
-              Lizzie.frame.noEstimateByZen();
-            } else {
-              Lizzie.frame.estimateByZen();
-            }
-          }
-        });
-    add(estimate);
-    addSeparator();
     txtMoveNumber = new JTextField();
-
     JPanel panel = new JPanel(null);
     panel.setPreferredSize(new Dimension(100, 20));
     txtMoveNumber.setBounds(2, 1, 30, 18);
