@@ -41,6 +41,7 @@ public abstract class MainFrame extends JFrame {
   public boolean isFirstCount = true;
   public boolean isAutoEstimating = false;
   public boolean isShowingRightMenu = false;
+  public ToolBar toolBar;
 
   static {
     // load fonts

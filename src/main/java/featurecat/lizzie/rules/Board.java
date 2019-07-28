@@ -1624,4 +1624,21 @@ public class Board implements LeelazListener {
     }
     return true;
   }
+
+  public boolean setAsMainBranch() {
+    if (history.getCurrentHistoryNode().isMainTrunk()) return false;
+    BoardHistoryNode topNode = history.getCurrentHistoryNode().topOfFatherBranch();
+    BoardHistoryNode mainNode = history.getCurrentHistoryNode().nodeBeforeTopOfFatherBranch();
+    BoardHistoryNode oldFirstVar = mainNode.variations.get(0);
+    for (int i = 0; i < mainNode.variations.size(); i++) {
+      if (mainNode.variations.get(i) == topNode) {
+        mainNode.variations.remove(i);
+        mainNode.variations.add(i, oldFirstVar);
+        mainNode.variations.remove(0);
+        mainNode.variations.add(0, topNode);
+        return true;
+      }
+    }
+    return false;
+  }
 }
