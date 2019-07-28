@@ -7,39 +7,45 @@ import featurecat.lizzie.rules.SGFParser;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class RecordWatcher implements ActionListener {
-  private File file;
-  private long lastLoaded = -1;
+  private File file_;
+  private long lastLoaded_ = -1;
 
   public File getFile() {
-    return file;
+    return file_;
   }
 
   public String getFilePath() {
-    return (file != null ? file.getPath() : null);
+    return (file_ != null ? file_.getPath() : null);
   }
 
   public void setFilePath(String filePath) {
-    file = filePath != null ? new File(filePath) : null;
+    file_ = filePath != null ? new File(filePath) : null;
     if (Lizzie.frame != null) {
       Lizzie.config.persisted.put("watchFilePath", filePath);
       Lizzie.frame.updateTitle();
     }
+
+    resetLastLoaded();
+  }
+
+  public void resetLastLoaded() {
+    lastLoaded_ = -1;
   }
 
   public void actionPerformed(ActionEvent e) {
+    File file = file_;
     if (file == null || !file.exists()) {
       return;
     }
 
-    if (lastLoaded < 0 || file.lastModified() > lastLoaded) {
+    if (lastLoaded_ < 0 || file.lastModified() > lastLoaded_) {
       loadFileExtend(file);
-      lastLoaded = file.lastModified();
+      lastLoaded_ = file.lastModified();
       System.out.println(String.format("loaded file: %s", file.getPath()));
     }
   }
@@ -67,7 +73,7 @@ public class RecordWatcher implements ActionListener {
         Lizzie.frame.refresh();
         System.out.println("need to move");
       }
-    } catch (IOException err) {
+    } catch (Exception err) {
       history.setCurrentHistoryNode(current);
       System.err.println(
           String.format("failed to load file: %s\n%s", file.getPath(), err.getMessage()));

@@ -1118,9 +1118,16 @@ public class Board implements LeelazListener {
 
   /** Clears all history and starts over from empty board. */
   public void clear() {
-    if (Lizzie.leelaz != null) Lizzie.leelaz.clear();
-    Lizzie.frame.resetTitle();
-    Lizzie.frame.clear();
+    if (Lizzie.leelaz != null) {
+      Lizzie.leelaz.clear();
+    }
+    if (Lizzie.frame != null) {
+      Lizzie.frame.resetTitle();
+      Lizzie.frame.clear();
+    }
+    if (Lizzie.watcher != null) {
+      Lizzie.watcher.resetLastLoaded();
+    }
     initialize();
   }
 
