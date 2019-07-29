@@ -222,7 +222,7 @@ public class ToolBar extends JToolBar {
               Lizzie.board.goToMoveNumberBeyondBranch(Integer.parseInt(txtMoveNumber.getText()));
             } catch (Exception ex) {
             }
-            setTxtUnfouces();
+            setTxtUnfoucus();
           }
         });
     panel.add(gotoMove);
@@ -230,7 +230,7 @@ public class ToolBar extends JToolBar {
     add(panel);
   }
 
-  public void setTxtUnfouces() {
+  public void setTxtUnfoucus() {
     if (txtMoveNumber.isFocusOwner()) {
       txtMoveNumber.setFocusable(false);
       txtMoveNumber.setFocusable(true);
