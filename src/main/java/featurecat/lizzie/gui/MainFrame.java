@@ -344,7 +344,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void noAutoEstimateByZen();
 
-  public abstract void noEstimateByZen();
+  public abstract void noEstimateByZen(boolean byToolBar);
 
   public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
 

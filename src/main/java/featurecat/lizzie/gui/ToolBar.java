@@ -75,7 +75,7 @@ public class ToolBar extends JToolBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             if (Lizzie.frame.isEstimating) {
-              Lizzie.frame.noEstimateByZen();
+              Lizzie.frame.noEstimateByZen(true);
             } else {
               Lizzie.frame.estimateByZen();
             }
@@ -126,7 +126,7 @@ public class ToolBar extends JToolBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.toggleShowMoveNumber();
-            Lizzie.frame.refresh(1);
+            Lizzie.frame.refresh(2);
           }
         });
     add(move);
@@ -138,7 +138,7 @@ public class ToolBar extends JToolBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.toggleCoordinates();
-            Lizzie.frame.refresh(1);
+            Lizzie.frame.refresh(2);
           }
         });
     add(coords);
@@ -222,7 +222,7 @@ public class ToolBar extends JToolBar {
               Lizzie.board.goToMoveNumberBeyondBranch(Integer.parseInt(txtMoveNumber.getText()));
             } catch (Exception ex) {
             }
-            setTxtUnfoucus();
+            setTxtUnfocus();
           }
         });
     panel.add(gotoMove);
@@ -230,7 +230,7 @@ public class ToolBar extends JToolBar {
     add(panel);
   }
 
-  public void setTxtUnfoucus() {
+  public void setTxtUnfocus() {
     if (txtMoveNumber.isFocusOwner()) {
       txtMoveNumber.setFocusable(false);
       txtMoveNumber.setFocusable(true);

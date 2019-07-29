@@ -48,7 +48,7 @@ public class CountResults extends JFrame {
             invisiable();
             Lizzie.frame.removeEstimateRect();
             Lizzie.frame.noAutoEstimateByZen();
-            Lizzie.frame.noEstimateByZen();
+            Lizzie.frame.noEstimateByZen(false);
             Lizzie.frame.repaint();
           }
         });
@@ -94,7 +94,7 @@ public class CountResults extends JFrame {
               Lizzie.frame.isEstimating = true;
               button.setText(resourceBundle.getString("CountDialog.estimateButton.clicktwo"));
             } else {
-              Lizzie.frame.noEstimateByZen();
+              Lizzie.frame.noEstimateByZen(false);
             }
           }
         });

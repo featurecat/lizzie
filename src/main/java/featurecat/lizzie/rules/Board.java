@@ -469,7 +469,7 @@ public class Board implements LeelazListener {
    */
   public void place(int x, int y, Stone color, boolean newBranch, boolean changeMove) {
     if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen();
+      Lizzie.frame.noEstimateByZen(false);
     }
     synchronized (this) {
       if (scoreMode) {
@@ -747,7 +747,7 @@ public class Board implements LeelazListener {
   /** Goes to the next coordinate, thread safe */
   public boolean nextMove() {
     if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen();
+      Lizzie.frame.noEstimateByZen(false);
     }
     synchronized (this) {
       updateWinrate();
@@ -1101,7 +1101,7 @@ public class Board implements LeelazListener {
   /** Goes to the previous coordinate, thread safe */
   public boolean previousMove() {
     if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen();
+      Lizzie.frame.noEstimateByZen(false);
     }
     synchronized (this) {
       if (inScoreMode()) setScoreMode(false);

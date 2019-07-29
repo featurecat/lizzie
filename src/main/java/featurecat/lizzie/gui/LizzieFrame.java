@@ -1488,11 +1488,11 @@ public class LizzieFrame extends MainFrame {
         resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
   }
 
-  public void noEstimateByZen() {
+  public void noEstimateByZen(boolean byToolBar) {
     removeEstimateRect();
     isEstimating = false;
     countResults.button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
-    countResults.setVisible(false);
+    if (byToolBar) countResults.setVisible(false);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
