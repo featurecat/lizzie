@@ -205,7 +205,6 @@ public abstract class MainFrame extends JFrame {
     try {
       Lizzie.config.save();
     } catch (IOException es) {
-      // TODO Auto-generated catch block
     }
   }
 
