@@ -571,23 +571,23 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           capw = panelW / 2;
           caph = panelH / 4;
           // move statistics (winrate bar)
-          statx = capx + capw;
-          staty = capy;
-          statw = capw;
-          stath = caph;
+          statx = capx;
+          staty = capy + caph;
+          statw = spaceW;
+          stath = boardY - caph - 1;
           // winrate graph
           gry = staty + stath;
           grw = spaceW;
           grh = boardY - gry - 1;
           // variation tree container
-          vx = statx + statw;
+          vx = capx + capw;
           vy = capy;
-          vw = panelW / 2;
+          vw = panelW;
           vh = caph;
           // subboard
-          subBoardY = y;
+          subBoardY = capy;
           subBoardWidth = panelW / 2;
-          subBoardHeight = gry - y;
+          subBoardHeight = caph;
           subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
           subBoardX = vx + vw;
           // pondering message
@@ -607,24 +607,24 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
           // move statistics (winrate bar)
           statx = capx + capw;
           staty = capy;
-          statw = capw;
+          statw = width - capx - capw;
           stath = caph;
           // winrate graph
-          grx = capx;
+          grx = statx;
           gry = staty + stath;
-          grw = capw + statw;
+          grw = statw;
           grh = boardY - gry;
           // subboard
-          subBoardX = grx + grw;
-          subBoardWidth = panelW / 2;
-          subBoardHeight = boardY - y;
+          subBoardWidth = capw;
+          subBoardHeight = boardY - caph - capy;
           subBoardParam = BoardRenderer.availableLength(subBoardWidth, subBoardHeight, false);
-          subBoardY = capy + (boardY - y - subBoardParam[3]) / 2;
+          subBoardX = capx + (capw - subBoardParam[0]) / 2;
+          subBoardY = capy + caph + (boardY - capy - caph - subBoardParam[3]) / 2;
           // variation tree container
-          vx = x + panelW;
+          vx = capx;
           vy = boardY + mainBoardParam[3];
-          vw = panelW;
-          vh = height - vy;
+          vw = spaceW;
+          vh = ponderingY - vy;
         }
       }
 
