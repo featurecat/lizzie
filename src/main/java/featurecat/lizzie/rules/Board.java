@@ -469,7 +469,7 @@ public class Board implements LeelazListener {
    */
   public void place(int x, int y, Stone color, boolean newBranch, boolean changeMove) {
     if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen();
+      Lizzie.frame.noEstimateByZen(false);
     }
     synchronized (this) {
       if (scoreMode) {
@@ -747,7 +747,7 @@ public class Board implements LeelazListener {
   /** Goes to the next coordinate, thread safe */
   public boolean nextMove() {
     if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen();
+      Lizzie.frame.noEstimateByZen(false);
     }
     synchronized (this) {
       updateWinrate();
@@ -1101,7 +1101,7 @@ public class Board implements LeelazListener {
   /** Goes to the previous coordinate, thread safe */
   public boolean previousMove() {
     if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen();
+      Lizzie.frame.noEstimateByZen(false);
     }
     synchronized (this) {
       if (inScoreMode()) setScoreMode(false);
@@ -1623,5 +1623,22 @@ public class Board implements LeelazListener {
       return false;
     }
     return true;
+  }
+
+  public boolean setAsMainBranch() {
+    if (history.getCurrentHistoryNode().isMainTrunk()) return false;
+    BoardHistoryNode topNode = history.getCurrentHistoryNode().topOfFatherBranch();
+    BoardHistoryNode mainNode = history.getCurrentHistoryNode().nodeBeforeTopOfFatherBranch();
+    BoardHistoryNode oldFirstVar = mainNode.variations.get(0);
+    for (int i = 0; i < mainNode.variations.size(); i++) {
+      if (mainNode.variations.get(i) == topNode) {
+        mainNode.variations.remove(i);
+        mainNode.variations.add(i, oldFirstVar);
+        mainNode.variations.remove(0);
+        mainNode.variations.add(0, topNode);
+        return true;
+      }
+    }
+    return false;
   }
 }

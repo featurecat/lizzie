@@ -185,6 +185,8 @@ public class LizzieMain extends MainFrame {
     countResults = new CountResults();
     menu = new Menu();
     setJMenuBar(menu);
+    toolBar = new ToolBar();
+    getContentPane().add(toolBar, LizzieLayout.SOUTH);
     getContentPane().add(boardPane, LizzieLayout.MAIN_BOARD);
     getContentPane().add(basicInfoPane, LizzieLayout.BASIC_INFO);
     getContentPane().add(winratePane, LizzieLayout.WINRATE);
@@ -655,11 +657,12 @@ public class LizzieMain extends MainFrame {
   }
 
   @Override
-  public void noEstimateByZen() {
+  public void noEstimateByZen(boolean byToolBar) {
     // TODO Auto-generated method stub
     removeEstimateRect();
     isEstimating = false;
     countResults.button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
+    if (byToolBar) countResults.setVisible(false);
   }
 
   @Override

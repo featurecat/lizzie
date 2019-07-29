@@ -41,6 +41,7 @@ public abstract class MainFrame extends JFrame {
   public boolean isFirstCount = true;
   public boolean isAutoEstimating = false;
   public boolean isShowingRightMenu = false;
+  public ToolBar toolBar;
 
   static {
     // load fonts
@@ -197,6 +198,16 @@ public abstract class MainFrame extends JFrame {
     }
   }
 
+  public void toggleToolBar() {
+    Lizzie.config.showToolBar = !Lizzie.config.showToolBar;
+    toolBar.setVisible(Lizzie.config.showToolBar);
+    Lizzie.config.uiConfig.put("show-tool-bar", Lizzie.config.showToolBar);
+    try {
+      Lizzie.config.save();
+    } catch (IOException es) {
+    }
+  }
+
   public void openOnlineDialog() {
     if (onlineDialog == null) {
       onlineDialog = new OnlineDialog();
@@ -332,7 +343,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void noAutoEstimateByZen();
 
-  public abstract void noEstimateByZen();
+  public abstract void noEstimateByZen(boolean byToolBar);
 
   public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
 

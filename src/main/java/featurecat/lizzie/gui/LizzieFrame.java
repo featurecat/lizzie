@@ -128,7 +128,8 @@ public class LizzieFrame extends MainFrame {
     winrateGraph = new WinrateGraph();
     countResults = new CountResults();
     menu = new Menu();
-
+    toolBar = new ToolBar();
+    add(toolBar, BorderLayout.PAGE_END);
     setMinimumSize(new Dimension(640, 400));
     boolean persisted = Lizzie.config.persistedUi != null;
     if (persisted
@@ -1487,10 +1488,11 @@ public class LizzieFrame extends MainFrame {
         resourceBundle.getString("CountDialog.autoEstimateButton.clickone"));
   }
 
-  public void noEstimateByZen() {
+  public void noEstimateByZen(boolean byToolBar) {
     removeEstimateRect();
     isEstimating = false;
     countResults.button.setText(resourceBundle.getString("CountDialog.estimateButton.clickone"));
+    if (byToolBar) countResults.setVisible(false);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
