@@ -127,8 +127,9 @@ public class LizzieMain extends MainFrame {
               // pondering message
               int maxBound = Math.max(width, height);
               double ponderingSize = .02;
-              int ponderingX = 0;
-              int ponderingY = height - 2 - (int) (maxBound * ponderingSize);
+              LizzieLayout ll = (LizzieLayout) this.getLayout();
+              int ponderingX = ll.ponderingX;
+              int ponderingY = ll.ponderingY;
 
               // dynamic komi
               double dynamicKomiSize = .02;
