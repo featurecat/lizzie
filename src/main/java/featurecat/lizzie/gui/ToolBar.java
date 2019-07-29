@@ -120,6 +120,30 @@ public class ToolBar extends JToolBar {
     add(clearBoard);
     addSeparator();
 
+    JButton move = new JButton(resourceBundle.getString("ToolBar.move"));
+    move.setFocusable(false);
+    move.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleShowMoveNumber();
+            Lizzie.frame.refresh(1);
+          }
+        });
+    add(move);
+    addSeparator();
+
+    JButton coords = new JButton(resourceBundle.getString("ToolBar.coords"));
+    coords.setFocusable(false);
+    coords.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleCoordinates();
+            Lizzie.frame.refresh(1);
+          }
+        });
+    add(coords);
+    addSeparator();
+
     JButton gotoFirst = new JButton("|<");
     gotoFirst.setFocusable(false);
     gotoFirst.addActionListener(

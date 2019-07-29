@@ -198,6 +198,17 @@ public abstract class MainFrame extends JFrame {
     }
   }
 
+  public void toggleToolBar() {
+    Lizzie.config.showToolBar = !Lizzie.config.showToolBar;
+    toolBar.setVisible(Lizzie.config.showToolBar);
+    Lizzie.config.uiConfig.put("show-tool-bar", Lizzie.config.showToolBar);
+    try {
+      Lizzie.config.save();
+    } catch (IOException es) {
+      // TODO Auto-generated catch block
+    }
+  }
+
   public void openOnlineDialog() {
     if (onlineDialog == null) {
       onlineDialog = new OnlineDialog();

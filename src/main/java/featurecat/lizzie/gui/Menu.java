@@ -423,6 +423,17 @@ public class Menu extends JMenuBar {
         });
     panelView.add(gtpConsole);
 
+    final JCheckBoxMenuItem toolBar =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.panelView.toolBar"));
+    toolBar.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.toggleToolBar();
+          }
+        });
+    panelView.add(toolBar);
+
     viewMenu.addSeparator();
 
     final JCheckBoxMenuItem bigSubBoard =
@@ -843,6 +854,8 @@ public class Menu extends JMenuBar {
             else status.setState(false);
             if (Lizzie.gtpConsole.isVisible()) gtpConsole.setState(true);
             else gtpConsole.setState(false);
+            if (Lizzie.config.showToolBar) toolBar.setState(true);
+            else toolBar.setSelected(false);
             if (Lizzie.config.showCoordinates) coords.setState(true);
             else coords.setState(false);
             switch (Lizzie.config.allowMoveNumber) {

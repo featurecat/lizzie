@@ -69,6 +69,7 @@ public class Config {
   public boolean showWinrateInSuggestion = true;
   public boolean showPlayoutsInSuggestion = true;
   public boolean showScoremeanInSuggestion = true;
+  public boolean showToolBar = true;
 
   public JSONObject config;
   public JSONObject leelazConfig;
@@ -241,6 +242,7 @@ public class Config {
     showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
+    showToolBar = uiConfig.optBoolean("show-tool-bar", true);
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
