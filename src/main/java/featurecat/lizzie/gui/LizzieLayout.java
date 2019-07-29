@@ -44,6 +44,9 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
 
   private int mode = 0;
 
+  public int ponderingX;
+  public int ponderingY;
+
   public LizzieLayout() {
     this(3, 0);
   }
@@ -449,7 +452,8 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
 
       // pondering message
       double ponderingSize = .02;
-      int ponderingY = bottom - (int) (maxSize0 * 0.033) - (int) (maxBound * ponderingSize);
+      ponderingX = x;
+      ponderingY = bottom - (int) (maxSize0 * 0.033) - (int) (maxBound * ponderingSize);
 
       // subboard
       int subBoardY = gry + grh + 1;
