@@ -9,7 +9,7 @@ import java.util.Optional;
 public class Branch {
   public BoardData data;
 
-  public Branch(Board board, List<String> variation) {
+  public Branch(Board board, List<String> variation, int length) {
     int[] moveNumberList = new int[Board.boardWidth * Board.boardHeight];
     int moveNumber = 0;
     double winrate = 0.0;
@@ -29,7 +29,8 @@ public class Branch {
             winrate,
             playouts);
 
-    for (int i = 0; i < variation.size(); i++) {
+    length = length > 0 ? length : 361;
+    for (int i = 0; i < variation.size() && i < length; i++) {
       Optional<int[]> coordOpt = Board.asCoordinates(variation.get(i));
       if (!coordOpt.isPresent() || !Board.isValid(coordOpt.get()[0], coordOpt.get()[1])) {
         break;
