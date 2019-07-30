@@ -5,6 +5,8 @@ import static java.lang.Math.min;
 import featurecat.lizzie.Lizzie;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
@@ -68,6 +70,13 @@ public class CommentPane extends LizziePane {
     commentPane.setText("");
     commentPane.setEditable(false);
     commentPane.setFocusable(false);
+    commentPane.addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            Lizzie.frame.getFocus();
+          }
+        });
     scrollPane = new JScrollPane();
     scrollPane.setBorder(BorderFactory.createEmptyBorder());
     scrollPane.setVerticalScrollBarPolicy(

@@ -1,16 +1,21 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.DigitOnlyFilter;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ResourceBundle;
 import javax.swing.JButton;
+import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.InternationalFormatter;
 
 public class ToolBar extends JToolBar {
   public JTextField txtMoveNumber;
@@ -205,7 +210,17 @@ public class ToolBar extends JToolBar {
     add(gotoEnd);
     addSeparator();
 
-    txtMoveNumber = new JTextField();
+    NumberFormat nf = NumberFormat.getIntegerInstance();
+    nf.setGroupingUsed(false);
+    txtMoveNumber =
+        new JFormattedTextField(
+            new InternationalFormatter(nf) {
+              protected DocumentFilter getDocumentFilter() {
+                return filter;
+              }
+
+              private DocumentFilter filter = new DigitOnlyFilter();
+            });
     JPanel panel = new JPanel(null);
     panel.setPreferredSize(new Dimension(100, 20));
     txtMoveNumber.setBounds(2, 1, 30, 18);
