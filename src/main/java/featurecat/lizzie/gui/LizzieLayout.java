@@ -5,13 +5,14 @@ import static java.lang.Math.min;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.LayoutManager2;
 
-public class LizzieLayout implements LayoutManager2, java.io.Serializable {
+public class LizzieLayout extends BorderLayout implements LayoutManager2, java.io.Serializable {
   int hgap;
   int vgap;
 
@@ -697,13 +698,13 @@ public class LizzieLayout implements LayoutManager2, java.io.Serializable {
     Component result = null;
 
     if (key == NORTH) {
-      result = north;
+      result = north != null && north.isVisible() ? north : null;
     } else if (key == SOUTH) {
-      result = south;
+      result = south != null && south.isVisible() ? south : null;
     } else if (key == WEST) {
-      result = west;
+      result = west != null && west.isVisible() ? west : null;
     } else if (key == EAST) {
-      result = east;
+      result = east != null && east.isVisible() ? east : null;
     } else if (key == MAIN_BOARD) {
       result = mainBoard;
     } else if (key == SUB_BOARD) {

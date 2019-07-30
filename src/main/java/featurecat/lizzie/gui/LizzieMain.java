@@ -21,6 +21,8 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.TexturePaint;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -186,6 +188,7 @@ public class LizzieMain extends MainFrame {
     menu = new Menu();
     setJMenuBar(menu);
     toolBar = new ToolBar();
+    toolBar.setVisible(Lizzie.config.showToolBar);
     getContentPane().add(toolBar, LizzieLayout.SOUTH);
     getContentPane().add(boardPane, LizzieLayout.MAIN_BOARD);
     getContentPane().add(basicInfoPane, LizzieLayout.BASIC_INFO);
@@ -231,6 +234,14 @@ public class LizzieMain extends MainFrame {
     addMouseWheelListener(input);
     //    addMouseMotionListener(input);
 
+    addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            Lizzie.frame.getFocus();
+          }
+        });
+
     // When the window is closed: save the SGF file, then run shutdown()
     this.addWindowListener(
         new WindowAdapter() {
@@ -268,6 +279,7 @@ public class LizzieMain extends MainFrame {
 
     setFocusable(true);
     setFocusTraversalKeysEnabled(false);
+    getFocus();
   }
 
   /**

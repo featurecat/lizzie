@@ -208,6 +208,10 @@ public abstract class MainFrame extends JFrame {
     }
   }
 
+  public boolean getFocus() {
+    return requestFocusInWindow();
+  }
+
   public void openOnlineDialog() {
     if (onlineDialog == null) {
       onlineDialog = new OnlineDialog();

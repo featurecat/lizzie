@@ -1,5 +1,6 @@
 package featurecat.lizzie.gui;
 
+import featurecat.lizzie.Lizzie;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -96,6 +97,14 @@ public class LizziePane extends JPanel {
     //    input = owner.input;
     //    installInputListeners();
     setOpaque(false);
+
+    addMouseListener(
+        new MouseAdapter() {
+          @Override
+          public void mouseClicked(MouseEvent e) {
+            Lizzie.frame.getFocus();
+          }
+        });
   }
 
   @Override
