@@ -464,7 +464,7 @@ public class BoardRenderer {
       return;
     }
     List<String> variation = suggestedMove.get().variation;
-    Branch branch = new Branch(Lizzie.board, variation);
+    Branch branch = new Branch(Lizzie.board, variation, displayedBranchLength);
     branchOpt = Optional.of(branch);
     variationOpt = Optional.of(variation);
     showingBranch = true;

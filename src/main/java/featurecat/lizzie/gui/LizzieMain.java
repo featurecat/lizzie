@@ -141,7 +141,7 @@ public class LizzieMain extends MainFrame {
               int dynamicKomiLabelY = dynamicKomiY - (int) (maxBound * dynamicKomiSize);
 
               // loading message;
-              double loadingSize = 0.03;
+              double loadingSize = 0.02;
               int loadingX = ponderingX;
               int loadingY = ponderingY - (int) (maxBound * (loadingSize - ponderingSize));
 
