@@ -2,10 +2,13 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.util.DigitOnlyFilter;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ResourceBundle;
@@ -14,6 +17,7 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 
@@ -22,6 +26,12 @@ public class ToolBar extends JToolBar {
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public ToolBar() {
+    super(
+        BorderLayout.EAST.equals(Lizzie.config.toolbarPosition)
+                || BorderLayout.WEST.equals(Lizzie.config.toolbarPosition)
+            ? SwingConstants.VERTICAL
+            : SwingConstants.HORIZONTAL);
+
     JButton open = new JButton(resourceBundle.getString("ToolBar.open"));
     open.setFocusable(false);
     open.addActionListener(
@@ -243,6 +253,21 @@ public class ToolBar extends JToolBar {
     panel.add(gotoMove);
 
     add(panel);
+
+    this.addComponentListener(
+        new ComponentAdapter() {
+          public void componentMoved(ComponentEvent e) {
+            if (Lizzie.frame != null) {
+              Lizzie.frame.getToolBarPosition();
+            }
+          }
+
+          public void componentResized(ComponentEvent e) {
+            if (Lizzie.frame != null) {
+              Lizzie.frame.getToolBarPosition();
+            }
+          }
+        });
   }
 
   public void setTxtUnfocus() {

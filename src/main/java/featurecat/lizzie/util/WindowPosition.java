@@ -38,6 +38,7 @@ public class WindowPosition {
     ui.put("comment-position", new JSONArray("[]"));
 
     ui.put("window-maximized", false);
+    ui.put("toolbar-position", "South");
 
     return ui;
   }
@@ -49,6 +50,7 @@ public class WindowPosition {
 
     boolean windowIsMaximized = Lizzie.frame.getExtendedState() == JFrame.MAXIMIZED_BOTH;
     ui.put("window-maximized", windowIsMaximized);
+    ui.put("toolbar-position", Lizzie.config.toolbarPosition);
     ui.put("board-position-proportion", Lizzie.frame.boardPositionProportion);
 
     JSONArray mainPos = new JSONArray();
