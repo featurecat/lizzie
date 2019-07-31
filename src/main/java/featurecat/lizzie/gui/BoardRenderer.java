@@ -176,8 +176,10 @@ public class BoardRenderer {
   }
 
   /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
-  public static int[] availableLength(int boardWidth, int boardHeight, boolean showCoordinates) {
-    int[] calculatedPixelMargins = calculatePixelMargins(boardWidth, boardHeight, showCoordinates);
+  public static int[] availableLength(
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
+    int[] calculatedPixelMargins =
+        calculatePixelMargins(boardWidth, boardHeight, showCoordinates, isMainBoard);
     return (calculatedPixelMargins != null && calculatedPixelMargins.length >= 6)
         ? calculatedPixelMargins
         : new int[] {boardWidth, 0, boardWidth, boardHeight, 0, boardHeight};
@@ -234,7 +236,7 @@ public class BoardRenderer {
         || cachedX != x
         || cachedY != y
         || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
-        || changedName
+        || (changedName && isMainBoard)
         || Lizzie.frame.isForceRefresh()) {
       changedName = false;
       cachedBoardWidth = boardWidth;
@@ -1077,7 +1079,7 @@ public class BoardRenderer {
    * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
    */
   private static int[] calculatePixelMargins(
-      int boardWidth, int boardHeight, boolean showCoordinates) {
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
     // boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge
     // of the board
     //        if (boardLength < Board.BOARD_SIZE - 1)
@@ -1094,7 +1096,7 @@ public class BoardRenderer {
 
     // decrease boardLength until the availableLength will result in square board intersections
     double marginWidth =
-        Lizzie.config.showName && !emptyName
+        Lizzie.config.showName && isMainBoard && !emptyName
             ? 0.055
             : (showCoordinates ? (Board.boardWidth > 3 ? 0.06 : 0.04) : 0.03)
                 / Board.boardWidth
@@ -1110,7 +1112,7 @@ public class BoardRenderer {
     int squareHeight = 0;
     if (Board.boardWidth != Board.boardHeight) {
       double marginHeight =
-          Lizzie.config.showName && !emptyName
+          Lizzie.config.showName && isMainBoard && !emptyName
               ? 0.055
               : (showCoordinates ? (Board.boardHeight > 3 ? 0.06 : 0.04) : 0.03)
                   / Board.boardHeight
@@ -1494,7 +1496,7 @@ public class BoardRenderer {
   }
 
   private int[] calculatePixelMargins() {
-    return calculatePixelMargins(boardWidth, boardHeight, showCoordinates());
+    return calculatePixelMargins(boardWidth, boardHeight, showCoordinates(), isMainBoard);
   }
 
   /**

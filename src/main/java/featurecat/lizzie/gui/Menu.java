@@ -493,6 +493,7 @@ public class Menu extends JMenuBar {
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.showName = !Lizzie.config.showName;
             Lizzie.config.uiConfig.put("show-name", Lizzie.config.showName);
+            Lizzie.frame.refresh(2);
             try {
               Lizzie.config.save();
             } catch (IOException es) {

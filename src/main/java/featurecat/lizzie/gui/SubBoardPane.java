@@ -76,7 +76,8 @@ public class SubBoardPane extends LizziePane {
                 subBoardRenderer.availableLength(
                     max(width, Board.boardWidth + 5),
                     max(height, Board.boardHeight + 5),
-                    Lizzie.config.showCoordinates);
+                    Lizzie.config.showCoordinates,
+                    false);
           }
           subBoardRenderer.setBoardParam(boardParams);
           subBoardRenderer.draw(g);

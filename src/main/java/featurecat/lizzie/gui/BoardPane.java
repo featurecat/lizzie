@@ -177,7 +177,8 @@ public class BoardPane extends LizziePane {
             boardRenderer.availableLength(
                 max(width, Board.boardWidth + 5),
                 max(height, Board.boardHeight + 5),
-                Lizzie.config.showCoordinates);
+                Lizzie.config.showCoordinates,
+                true);
       }
       boardRenderer.setBoardParam(boardParams);
       try {
