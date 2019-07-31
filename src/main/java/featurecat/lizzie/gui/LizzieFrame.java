@@ -162,17 +162,17 @@ public class LizzieFrame extends MainFrame {
           public boolean importData(JComponent comp, Transferable t) {
             try {
               Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
-              String filepath = o.toString();
-              if (filepath.startsWith("[")) {
-                filepath = filepath.substring(1);
+              String filePath = o.toString();
+              if (filePath.startsWith("[")) {
+                filePath = filePath.substring(1);
               }
-              if (filepath.endsWith("]")) {
-                filepath = filepath.substring(0, filepath.length() - 1);
+              if (filePath.endsWith("]")) {
+                filePath = filePath.substring(0, filePath.length() - 1);
               }
-              if (!(filepath.endsWith(".sgf") || filepath.endsWith(".gib"))) {
+              if (!(filePath.endsWith(".sgf") || filePath.endsWith(".gib"))) {
                 return false;
               }
-              File file = new File(filepath);
+              File file = new File(filePath);
               loadFile(file);
             } catch (Exception e) {
               e.printStackTrace();
