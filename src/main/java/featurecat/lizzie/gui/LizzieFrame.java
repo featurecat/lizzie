@@ -155,6 +155,42 @@ public class LizzieFrame extends MainFrame {
           }
         };
     getContentPane().add(mainPanel);
+
+    mainPanel.setTransferHandler(
+        new TransferHandler() {
+          @Override
+          public boolean importData(JComponent comp, Transferable t) {
+            try {
+              Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
+              String filepath = o.toString();
+              if (filepath.startsWith("[")) {
+                filepath = filepath.substring(1);
+              }
+              if (filepath.endsWith("]")) {
+                filepath = filepath.substring(0, filepath.length() - 1);
+              }
+              if (!(filepath.endsWith(".sgf") || filepath.endsWith(".gib"))) {
+                return false;
+              }
+              File file = new File(filepath);
+              loadFile(file);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+            return false;
+          }
+
+          @Override
+          public boolean canImport(JComponent comp, DataFlavor[] flavors) {
+            for (int i = 0; i < flavors.length; i++) {
+              if (DataFlavor.javaFileListFlavor.equals(flavors[i])) {
+                return true;
+              }
+            }
+            return false;
+          }
+        });
+
     setJMenuBar(menu);
     mainPanel.setFocusable(true);
     // Allow change font in the config
