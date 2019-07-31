@@ -6,9 +6,11 @@ import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.HeadlessException;
+import java.awt.LayoutManager;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
@@ -201,11 +203,21 @@ public abstract class MainFrame extends JFrame {
   public void toggleToolBar() {
     Lizzie.config.showToolBar = !Lizzie.config.showToolBar;
     toolBar.setVisible(Lizzie.config.showToolBar);
-    Lizzie.config.uiConfig.put("show-tool-bar", Lizzie.config.showToolBar);
+    Lizzie.config.uiConfig.put("show-toolbar", Lizzie.config.showToolBar);
     try {
       Lizzie.config.save();
     } catch (IOException es) {
     }
+  }
+
+  public String getToolBarPosition() {
+    LayoutManager layout = getContentPane().getLayout();
+    if (layout instanceof LizzieLayout) {
+      Lizzie.config.toolbarPosition = (String) ((LizzieLayout) layout).getConstraints(toolBar);
+    } else if (layout instanceof BorderLayout) {
+      Lizzie.config.toolbarPosition = (String) ((BorderLayout) layout).getConstraints(toolBar);
+    }
+    return Lizzie.config.toolbarPosition;
   }
 
   public boolean getFocus() {

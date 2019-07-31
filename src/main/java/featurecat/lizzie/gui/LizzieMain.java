@@ -189,7 +189,7 @@ public class LizzieMain extends MainFrame {
     setJMenuBar(menu);
     toolBar = new ToolBar();
     toolBar.setVisible(Lizzie.config.showToolBar);
-    getContentPane().add(toolBar, LizzieLayout.SOUTH);
+    getContentPane().add(toolBar, Lizzie.config.toolbarPosition);
     getContentPane().add(boardPane, LizzieLayout.MAIN_BOARD);
     getContentPane().add(basicInfoPane, LizzieLayout.BASIC_INFO);
     getContentPane().add(winratePane, LizzieLayout.WINRATE);
