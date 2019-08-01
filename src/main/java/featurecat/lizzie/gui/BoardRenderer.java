@@ -123,7 +123,7 @@ public class BoardRenderer {
 
     //        Stopwatch timer = new Stopwatch();
     drawGoban(g);
-    if (Lizzie.config.showName && isMainBoard) drawName(g);
+    if (Lizzie.config.showNameInBoard && isMainBoard) drawName(g);
     //        timer.lap("background");
     drawStones();
     //        timer.lap("stones");
@@ -282,7 +282,10 @@ public class BoardRenderer {
               Board.asName(i),
               stoneRadius * 4 / 5,
               stoneRadius);
-          if (!Lizzie.config.showName || emptyName)
+          if (!Lizzie.config.showNameInBoard
+              || Lizzie.board != null
+                  && (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
+                      || Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals("")))
             drawString(
                 g,
                 x + scaledMarginWidth + squareWidth * i,
@@ -321,8 +324,10 @@ public class BoardRenderer {
   }
 
   private void drawName(Graphics2D g0) {
+    if (Lizzie.board == null) {
+      return;
+    }
     g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
     String black = Lizzie.board.getHistory().getGameInfo().getPlayerBlack();
     if (black.length() > 20) black = black.substring(0, 20);
     String white = Lizzie.board.getHistory().getGameInfo().getPlayerWhite();
@@ -1096,11 +1101,11 @@ public class BoardRenderer {
 
     // decrease boardLength until the availableLength will result in square board intersections
     double marginWidth =
-        Lizzie.config.showName && isMainBoard && !emptyName
-            ? 0.055
-            : (showCoordinates ? (Board.boardWidth > 3 ? 0.06 : 0.04) : 0.03)
-                / Board.boardWidth
-                * 19.0;
+        (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                : 0.03)
+            / Board.boardWidth
+            * 19.0;
     boardWidth++;
     do {
       boardWidth--;
@@ -1112,11 +1117,11 @@ public class BoardRenderer {
     int squareHeight = 0;
     if (Board.boardWidth != Board.boardHeight) {
       double marginHeight =
-          Lizzie.config.showName && isMainBoard && !emptyName
-              ? 0.055
-              : (showCoordinates ? (Board.boardHeight > 3 ? 0.06 : 0.04) : 0.03)
-                  / Board.boardHeight
-                  * 19.0;
+          (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                  ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                  : 0.03)
+              / Board.boardHeight
+              * 19.0;
       boardHeight++;
       do {
         boardHeight--;
