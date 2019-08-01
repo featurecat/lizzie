@@ -157,8 +157,8 @@ public class LizzieFrame extends MainFrame {
     getContentPane().add(mainPanel);
     mainPanel.setTransferHandler(Utils.transFile);
     mainPanel.setFocusable(true);
-
     setJMenuBar(menu);
+
     // Allow change font in the config
     if (Lizzie.config.uiFontName != null) {
       uiFont = new Font(Lizzie.config.uiFontName, Font.PLAIN, 12);
