@@ -899,14 +899,15 @@ public class Menu extends JMenuBar {
               kataEstimateDisplaySub.setState(!onMain && onSub);
               kataEstimateDisplayBoth.setState(onMain && onSub);
             }
-            kataEstimateModeLarge.setState(Lizzie.config.kataGoEstimateMode == "large");
-            kataEstimateModeSmall.setState(Lizzie.config.kataGoEstimateMode == "small");
+            kataEstimateModeLarge.setState(Lizzie.config.kataGoEstimateMode.equals("large"));
+            kataEstimateModeSmall.setState(Lizzie.config.kataGoEstimateMode.equals("small"));
             kataEstimateModeLargeAndSmall.setState(
-                Lizzie.config.kataGoEstimateMode == "large+small");
-            kataEstimateModeLargeAndDead.setState(Lizzie.config.kataGoEstimateMode == "large+dead");
+                Lizzie.config.kataGoEstimateMode.equals("large+small"));
+            kataEstimateModeLargeAndDead.setState(
+                Lizzie.config.kataGoEstimateMode.equals("large+dead"));
             kataEstimateModeLargeAndStones.setState(
-                Lizzie.config.kataGoEstimateMode == "large+stones");
-            kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode == "size");
+                Lizzie.config.kataGoEstimateMode.equals("large+stones"));
+            kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode.equals("size"));
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);

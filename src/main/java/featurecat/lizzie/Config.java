@@ -54,7 +54,7 @@ public class Config {
   public boolean showKataGoBoardScoreMean = false;
   public boolean kataGoScoreMeanAlwaysBlack = false;
   public boolean kataGoNotShowWinrate = false;
-  public boolean showKataGoEstimate = true;
+  public boolean showKataGoEstimate = false;
   public boolean showKataGoEstimateOnSubboard = true;
   public boolean showKataGoEstimateOnMainboard = true;
   public String kataGoEstimateMode = "large+dead";
@@ -234,7 +234,7 @@ public class Config {
     showKataGoBoardScoreMean = uiConfig.optBoolean("show-katago-boardscoremean", false);
     kataGoScoreMeanAlwaysBlack = uiConfig.optBoolean("katago-scoremean-alwaysblack", false);
     kataGoNotShowWinrate = uiConfig.optBoolean("katago-notshow-winrate", false);
-    showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", true);
+    showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", false);
     showKataGoEstimateOnSubboard = uiConfig.optBoolean("show-katago-estimate-onsubboard", true);
     showKataGoEstimateOnMainboard = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
     kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "large+dead");
@@ -521,7 +521,7 @@ public class Config {
     ui.put("show-katago-boardscoremean", false);
     ui.put("katago-scoremean-alwaysblack", false);
     ui.put("katago-notshow-winrate", false);
-    ui.put("show-katago-estimate", true);
+    ui.put("show-katago-estimate", false);
     ui.put("show-katago-estimate-onsubboard", true);
     ui.put("show-katago-estimate-onmainboard", true);
     ui.put("katago-estimate-mode", "large+dead");
