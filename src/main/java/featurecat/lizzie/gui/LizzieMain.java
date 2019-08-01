@@ -21,14 +21,11 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.TexturePaint;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -41,9 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.TransferHandler;
 import org.json.JSONArray;
 
 public class LizzieMain extends MainFrame {
@@ -181,40 +176,7 @@ public class LizzieMain extends MainFrame {
         };
     setContentPane(panel);
 
-    panel.setTransferHandler(
-        new TransferHandler() {
-          @Override
-          public boolean importData(JComponent comp, Transferable t) {
-            try {
-              Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
-              String filePath = o.toString();
-              if (filePath.startsWith("[")) {
-                filePath = filePath.substring(1);
-              }
-              if (filePath.endsWith("]")) {
-                filePath = filePath.substring(0, filePath.length() - 1);
-              }
-              if (!(filePath.endsWith(".sgf") || filePath.endsWith(".gib"))) {
-                return false;
-              }
-              File file = new File(filePath);
-              loadFile(file);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-            return false;
-          }
-
-          @Override
-          public boolean canImport(JComponent comp, DataFlavor[] flavors) {
-            for (int i = 0; i < flavors.length; i++) {
-              if (DataFlavor.javaFileListFlavor.equals(flavors[i])) {
-                return true;
-              }
-            }
-            return false;
-          }
-        });
+    panel.setTransferHandler(Utils.transFile);
 
     layout = new LizzieLayout();
     getContentPane().setLayout(layout);

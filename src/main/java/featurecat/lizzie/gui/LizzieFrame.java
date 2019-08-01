@@ -156,40 +156,7 @@ public class LizzieFrame extends MainFrame {
         };
     getContentPane().add(mainPanel);
 
-    mainPanel.setTransferHandler(
-        new TransferHandler() {
-          @Override
-          public boolean importData(JComponent comp, Transferable t) {
-            try {
-              Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
-              String filePath = o.toString();
-              if (filePath.startsWith("[")) {
-                filePath = filePath.substring(1);
-              }
-              if (filePath.endsWith("]")) {
-                filePath = filePath.substring(0, filePath.length() - 1);
-              }
-              if (!(filePath.endsWith(".sgf") || filePath.endsWith(".gib"))) {
-                return false;
-              }
-              File file = new File(filePath);
-              loadFile(file);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-            return false;
-          }
-
-          @Override
-          public boolean canImport(JComponent comp, DataFlavor[] flavors) {
-            for (int i = 0; i < flavors.length; i++) {
-              if (DataFlavor.javaFileListFlavor.equals(flavors[i])) {
-                return true;
-              }
-            }
-            return false;
-          }
-        });
+    mainPanel.setTransferHandler(Utils.transFile);
 
     setJMenuBar(menu);
     mainPanel.setFocusable(true);
