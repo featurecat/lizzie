@@ -175,7 +175,6 @@ public class LizzieMain extends MainFrame {
           }
         };
     setContentPane(panel);
-
     panel.setTransferHandler(Utils.transFile);
 
     layout = new LizzieLayout();
