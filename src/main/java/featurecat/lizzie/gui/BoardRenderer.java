@@ -285,7 +285,7 @@ public class BoardRenderer {
           if (!Lizzie.config.showNameInBoard
               || Lizzie.board != null
                   && (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
-                      || Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals("")))
+                      && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals("")))
             drawString(
                 g,
                 x + scaledMarginWidth + squareWidth * i,
