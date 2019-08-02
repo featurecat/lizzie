@@ -14,6 +14,7 @@ public class Branch {
     int moveNumber = 0;
     double winrate = 0.0;
     int playouts = 0;
+    double scoreMean = 0.0;
 
     this.data =
         new BoardData(
@@ -27,7 +28,8 @@ public class Branch {
             board.getData().blackCaptures,
             board.getData().whiteCaptures,
             winrate,
-            playouts);
+            playouts,
+            scoreMean);
 
     length = length > 0 ? length : 361;
     for (int i = 0; i < variation.size() && i < length; i++) {

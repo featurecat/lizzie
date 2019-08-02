@@ -116,6 +116,10 @@ public class SGFParser {
       Lizzie.board.reopen(boardWidth, boardHeight);
     }
 
+    if (Lizzie.leelaz != null) {
+      Lizzie.leelaz.supportScoremean = false;
+    }
+
     parseValue(value, null, false);
 
     return true;
@@ -285,6 +289,9 @@ public class SGFParser {
             Lizzie.board.getData().setPlayouts(numPlayouts);
             if (numPlayouts > 0 && !line2.isEmpty()) {
               Lizzie.board.getData().bestMoves = Lizzie.leelaz.parseInfo(line2);
+              if (line2.contains("scoreMean")) {
+                Lizzie.leelaz.supportScoremean = true;
+              }
             }
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
@@ -716,16 +723,30 @@ public class SGFParser {
       }
     }
 
-    String wf = "%s's winrate: %s %s\n(%s / %s playouts)";
+    String scoreMean = String.format("%.1f", -data.getScoreMean());
+
+    String wf =
+        "%s's winrate: %s %s\n"
+            + (Lizzie.leelaz.supportScoremean() ? "scoreMean: %s\n" : "")
+            + "(%s / %s playouts)";
     boolean blackWinrate =
         !node.getData().blackToPlay || Lizzie.config.uiConfig.getBoolean("win-rate-always-black");
     String nc =
-        String.format(
-            wf, blackWinrate ? "Black" : "White", curWinrate, lastMoveDiff, engine, playouts);
+        Lizzie.leelaz.supportScoremean()
+            ? String.format(
+                wf,
+                blackWinrate ? "Black" : "White",
+                curWinrate,
+                lastMoveDiff,
+                scoreMean,
+                engine,
+                playouts)
+            : String.format(
+                wf, blackWinrate ? "Black" : "White", curWinrate, lastMoveDiff, engine, playouts);
 
     if (!data.comment.isEmpty()) {
       String wp =
-          "(Black's |White's )winrate: [0-9\\.\\-]+%* \\(*[0-9.\\-+]*%*\\)*\n\\([^\\(\\)/]* \\/ [0-9\\.]*[kmKM]* playouts\\)";
+          "(Black's |White's )winrate: [0-9\\.\\-]+%* \\(*[0-9.\\-+]*%*\\)*\n(scoreMean: [0-9\\.\\-+]*\n){0,1}\\([^\\(\\)/]* \\/ [0-9\\.]*[kmKM]* playouts\\)";
       if (data.comment.matches("(?s).*" + wp + "(?s).*")) {
         nc = data.comment.replaceAll(wp, nc);
       } else {

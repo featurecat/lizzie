@@ -305,6 +305,7 @@ public class BoardHistoryList {
               this.getData().blackCaptures,
               this.getData().whiteCaptures,
               0,
+              0,
               0);
       newState.dummy = dummy;
 
@@ -328,6 +329,7 @@ public class BoardHistoryList {
 
       double nextWinrate = -100;
       if (this.getData().winrate >= 0) nextWinrate = 100 - this.getData().winrate;
+      double nextScoreMean = -this.getData().scoreMean;
 
       // check to see if this coordinate is being replayed in history
       Optional<int[]> nextLast = this.getNext().flatMap(n -> n.lastMove);
@@ -392,7 +394,8 @@ public class BoardHistoryList {
               bc,
               wc,
               nextWinrate,
-              0);
+              0,
+              nextScoreMean);
       newState.moveMNNumber = moveMNNumber;
 
       // don't make this coordinate if it is suicidal or violates superko
@@ -480,7 +483,8 @@ public class BoardHistoryList {
                 0,
                 0,
                 0.0,
-                0));
+                0,
+                0.0));
     this.setGameInfo(oldHistory.getGameInfo());
   }
 

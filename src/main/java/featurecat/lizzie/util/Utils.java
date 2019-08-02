@@ -158,6 +158,23 @@ public class Utils {
     }
   }
 
+  public static double actualScoreMean(double scoreMean) {
+    double score = scoreMean;
+    if (Lizzie.board.getHistory().isBlacksTurn()) {
+      if (Lizzie.config.showKataGoBoardScoreMean) {
+        score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+      }
+    } else {
+      if (Lizzie.config.showKataGoBoardScoreMean) {
+        score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+      }
+      if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+        score = -score;
+      }
+    }
+    return score;
+  }
+
   public static Integer txtFieldValue(JTextField txt) {
     if (txt.getText().trim().isEmpty()
         || txt.getText().trim().length() >= String.valueOf(Integer.MAX_VALUE).length()) {

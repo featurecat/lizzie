@@ -423,8 +423,9 @@ public class Board implements LeelazListener {
               moveNumberList,
               history.getData().blackCaptures,
               history.getData().whiteCaptures,
+              0.0,
               0,
-              0);
+              0.0);
       newState.dummy = dummy;
 
       // update leelaz with pass
@@ -485,6 +486,7 @@ public class Board implements LeelazListener {
       updateWinrate();
       double nextWinrate = -100;
       if (history.getData().winrate >= 0) nextWinrate = 100 - history.getData().winrate;
+      double nextScoreMean = -history.getData().scoreMean;
 
       // check to see if this coordinate is being replayed in history
       Optional<int[]> nextLast = history.getNext().flatMap(n -> n.lastMove);
@@ -557,7 +559,8 @@ public class Board implements LeelazListener {
               bc,
               wc,
               nextWinrate,
-              0);
+              0,
+              nextScoreMean);
       newState.moveMNNumber = moveMNNumber;
       newState.dummy = false;
 
@@ -624,7 +627,8 @@ public class Board implements LeelazListener {
                 0,
                 0,
                 0.0,
-                0));
+                0,
+                0.0));
     history.setGameInfo(oldHistory.getGameInfo());
   }
 
@@ -1445,6 +1449,9 @@ public class Board implements LeelazListener {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().getPlayouts()) {
       history.getData().winrate = stats.maxWinrate;
+      if (Lizzie.leelaz.supportScoremean()) {
+        history.getData().scoreMean = stats.maxScoreMean;
+      }
       // we won't set playouts here. but setting winrate is ok... it shows the user that we are
       // computing. i think its fine.
     }
