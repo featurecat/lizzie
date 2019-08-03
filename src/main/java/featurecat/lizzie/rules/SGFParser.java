@@ -291,6 +291,10 @@ public class SGFParser {
               Lizzie.board.getData().bestMoves = Lizzie.leelaz.parseInfo(line2);
               if (line2.contains("scoreMean")) {
                 Lizzie.leelaz.supportScoremean = true;
+                Lizzie.board.getData().scoreMean =
+                    Lizzie.board
+                        .getData()
+                        .getScoreMeanFromBestMoves(Lizzie.board.getData().bestMoves);
               }
             }
           } else if (tag.equals("AB") || tag.equals("AW")) {

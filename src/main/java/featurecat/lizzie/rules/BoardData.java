@@ -183,10 +183,14 @@ public class BoardData {
       bestMoves = moves;
       setPlayouts(MoveData.getPlayouts(moves));
       winrate = getWinrateFromBestMoves(moves);
-      scoreMean = getScoreMeanFromBestMoves(moves);
+      if (Lizzie.leelaz.isKataGo) {
+        scoreMean = getScoreMeanFromBestMoves(moves);
+      }
     }
-    Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
-    Lizzie.leelaz.scoreStdev = moves.get(0).scoreStdev;
+    if (Lizzie.leelaz.isKataGo) {
+      Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
+      Lizzie.leelaz.scoreStdev = moves.get(0).scoreStdev;
+    }
   }
 
   public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {
