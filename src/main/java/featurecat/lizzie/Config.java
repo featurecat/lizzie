@@ -524,7 +524,7 @@ public class Config {
     ui.put("show-katago-estimate", false);
     ui.put("show-katago-estimate-onsubboard", true);
     ui.put("show-katago-estimate-onmainboard", true);
-    ui.put("katago-estimate-mode", "large+dead");
+    ui.put("katago-estimate-mode", "small");
     config.put("ui", ui);
     return config;
   }
