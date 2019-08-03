@@ -105,6 +105,7 @@ public class ToolBar extends JToolBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             Lizzie.frame.isShowingPolicy = !Lizzie.frame.isShowingPolicy;
+            Lizzie.frame.refresh(2);
             if (Lizzie.frame.isShowingPolicy && !Lizzie.leelaz.isPondering())
               Lizzie.leelaz.togglePonder();
           }
