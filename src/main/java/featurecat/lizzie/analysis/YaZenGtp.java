@@ -27,7 +27,7 @@ public class YaZenGtp {
   private int cmdNumber;
   private ArrayDeque<String> cmdQueue;
   private ScheduledExecutorService executor;
-  ArrayList<Integer> esitmateArray = new ArrayList<Integer>();
+  ArrayList<Double> esitmateArray = new ArrayList<Double>();
   public int blackEatCount = 0;
   public int whiteEatCount = 0;
   public int blackPrisonerCount = 0;
@@ -94,7 +94,8 @@ public class YaZenGtp {
       Lizzie.gtpConsole.addLineForce(line);
       if (line.startsWith("=  ")) {
         String[] params = line.trim().split(" ");
-        for (int i = 2; i < params.length; i++) esitmateArray.add(Integer.parseInt(params[i]));
+        for (int i = 2; i < params.length; i++)
+          esitmateArray.add(Double.parseDouble(params[i])); // actually always an integer
       }
 
       if (line.startsWith("Throw")) {
@@ -105,7 +106,8 @@ public class YaZenGtp {
 
         String[] params = line.trim().split(" ");
         if (params.length == Lizzie.board.boardWidth) {
-          for (int i = 0; i < params.length; i++) esitmateArray.add(Integer.parseInt(params[i]));
+          for (int i = 0; i < params.length; i++)
+            esitmateArray.add(Double.parseDouble(params[i])); // actually always an integer
         }
       }
     }

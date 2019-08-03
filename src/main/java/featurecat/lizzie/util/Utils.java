@@ -8,6 +8,8 @@ import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.Color;
 import java.awt.FontMetrics;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +26,9 @@ import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
+import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.TransferHandler;
 import org.w3c.dom.Node;
 
 public class Utils {
@@ -158,6 +162,23 @@ public class Utils {
     }
   }
 
+  public static double actualScoreMean(double scoreMean) {
+    double score = scoreMean;
+    if (Lizzie.board.getHistory().isBlacksTurn()) {
+      if (Lizzie.config.showKataGoBoardScoreMean) {
+        score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+      }
+    } else {
+      if (Lizzie.config.showKataGoBoardScoreMean) {
+        score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+      }
+      if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+        score = -score;
+      }
+    }
+    return score;
+  }
+
   public static Integer txtFieldValue(JTextField txt) {
     if (txt.getText().trim().isEmpty()
         || txt.getText().trim().length() >= String.valueOf(Integer.MAX_VALUE).length()) {
@@ -264,4 +285,39 @@ public class Utils {
       return false;
     }
   }
+
+  public static TransferHandler transFile =
+      new TransferHandler() {
+        @Override
+        public boolean importData(JComponent comp, Transferable t) {
+          try {
+            Object o = t.getTransferData(DataFlavor.javaFileListFlavor);
+            String filePath = o.toString();
+            if (filePath.startsWith("[")) {
+              filePath = filePath.substring(1);
+            }
+            if (filePath.endsWith("]")) {
+              filePath = filePath.substring(0, filePath.length() - 1);
+            }
+            if (!(filePath.endsWith(".sgf") || filePath.endsWith(".gib"))) {
+              return false;
+            }
+            File file = new File(filePath);
+            Lizzie.frame.loadFile(file);
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+          return true;
+        }
+
+        @Override
+        public boolean canImport(JComponent comp, DataFlavor[] flavors) {
+          for (int i = 0; i < flavors.length; i++) {
+            if (DataFlavor.javaFileListFlavor.equals(flavors[i])) {
+              return true;
+            }
+          }
+          return false;
+        }
+      };
 }

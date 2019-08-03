@@ -53,6 +53,9 @@ public class BoardRenderer {
   private static final double STARPOINT_DIAMETER = 0.015;
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
 
+  private static boolean emptyName = false;
+  private static boolean changedName = false;
+
   private int x, y;
   private int boardWidth, boardHeight;
   private int shadowRadius;
@@ -78,7 +81,8 @@ public class BoardRenderer {
 
   private BufferedImage branchStonesImage = emptyImage;
   private BufferedImage branchStonesShadowImage;
-  private BufferedImage cachedEsitmateRectImage = emptyImage;
+  private BufferedImage cachedEstimateLargeRectImage = emptyImage;
+  private BufferedImage cachedEstimateSmallRectImage = emptyImage;
 
   private boolean lastInScoreMode = false;
 
@@ -120,6 +124,7 @@ public class BoardRenderer {
 
     //        Stopwatch timer = new Stopwatch();
     drawGoban(g);
+    if (Lizzie.config.showNameInBoard && isMainBoard) drawName(g);
     //        timer.lap("background");
     drawStones();
     //        timer.lap("stones");
@@ -174,8 +179,10 @@ public class BoardRenderer {
   }
 
   /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
-  public static int[] availableLength(int boardWidth, int boardHeight, boolean showCoordinates) {
-    int[] calculatedPixelMargins = calculatePixelMargins(boardWidth, boardHeight, showCoordinates);
+  public static int[] availableLength(
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
+    int[] calculatedPixelMargins =
+        calculatePixelMargins(boardWidth, boardHeight, showCoordinates, isMainBoard);
     return (calculatedPixelMargins != null && calculatedPixelMargins.length >= 6)
         ? calculatedPixelMargins
         : new int[] {boardWidth, 0, boardWidth, boardHeight, 0, boardHeight};
@@ -232,8 +239,9 @@ public class BoardRenderer {
         || cachedX != x
         || cachedY != y
         || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
+        || (changedName && isMainBoard)
         || Lizzie.frame.isForceRefresh()) {
-
+      changedName = false;
       cachedBoardWidth = boardWidth;
       cachedBoardHeight = boardHeight;
       Lizzie.frame.setForceRefresh(false);
@@ -277,14 +285,19 @@ public class BoardRenderer {
               Board.asName(i),
               stoneRadius * 4 / 5,
               stoneRadius);
-          drawString(
-              g,
-              x + scaledMarginWidth + squareWidth * i,
-              y - scaledMarginHeight / 3 + boardHeight,
-              MainFrame.uiFont,
-              Board.asName(i),
-              stoneRadius * 4 / 5,
-              stoneRadius);
+          if (!Lizzie.config.showNameInBoard
+              || Lizzie.board != null
+                  && (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
+                      && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals(""))) {
+            drawString(
+                g,
+                x + scaledMarginWidth + squareWidth * i,
+                y - scaledMarginHeight / 3 + boardHeight,
+                MainFrame.uiFont,
+                Board.asName(i),
+                stoneRadius * 4 / 5,
+                stoneRadius);
+          }
         }
         for (int i = 0; i < Board.boardHeight; i++) {
           drawString(
@@ -312,6 +325,83 @@ public class BoardRenderer {
     g0.drawImage(cachedBackgroundImage, 0, 0, null);
     cachedX = x;
     cachedY = y;
+  }
+
+  private void drawName(Graphics2D g0) {
+    if (Lizzie.board == null) {
+      return;
+    }
+    g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    String black = Lizzie.board.getHistory().getGameInfo().getPlayerBlack();
+    if (black.length() > 20) black = black.substring(0, 20);
+    String white = Lizzie.board.getHistory().getGameInfo().getPlayerWhite();
+    if (white.length() > 20) white = white.substring(0, 20);
+    if (black.equals("") && white.contentEquals("")) {
+      if (!emptyName) {
+        emptyName = true;
+        changedName = true;
+      }
+      return;
+    }
+    if (emptyName) {
+      emptyName = false;
+      changedName = true;
+    }
+    emptyName = false;
+    if (Lizzie.board.getHistory().isBlacksTurn()) {
+      g0.setColor(Color.WHITE);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 1 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+
+      g0.setColor(Color.BLACK);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 4 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+    } else {
+      g0.setColor(Color.BLACK);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 4 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+      g0.setColor(Color.WHITE);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 1 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+    }
+    g0.setColor(Color.BLACK);
+    String regex = "[\u4e00-\u9fa5]";
+
+    drawStringBold(
+        g0,
+        x
+            + boardWidth / 2
+            - black.replaceAll(regex, "12").length() * stoneRadius / 4
+            - stoneRadius * 5 / 4,
+        y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
+        Lizzie.frame.uiFont,
+        black,
+        stoneRadius,
+        stoneRadius * black.replaceAll(regex, "12").length() / 2);
+    g0.setColor(Color.WHITE);
+    drawStringBold(
+        g0,
+        x
+            + boardWidth / 2
+            + white.replaceAll(regex, "12").length() * stoneRadius / 4
+            + stoneRadius * 5 / 4,
+        y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
+        Lizzie.frame.uiFont,
+        white,
+        stoneRadius,
+        stoneRadius * white.replaceAll(regex, "12").length() / 2);
   }
 
   /**
@@ -513,15 +603,16 @@ public class BoardRenderer {
   /** Render the shadows and stones in correct background-foreground order */
   private void renderImages(Graphics2D g) {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_OFF);
+    g.drawImage(cachedEstimateLargeRectImage, x, y, null);
     g.drawImage(cachedStonesShadowImage, x, y, null);
     if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesShadowImage, x, y, null);
     }
     g.drawImage(cachedStonesImage, x, y, null);
-    g.drawImage(cachedEsitmateRectImage, x, y, null);
     if (Lizzie.config.showBranchNow()) {
       g.drawImage(branchStonesImage, x, y, null);
     }
+    g.drawImage(cachedEstimateSmallRectImage, x, y, null);
   }
 
   /** Draw move numbers and/or mark the last played move */
@@ -804,20 +895,8 @@ public class BoardRenderer {
         text = String.format("%.1f", roundedWinrate);
       }
 
-      if (Lizzie.leelaz.isKataGo && Lizzie.config.showScoremeanInSuggestion) {
-        double score = textData.move.scoreMean;
-        if (Lizzie.board.getHistory().isBlacksTurn()) {
-          if (Lizzie.config.showKataGoBoardScoreMean) {
-            score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
-          }
-        } else {
-          if (Lizzie.config.showKataGoBoardScoreMean) {
-            score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
-          }
-          if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
-            score = -score;
-          }
-        }
+      if (Lizzie.leelaz.supportScoremean() && Lizzie.config.showScoremeanInSuggestion) {
+        double score = Utils.actualScoreMean(textData.move.scoreMean);
         if (!Lizzie.config.showWinrateInSuggestion) {
           drawString(
               g,
@@ -991,7 +1070,7 @@ public class BoardRenderer {
    * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
    */
   private static int[] calculatePixelMargins(
-      int boardWidth, int boardHeight, boolean showCoordinates) {
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
     // boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge
     // of the board
     //        if (boardLength < Board.BOARD_SIZE - 1)
@@ -1008,7 +1087,11 @@ public class BoardRenderer {
 
     // decrease boardLength until the availableLength will result in square board intersections
     double marginWidth =
-        (showCoordinates ? (Board.boardWidth > 3 ? 0.06 : 0.04) : 0.03) / Board.boardWidth * 19.0;
+        (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                : 0.03)
+            / Board.boardWidth
+            * 19.0;
     boardWidth++;
     do {
       boardWidth--;
@@ -1020,7 +1103,9 @@ public class BoardRenderer {
     int squareHeight = 0;
     if (Board.boardWidth != Board.boardHeight) {
       double marginHeight =
-          (showCoordinates ? (Board.boardHeight > 3 ? 0.06 : 0.04) : 0.03)
+          (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                  ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                  : 0.03)
               / Board.boardHeight
               * 19.0;
       boardHeight++;
@@ -1382,6 +1467,17 @@ public class BoardRenderer {
     drawString(g, x, y, fontBase, Font.PLAIN, string, maximumFontHeight, maximumFontWidth, 0);
   }
 
+  private void drawStringBold(
+      Graphics2D g,
+      int x,
+      int y,
+      Font fontBase,
+      String string,
+      float maximumFontHeight,
+      double maximumFontWidth) {
+    drawString(g, x, y, fontBase, Font.BOLD, string, maximumFontHeight, maximumFontWidth, 0);
+  }
+
   /** @return a font with kerning enabled */
   private Font makeFont(Font fontBase, int style) {
     Font font = fontBase.deriveFont(style, 100);
@@ -1391,7 +1487,7 @@ public class BoardRenderer {
   }
 
   private int[] calculatePixelMargins() {
-    return calculatePixelMargins(boardWidth, boardHeight, showCoordinates());
+    return calculatePixelMargins(boardWidth, boardHeight, showCoordinates(), isMainBoard);
   }
 
   /**
@@ -1603,80 +1699,111 @@ public class BoardRenderer {
     if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
-    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
+    cachedEstimateLargeRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
+    cachedEstimateSmallRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+  // isZen: estimates are for black (Zen) rather than player to move (KataGo)
+  // and estimates are just <0/=0/>0 (Zen) rather than -1..+1 (KataGo)
+  public void drawEstimateRect(ArrayList<Double> esitmateArray, boolean isZen) {
     if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
-    BufferedImage newEstimateImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
-    Graphics2D g = newEstimateImage.createGraphics();
-    for (int i = 0; i < esitmateArray.size(); i++) {
-
-      if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
-          || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] c = Lizzie.board.getCoord(i);
-        int x = c[1];
-        int y = c[0];
-        int stoneX = scaledMarginWidth + squareWidth * x;
-        int stoneY = scaledMarginHeight + squareHeight * y;
-        // g.setColor(Color.BLACK);
-
-        int alpha = (int) (esitmateArray.get(i) * 255);
-        Color cl = new Color(0, 0, 0, Math.abs(alpha));
-        g.setColor(cl);
-        g.fillRect(
-            (int) (stoneX - stoneRadius * 0.6),
-            (int) (stoneY - stoneRadius * 0.6),
-            (int) (stoneRadius * 1.2),
-            (int) (stoneRadius * 1.2));
-      }
-      if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
-          || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] c = Lizzie.board.getCoord(i);
-        int x = c[1];
-        int y = c[0];
-        int stoneX = scaledMarginWidth + squareWidth * x;
-        int stoneY = scaledMarginHeight + squareHeight * y;
-        int alpha = (int) (esitmateArray.get(i) * 255);
-        Color cl = new Color(255, 255, 255, Math.abs(alpha));
-        g.setColor(cl);
-        g.fillRect(
-            (int) (stoneX - stoneRadius * 0.6),
-            (int) (stoneY - stoneRadius * 0.6),
-            (int) (stoneRadius * 1.2),
-            (int) (stoneRadius * 1.2));
+    boolean drawLarge = false, drawSmall = false, drawSize = false;
+    int drawSmart = 0;
+    if (Lizzie.config.showKataGoEstimate) {
+      switch (Lizzie.config.kataGoEstimateMode) {
+        case "small":
+          drawSmall = true;
+          break;
+        case "large":
+          drawLarge = true;
+          break;
+        case "large+small":
+          drawLarge = true;
+          drawSmall = true;
+          break;
+        default:
+        case "large+dead":
+          drawLarge = true;
+          drawSmall = true;
+          drawSmart = 1;
+          break;
+        case "large+stones":
+          drawLarge = true;
+          drawSmall = true;
+          drawSmart = 2;
+          break;
+        case "size":
+          drawSmall = true;
+          drawSize = true;
+          break;
       }
     }
-    cachedEsitmateRectImage = newEstimateImage;
-  }
-
-  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
-    if (boardWidth <= 0 || boardHeight <= 0) {
-      return;
-    }
-    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
-    Graphics2D g = cachedEsitmateRectImage.createGraphics();
+    BufferedImage oldLargeRectImage = cachedEstimateLargeRectImage;
+    BufferedImage oldSmallRectImage = cachedEstimateSmallRectImage;
+    BufferedImage newLargeRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
+    BufferedImage newSmallRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
+    Graphics2D gl = newLargeRectImage.createGraphics();
+    Graphics2D gs = newSmallRectImage.createGraphics();
     for (int i = 0; i < esitmateArray.size(); i++) {
-      if (esitmateArray.get(i) > 0) {
-        int[] c = Lizzie.board.getCoord(i);
-        int x = c[1];
-        int y = c[0];
-        int stoneX = scaledMarginWidth + squareWidth * x;
-        int stoneY = scaledMarginHeight + squareHeight * y;
-        g.setColor(Color.BLACK);
-        g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
+
+      double estimate = esitmateArray.get(i);
+      if (isZen) {
+        // Zen's estimates are only <0 / =0 / >0
+        if (estimate < 0) estimate = -1;
+        else if (estimate > 0) estimate = +1;
       }
-      if (esitmateArray.get(i) < 0) {
-        int[] c = Lizzie.board.getCoord(i);
-        int x = c[1];
-        int y = c[0];
-        int stoneX = scaledMarginWidth + squareWidth * x;
-        int stoneY = scaledMarginHeight + squareHeight * y;
-        g.setColor(Color.WHITE);
-        g.fillRect(stoneX - stoneRadius / 2, stoneY - stoneRadius / 2, stoneRadius, stoneRadius);
+      boolean isBlack = (estimate > 0);
+      if (!isZen) {
+        // KataGo's estimates are for player to move, not for black.
+        if (!Lizzie.board.getHistory().isBlacksTurn()) isBlack = !isBlack;
       }
+      int[] c = Lizzie.board.getCoord(i);
+      int x = c[1];
+      int y = c[0];
+      int stoneX = scaledMarginWidth + squareWidth * x;
+      int stoneY = scaledMarginHeight + squareHeight * y;
+      // g.setColor(Color.BLACK);
+
+      int grey = isBlack ? 0 : 255;
+      double alpha = Math.abs(estimate);
+
+      // Large rectangles (will go behind stones).
+
+      if (drawLarge) {
+        Color cl = new Color(grey, grey, grey, (int) (255 * (0.75 * alpha)));
+        gl.setColor(cl);
+        gl.fillRect(
+            (int) (stoneX - squareWidth * 0.5),
+            (int) (stoneY - squareHeight * 0.5),
+            (int) squareWidth,
+            (int) squareHeight);
+      }
+
+      // Small rectangles (will go on top of stones; perhaps only "dead" stones).
+
+      Stone stoneHere = Lizzie.board.getStones()[Board.getIndex(x, y)];
+      boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
+      boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
+      boolean allowed =
+          drawSmart == 0 || (drawSmart == 1 && differentColor) || (drawSmart == 2 && anyColor);
+      if (drawSmall && allowed) {
+        double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
+        int length = (int) (lengthFactor * stoneRadius);
+        int ialpha = drawSize ? 180 : (int) (255 * alpha);
+        Color cl = new Color(grey, grey, grey, ialpha);
+        gs.setColor(cl);
+        gs.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
+      }
+    }
+    // Lizzie isn't very careful about threading and removeEstimateRect may have been
+    // called while this was running. So only replace images if same object as at start.
+    if (cachedEstimateLargeRectImage == oldLargeRectImage) {
+      cachedEstimateLargeRectImage = newLargeRectImage;
+    }
+    if (cachedEstimateSmallRectImage == oldSmallRectImage) {
+      cachedEstimateSmallRectImage = newSmallRectImage;
     }
   }
 
@@ -1687,41 +1814,6 @@ public class BoardRenderer {
       return lengthab;
     } else {
       return 0;
-    }
-  }
-
-  public void drawEstimateRectKataBySize(ArrayList<Double> esitmateArray) {
-    if (boardWidth <= 0 || boardHeight <= 0) {
-      return;
-    }
-    cachedEsitmateRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
-    Graphics2D g = cachedEsitmateRectImage.createGraphics();
-    for (int i = 0; i < esitmateArray.size(); i++) {
-      if ((esitmateArray.get(i) > 0 && Lizzie.board.getHistory().isBlacksTurn())
-          || (esitmateArray.get(i) < 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] c = Lizzie.board.getCoord(i);
-        int x = c[1];
-        int y = c[0];
-        int stoneX = scaledMarginWidth + squareWidth * x;
-        int stoneY = scaledMarginHeight + squareHeight * y;
-        Color cl = new Color(0, 0, 0, 180);
-        g.setColor(cl);
-        int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
-        if (length > 0) g.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
-      }
-      if ((esitmateArray.get(i) < 0 && Lizzie.board.getHistory().isBlacksTurn())
-          || (esitmateArray.get(i) > 0 && !Lizzie.board.getHistory().isBlacksTurn())) {
-        int[] c = Lizzie.board.getCoord(i);
-        int x = c[1];
-        int y = c[0];
-        int stoneX = scaledMarginWidth + squareWidth * x;
-        int stoneY = scaledMarginHeight + squareHeight * y;
-        int length = (int) (convertLength(esitmateArray.get(i)) * 2 * stoneRadius);
-
-        Color cl = new Color(255, 255, 255, 180);
-        g.setColor(cl);
-        if (length > 0) g.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
-      }
     }
   }
 

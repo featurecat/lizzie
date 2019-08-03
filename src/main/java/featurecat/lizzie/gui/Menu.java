@@ -485,6 +485,24 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(winrateAlwaysBlack);
 
+    final JCheckBoxMenuItem showName =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.showName"));
+    showName.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.showNameInBoard = !Lizzie.config.showNameInBoard;
+            Lizzie.config.uiConfig.put("show-name-in-board", Lizzie.config.showNameInBoard);
+            Lizzie.frame.refresh(2);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    viewMenu.add(showName);
+
     viewMenu.addSeparator();
 
     final JMenuItem defaultView = new JMenuItem(resourceBundle.getString("Menu.view.defaultView"));
@@ -648,11 +666,32 @@ public class Menu extends JMenuBar {
     final JMenu kataEstimate = new JMenu(resourceBundle.getString("Menu.view.kataGo.kataEstimate"));
     kataGo.add(kataEstimate);
 
-    final JCheckBoxMenuItem kataEstimate1 =
+    final JMenu kataEstimateDisplay =
+        new JMenu(resourceBundle.getString("Menu.view.kataGo.kataEstimate.display"));
+    kataEstimate.add(kataEstimateDisplay);
+
+    final JCheckBoxMenuItem kataEstimateDisplayNone =
         new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate1"));
-    kataEstimate.add(kataEstimate1);
-    kataEstimate1.addActionListener(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.display.none"));
+
+    final JCheckBoxMenuItem kataEstimateDisplayMain =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.display.main"));
+
+    final JCheckBoxMenuItem kataEstimateDisplaySub =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.display.sub"));
+
+    final JCheckBoxMenuItem kataEstimateDisplayBoth =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.display.both"));
+
+    kataEstimateDisplay.add(kataEstimateDisplayNone);
+    kataEstimateDisplay.add(kataEstimateDisplayMain);
+    kataEstimateDisplay.add(kataEstimateDisplaySub);
+    kataEstimateDisplay.add(kataEstimateDisplayBoth);
+
+    kataEstimateDisplayNone.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -662,24 +701,20 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate2 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate2"));
-    kataEstimate.add(kataEstimate2);
-    kataEstimate2.addActionListener(
+    kataEstimateDisplayMain.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.showKataGoEstimate = true;
-            Lizzie.config.showKataGoEstimateOnMainbord = true;
-            Lizzie.config.showKataGoEstimateOnSubbord = false;
+            Lizzie.config.showKataGoEstimateOnMainboard = true;
+            Lizzie.config.showKataGoEstimateOnSubboard = false;
             Lizzie.frame.removeEstimateRect();
             Lizzie.leelaz.ponder();
             Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
             Lizzie.config.uiConfig.put(
-                "show-katago-estimate-onsubbord", Lizzie.config.showKataGoEstimateOnSubbord);
+                "show-katago-estimate-onsubboard", Lizzie.config.showKataGoEstimateOnSubboard);
             Lizzie.config.uiConfig.put(
-                "show-katago-estimate-onmainboard", Lizzie.config.showKataGoEstimateOnMainbord);
+                "show-katago-estimate-onmainboard", Lizzie.config.showKataGoEstimateOnMainboard);
             try {
               Lizzie.config.save();
             } catch (IOException es) {
@@ -688,24 +723,20 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate3 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate3"));
-    kataEstimate.add(kataEstimate3);
-    kataEstimate3.addActionListener(
+    kataEstimateDisplaySub.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.showKataGoEstimate = true;
-            Lizzie.config.showKataGoEstimateOnMainbord = false;
-            Lizzie.config.showKataGoEstimateOnSubbord = true;
+            Lizzie.config.showKataGoEstimateOnMainboard = false;
+            Lizzie.config.showKataGoEstimateOnSubboard = true;
             Lizzie.frame.removeEstimateRect();
             Lizzie.leelaz.ponder();
             Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
             Lizzie.config.uiConfig.put(
-                "show-katago-estimate-onsubbord", Lizzie.config.showKataGoEstimateOnSubbord);
+                "show-katago-estimate-onsubboard", Lizzie.config.showKataGoEstimateOnSubboard);
             Lizzie.config.uiConfig.put(
-                "show-katago-estimate-onmainboard", Lizzie.config.showKataGoEstimateOnMainbord);
+                "show-katago-estimate-onmainboard", Lizzie.config.showKataGoEstimateOnMainboard);
             try {
               Lizzie.config.save();
             } catch (IOException es) {
@@ -714,23 +745,20 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate4 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate4"));
-    kataEstimate.add(kataEstimate4);
-    kataEstimate4.addActionListener(
+    kataEstimateDisplayBoth.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
             Lizzie.config.showKataGoEstimate = true;
-            Lizzie.config.showKataGoEstimateOnMainbord = true;
-            Lizzie.config.showKataGoEstimateOnSubbord = true;
+            Lizzie.config.showKataGoEstimateOnMainboard = true;
+            Lizzie.config.showKataGoEstimateOnSubboard = true;
+            Lizzie.frame.removeEstimateRect();
             Lizzie.leelaz.ponder();
             Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
             Lizzie.config.uiConfig.put(
-                "show-katago-estimate-onsubbord", Lizzie.config.showKataGoEstimateOnSubbord);
+                "show-katago-estimate-onsubboard", Lizzie.config.showKataGoEstimateOnSubboard);
             Lizzie.config.uiConfig.put(
-                "show-katago-estimate-onmainboard", Lizzie.config.showKataGoEstimateOnMainbord);
+                "show-katago-estimate-onmainboard", Lizzie.config.showKataGoEstimateOnMainboard);
             try {
               Lizzie.config.save();
             } catch (IOException es) {
@@ -739,19 +767,46 @@ public class Menu extends JMenuBar {
           }
         });
 
-    kataEstimate.addSeparator();
+    final JMenu kataEstimateMode =
+        new JMenu(resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode"));
+    kataEstimate.add(kataEstimateMode);
 
-    final JCheckBoxMenuItem kataEstimate5 =
+    final JCheckBoxMenuItem kataEstimateModeLarge =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.large"));
+
+    final JCheckBoxMenuItem kataEstimateModeSmall =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.small"));
+
+    final JCheckBoxMenuItem kataEstimateModeLargeAndSmall =
         new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate5"));
-    kataEstimate.add(kataEstimate5);
-    kataEstimate5.addActionListener(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.largeAndSmall"));
+
+    final JCheckBoxMenuItem kataEstimateModeLargeAndDead =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.largeAndDead"));
+
+    final JCheckBoxMenuItem kataEstimateModeLargeAndStones =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.largeAndStones"));
+
+    final JCheckBoxMenuItem kataEstimateModeSize =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.size"));
+
+    kataEstimateMode.add(kataEstimateModeLarge);
+    kataEstimateMode.add(kataEstimateModeSmall);
+    kataEstimateMode.add(kataEstimateModeLargeAndSmall);
+    kataEstimateMode.add(kataEstimateModeLargeAndDead);
+    kataEstimateMode.add(kataEstimateModeLargeAndStones);
+    kataEstimateMode.add(kataEstimateModeSize);
+
+    kataEstimateModeLarge.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoEstimateBySize = false;
-            Lizzie.config.uiConfig.put(
-                "show-katago-estimate-bysize", Lizzie.config.showKataGoEstimateBySize);
+            Lizzie.config.kataGoEstimateMode = "large";
+            Lizzie.frame.removeEstimateRect();
+            Lizzie.leelaz.ponder();
+            Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
             try {
               Lizzie.config.save();
             } catch (IOException es) {
@@ -760,17 +815,78 @@ public class Menu extends JMenuBar {
           }
         });
 
-    final JCheckBoxMenuItem kataEstimate6 =
-        new JCheckBoxMenuItem(
-            resourceBundle.getString("Menu.view.kataGo.kataEstimate.kataEstimate6"));
-    kataEstimate.add(kataEstimate6);
-    kataEstimate6.addActionListener(
+    kataEstimateModeSmall.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
-            Lizzie.config.showKataGoEstimateBySize = true;
-            Lizzie.config.uiConfig.put(
-                "show-katago-estimate-bysize", Lizzie.config.showKataGoEstimateBySize);
+            Lizzie.config.kataGoEstimateMode = "small";
+            Lizzie.frame.removeEstimateRect();
+            Lizzie.leelaz.ponder();
+            Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+
+    kataEstimateModeLargeAndSmall.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.kataGoEstimateMode = "large+small";
+            Lizzie.frame.removeEstimateRect();
+            Lizzie.leelaz.ponder();
+            Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+
+    kataEstimateModeLargeAndDead.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.kataGoEstimateMode = "large+dead";
+            Lizzie.frame.removeEstimateRect();
+            Lizzie.leelaz.ponder();
+            Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+
+    kataEstimateModeLargeAndStones.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.kataGoEstimateMode = "large+stones";
+            Lizzie.frame.removeEstimateRect();
+            Lizzie.leelaz.ponder();
+            Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+
+    kataEstimateModeSize.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.kataGoEstimateMode = "size";
+            Lizzie.frame.removeEstimateRect();
+            Lizzie.leelaz.ponder();
+            Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
             try {
               Lizzie.config.save();
             } catch (IOException es) {
@@ -802,38 +918,30 @@ public class Menu extends JMenuBar {
               kataMeanAlwaysBlack.setState(false);
               kataMeanBlackWhite.setState(true);
             }
-            if (Lizzie.config.showKataGoEstimate) {
-              kataEstimate1.setState(false);
-              if (Lizzie.config.showKataGoEstimateOnMainbord
-                  && Lizzie.config.showKataGoEstimateOnSubbord) {
-                kataEstimate4.setState(true);
-                kataEstimate2.setState(false);
-                kataEstimate3.setState(false);
-              } else if (Lizzie.config.showKataGoEstimateOnMainbord) {
-                kataEstimate2.setState(true);
-                kataEstimate4.setState(false);
-                kataEstimate3.setState(false);
-              } else if (Lizzie.config.showKataGoEstimateOnSubbord) {
-                kataEstimate3.setState(true);
-                kataEstimate2.setState(false);
-                kataEstimate4.setState(false);
-              }
-            } else {
-              kataEstimate1.setState(true);
-              kataEstimate2.setState(false);
-              kataEstimate3.setState(false);
-              kataEstimate4.setState(false);
+            {
+              boolean onMain =
+                  Lizzie.config.showKataGoEstimate && Lizzie.config.showKataGoEstimateOnMainboard;
+              boolean onSub =
+                  Lizzie.config.showKataGoEstimate && Lizzie.config.showKataGoEstimateOnSubboard;
+              kataEstimateDisplayNone.setState(!onMain && !onSub);
+              kataEstimateDisplayMain.setState(onMain && !onSub);
+              kataEstimateDisplaySub.setState(!onMain && onSub);
+              kataEstimateDisplayBoth.setState(onMain && onSub);
             }
-            if (Lizzie.config.showKataGoEstimateBySize) {
-              kataEstimate5.setState(true);
-              kataEstimate6.setState(false);
-            } else {
-              kataEstimate6.setState(true);
-              kataEstimate5.setState(false);
-            }
+            kataEstimateModeLarge.setState(Lizzie.config.kataGoEstimateMode.equals("large"));
+            kataEstimateModeSmall.setState(Lizzie.config.kataGoEstimateMode.equals("small"));
+            kataEstimateModeLargeAndSmall.setState(
+                Lizzie.config.kataGoEstimateMode.equals("large+small"));
+            kataEstimateModeLargeAndDead.setState(
+                Lizzie.config.kataGoEstimateMode.equals("large+dead"));
+            kataEstimateModeLargeAndStones.setState(
+                Lizzie.config.kataGoEstimateMode.equals("large+stones"));
+            kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode.equals("size"));
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);
+            if (Lizzie.config.showNameInBoard) showName.setState(true);
+            else showName.setState(false);
             if (Lizzie.config.showWinrate && Lizzie.config.showLargeWinrate())
               bigWinGraph.setState(true);
             else bigWinGraph.setState(false);

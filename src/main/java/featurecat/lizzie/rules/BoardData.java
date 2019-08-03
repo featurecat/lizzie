@@ -2,6 +2,7 @@ package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.util.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,7 @@ public class BoardData {
 
   public double winrate;
   private int playouts;
+  public double scoreMean;
   public List<MoveData> bestMoves;
   public int blackCaptures;
   public int whiteCaptures;
@@ -43,7 +45,8 @@ public class BoardData {
       int blackCaptures,
       int whiteCaptures,
       double winrate,
-      int playouts) {
+      int playouts,
+      double scoreMean) {
     this.moveMNNumber = -1;
     this.moveNumber = moveNumber;
     this.lastMove = lastMove;
@@ -58,6 +61,7 @@ public class BoardData {
 
     this.winrate = winrate;
     this.playouts = playouts;
+    this.scoreMean = scoreMean;
     this.blackCaptures = blackCaptures;
     this.whiteCaptures = whiteCaptures;
     this.bestMoves = new ArrayList<>();
@@ -71,7 +75,18 @@ public class BoardData {
 
     int[] boardArray = new int[width * height];
     return new BoardData(
-        stones, Optional.empty(), Stone.EMPTY, true, new Zobrist(), 0, boardArray, 0, 0, 50, 0);
+        stones,
+        Optional.empty(),
+        Stone.EMPTY,
+        true,
+        new Zobrist(),
+        0,
+        boardArray,
+        0,
+        0,
+        50,
+        0,
+        0.0);
   }
 
   /**
@@ -168,6 +183,9 @@ public class BoardData {
       bestMoves = moves;
       setPlayouts(MoveData.getPlayouts(moves));
       winrate = getWinrateFromBestMoves(moves);
+      if (Lizzie.leelaz.isKataGo) {
+        scoreMean = getScoreMeanFromBestMoves(moves);
+      }
     }
     if (Lizzie.leelaz.isKataGo) {
       Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
@@ -181,6 +199,10 @@ public class BoardData {
         .stream()
         .mapToDouble(move -> move.winrate * move.playouts / MoveData.getPlayouts(bestMoves))
         .sum();
+  }
+
+  public double getScoreMean() {
+    return Utils.actualScoreMean(scoreMean);
   }
 
   public static double getScoreMeanFromBestMoves(List<MoveData> bestMoves) {
@@ -198,7 +220,7 @@ public class BoardData {
       sb.append("move ").append(move.coordinate);
       sb.append(" visits ").append(move.playouts);
       sb.append(" winrate ").append((int) (move.winrate * 100));
-      if (Lizzie.leelaz.isKataGo) sb.append(" scoreMean ").append(move.scoreMean);
+      if (Lizzie.leelaz.supportScoremean()) sb.append(" scoreMean ").append(move.scoreMean);
       sb.append(" pv ").append(move.variation.stream().reduce((a, b) -> a + " " + b).get());
       sb.append(" info "); // this order is just because of how the MoveData info parser works
     }

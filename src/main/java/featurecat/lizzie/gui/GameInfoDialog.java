@@ -26,7 +26,7 @@ import javax.swing.border.EmptyBorder;
 /** @author unknown */
 public class GameInfoDialog extends JDialog {
   // create formatters
-  public static final DecimalFormat FORMAT_KOMI = new DecimalFormat("#0.0");
+  public static final DecimalFormat FORMAT_KOMI = new DecimalFormat("#0.0#");
   public static final DecimalFormat FORMAT_HANDICAP = new DecimalFormat("0");
 
   static {
