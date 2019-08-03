@@ -891,20 +891,8 @@ public class BoardRenderer {
         text = String.format("%.1f", roundedWinrate);
       }
 
-      if (Lizzie.leelaz.isKataGo && Lizzie.config.showScoremeanInSuggestion) {
-        double score = textData.move.scoreMean;
-        if (Lizzie.board.getHistory().isBlacksTurn()) {
-          if (Lizzie.config.showKataGoBoardScoreMean) {
-            score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
-          }
-        } else {
-          if (Lizzie.config.showKataGoBoardScoreMean) {
-            score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
-          }
-          if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
-            score = -score;
-          }
-        }
+      if (Lizzie.leelaz.supportScoremean() && Lizzie.config.showScoremeanInSuggestion) {
+        double score = Utils.actualScoreMean(textData.move.scoreMean);
         if (!Lizzie.config.showWinrateInSuggestion) {
           drawString(
               g,
