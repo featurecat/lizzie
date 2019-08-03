@@ -361,7 +361,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void noEstimateByZen(boolean byToolBar);
 
-  public abstract void drawEstimateRectZen(ArrayList<Integer> esitmateArray);
+  public abstract void drawEstimateRectZen(ArrayList<Double> esitmateArray);
 
   public void saveImage() {};
 

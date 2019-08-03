@@ -124,15 +124,7 @@ public class SubBoardPane extends LizziePane {
     subBoardRenderer.removeEstimateRect();
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
-    if (Lizzie.config.showKataGoEstimateBySize) {
-      subBoardRenderer.drawEstimateRectKataBySize(esitmateArray);
-    } else {
-      subBoardRenderer.drawEstimateRectKata(esitmateArray);
-    }
-  }
-
-  public void drawEstimateRectZen(ArrayList<Integer> esitmateArray) {
-    subBoardRenderer.drawEstimateRectZen(esitmateArray);
+  public void drawEstimateRect(ArrayList<Double> esitmateArray, boolean isZen) {
+    subBoardRenderer.drawEstimateRect(esitmateArray, isZen);
   }
 }

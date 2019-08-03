@@ -446,7 +446,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
           if (e.isAltDown()) {
             Lizzie.frame.estimateByZen();
           } else {
-            Lizzie.config.showKataGoEstimate = !Lizzie.config.showKataGoEstimate;
+            if (e.isControlDown()) {
+              // ctrl-. cycles modes, but only if estimates being displayed
+              if (Lizzie.config.showKataGoEstimate) Lizzie.config.cycleKataGoEstimateMode();
+            } else Lizzie.config.toggleKataGoEstimate();
             Lizzie.leelaz.ponder();
             if (!Lizzie.config.showKataGoEstimate) {
               Lizzie.frame.removeEstimateRect();
