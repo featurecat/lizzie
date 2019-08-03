@@ -57,7 +57,7 @@ public class Config {
   public boolean showKataGoEstimate = false;
   public boolean showKataGoEstimateOnSubboard = true;
   public boolean showKataGoEstimateOnMainboard = true;
-  public String kataGoEstimateMode = "large+dead";
+  public String kataGoEstimateMode = "small";
 
   public boolean showStatus = true;
   public boolean showBranch = true;
