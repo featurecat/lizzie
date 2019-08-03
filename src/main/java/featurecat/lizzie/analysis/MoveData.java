@@ -15,6 +15,7 @@ public class MoveData {
   public List<String> variation;
   public double scoreMean;
   public double scoreStdev;
+  public double policy;
 
   private MoveData() {}
 
@@ -77,6 +78,9 @@ public class MoveData {
           result.scoreStdev = Double.parseDouble(value);
           ;
         }
+        if (key.equals("prior")) {
+          result.policy = Integer.parseInt(value) * 100;
+        }
       }
     }
     return result;
@@ -121,6 +125,9 @@ public class MoveData {
         if (key.equals("scoreMean")) {
           // support 0.16 0.15
           result.scoreMean = Double.parseDouble(value);
+        }
+        if (key.equals("prior")) {
+          result.policy = Integer.parseInt(value) / 100.0;
         }
       }
     }

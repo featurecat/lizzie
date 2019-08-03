@@ -44,6 +44,7 @@ public abstract class MainFrame extends JFrame {
   public boolean isAutoEstimating = false;
   public boolean isShowingRightMenu = false;
   public ToolBar toolBar;
+  public boolean isShowingPolicy = false;
 
   static {
     // load fonts
