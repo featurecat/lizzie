@@ -76,10 +76,9 @@ public class MoveData {
         }
         if (key.equals("scoreStdev")) {
           result.scoreStdev = Double.parseDouble(value);
-          ;
         }
         if (key.equals("prior")) {
-          result.policy = Integer.parseInt(value) * 100;
+          result.policy = Double.parseDouble(value) * 100;
         }
       }
     }
