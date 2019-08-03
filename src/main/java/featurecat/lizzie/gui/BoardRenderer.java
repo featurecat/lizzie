@@ -285,7 +285,7 @@ public class BoardRenderer {
           if (!Lizzie.config.showNameInBoard
               || Lizzie.board != null
                   && (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
-                      && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals("")))
+                      && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals(""))) {
             drawString(
                 g,
                 x + scaledMarginWidth + squareWidth * i,
@@ -294,6 +294,7 @@ public class BoardRenderer {
                 Board.asName(i),
                 stoneRadius * 4 / 5,
                 stoneRadius);
+          }
         }
         for (int i = 0; i < Board.boardHeight; i++) {
           drawString(
@@ -398,15 +399,6 @@ public class BoardRenderer {
         white,
         stoneRadius,
         stoneRadius * white.replaceAll(regex, "12").length() / 2);
-
-    //    drawStringBoard(
-    //        g0,
-    //        x + boardWidth / 2 + stoneRadius * 2 / 13,
-    //        y - scaledMarginHeight + stoneRadius * 13 / 8 + boardHeight,
-    //        Lizzie.frame.uiFont,
-    //        Lizzie.board.getHistory().getGameInfo().getKomi() + "",
-    //        stoneRadius * 13 / 8,
-    //        stoneRadius * 13 / 8);
   }
 
   /**
