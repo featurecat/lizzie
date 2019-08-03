@@ -157,6 +157,12 @@ public class BasicInfoPane extends LizziePane {
     g.drawString(bTime, posX + width / 10, posY + height / 6);
     g.drawString(wTime, posX + width * 3 / 5, posY + height / 6);
 
+    // Komi
+    String komi =
+        GameInfoDialog.FORMAT_KOMI.format(Lizzie.board.getHistory().getGameInfo().getKomi());
+    int kw = g.getFontMetrics().stringWidth(komi);
+    g.drawString(komi, posX - strokeRadius + width / 2 - kw / 2, posY + height * 7 / 8);
+
     // Status Indicator
     int statusDiam = height / 8;
     g.setColor((Lizzie.leelaz != null && Lizzie.leelaz.isPondering()) ? Color.GREEN : Color.RED);
