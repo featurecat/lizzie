@@ -464,7 +464,7 @@ public class BoardRenderer {
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
     if (!suggestedMove.isPresent()
         || (!isMainBoard && Lizzie.frame.isAutoEstimating)
-        || Lizzie.frame.isShowingPolicy) {
+        || (isMainBoard && Lizzie.frame.isShowingPolicy)) {
       return;
     }
     List<String> variation = suggestedMove.get().variation;
