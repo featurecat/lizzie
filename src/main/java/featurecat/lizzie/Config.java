@@ -71,6 +71,7 @@ public class Config {
   public boolean showScoremeanInSuggestion = true;
   public boolean showToolBar = true;
   public String toolbarPosition = "South";
+  public boolean showNameInBoard = true;
 
   public JSONObject config;
   public JSONObject leelazConfig;
@@ -244,6 +245,7 @@ public class Config {
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
     showToolBar = uiConfig.optBoolean("show-toolbar", true);
+    showNameInBoard = uiConfig.optBoolean("show-name-in-board", true);
     toolbarPosition =
         uiConfig.optString("toolbar-position", persistedUi.optString("toolbar-position", "South"));
 

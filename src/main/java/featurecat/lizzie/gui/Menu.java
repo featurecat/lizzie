@@ -485,6 +485,24 @@ public class Menu extends JMenuBar {
         });
     viewMenu.add(winrateAlwaysBlack);
 
+    final JCheckBoxMenuItem showName =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.showName"));
+    showName.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.showNameInBoard = !Lizzie.config.showNameInBoard;
+            Lizzie.config.uiConfig.put("show-name-in-board", Lizzie.config.showNameInBoard);
+            Lizzie.frame.refresh(2);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    viewMenu.add(showName);
+
     viewMenu.addSeparator();
 
     final JMenuItem defaultView = new JMenuItem(resourceBundle.getString("Menu.view.defaultView"));
@@ -834,6 +852,8 @@ public class Menu extends JMenuBar {
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);
+            if (Lizzie.config.showNameInBoard) showName.setState(true);
+            else showName.setState(false);
             if (Lizzie.config.showWinrate && Lizzie.config.showLargeWinrate())
               bigWinGraph.setState(true);
             else bigWinGraph.setState(false);

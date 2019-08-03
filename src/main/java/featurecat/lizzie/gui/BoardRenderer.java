@@ -53,6 +53,9 @@ public class BoardRenderer {
   private static final double STARPOINT_DIAMETER = 0.015;
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
 
+  private static boolean emptyName = false;
+  private static boolean changedName = false;
+
   private int x, y;
   private int boardWidth, boardHeight;
   private int shadowRadius;
@@ -120,6 +123,7 @@ public class BoardRenderer {
 
     //        Stopwatch timer = new Stopwatch();
     drawGoban(g);
+    if (Lizzie.config.showNameInBoard && isMainBoard) drawName(g);
     //        timer.lap("background");
     drawStones();
     //        timer.lap("stones");
@@ -172,8 +176,10 @@ public class BoardRenderer {
   }
 
   /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
-  public static int[] availableLength(int boardWidth, int boardHeight, boolean showCoordinates) {
-    int[] calculatedPixelMargins = calculatePixelMargins(boardWidth, boardHeight, showCoordinates);
+  public static int[] availableLength(
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
+    int[] calculatedPixelMargins =
+        calculatePixelMargins(boardWidth, boardHeight, showCoordinates, isMainBoard);
     return (calculatedPixelMargins != null && calculatedPixelMargins.length >= 6)
         ? calculatedPixelMargins
         : new int[] {boardWidth, 0, boardWidth, boardHeight, 0, boardHeight};
@@ -230,8 +236,9 @@ public class BoardRenderer {
         || cachedX != x
         || cachedY != y
         || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
+        || (changedName && isMainBoard)
         || Lizzie.frame.isForceRefresh()) {
-
+      changedName = false;
       cachedBoardWidth = boardWidth;
       cachedBoardHeight = boardHeight;
       Lizzie.frame.setForceRefresh(false);
@@ -275,14 +282,19 @@ public class BoardRenderer {
               Board.asName(i),
               stoneRadius * 4 / 5,
               stoneRadius);
-          drawString(
-              g,
-              x + scaledMarginWidth + squareWidth * i,
-              y - scaledMarginHeight / 3 + boardHeight,
-              MainFrame.uiFont,
-              Board.asName(i),
-              stoneRadius * 4 / 5,
-              stoneRadius);
+          if (!Lizzie.config.showNameInBoard
+              || Lizzie.board != null
+                  && (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
+                      && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals(""))) {
+            drawString(
+                g,
+                x + scaledMarginWidth + squareWidth * i,
+                y - scaledMarginHeight / 3 + boardHeight,
+                MainFrame.uiFont,
+                Board.asName(i),
+                stoneRadius * 4 / 5,
+                stoneRadius);
+          }
         }
         for (int i = 0; i < Board.boardHeight; i++) {
           drawString(
@@ -310,6 +322,83 @@ public class BoardRenderer {
     g0.drawImage(cachedBackgroundImage, 0, 0, null);
     cachedX = x;
     cachedY = y;
+  }
+
+  private void drawName(Graphics2D g0) {
+    if (Lizzie.board == null) {
+      return;
+    }
+    g0.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    String black = Lizzie.board.getHistory().getGameInfo().getPlayerBlack();
+    if (black.length() > 20) black = black.substring(0, 20);
+    String white = Lizzie.board.getHistory().getGameInfo().getPlayerWhite();
+    if (white.length() > 20) white = white.substring(0, 20);
+    if (black.equals("") && white.contentEquals("")) {
+      if (!emptyName) {
+        emptyName = true;
+        changedName = true;
+      }
+      return;
+    }
+    if (emptyName) {
+      emptyName = false;
+      changedName = true;
+    }
+    emptyName = false;
+    if (Lizzie.board.getHistory().isBlacksTurn()) {
+      g0.setColor(Color.WHITE);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 1 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+
+      g0.setColor(Color.BLACK);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 4 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+    } else {
+      g0.setColor(Color.BLACK);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 4 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+      g0.setColor(Color.WHITE);
+      g0.fillOval(
+          x + boardWidth / 2 - stoneRadius * 1 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
+    }
+    g0.setColor(Color.BLACK);
+    String regex = "[\u4e00-\u9fa5]";
+
+    drawStringBold(
+        g0,
+        x
+            + boardWidth / 2
+            - black.replaceAll(regex, "12").length() * stoneRadius / 4
+            - stoneRadius * 5 / 4,
+        y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
+        Lizzie.frame.uiFont,
+        black,
+        stoneRadius,
+        stoneRadius * black.replaceAll(regex, "12").length() / 2);
+    g0.setColor(Color.WHITE);
+    drawStringBold(
+        g0,
+        x
+            + boardWidth / 2
+            + white.replaceAll(regex, "12").length() * stoneRadius / 4
+            + stoneRadius * 5 / 4,
+        y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
+        Lizzie.frame.uiFont,
+        white,
+        stoneRadius,
+        stoneRadius * white.replaceAll(regex, "12").length() / 2);
   }
 
   /**
@@ -987,7 +1076,7 @@ public class BoardRenderer {
    * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
    */
   private static int[] calculatePixelMargins(
-      int boardWidth, int boardHeight, boolean showCoordinates) {
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
     // boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge
     // of the board
     //        if (boardLength < Board.BOARD_SIZE - 1)
@@ -1004,7 +1093,11 @@ public class BoardRenderer {
 
     // decrease boardLength until the availableLength will result in square board intersections
     double marginWidth =
-        (showCoordinates ? (Board.boardWidth > 3 ? 0.06 : 0.04) : 0.03) / Board.boardWidth * 19.0;
+        (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                : 0.03)
+            / Board.boardWidth
+            * 19.0;
     boardWidth++;
     do {
       boardWidth--;
@@ -1016,7 +1109,9 @@ public class BoardRenderer {
     int squareHeight = 0;
     if (Board.boardWidth != Board.boardHeight) {
       double marginHeight =
-          (showCoordinates ? (Board.boardHeight > 3 ? 0.06 : 0.04) : 0.03)
+          (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                  ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                  : 0.03)
               / Board.boardHeight
               * 19.0;
       boardHeight++;
@@ -1378,6 +1473,17 @@ public class BoardRenderer {
     drawString(g, x, y, fontBase, Font.PLAIN, string, maximumFontHeight, maximumFontWidth, 0);
   }
 
+  private void drawStringBold(
+      Graphics2D g,
+      int x,
+      int y,
+      Font fontBase,
+      String string,
+      float maximumFontHeight,
+      double maximumFontWidth) {
+    drawString(g, x, y, fontBase, Font.BOLD, string, maximumFontHeight, maximumFontWidth, 0);
+  }
+
   /** @return a font with kerning enabled */
   private Font makeFont(Font fontBase, int style) {
     Font font = fontBase.deriveFont(style, 100);
@@ -1387,7 +1493,7 @@ public class BoardRenderer {
   }
 
   private int[] calculatePixelMargins() {
-    return calculatePixelMargins(boardWidth, boardHeight, showCoordinates());
+    return calculatePixelMargins(boardWidth, boardHeight, showCoordinates(), isMainBoard);
   }
 
   /**
