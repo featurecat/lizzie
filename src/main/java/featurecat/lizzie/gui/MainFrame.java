@@ -352,6 +352,14 @@ public abstract class MainFrame extends JFrame {
     }
   }
 
+  public void toggleEstimateByZen() {
+    if (isEstimating) {
+      noEstimateByZen(true);
+    } else {
+      estimateByZen();
+    }
+  }
+
   public abstract boolean playCurrentVariation();
 
   public abstract void playBestMove();

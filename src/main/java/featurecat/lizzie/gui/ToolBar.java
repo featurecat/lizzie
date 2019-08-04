@@ -89,11 +89,7 @@ public class ToolBar extends JToolBar {
     estimate.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            if (Lizzie.frame.isEstimating) {
-              Lizzie.frame.noEstimateByZen(true);
-            } else {
-              Lizzie.frame.estimateByZen();
-            }
+            Lizzie.frame.toggleEstimateByZen();
           }
         });
     add(estimate);

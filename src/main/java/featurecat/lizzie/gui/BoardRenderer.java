@@ -1711,7 +1711,7 @@ public class BoardRenderer {
     }
     boolean drawLarge = false, drawSmall = false, drawSize = false;
     int drawSmart = 0;
-    if (Lizzie.config.showKataGoEstimate) {
+    if (Lizzie.config.showKataGoEstimate || isZen) {
       switch (Lizzie.config.kataGoEstimateMode) {
         case "small":
           drawSmall = true;

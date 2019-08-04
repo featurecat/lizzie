@@ -444,7 +444,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       case VK_PERIOD:
         if (Lizzie.leelaz.isKataGo) {
           if (e.isAltDown()) {
-            Lizzie.frame.estimateByZen();
+            Lizzie.frame.toggleEstimateByZen();
           } else {
             if (e.isControlDown()) {
               // ctrl-. cycles modes, but only if estimates being displayed
@@ -455,7 +455,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
               Lizzie.frame.removeEstimateRect();
             }
           }
-        } else Lizzie.frame.estimateByZen();
+        } else Lizzie.frame.toggleEstimateByZen();
         // if (!Lizzie.board.getHistory().getNext().isPresent()) {
         // Lizzie.board.setScoreMode(!Lizzie.board.inScoreMode());}
         break;
