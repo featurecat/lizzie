@@ -99,6 +99,20 @@ public class ToolBar extends JToolBar {
     add(estimate);
     addSeparator();
 
+    JButton showPolicy = new JButton(resourceBundle.getString("ToolBar.showPolicy"));
+    showPolicy.setFocusable(false);
+    showPolicy.addActionListener(
+        new ActionListener() {
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.isShowingPolicy = !Lizzie.frame.isShowingPolicy;
+            Lizzie.frame.refresh(2);
+            if (Lizzie.frame.isShowingPolicy && !Lizzie.leelaz.isPondering())
+              Lizzie.leelaz.togglePonder();
+          }
+        });
+    add(showPolicy);
+    addSeparator();
+
     JButton backMain = new JButton(resourceBundle.getString("ToolBar.backMain"));
     backMain.setFocusable(false);
     backMain.addActionListener(

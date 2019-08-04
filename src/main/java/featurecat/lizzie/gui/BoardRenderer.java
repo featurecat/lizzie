@@ -149,15 +149,17 @@ public class BoardRenderer {
       drawMoveNumbers(g);
       //        timer.lap("movenumbers");
       List<TextData> textDatas = new ArrayList<>();
-      if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMovesNow())
+      if (Lizzie.frame.isShowingPolicy) drawPolicy(g);
+      else if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMovesNow())
         drawLeelazSuggestionsBackground(g, textDatas);
 
       if (Lizzie.config.showNextMoves) {
         drawNextMoves(g);
       }
 
-      if (!Lizzie.frame.isPlayingAgainstLeelaz && Lizzie.config.showBestMovesNow())
-        drawLeelazSuggestionsForeground(g, textDatas);
+      if (!Lizzie.frame.isShowingPolicy
+          && !Lizzie.frame.isPlayingAgainstLeelaz
+          && Lizzie.config.showBestMovesNow()) drawLeelazSuggestionsForeground(g, textDatas);
 
       drawStoneMarkup(g);
     }
@@ -550,7 +552,9 @@ public class BoardRenderer {
     gShadow.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
-    if (!suggestedMove.isPresent() || (!isMainBoard && Lizzie.frame.isAutoEstimating)) {
+    if (!suggestedMove.isPresent()
+        || (!isMainBoard && Lizzie.frame.isAutoEstimating)
+        || (isMainBoard && Lizzie.frame.isShowingPolicy)) {
       return;
     }
     List<String> variation = suggestedMove.get().variation;
@@ -1810,6 +1814,79 @@ public class BoardRenderer {
       return lengthab;
     } else {
       return 0;
+    }
+  }
+
+  private void drawPolicy(Graphics2D g) {
+    int minAlpha = 32;
+    float alphaFactor = 5.0f;
+    float redHue = Color.RGBtoHSB(255, 0, 0, null)[0];
+    float greenHue = Color.RGBtoHSB(0, 255, 0, null)[0];
+    float cyanHue = Color.RGBtoHSB(0, 255, 255, null)[0];
+
+    if (Lizzie.frame.isShowingPolicy && !Lizzie.leelaz.getBestMoves().isEmpty()) {
+      Double maxPolicy = 0.0;
+      for (int n = 0; n < Lizzie.leelaz.getBestMoves().size(); n++) {
+        if (Lizzie.leelaz.getBestMoves().get(n).policy > maxPolicy)
+          maxPolicy = Lizzie.leelaz.getBestMoves().get(n).policy;
+      }
+      for (int i = 0; i < Lizzie.leelaz.getBestMoves().size(); i++) {
+        MoveData bestmove = Lizzie.leelaz.getBestMoves().get(i);
+        int y1 = 0;
+        int x1 = 0;
+        Optional<int[]> coord = Board.asCoordinates(bestmove.coordinate);
+        if (coord.isPresent()) {
+          x1 = coord.get()[0];
+          y1 = coord.get()[1];
+          int suggestionX = x + scaledMarginWidth + squareWidth * x1;
+          int suggestionY = y + scaledMarginHeight + squareHeight * y1;
+          double percent = bestmove.policy / maxPolicy;
+          float hue;
+
+          if (bestmove.policy == maxPolicy) {
+            hue = cyanHue;
+          } else {
+            double fraction;
+            fraction = percent;
+            // Correction to make differences between colors more perceptually linear
+            fraction *= 2;
+            if (fraction < 1) { // red to yellow
+              fraction = Math.cbrt(fraction * fraction) / 2;
+            } else { // yellow to green
+              fraction = 1 - Math.sqrt(2 - fraction) / 2;
+            }
+            hue = redHue + (greenHue - redHue) * (float) fraction;
+          }
+
+          float saturation = 1.0f;
+          float brightness = 0.85f;
+          float alpha =
+              minAlpha + (maxAlpha - minAlpha) * max(0, (float) log(percent) / alphaFactor + 1);
+
+          Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
+          Color color =
+              new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
+          if (!branchOpt.isPresent()) {
+            drawShadow(g, suggestionX, suggestionY, true, alpha / 255.0f);
+            g.setColor(color);
+            fillCircle(g, suggestionX, suggestionY, stoneRadius);
+
+            String text =
+                String.format("%.1f", ((double) Lizzie.leelaz.getBestMoves().get(i).policy));
+            g.setColor(Color.WHITE);
+            drawString(
+                g,
+                suggestionX,
+                suggestionY,
+                LizzieFrame.winrateFont,
+                Font.PLAIN,
+                text,
+                stoneRadius,
+                stoneRadius * 1.9,
+                0);
+          }
+        }
+      }
     }
   }
 }
