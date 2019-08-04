@@ -124,7 +124,7 @@ public class SubBoardPane extends LizziePane {
     subBoardRenderer.removeEstimateRect();
   }
 
-  public void drawEstimateRect(ArrayList<Double> esitmateArray, boolean isZen) {
-    subBoardRenderer.drawEstimateRect(esitmateArray, isZen);
+  public void drawEstimateRect(ArrayList<Double> estimateArray, boolean isZen) {
+    subBoardRenderer.drawEstimateRect(estimateArray, isZen);
   }
 }

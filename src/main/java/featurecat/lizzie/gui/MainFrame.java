@@ -115,7 +115,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void removeEstimateRect();
 
-  public abstract void drawEstimateRectKata(ArrayList<Double> esitmateArray);
+  public abstract void drawEstimateRectKata(ArrayList<Double> estimateArray);
 
   public abstract void drawControls();
 
@@ -370,7 +370,7 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void noEstimateByZen(boolean byToolBar);
 
-  public abstract void drawEstimateRectZen(ArrayList<Double> esitmateArray);
+  public abstract void drawEstimateRectZen(ArrayList<Double> estimateArray);
 
   public void saveImage() {};
 

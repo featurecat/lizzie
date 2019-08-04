@@ -85,7 +85,7 @@ public class Leelaz {
   private float dynamicOppKomi = Float.NaN;
   public boolean isKataGo = false;
   public boolean supportScoremean = false;
-  ArrayList<Double> esitmateArray = new ArrayList<Double>();
+  ArrayList<Double> estimateArray = new ArrayList<Double>();
   public double scoreMean = 0;
   public double scoreStdev = 0;
 
@@ -309,13 +309,13 @@ public class Leelaz {
             this.bestMoves = parseInfoKatago(line.substring(5));
             if (Lizzie.config.showKataGoEstimate) {
               if (line.contains("ownership")) {
-                esitmateArray = new ArrayList<Double>();
+                estimateArray = new ArrayList<Double>();
                 String[] params = line.trim().split("ownership");
                 String[] params2 = params[1].trim().split(" ");
                 for (int i = 0; i < params2.length; i++) {
-                  esitmateArray.add(Double.parseDouble(params2[i]));
+                  estimateArray.add(Double.parseDouble(params2[i]));
                 }
-                Lizzie.frame.drawEstimateRectKata(esitmateArray);
+                Lizzie.frame.drawEstimateRectKata(estimateArray);
               }
             }
           } else {
