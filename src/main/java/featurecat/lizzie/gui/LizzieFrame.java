@@ -1428,15 +1428,15 @@ public class LizzieFrame extends MainFrame {
     }
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> esitmateArray) {
+  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
     if (!Lizzie.config.showKataGoEstimate) {
       return;
     }
     if (Lizzie.config.showSubBoard && Lizzie.config.showKataGoEstimateOnSubboard) {
-      subBoardRenderer.drawEstimateRect(esitmateArray, false);
+      subBoardRenderer.drawEstimateRect(estimateArray, false);
     }
     if (Lizzie.config.showKataGoEstimateOnMainboard) {
-      boardRenderer.drawEstimateRect(esitmateArray, false);
+      boardRenderer.drawEstimateRect(estimateArray, false);
     }
   }
 
@@ -1462,15 +1462,15 @@ public class LizzieFrame extends MainFrame {
     isEstimating = true;
   }
 
-  public void drawEstimateRectZen(ArrayList<Double> esitmateArray) {
-    if (!Lizzie.frame.isAutoEstimating) boardRenderer.drawEstimateRect(esitmateArray, true);
+  public void drawEstimateRectZen(ArrayList<Double> estimateArray) {
+    if (!Lizzie.frame.isAutoEstimating) boardRenderer.drawEstimateRect(estimateArray, true);
     else {
       if (Lizzie.config.showSubBoard) {
         try {
-          subBoardRenderer.drawEstimateRect(esitmateArray, true);
+          subBoardRenderer.drawEstimateRect(estimateArray, true);
         } catch (Exception e) {
         }
-      } else boardRenderer.drawEstimateRect(esitmateArray, true);
+      } else boardRenderer.drawEstimateRect(estimateArray, true);
     }
   }
 

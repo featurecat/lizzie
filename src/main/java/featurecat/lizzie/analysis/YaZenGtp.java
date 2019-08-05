@@ -27,7 +27,7 @@ public class YaZenGtp {
   private int cmdNumber;
   private ArrayDeque<String> cmdQueue;
   private ScheduledExecutorService executor;
-  ArrayList<Double> esitmateArray = new ArrayList<Double>();
+  ArrayList<Double> estimateArray = new ArrayList<Double>();
   public int blackEatCount = 0;
   public int whiteEatCount = 0;
   public int blackPrisonerCount = 0;
@@ -95,7 +95,7 @@ public class YaZenGtp {
       if (line.startsWith("=  ")) {
         String[] params = line.trim().split(" ");
         for (int i = 2; i < params.length; i++)
-          esitmateArray.add(Double.parseDouble(params[i])); // actually always an integer
+          estimateArray.add(Double.parseDouble(params[i])); // actually always an integer
       }
 
       if (line.startsWith("Throw")) {
@@ -107,7 +107,7 @@ public class YaZenGtp {
         String[] params = line.trim().split(" ");
         if (params.length == Lizzie.board.boardWidth) {
           for (int i = 0; i < params.length; i++)
-            esitmateArray.add(Double.parseDouble(params[i])); // actually always an integer
+            estimateArray.add(Double.parseDouble(params[i])); // actually always an integer
         }
       }
     }
@@ -124,7 +124,7 @@ public class YaZenGtp {
           whitePrisonerCount = Integer.parseInt(params[6]);
           int blackpoint = Integer.parseInt(params[7]);
           int whitepoint = Integer.parseInt(params[8]);
-          Lizzie.frame.drawEstimateRectZen(esitmateArray);
+          Lizzie.frame.drawEstimateRectZen(estimateArray);
           Lizzie.frame.repaint();
           if (firstcount) {
             results = Lizzie.frame.countResults;
@@ -223,7 +223,7 @@ public class YaZenGtp {
       return;
     }
     timesOfCounts++;
-    esitmateArray.clear();
+    estimateArray.clear();
     blackEatCount = 0;
     whiteEatCount = 0;
     blackPrisonerCount = 0;

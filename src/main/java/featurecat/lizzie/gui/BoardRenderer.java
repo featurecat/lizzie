@@ -1705,7 +1705,7 @@ public class BoardRenderer {
 
   // isZen: estimates are for black (Zen) rather than player to move (KataGo)
   // and estimates are just <0/=0/>0 (Zen) rather than -1..+1 (KataGo)
-  public void drawEstimateRect(ArrayList<Double> esitmateArray, boolean isZen) {
+  public void drawEstimateRect(ArrayList<Double> estimateArray, boolean isZen) {
     if (boardWidth <= 0 || boardHeight <= 0) {
       return;
     }
@@ -1746,9 +1746,9 @@ public class BoardRenderer {
     BufferedImage newSmallRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     Graphics2D gl = newLargeRectImage.createGraphics();
     Graphics2D gs = newSmallRectImage.createGraphics();
-    for (int i = 0; i < esitmateArray.size(); i++) {
+    for (int i = 0; i < estimateArray.size(); i++) {
 
-      double estimate = esitmateArray.get(i);
+      double estimate = estimateArray.get(i);
       if (isZen) {
         // Zen's estimates are only <0 / =0 / >0
         if (estimate < 0) estimate = -1;
