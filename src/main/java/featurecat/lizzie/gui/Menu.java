@@ -1222,6 +1222,17 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(autoAnalyze);
 
+    final JCheckBoxMenuItem showPolicy =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.analyze.showPolicy"));
+    showPolicy.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleShowPolicy();
+          }
+        });
+    analyzeMenu.add(showPolicy);
+
     final JMenuItem estimate = new JMenuItem(resourceBundle.getString("Menu.analyze.estimate"));
     estimate.addActionListener(
         new ActionListener() {
@@ -1231,6 +1242,20 @@ public class Menu extends JMenuBar {
           }
         });
     analyzeMenu.add(estimate);
+
+    analyzeMenu.addMenuListener(
+        new MenuListener() {
+          public void menuSelected(MenuEvent e) {
+            if (Lizzie.frame.isShowingPolicy) showPolicy.setState(true);
+            else showPolicy.setState(false);
+          }
+
+          @Override
+          public void menuDeselected(MenuEvent e) {}
+
+          @Override
+          public void menuCanceled(MenuEvent e) {}
+        });
 
     final JMenu configMenu = new JMenu(resourceBundle.getString("Menu.configMenu"));
     this.add(configMenu);

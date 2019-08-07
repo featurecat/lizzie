@@ -441,6 +441,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         }
         break;
 
+      case VK_B:
+        Lizzie.config.toggleShowPolicy();
+        break;
+
       case VK_PERIOD:
         if (Lizzie.leelaz.isKataGo) {
           if (e.isAltDown()) {

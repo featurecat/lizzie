@@ -375,6 +375,12 @@ public class Config {
     showSubBoard = !showSubBoard;
   }
 
+  public void toggleShowPolicy() {
+    Lizzie.frame.isShowingPolicy = !Lizzie.frame.isShowingPolicy;
+    Lizzie.frame.refresh(2);
+    if (Lizzie.frame.isShowingPolicy && !Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+  }
+
   public void toggleKataGoEstimate() {
     showKataGoEstimate = !showKataGoEstimate;
   }
