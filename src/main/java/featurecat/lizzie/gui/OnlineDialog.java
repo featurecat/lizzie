@@ -261,8 +261,8 @@ public class OnlineDialog extends JDialog {
     if (um.matches() && um.groupCount() >= 3) {
       roomId = Long.parseLong(um.group(3));
       if (roomId > 0) { // !Utils.isBlank(id)) {
-        ajaxUrl = "https://api." + um.group(1) + "/golive/dtl?id=" + id;
-        return 1;
+        ajaxUrl = "https://api." + um.group(1) + "/golive/dtl?id=" + roomId;
+        return 5;
       }
     }
 
@@ -273,8 +273,8 @@ public class OnlineDialog extends JDialog {
     if (um.matches() && um.groupCount() >= 3) {
       roomId = Long.parseLong(um.group(3));
       if (roomId > 0) { // !Utils.isBlank(id)) {
-        ajaxUrl = "https://api." + um.group(1) + "/golive/dtl?id=" + id;
-        return 1;
+        ajaxUrl = "https://api." + um.group(1) + "/golive/dtl?id=" + roomId;
+        return 5;
       }
     }
 
@@ -317,6 +317,7 @@ public class OnlineDialog extends JDialog {
     Lizzie.board.clear();
     switch (type) {
       case 1:
+      case 5:
         req2();
         break;
       case 2:
@@ -339,11 +340,13 @@ public class OnlineDialog extends JDialog {
   public void parseSgf(String data, String format, int num, boolean decode) {
     JSONObject o = null;
     JSONObject live = null;
+    JSONObject branchs = null;
     try {
       o = new JSONObject(data);
       o = o.optJSONObject("Result");
       if (o != null) {
         live = o.optJSONObject("live");
+        branchs = o.optJSONObject("branch");
       }
     } catch (JSONException e) {
     }
@@ -2042,6 +2045,7 @@ public class OnlineDialog extends JDialog {
     history = new BoardHistoryList(BoardData.empty(size, size)); // TODO boardSize
     blackPlayer = info.optString("blackName");
     whitePlayer = info.optString("whiteName");
+    boolean isEnd = !Utils.isBlank(info.optString("resultDesc"));
     history = SGFParser.parseSgf(info.optString("sgf"));
     if (history != null) {
       double komi = info.optDouble("komi", history.getGameInfo().getKomi());
@@ -2062,14 +2066,16 @@ public class OnlineDialog extends JDialog {
           Lizzie.board.nextMove();
         }
       }
-    } else {
+    }
+    if (history == null || isEnd) {
       //      error(true);
       sio.close();
-      try {
-        refresh("(?s).*?(\\\"Content\\\":\\\")(.+)(\\\",\\\")(?s).*");
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      if (isEnd && type == 1) {
+        try {
+          refresh("(?s).*?(\\\"Content\\\":\\\")(.+)(\\\",\\\")(?s).*", 2, false, false);
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
     Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
