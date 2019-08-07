@@ -151,7 +151,7 @@ public class LizzieFrame extends MainFrame {
           protected void paintComponent(Graphics g) {
             super.paintComponent(g);
 
-            paintMianPanel(g);
+            paintMainPanel(g);
           }
         };
     getContentPane().add(mainPanel);
@@ -292,7 +292,7 @@ public class LizzieFrame extends MainFrame {
    *
    * @param g0 not used
    */
-  public void paintMianPanel(Graphics g0) {
+  public void paintMainPanel(Graphics g0) {
     autosaveMaybe();
 
     int width = mainPanel.getWidth();
