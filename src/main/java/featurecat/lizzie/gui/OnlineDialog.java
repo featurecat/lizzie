@@ -374,8 +374,10 @@ public class OnlineDialog extends JDialog {
         blackPlayer = liveNode.getGameInfo().getPlayerBlack();
         whitePlayer = liveNode.getGameInfo().getPlayerWhite();
         double komi = liveNode.getGameInfo().getKomi();
+        int handicap = liveNode.getGameInfo().getHandicap();
         if (live != null) {
           komi = live.optDouble("komi", komi);
+          handicap = live.optInt("handicap", handicap);
           blackPlayer = live.optString("BlackPlayer", blackPlayer);
           whitePlayer = live.optString("WhitePlayer", whitePlayer);
         }
@@ -404,6 +406,7 @@ public class OnlineDialog extends JDialog {
         Lizzie.board.getHistory().getGameInfo().setPlayerBlack(blackPlayer);
         Lizzie.board.getHistory().getGameInfo().setPlayerWhite(whitePlayer);
         Lizzie.board.getHistory().getGameInfo().setKomi(komi);
+        Lizzie.board.getHistory().getGameInfo().setHandicap(handicap);
         Lizzie.leelaz.komi(komi);
         if (live != null && "3".equals(live.optString("Status"))) {
           if (schedule != null && !schedule.isCancelled() && !schedule.isDone()) {
@@ -899,7 +902,10 @@ public class OnlineDialog extends JDialog {
           if (num == 0) {
             num = history.getData().moveNumber + 1;
           }
-          Stone color = (num % 2 != 0) ? Stone.BLACK : Stone.WHITE;
+          Stone color =
+              (num - history.getData().moveNumber) % 2 == 0
+                  ? history.getLastMoveColor()
+                  : (history.getLastMoveColor() == Stone.WHITE ? Stone.BLACK : Stone.WHITE);
           if (uid > 0) {
             if (Stone.BLACK.equals(color)) {
               buid = uid;
@@ -2049,7 +2055,9 @@ public class OnlineDialog extends JDialog {
     history = SGFParser.parseSgf(info.optString("sgf"));
     if (history != null) {
       double komi = info.optDouble("komi", history.getGameInfo().getKomi());
+      int handicap = info.optInt("handicap", history.getGameInfo().getHandicap());
       Lizzie.board.getHistory().getGameInfo().setKomi(komi);
+      Lizzie.board.getHistory().getGameInfo().setHandicap(handicap);
       Lizzie.leelaz.komi(komi);
       int diffMove = Lizzie.board.getHistory().sync(history);
       if (diffMove >= 0) {
@@ -2238,9 +2246,12 @@ public class OnlineDialog extends JDialog {
       int[] c = new int[2];
       c[0] = m.optInt("x");
       c[1] = m.optInt("y");
-      Stone color = (move % 2 != 0) ? Stone.BLACK : Stone.WHITE;
       boolean changeMove = false;
       while (history.next(true).isPresent()) ;
+      Stone color =
+          (move - history.getData().moveNumber) % 2 == 0
+              ? history.getLastMoveColor()
+              : (history.getLastMoveColor() == Stone.WHITE ? Stone.BLACK : Stone.WHITE);
       if (move <= history.getMoveNumber()) {
         int cur = history.getMoveNumber();
         for (int i = move; i <= cur; i++) {
