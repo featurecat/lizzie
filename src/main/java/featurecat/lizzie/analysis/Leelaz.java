@@ -230,6 +230,8 @@ public class Leelaz {
       Thread.currentThread().interrupt();
     }
     started = false;
+    isLoaded = false;
+    Lizzie.engineManager.updateEngineIcon();
   }
 
   /** Initializes the input and output streams */
