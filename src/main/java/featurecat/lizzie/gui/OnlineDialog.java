@@ -902,10 +902,7 @@ public class OnlineDialog extends JDialog {
           if (num == 0) {
             num = history.getData().moveNumber + 1;
           }
-          Stone color =
-              (num - history.getData().moveNumber) % 2 == 0
-                  ? history.getLastMoveColor()
-                  : (history.getLastMoveColor() == Stone.WHITE ? Stone.BLACK : Stone.WHITE);
+          Stone color = ((f.line.optInt("AAA158") & 3) == 1) ? Stone.WHITE : Stone.BLACK;
           if (uid > 0) {
             if (Stone.BLACK.equals(color)) {
               buid = uid;
@@ -2248,10 +2245,7 @@ public class OnlineDialog extends JDialog {
       c[1] = m.optInt("y");
       boolean changeMove = false;
       while (history.next(true).isPresent()) ;
-      Stone color =
-          (move - history.getData().moveNumber) % 2 == 0
-              ? history.getLastMoveColor()
-              : (history.getLastMoveColor() == Stone.WHITE ? Stone.BLACK : Stone.WHITE);
+      Stone color = (m.optInt("c") == -1) ? Stone.WHITE : Stone.BLACK;
       if (move <= history.getMoveNumber()) {
         int cur = history.getMoveNumber();
         for (int i = move; i <= cur; i++) {
