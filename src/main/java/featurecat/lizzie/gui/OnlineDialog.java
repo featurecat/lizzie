@@ -91,6 +91,7 @@ public class OnlineDialog extends JDialog {
   private long roomId = 0;
   private String channel = "";
   private boolean chineseFlag = false;
+  private int chineseRule = 1;
   private Map<Integer, Map<Integer, JSONObject>> branchs =
       new HashMap<Integer, Map<Integer, JSONObject>>();
   private Map<Integer, Map<Integer, JSONObject>> comments =
@@ -229,6 +230,8 @@ public class OnlineDialog extends JDialog {
   private int checkUrl() {
     int type = 0;
     String id = null;
+    chineseRule = 1;
+    chineseFlag = false;
     String url = txtUrl.getText().trim();
 
     Pattern up =
@@ -285,6 +288,7 @@ public class OnlineDialog extends JDialog {
         if (queryMap.get("gameid") != null && queryMap.get("createtime") != null) {
           return 3;
         } else if (queryMap.get("gametag") != null && queryMap.get("uin") != null) {
+          chineseRule = 0;
           query = uri.getRawQuery();
           ajaxUrl =
               "http://wshall."
@@ -872,9 +876,9 @@ public class OnlineDialog extends JDialog {
             int a10 = ((JSONObject) f.line.opt("AAA307")).optInt("AAA10");
             if (0 == a4 && 0 == a5) {
               komi = 6.5;
-            } else if (1 == a10) { // && 1 == chineseRule) {
+            } else if (1 == a10 && 1 == chineseRule) {
               chineseFlag = true;
-              komi = ((double) a5 / 100); // * 2);
+              komi = ((double) a5 / 100 * 2);
             } else {
               komi = ((double) a5 / 100);
             }
