@@ -288,7 +288,6 @@ public class OnlineDialog extends JDialog {
         if (queryMap.get("gameid") != null && queryMap.get("createtime") != null) {
           return 3;
         } else if (queryMap.get("gametag") != null && queryMap.get("uin") != null) {
-          chineseRule = 0;
           query = uri.getRawQuery();
           ajaxUrl =
               "http://wshall."
@@ -516,22 +515,25 @@ public class OnlineDialog extends JDialog {
           public void onReadyStateChange() {
             int readyState = ajax.getReadyState();
             if (readyState == AjaxHttpRequest.STATE_COMPLETE) {
-              String format =
-                  "(?s).*?\"ShowType\":([^,]+),\"ShowID\":([^,]+),\"CreateTime\":([^,]+),(?s).*";
+              String format = "jQuery[^\\(]*\\(((?s).*?)\\)";
               Pattern sp = Pattern.compile(format);
               Matcher sm = sp.matcher(ajax.getResponseText());
-              if (sm.matches() && sm.groupCount() == 3) {
+              if (sm.matches() && sm.groupCount() == 1) {
+                JSONObject o = new JSONObject(sm.group(1));
+                if (0 == o.optInt("result") && 0 == o.optInt("ResultID")) {
+                  chineseRule = 0;
+                }
                 List list = new ArrayList();
                 list.add("369");
                 queryMap.put("gameid", list);
                 list = new ArrayList();
-                list.add(sm.group(1));
+                list.add(o.optString("ShowType"));
                 queryMap.put("showtype", list);
                 list = new ArrayList();
-                list.add(sm.group(2));
+                list.add(o.optString("ShowID"));
                 queryMap.put("showid", list);
                 list = new ArrayList();
-                list.add(sm.group(3));
+                list.add(o.optString("CreateTime"));
                 queryMap.put("createtime", list);
 
                 try {
