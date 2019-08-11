@@ -91,6 +91,7 @@ public class OnlineDialog extends JDialog {
   private long roomId = 0;
   private String channel = "";
   private boolean chineseFlag = false;
+  private int chineseRule = 1;
   private Map<Integer, Map<Integer, JSONObject>> branchs =
       new HashMap<Integer, Map<Integer, JSONObject>>();
   private Map<Integer, Map<Integer, JSONObject>> comments =
@@ -229,6 +230,8 @@ public class OnlineDialog extends JDialog {
   private int checkUrl() {
     int type = 0;
     String id = null;
+    chineseRule = 1;
+    chineseFlag = false;
     String url = txtUrl.getText().trim();
 
     Pattern up =
@@ -512,22 +515,25 @@ public class OnlineDialog extends JDialog {
           public void onReadyStateChange() {
             int readyState = ajax.getReadyState();
             if (readyState == AjaxHttpRequest.STATE_COMPLETE) {
-              String format =
-                  "(?s).*?\"ShowType\":([^,]+),\"ShowID\":([^,]+),\"CreateTime\":([^,]+),(?s).*";
+              String format = "jQuery[^\\(]*\\(((?s).*?)\\)";
               Pattern sp = Pattern.compile(format);
               Matcher sm = sp.matcher(ajax.getResponseText());
-              if (sm.matches() && sm.groupCount() == 3) {
+              if (sm.matches() && sm.groupCount() == 1) {
+                JSONObject o = new JSONObject(sm.group(1));
+                if (0 == o.optInt("result") && 0 == o.optInt("ResultID")) {
+                  chineseRule = 0;
+                }
                 List list = new ArrayList();
                 list.add("369");
                 queryMap.put("gameid", list);
                 list = new ArrayList();
-                list.add(sm.group(1));
+                list.add(o.optString("ShowType"));
                 queryMap.put("showtype", list);
                 list = new ArrayList();
-                list.add(sm.group(2));
+                list.add(o.optString("ShowID"));
                 queryMap.put("showid", list);
                 list = new ArrayList();
-                list.add(sm.group(3));
+                list.add(o.optString("CreateTime"));
                 queryMap.put("createtime", list);
 
                 try {
@@ -872,9 +878,9 @@ public class OnlineDialog extends JDialog {
             int a10 = ((JSONObject) f.line.opt("AAA307")).optInt("AAA10");
             if (0 == a4 && 0 == a5) {
               komi = 6.5;
-            } else if (1 == a10) { // && 1 == chineseRule) {
+            } else if (1 == a10 && 1 == chineseRule) {
               chineseFlag = true;
-              komi = ((double) a5 / 100); // * 2);
+              komi = ((double) a5 / 100 * 2);
             } else {
               komi = ((double) a5 / 100);
             }
