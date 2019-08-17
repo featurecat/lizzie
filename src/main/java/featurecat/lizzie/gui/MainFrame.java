@@ -322,8 +322,7 @@ public abstract class MainFrame extends JFrame {
 
   public void openFile() {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    JFrame frame = new JFrame();
-    FileDialog fileDialog = new FileDialog(frame, resourceBundle.getString("LizzieFrame.openFile"));
+    FileDialog fileDialog = new FileDialog(this, resourceBundle.getString("LizzieFrame.openFile"));
     fileDialog.setLocationRelativeTo(this);
     fileDialog.setDirectory(filesystem.getString("last-folder"));
     fileDialog.setFile("*.sgf;*.gib;*.SGF;*.GIB");
