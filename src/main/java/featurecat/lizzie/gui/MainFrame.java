@@ -7,6 +7,7 @@ import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
 import java.awt.BorderLayout;
+import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.HeadlessException;
@@ -320,14 +321,16 @@ public abstract class MainFrame extends JFrame {
   }
 
   public void openFile() {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf or *.gib", "SGF", "GIB");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
-
-    chooser.setFileFilter(filter);
-    chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showOpenDialog(null);
-    if (result == JFileChooser.APPROVE_OPTION) loadFile(chooser.getSelectedFile());
+    FileDialog fileDialog = new FileDialog(this, resourceBundle.getString("LizzieFrame.openFile"));
+    fileDialog.setLocationRelativeTo(this);
+    fileDialog.setDirectory(filesystem.getString("last-folder"));
+    fileDialog.setFile("*.sgf;*.gib;*.SGF;*.GIB");
+    fileDialog.setMultipleMode(false);
+    fileDialog.setMode(0);
+    fileDialog.setVisible(true);
+    File[] file = fileDialog.getFiles();
+    if (file.length > 0) loadFile(file[0]);
   }
 
   public void loadFile(File file) {
