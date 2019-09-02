@@ -1,6 +1,6 @@
 {
   "background-image" : "background2.png",
-  "board-image" : "board7.jpg",
+  "board-image" : "board9.png",
   "black-stone-image" : "black1.png",
   "white-stone-image" : "white1.png",
   "shadow-size": 55,
