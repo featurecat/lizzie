@@ -1233,16 +1233,15 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(showPolicy);
 
-    // For now I would not like to use Zen estimates due to requiring an exe. Obsolete by Katago now anyway.
-//    final JMenuItem estimate = new JMenuItem(resourceBundle.getString("Menu.analyze.estimate"));
-//    estimate.addActionListener(
-//        new ActionListener() {
-//          @Override
-//          public void actionPerformed(ActionEvent e) {
-//            Lizzie.frame.estimateByZen();
-//          }
-//        });
-//    analyzeMenu.add(estimate);
+    final JMenuItem estimate = new JMenuItem(resourceBundle.getString("Menu.analyze.estimate"));
+    estimate.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.estimateByZen();
+          }
+        });
+    analyzeMenu.add(estimate);
 
     analyzeMenu.addMenuListener(
         new MenuListener() {

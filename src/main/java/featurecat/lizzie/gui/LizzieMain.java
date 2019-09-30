@@ -266,7 +266,8 @@ public class LizzieMain extends MainFrame {
               if (totalPlayouts <= 0) return;
               visitsString =
                   String.format(
-                      " %d visits/second",
+                      " %d playouts, %d visits/second",
+                      totalPlayouts,
                       (totalPlayouts > lastPlayouts) ? totalPlayouts - lastPlayouts : 0);
               updateTitle();
               lastPlayouts = totalPlayouts;
