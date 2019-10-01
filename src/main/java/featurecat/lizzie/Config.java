@@ -467,7 +467,8 @@ public class Config {
 
     // About engine parameter
     JSONObject leelaz = new JSONObject();
-    leelaz.put("network-file", "network.gz");
+    leelaz.put("_comment", "note, network-file is obselete in Lizzie 0.7+, ignore network-file, kept for compatibility");
+    leelaz.put("network-file", "lznetwork.gz");
     if (this.macAppBundle) {
       // Mac Apps don't really expect the user to modify the current working directory, since that
       // resides inside the app bundle. So a more sensible default in this context is to expect
@@ -479,7 +480,7 @@ public class Config {
       leelaz.put(
           "engine-command",
           String.format(
-              "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
+              "%s --gtp --lagbuffer 0 --weights lznetwork.gz", getBestDefaultLeelazPath()));
     }
     leelaz.put("engine-start-location", ".");
     leelaz.put("max-analyze-time-minutes", 99999);
