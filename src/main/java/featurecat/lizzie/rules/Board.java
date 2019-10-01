@@ -151,6 +151,10 @@ public class Board implements LeelazListener {
     return asName(c, true);
   }
 
+  public void clearAnalysis() {
+    getData().tryToClearBestMoves();
+  }
+
   public static String asName(int c, boolean isName) {
     if (boardWidth > 25 && isName) {
       return String.valueOf(c + 1);

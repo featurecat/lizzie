@@ -777,6 +777,10 @@ public class Menu extends JMenuBar {
     final JCheckBoxMenuItem kataEstimateModeSmall =
         new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.small"));
 
+    final JCheckBoxMenuItem kataEstimateModeSmallAndDead =
+            new JCheckBoxMenuItem(
+                    resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.smallAndDead"));
+
     final JCheckBoxMenuItem kataEstimateModeLargeAndSmall =
         new JCheckBoxMenuItem(
             resourceBundle.getString("Menu.view.kataGo.kataEstimate.mode.largeAndSmall"));
@@ -794,6 +798,7 @@ public class Menu extends JMenuBar {
 
     kataEstimateMode.add(kataEstimateModeLarge);
     kataEstimateMode.add(kataEstimateModeSmall);
+    kataEstimateMode.add(kataEstimateModeSmallAndDead);
     kataEstimateMode.add(kataEstimateModeLargeAndSmall);
     kataEstimateMode.add(kataEstimateModeLargeAndDead);
     kataEstimateMode.add(kataEstimateModeLargeAndStones);
@@ -831,7 +836,24 @@ public class Menu extends JMenuBar {
           }
         });
 
-    kataEstimateModeLargeAndSmall.addActionListener(
+      kataEstimateModeSmallAndDead.addActionListener(
+              new ActionListener() {
+                  @Override
+                  public void actionPerformed(ActionEvent e) {
+                      Lizzie.config.kataGoEstimateMode = "small+dead";
+                      Lizzie.frame.removeEstimateRect();
+                      Lizzie.leelaz.ponder();
+                      Lizzie.config.uiConfig.put("katago-estimate-mode", Lizzie.config.kataGoEstimateMode);
+                      try {
+                          Lizzie.config.save();
+                      } catch (IOException es) {
+                          // TODO Auto-generated catch block
+                      }
+                  }
+              });
+
+
+      kataEstimateModeLargeAndSmall.addActionListener(
         new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {
@@ -930,6 +952,7 @@ public class Menu extends JMenuBar {
             }
             kataEstimateModeLarge.setState(Lizzie.config.kataGoEstimateMode.equals("large"));
             kataEstimateModeSmall.setState(Lizzie.config.kataGoEstimateMode.equals("small"));
+            kataEstimateModeSmallAndDead.setState(Lizzie.config.kataGoEstimateMode.equals("small+dead"));
             kataEstimateModeLargeAndSmall.setState(
                 Lizzie.config.kataGoEstimateMode.equals("large+small"));
             kataEstimateModeLargeAndDead.setState(
@@ -1210,6 +1233,17 @@ public class Menu extends JMenuBar {
           }
         });
     analyzeMenu.add(toggleAnalyze);
+
+    final JMenuItem clearAnalysis =
+            new JMenuItem(resourceBundle.getString("Menu.analyze.clearAnalysis"));
+    clearAnalysis.addActionListener(
+            new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    Lizzie.board.clearAnalysis();
+                }
+            });
+    analyzeMenu.add(clearAnalysis);
 
     final JMenuItem autoAnalyze =
         new JMenuItem(resourceBundle.getString("Menu.analyze.autoAnalyze"));

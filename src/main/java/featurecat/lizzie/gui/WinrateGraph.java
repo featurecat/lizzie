@@ -45,20 +45,14 @@ public class WinrateGraph {
     g.fillRect(posx, posy, width, height);
 
     // draw border
-    int strokeRadius = Lizzie.config.showBorder ? 3 : 1;
+    int strokeRadius = 3;
     g.setStroke(new BasicStroke(strokeRadius == 1 ? strokeRadius : 2 * strokeRadius));
     g.setPaint(borderGradient);
-    if (Lizzie.config.showBorder) {
-      g.drawRect(
-          posx + strokeRadius,
-          posy + strokeRadius,
-          width - 2 * strokeRadius,
-          height - 2 * strokeRadius);
-    } else {
-      g.drawLine(
-          posx + strokeRadius, posy + strokeRadius,
-          posx - strokeRadius + width, posy + strokeRadius);
-    }
+    g.drawRect(
+        posx + strokeRadius,
+        posy + strokeRadius,
+        width - 2 * strokeRadius,
+        height - 2 * strokeRadius);
 
     g.setPaint(original);
 

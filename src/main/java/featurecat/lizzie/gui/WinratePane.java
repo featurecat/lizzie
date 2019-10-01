@@ -145,19 +145,17 @@ public class WinratePane extends LizziePane {
     g.fillRect(posX, posY, width, height);
 
     // border. does not include bottom edge
-    int strokeRadius = Lizzie.config.showBorder ? 3 : 1;
+    int strokeRadius = 3;
     g.setStroke(new BasicStroke(strokeRadius == 1 ? strokeRadius : 2 * strokeRadius));
     g.drawLine(
         posX + strokeRadius, posY + strokeRadius,
         posX - strokeRadius + width, posY + strokeRadius);
-    if (Lizzie.config.showBorder) {
-      g.drawLine(
-          posX + strokeRadius, posY + 3 * strokeRadius,
-          posX + strokeRadius, posY - strokeRadius + height);
-      g.drawLine(
-          posX - strokeRadius + width, posY + 3 * strokeRadius,
-          posX - strokeRadius + width, posY - strokeRadius + height);
-    }
+    g.drawLine(
+        posX + strokeRadius, posY + 3 * strokeRadius,
+        posX + strokeRadius, posY - strokeRadius + height);
+    g.drawLine(
+        posX - strokeRadius + width, posY + 3 * strokeRadius,
+        posX - strokeRadius + width, posY - strokeRadius + height);
 
     // resize the box now so it's inside the border
     posX += 2 * strokeRadius;

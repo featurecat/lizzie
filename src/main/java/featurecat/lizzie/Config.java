@@ -47,7 +47,7 @@ public class Config {
   public double replayBranchIntervalSeconds = 1.0;
   public boolean showCoordinates = false;
   public boolean colorByWinrateInsteadOfVisits = false;
-  public double minPlayoutRatioForStats = 0.0;
+  public double minPlayoutRatioForStats = 0.1;
   public boolean showLcbWinrate = false;
 
   public boolean showKataGoScoreMean = true;
@@ -57,7 +57,7 @@ public class Config {
   public boolean showKataGoEstimate = false;
   public boolean showKataGoEstimateOnSubboard = true;
   public boolean showKataGoEstimateOnMainboard = true;
-  public String kataGoEstimateMode = "small";
+  public String kataGoEstimateMode = "small+dead";
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -205,7 +205,7 @@ public class Config {
     showBranch = uiConfig.getBoolean("show-leelaz-variation");
     showWinrate = uiConfig.getBoolean("show-winrate");
     largeWinrate = uiConfig.optBoolean("large-winrate", false);
-    showBlunderBar = uiConfig.optBoolean("show-blunder-bar", true);
+    showBlunderBar = uiConfig.optBoolean("show-blunder-bar", false);
     weightedBlunderBarHeight = uiConfig.optBoolean("weighted-blunder-bar-height", false);
     dynamicWinrateGraphWidth = uiConfig.optBoolean("dynamic-winrate-graph-width", false);
     showVariationGraph = uiConfig.getBoolean("show-variation-graph");
@@ -226,7 +226,7 @@ public class Config {
     boardPositionProportion = uiConfig.optInt("board-position-proportion", 4);
     limitBestMoveNum = uiConfig.optInt("limit-best-move-num", 0);
     limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
-    minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.0);
+    minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.1);
 
     winrateStrokeWidth = theme.winrateStrokeWidth();
     minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
@@ -240,7 +240,7 @@ public class Config {
     showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", false);
     showKataGoEstimateOnSubboard = uiConfig.optBoolean("show-katago-estimate-onsubboard", true);
     showKataGoEstimateOnMainboard = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
-    kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "large+dead");
+    kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "small+dead");
     showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
@@ -388,6 +388,9 @@ public class Config {
   public void cycleKataGoEstimateMode() {
     switch (kataGoEstimateMode) {
       case "small":
+        kataGoEstimateMode = "small+dead";
+        break;
+      case "small+dead":
         kataGoEstimateMode = "large";
         break;
       case "large":
@@ -479,7 +482,7 @@ public class Config {
               "%s --gtp --lagbuffer 0 --weights %%network-file", getBestDefaultLeelazPath()));
     }
     leelaz.put("engine-start-location", ".");
-    leelaz.put("max-analyze-time-minutes", 5);
+    leelaz.put("max-analyze-time-minutes", 99999);
     leelaz.put("max-game-thinking-time-seconds", 2);
     leelaz.put("print-comms", false);
     leelaz.put("analyze-update-interval-centisec", 10);
@@ -493,6 +496,7 @@ public class Config {
 
     ui.put("board-color", new JSONArray("[217, 152, 77]"));
     ui.put("shadows-enabled", true);
+    ui.put("show-border", false);
     ui.put("fancy-stones", true);
     ui.put("fancy-board", true);
     ui.put("shadow-size", 100);
@@ -502,7 +506,7 @@ public class Config {
     ui.put("show-winrate", true);
     ui.put("large-winrate", false);
     ui.put("winrate-stroke-width", 3);
-    ui.put("show-blunder-bar", true);
+    ui.put("show-blunder-bar", false);
     ui.put("minimum-blunder-bar-width", 3);
     ui.put("weighted-blunder-bar-height", false);
     ui.put("dynamic-winrate-graph-width", false);
@@ -521,7 +525,7 @@ public class Config {
     ui.put("handicap-instead-of-winrate", false);
     ui.put("board-size", 19);
     ui.put("show-dynamic-komi", true);
-    ui.put("min-playout-ratio-for-stats", 0.0);
+    ui.put("min-playout-ratio-for-stats", 0.1);
     ui.put("theme", "default");
     ui.put("only-last-move-number", 0);
     ui.put("new-move-number-in-branch", true);

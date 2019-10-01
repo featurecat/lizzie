@@ -722,7 +722,7 @@ public class BoardRenderer {
    * future use by drawLeelazSuggestionsForeground
    */
   private void drawLeelazSuggestionsBackground(Graphics2D g, List<TextData> textDatas) {
-    int minAlpha = 32;
+    int minAlpha = 20;
     float winrateHueFactor = 0.9f;
     float alphaFactor = 5.0f;
     float redHue = Color.RGBtoHSB(255, 0, 0, null)[0];
@@ -1716,6 +1716,10 @@ public class BoardRenderer {
         case "small":
           drawSmall = true;
           break;
+        case "small+dead":
+          drawSmall = true;
+          drawSmart = 1;
+          break;
         case "large":
           drawLarge = true;
           break;
@@ -1787,7 +1791,7 @@ public class BoardRenderer {
       boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
       boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
       boolean allowed =
-          drawSmart == 0 || (drawSmart == 1 && differentColor) || (drawSmart == 2 && anyColor);
+          drawSmart == 0 || (drawSmart == 1 && differentColor) || (drawSmart == 2 && anyColor) || (drawSmart == 1 && !anyColor && drawSmall);
       if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);

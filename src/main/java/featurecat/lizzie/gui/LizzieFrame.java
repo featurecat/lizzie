@@ -826,16 +826,14 @@ public class LizzieFrame extends MainFrame {
 
     g.setColor(new Color(0, 0, 0, 130));
     g.fillRect(commandsX, commandsY, boxWidth, boxHeight);
-    int strokeRadius = Lizzie.config.showBorder ? 2 : 1;
+    int strokeRadius = 2;
     g.setStroke(new BasicStroke(strokeRadius == 1 ? strokeRadius : 2 * strokeRadius));
-    if (Lizzie.config.showBorder) {
-      g.setColor(new Color(0, 0, 0, 60));
-      g.drawRect(
-          commandsX + strokeRadius,
-          commandsY + strokeRadius,
-          boxWidth - 2 * strokeRadius,
-          boxHeight - 2 * strokeRadius);
-    }
+    g.setColor(new Color(0, 0, 0, 60));
+    g.drawRect(
+        commandsX + strokeRadius,
+        commandsY + strokeRadius,
+        boxWidth - 2 * strokeRadius,
+        boxHeight - 2 * strokeRadius);
     int verticalLineX = (int) (commandsX + boxWidth * 0.3);
     g.setColor(new Color(0, 0, 0, 60));
     g.drawLine(
@@ -872,7 +870,7 @@ public class LizzieFrame extends MainFrame {
 
     Font font = new Font(Lizzie.config.fontName, Font.PLAIN, (int) (maxSize * 0.03));
     String commandString = resourceBundle.getString("LizzieFrame.prompt.showControlsHint");
-    int strokeRadius = Lizzie.config.showBorder ? 2 : 0;
+    int strokeRadius = 2;
 
     int showCommandsHeight = (int) (font.getSize() * 1.1);
     int showCommandsWidth = g.getFontMetrics(font).stringWidth(commandString) + 4 * strokeRadius;
@@ -880,15 +878,13 @@ public class LizzieFrame extends MainFrame {
     int showCommandsY = mainPanel.getHeight() - showCommandsHeight - mainPanel.getInsets().bottom;
     g.setColor(new Color(0, 0, 0, 130));
     g.fillRect(showCommandsX, showCommandsY, showCommandsWidth, showCommandsHeight);
-    if (Lizzie.config.showBorder) {
-      g.setStroke(new BasicStroke(2 * strokeRadius));
-      g.setColor(new Color(0, 0, 0, 60));
-      g.drawRect(
-          showCommandsX + strokeRadius,
-          showCommandsY + strokeRadius,
-          showCommandsWidth - 2 * strokeRadius,
-          showCommandsHeight - 2 * strokeRadius);
-    }
+    g.setStroke(new BasicStroke(2 * strokeRadius));
+    g.setColor(new Color(0, 0, 0, 60));
+    g.drawRect(
+        showCommandsX + strokeRadius,
+        showCommandsY + strokeRadius,
+        showCommandsWidth - 2 * strokeRadius,
+        showCommandsHeight - 2 * strokeRadius);
     g.setStroke(new BasicStroke(1));
 
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -940,19 +936,17 @@ public class LizzieFrame extends MainFrame {
     g.fillRect(posX, posY, width, height);
 
     // border. does not include bottom edge
-    int strokeRadius = Lizzie.config.showBorder ? 3 : 1;
+    int strokeRadius = 3;
     g.setStroke(new BasicStroke(strokeRadius == 1 ? strokeRadius : 2 * strokeRadius));
     g.drawLine(
         posX + strokeRadius, posY + strokeRadius,
         posX - strokeRadius + width, posY + strokeRadius);
-    if (Lizzie.config.showBorder) {
-      g.drawLine(
-          posX + strokeRadius, posY + 3 * strokeRadius,
-          posX + strokeRadius, posY - strokeRadius + height);
-      g.drawLine(
-          posX - strokeRadius + width, posY + 3 * strokeRadius,
-          posX - strokeRadius + width, posY - strokeRadius + height);
-    }
+    g.drawLine(
+        posX + strokeRadius, posY + 3 * strokeRadius,
+        posX + strokeRadius, posY - strokeRadius + height);
+    g.drawLine(
+        posX - strokeRadius + width, posY + 3 * strokeRadius,
+        posX - strokeRadius + width, posY - strokeRadius + height);
 
     // resize the box now so it's inside the border
     posX += 2 * strokeRadius;
@@ -1073,25 +1067,23 @@ public class LizzieFrame extends MainFrame {
     g.fillRect(posX, posY, width, height);
 
     // border. does not include bottom edge
-    int strokeRadius = Lizzie.config.showBorder ? 3 : 1;
+    int strokeRadius = 3;
     g.setStroke(new BasicStroke(strokeRadius == 1 ? strokeRadius : 2 * strokeRadius));
-    if (Lizzie.config.showBorder) {
-      g.drawLine(
-          posX + strokeRadius,
-          posY + strokeRadius,
-          posX - strokeRadius + width,
-          posY + strokeRadius);
-      g.drawLine(
-          posX + strokeRadius,
-          posY + 3 * strokeRadius,
-          posX + strokeRadius,
-          posY - strokeRadius + height);
-      g.drawLine(
-          posX - strokeRadius + width,
-          posY + 3 * strokeRadius,
-          posX - strokeRadius + width,
-          posY - strokeRadius + height);
-    }
+    g.drawLine(
+        posX + strokeRadius,
+        posY + strokeRadius,
+        posX - strokeRadius + width,
+        posY + strokeRadius);
+    g.drawLine(
+        posX + strokeRadius,
+        posY + 3 * strokeRadius,
+        posX + strokeRadius,
+        posY - strokeRadius + height);
+    g.drawLine(
+        posX - strokeRadius + width,
+        posY + 3 * strokeRadius,
+        posX - strokeRadius + width,
+        posY - strokeRadius + height);
 
     // Draw middle line
     g.drawLine(

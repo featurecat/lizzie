@@ -238,23 +238,21 @@ public class VariationTree {
     YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
     XSPACING = YSPACING;
 
-    int strokeRadius = Lizzie.config.showBorder ? 2 : 0;
+    int strokeRadius = 2;
     if (!calc) {
       // Draw background
       area.setBounds(posx, posy, width, height);
       g.setColor(new Color(0, 0, 0, 60));
       g.fillRect(posx, posy, width, height);
 
-      if (Lizzie.config.showBorder) {
-        // draw edge of panel
-        g.setStroke(new BasicStroke(2 * strokeRadius));
-        g.drawLine(
-            posx + strokeRadius,
-            posy + strokeRadius,
-            posx + strokeRadius,
-            posy - strokeRadius + height);
-        g.setStroke(new BasicStroke(1));
-      }
+      // draw edge of panel
+      g.setStroke(new BasicStroke(2 * strokeRadius));
+      g.drawLine(
+          posx + strokeRadius,
+          posy + strokeRadius,
+          posx + strokeRadius,
+          posy - strokeRadius + height);
+      g.setStroke(new BasicStroke(1));
     }
 
     int middleY = posy + height / 2;
