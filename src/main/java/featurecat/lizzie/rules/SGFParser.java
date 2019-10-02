@@ -279,6 +279,7 @@ public class SGFParser {
               line2 = lines[1];
             }
             String versionNumber = line1[0];
+            line1[1] = line1[1].replaceAll(",", "."); // fix a decimal representation localization issue
             Lizzie.board.getData().winrate = 100 - Double.parseDouble(line1[1]);
             int numPlayouts =
                 Integer.parseInt(
