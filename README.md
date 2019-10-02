@@ -1,5 +1,5 @@
 # Lizzie - Leela Zero Interface
-![screenshot](/screenshot0.6.png?raw=true)
+![screenshot](https://raw.githubusercontent.com/featurecat/lizzie/master/screenshot0.7.jpg?raw=true)
 
 Lizzie is a graphical interface allowing the user to analyze games in
 real time using [Leela Zero](https://github.com/gcp/leela-zero). You
@@ -13,7 +13,7 @@ See the [Wiki](https://github.com/featurecat/lizzie/wiki) for learning more.
 ## Running a release
 
 Just follow the instructions in the provided readme in the
-[release](https://github.com/featurecat/lizzie/releases/tag/0.6).
+[release](https://github.com/featurecat/lizzie/releases/tag/0.7).
 
 The first run may take a while because Leela Zero needs to set up the
 OpenCL tunings. Just hang tight, and wait for it to finish, then you
@@ -43,7 +43,7 @@ To build the code and package it:
 
 ### Running Lizzie
 
-    $ java -jar "target/lizzie-0.6-shaded.jar"
+    $ java -jar "target/lizzie-0.7-shaded.jar"
 
 (or whatever the current version of the shaded `jar` file is in
 `target/`).
