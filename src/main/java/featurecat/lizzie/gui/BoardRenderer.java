@@ -740,139 +740,119 @@ public class BoardRenderer {
         if (move.winrate < minWinrate) minWinrate = move.winrate;
       }
 
-      for (int i = 0; i < Board.boardWidth; i++) {
-        for (int j = 0; j < Board.boardHeight; j++) {
-          Optional<MoveData> moveOpt = Optional.empty();
+      for (int i = bestMoves.size() - 1; i >= 0; i--) {
+        MoveData move = bestMoves.get(i);
+        boolean isBestMove = bestMoves.get(0) == move;
+        boolean hasMaxWinrate = move.winrate == maxWinrate;
+        boolean flipWinrate =
+            uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay;
 
-          // This is inefficient but it looks better with shadows
-          for (MoveData m : bestMoves) {
-            Optional<int[]> coord = Board.asCoordinates(m.coordinate);
-            if (coord.isPresent()) {
-              int[] c = coord.get();
-              if (c[0] == i && c[1] == j) {
-                moveOpt = Optional.of(m);
-                break;
-              }
+        if (move.playouts == 0) {
+          continue; // This actually can happen
+        }
+
+        float percentPlayouts = (float) move.playouts / maxPlayouts;
+        double percentWinrate =
+            Math.min(
+                1,
+                Math.max(0.01, move.winrate - minWinrate)
+                    / Math.max(0.01, maxWinrate - minWinrate));
+
+        Optional<int[]> coordsOpt = Board.asCoordinates(move.coordinate);
+        if (!coordsOpt.isPresent()) {
+          continue;
+        }
+        int[] coords = coordsOpt.get();
+
+        int suggestionX = x + scaledMarginWidth + squareWidth * coords[0];
+        int suggestionY = y + scaledMarginHeight + squareHeight * coords[1];
+
+        float hue;
+        if (isBestMove && !Lizzie.config.colorByWinrateInsteadOfVisits
+            || hasMaxWinrate && Lizzie.config.colorByWinrateInsteadOfVisits) {
+          hue = cyanHue;
+        } else {
+          double fraction;
+          if (Lizzie.config.colorByWinrateInsteadOfVisits) {
+            fraction = percentWinrate;
+            if (flipWinrate) {
+              fraction = 1 - fraction;
             }
-          }
-
-          if (!moveOpt.isPresent()) {
-            continue;
-          }
-          MoveData move = moveOpt.get();
-
-          boolean isBestMove = bestMoves.get(0) == move;
-          boolean hasMaxWinrate = move.winrate == maxWinrate;
-          boolean flipWinrate =
-              uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay;
-
-          if (move.playouts == 0) {
-            continue; // This actually can happen
-          }
-
-          float percentPlayouts = (float) move.playouts / maxPlayouts;
-          double percentWinrate =
-              Math.min(
-                  1,
-                  Math.max(0.01, move.winrate - minWinrate)
-                      / Math.max(0.01, maxWinrate - minWinrate));
-
-          Optional<int[]> coordsOpt = Board.asCoordinates(move.coordinate);
-          if (!coordsOpt.isPresent()) {
-            continue;
-          }
-          int[] coords = coordsOpt.get();
-
-          int suggestionX = x + scaledMarginWidth + squareWidth * coords[0];
-          int suggestionY = y + scaledMarginHeight + squareHeight * coords[1];
-
-          float hue;
-          if (isBestMove && !Lizzie.config.colorByWinrateInsteadOfVisits
-              || hasMaxWinrate && Lizzie.config.colorByWinrateInsteadOfVisits) {
-            hue = cyanHue;
+            fraction = 1 / (Math.pow(1 / fraction - 1, winrateHueFactor) + 1);
           } else {
-            double fraction;
-            if (Lizzie.config.colorByWinrateInsteadOfVisits) {
-              fraction = percentWinrate;
-              if (flipWinrate) {
-                fraction = 1 - fraction;
-              }
-              fraction = 1 / (Math.pow(1 / fraction - 1, winrateHueFactor) + 1);
-            } else {
-              fraction = percentPlayouts;
-            }
-
-            // Correction to make differences between colors more perceptually linear
-            fraction *= 2;
-            if (fraction < 1) { // red to yellow
-              fraction = Math.cbrt(fraction * fraction) / 2;
-            } else { // yellow to green
-              fraction = 1 - Math.sqrt(2 - fraction) / 2;
-            }
-
-            hue = redHue + (greenHue - redHue) * (float) fraction;
+            fraction = percentPlayouts;
           }
 
-          float saturation = 1.0f;
-          float brightness = 0.85f;
-          float alpha =
-              minAlpha
-                  + (maxAlpha - minAlpha)
-                      * max(
-                          0,
-                          (float)
-                                      log(
-                                          Lizzie.config.colorByWinrateInsteadOfVisits
-                                              ? percentWinrate
-                                              : percentPlayouts)
-                                  / alphaFactor
-                              + 1);
-
-          Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
-          Color color =
-              new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
-
-          boolean isMouseOver = Lizzie.frame.isMouseOver(coords[0], coords[1]);
-          if (!branchOpt.isPresent()) {
-            drawShadow(g, suggestionX, suggestionY, true, alpha / 255.0f);
-            g.setColor(color);
-            fillCircle(g, suggestionX, suggestionY, stoneRadius);
+          // Correction to make differences between colors more perceptually linear
+          fraction *= 2;
+          if (fraction < 1) { // red to yellow
+            fraction = Math.cbrt(fraction * fraction) / 2;
+          } else { // yellow to green
+            fraction = 1 - Math.sqrt(2 - fraction) / 2;
           }
 
-          boolean ringedMove =
-              !Lizzie.config.colorByWinrateInsteadOfVisits && (isBestMove || hasMaxWinrate);
-          if (!branchOpt.isPresent() || (ringedMove && isMouseOver)) {
-            int strokeWidth = 1;
-            if (ringedMove) {
-              strokeWidth = 2;
-              if (isBestMove) {
-                if (hasMaxWinrate) {
-                  g.setColor(color.darker());
-                  strokeWidth = 1;
-                } else {
-                  g.setColor(Color.RED.brighter());
-                }
+          hue = redHue + (greenHue - redHue) * (float) fraction;
+        }
+
+        float saturation = 1.0f;
+        float brightness = 0.85f;
+        float alpha =
+            minAlpha
+                + (maxAlpha - minAlpha)
+                    * max(
+                        0,
+                        (float)
+                                    log(
+                                        Lizzie.config.colorByWinrateInsteadOfVisits
+                                            ? percentWinrate
+                                            : percentPlayouts)
+                                / alphaFactor
+                            + 1);
+
+        Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
+        Color color =
+            new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
+
+        boolean isMouseOver = Lizzie.frame.isMouseOver(coords[0], coords[1]);
+        if (!branchOpt.isPresent()) {
+          drawShadow(g, suggestionX, suggestionY, true, alpha / 255.0f);
+          g.setColor(color);
+          fillCircle(g, suggestionX, suggestionY, stoneRadius);
+        }
+
+        boolean ringedMove =
+            !Lizzie.config.colorByWinrateInsteadOfVisits && (isBestMove || hasMaxWinrate);
+        if (!branchOpt.isPresent() || (ringedMove && isMouseOver)) {
+          int strokeWidth = 1;
+          if (ringedMove) {
+            strokeWidth = 2;
+            if (isBestMove) {
+              if (hasMaxWinrate) {
+                g.setColor(color.darker());
+                strokeWidth = 1;
               } else {
-                g.setColor(Color.BLUE.brighter());
+                g.setColor(Color.RED.brighter());
               }
             } else {
-              g.setColor(color.darker());
+              g.setColor(Color.BLUE.brighter());
             }
-            g.setStroke(new BasicStroke(strokeWidth));
-            drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
-            g.setStroke(new BasicStroke(1));
+          } else {
+            g.setColor(color.darker());
           }
+          g.setStroke(new BasicStroke(strokeWidth));
+          drawCircle(g, suggestionX, suggestionY, stoneRadius - strokeWidth / 2);
+          g.setStroke(new BasicStroke(1));
+        }
 
-          if (!branchOpt.isPresent()
-                  && (hasMaxWinrate || percentPlayouts >= Lizzie.config.minPlayoutRatioForStats)
-              || isMouseOver) {
-            TextData textData = new TextData();
-            textData.move = move;
-            textData.suggestionX = suggestionX;
-            textData.suggestionY = suggestionY;
-            textData.flipWinrate = flipWinrate;
-            textDatas.add(textData);
-          }
+        if (!branchOpt.isPresent()
+                && (hasMaxWinrate || percentPlayouts >= Lizzie.config.minPlayoutRatioForStats)
+            || isMouseOver) {
+          TextData textData = new TextData();
+          textData.move = move;
+          textData.suggestionX = suggestionX;
+          textData.suggestionY = suggestionY;
+          textData.flipWinrate = flipWinrate;
+          textDatas.add(textData);
         }
       }
     }
@@ -1791,7 +1771,10 @@ public class BoardRenderer {
       boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
       boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
       boolean allowed =
-          drawSmart == 0 || (drawSmart == 1 && differentColor) || (drawSmart == 2 && anyColor) || (drawSmart == 1 && !anyColor && drawSmall);
+          drawSmart == 0
+              || (drawSmart == 1 && differentColor)
+              || (drawSmart == 2 && anyColor)
+              || (drawSmart == 1 && !anyColor && drawSmall);
       if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);
