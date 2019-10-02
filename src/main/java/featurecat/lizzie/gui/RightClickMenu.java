@@ -164,10 +164,14 @@ public class RightClickMenu extends JPopupMenu {
     Lizzie.board.isAvoding = true;
     Lizzie.board.isAllowing = false;
     Lizzie.leelaz.analyzeAvoid(
-        "avoid",
-        Lizzie.board.getHistory().isBlacksTurn() ? "b" : "w",
-        Lizzie.board.avoidCoords,
-        Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
+        "avoid b "
+            + Lizzie.board.avoidCoords
+            + " "
+            + Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations")
+            + " avoid w "
+            + Lizzie.board.avoidCoords
+            + " "
+            + Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
     Lizzie.board.getHistory().getData().tryToClearBestMoves();
   }
 

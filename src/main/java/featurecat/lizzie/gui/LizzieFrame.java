@@ -1070,10 +1070,7 @@ public class LizzieFrame extends MainFrame {
     int strokeRadius = 3;
     g.setStroke(new BasicStroke(strokeRadius == 1 ? strokeRadius : 2 * strokeRadius));
     g.drawLine(
-        posX + strokeRadius,
-        posY + strokeRadius,
-        posX - strokeRadius + width,
-        posY + strokeRadius);
+        posX + strokeRadius, posY + strokeRadius, posX - strokeRadius + width, posY + strokeRadius);
     g.drawLine(
         posX + strokeRadius,
         posY + 3 * strokeRadius,
@@ -1495,6 +1492,9 @@ public class LizzieFrame extends MainFrame {
   }
 
   public boolean openRightClickMenu(int x, int y) {
+    if (Lizzie.leelaz.isKataGo) {
+      return false;
+    }
     Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
     if (!boardCoordinates.isPresent()) {
       return false;

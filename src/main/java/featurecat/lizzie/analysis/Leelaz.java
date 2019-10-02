@@ -658,10 +658,14 @@ public class Leelaz {
     startPonderTime = System.currentTimeMillis();
     if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid && !isKataGo)
       analyzeAvoid(
-          "avoid",
-          Lizzie.board.getHistory().isBlacksTurn() ? "w" : "b",
-          Lizzie.board.avoidCoords,
-          +Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
+          "avoid b "
+              + Lizzie.board.avoidCoords
+              + " "
+              + Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations")
+              + " avoid w "
+              + Lizzie.board.avoidCoords
+              + " "
+              + Lizzie.config.config.getJSONObject("leelaz").getInt("avoid-keep-variations"));
     else
       sendCommand(
           (this.isKataGo ? "kata-analyze " : "lz-analyze ")
