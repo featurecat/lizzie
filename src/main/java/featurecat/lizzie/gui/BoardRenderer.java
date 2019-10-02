@@ -53,7 +53,7 @@ public class BoardRenderer {
   private static final double STARPOINT_DIAMETER = 0.015;
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
 
-  private static boolean emptyName = false;
+  private static boolean emptyName = true;
   private static boolean changedName = false;
 
   private int x, y;
@@ -1791,7 +1791,10 @@ public class BoardRenderer {
       boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
       boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
       boolean allowed =
-          drawSmart == 0 || (drawSmart == 1 && differentColor) || (drawSmart == 2 && anyColor) || (drawSmart == 1 && !anyColor && drawSmall);
+          drawSmart == 0
+              || (drawSmart == 1 && differentColor)
+              || (drawSmart == 2 && anyColor)
+              || (drawSmart == 1 && !anyColor && drawSmall);
       if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);
