@@ -40,6 +40,7 @@ public class SGFParser {
     }
 
     String encoding = EncodingDetector.detect(filename);
+    if (encoding == "WINDOWS-1252") encoding = "gb2312";
     FileInputStream fp = new FileInputStream(file);
     InputStreamReader reader = new InputStreamReader(fp, encoding);
     StringBuilder builder = new StringBuilder();
@@ -279,7 +280,8 @@ public class SGFParser {
               line2 = lines[1];
             }
             String versionNumber = line1[0];
-            line1[1] = line1[1].replaceAll(",", "."); // fix a decimal representation localization issue
+            line1[1] =
+                line1[1].replaceAll(",", "."); // fix a decimal representation localization issue
             Lizzie.board.getData().winrate = 100 - Double.parseDouble(line1[1]);
             int numPlayouts =
                 Integer.parseInt(
