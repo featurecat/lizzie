@@ -711,6 +711,9 @@ public class LizzieMain extends MainFrame {
   }
 
   public boolean openRightClickMenu(int x, int y) {
+    if (Lizzie.leelaz.isKataGo && !Lizzie.frame.isMouseOver) {
+      return false;
+    }
     Optional<int[]> boardCoordinates = convertScreenToCoordinates(x, y);
     if (!boardCoordinates.isPresent()) {
       return false;
