@@ -6,7 +6,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -61,7 +60,7 @@ public class CountResults extends JFrame {
       setBounds(pos.getInt(0), pos.getInt(1), pos.getInt(2), pos.getInt(3));
     } else {
       Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
-      setBounds(0, (int) screensize.getHeight() / 2 - 125, 340, 260); // 240
+      setBounds(0, (int) screensize.getHeight() / 2 - 125, 220, 180);
     }
 
     try {
@@ -129,10 +128,8 @@ public class CountResults extends JFrame {
   }
 
   public void paint(Graphics g) {
-
     Graphics2D g2 = (Graphics2D) g;
-
-    Image image = null;
+    Image image = Lizzie.config.theme.background();
     try {
       image = ImageIO.read(getClass().getResourceAsStream("/assets/countbackground.jpg"));
     } catch (IOException e1) {
@@ -150,51 +147,34 @@ public class CountResults extends JFrame {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     g2.setColor(Color.BLACK);
     g2.setStroke(new BasicStroke(2f));
-    g2.fillOval(50, 100, 32, 32);
-    // g2.drawOval(260,50, 32, 32);
+    g2.fillOval(30, 58, 20, 20);
     g2.setColor(Color.WHITE);
-    g2.fillOval(260, 100, 32, 32);
+    g2.fillOval(170, 58, 20, 20);
     g2.setColor(Color.BLACK);
-    Font allFont;
-
-    try {
-      allFont =
-          Font.createFont(
-              Font.TRUETYPE_FONT,
-              Thread.currentThread()
-                  .getContextClassLoader()
-                  .getResourceAsStream("fonts/OpenSans-Semibold.ttf"));
-
-    } catch (IOException | FontFormatException e) {
-      e.printStackTrace();
-    }
-    allFont = new Font("allFont", Font.BOLD, 40);
-    g2.setFont(allFont);
+    g2.setFont(new Font(Lizzie.config.uiFontName, Font.BOLD, 25));
     if (allBlackCounts >= allWhiteCounts) {
       g2.setColor(Color.BLACK);
-      g2.drawString(resourceBundle.getString("CountDialog.bigBlack"), 45, 75);
+      g2.drawString(resourceBundle.getString("CountDialog.bigBlack"), 25, 50);
     } else {
       g2.setColor(Color.WHITE);
-      g2.drawString(resourceBundle.getString("CountDialog.bigWhite"), 45, 75);
+      g2.drawString(resourceBundle.getString("CountDialog.bigWhite"), 25, 50);
     }
-    allFont = new Font("allFont", Font.BOLD, 25);
-    g2.setFont(allFont);
+    g2.setFont(new Font(Lizzie.config.uiFontName, Font.BOLD, 20));
     g2.drawString(
         resourceBundle.getString("CountDialog.onBoardLead")
             + Math.abs(allBlackCounts - allWhiteCounts)
             + resourceBundle.getString("CountDialog.points"),
-        115,
-        70);
-    allFont = new Font("allFont", Font.BOLD, 20);
+        53,
+        50);
     g2.setColor(Color.BLACK);
-    g2.setFont(allFont);
-    g2.drawString(resourceBundle.getString("CountDialog.areaCount"), 145, 170);
-    g2.drawString(resourceBundle.getString("CountDialog.eat"), 145, 212);
-    g2.drawString(allBlackCounts + "", 53, 170);
-    g2.drawString(blackEat + "", 53, 212);
+    g2.setFont(new Font(Lizzie.config.uiFontName, Font.BOLD, 17));
+    g2.drawString(resourceBundle.getString("CountDialog.areaCount"), 95, 100);
+    g2.drawString(resourceBundle.getString("CountDialog.eat"), 95, 130);
+    g2.drawString(allBlackCounts + "", 32, 100);
+    g2.drawString(blackEat + "", 32, 130);
     g2.setColor(Color.WHITE);
-    g2.drawString(allWhiteCounts + "", 265, 170);
-    g2.drawString(whiteEat + "", 265, 212);
+    g2.drawString(allWhiteCounts + "", 172, 100);
+    g2.drawString(whiteEat + "", 172, 130);
     button.repaint();
     button2.repaint();
   }
