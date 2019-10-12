@@ -172,6 +172,7 @@ public class ConfigDialog extends JDialog {
   public JRadioButton rdoShowMoveNumberLast;
   public JTextField txtShowMoveNumber;
   public JCheckBox chkShowBlunderBar;
+  public JCheckBox chkShowBorder;
   public JCheckBox chkDynamicWinrateGraphWidth;
   public JCheckBox chkAppendWinrateToComment;
   public JCheckBox chkHoldBestMovesToSgf;
@@ -983,6 +984,13 @@ public class ConfigDialog extends JDialog {
     chkShowSubBoard.setBounds(170, 116, 57, 23);
     uiTab.add(chkShowSubBoard);
 
+    JLabel lblShowBorder = new JLabel(resourceBundle.getString("LizzieConfig.title.showBorder"));
+    lblShowBorder.setBounds(372, 119, 157, 16);
+    uiTab.add(lblShowBorder);
+    chkShowBorder = new JCheckBox("");
+    chkShowBorder.setBounds(536, 116, 57, 23);
+    uiTab.add(chkShowBorder);
+
     JLabel lblShowCoordinates =
         new JLabel(resourceBundle.getString("LizzieConfig.title.showCoordinates"));
     lblShowCoordinates.setBounds(6, 146, 157, 16);
@@ -1187,6 +1195,7 @@ public class ConfigDialog extends JDialog {
     chkShowSubBoard.setSelected(Lizzie.config.showSubBoard);
     chkShowCoordinates.setSelected(Lizzie.config.showCoordinates);
     chkShowBlunderBar.setSelected(Lizzie.config.showBlunderBar);
+    chkShowBorder.setSelected(Lizzie.config.showBorder);
     chkDynamicWinrateGraphWidth.setSelected(Lizzie.config.dynamicWinrateGraphWidth);
     chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
     chkHoldBestMovesToSgf.setSelected(Lizzie.config.holdBestMovesToSgf);
@@ -2504,6 +2513,8 @@ public class ConfigDialog extends JDialog {
 
       Lizzie.config.showBlunderBar = chkShowBlunderBar.isSelected();
       Lizzie.config.uiConfig.putOpt("show-blunder-bar", Lizzie.config.showBlunderBar);
+      Lizzie.config.showBorder = chkShowBorder.isSelected();
+      Lizzie.config.uiConfig.putOpt("show-border", Lizzie.config.showBorder);
       Lizzie.config.dynamicWinrateGraphWidth = chkDynamicWinrateGraphWidth.isSelected();
       Lizzie.config.uiConfig.putOpt(
           "dynamic-winrate-graph-width", Lizzie.config.dynamicWinrateGraphWidth);

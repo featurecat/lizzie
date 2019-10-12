@@ -1042,16 +1042,17 @@ public class BoardRenderer {
           boardWidth + 4 * shadowRadius,
           boardHeight + 4 * shadowRadius);
 
-      if (Lizzie.config.showBorder) {
-        g.setStroke(new BasicStroke(shadowRadius * 2));
-        // draw border
-        g.setColor(new Color(0, 0, 0, 50));
-        g.drawRect(
-            x - shadowRadius,
-            y - shadowRadius,
-            boardWidth + 2 * shadowRadius,
-            boardHeight + 2 * shadowRadius);
-      }
+      // The board border is no longer supported, add another option if needed
+      //      if (Lizzie.config.showBorder) {
+      //        g.setStroke(new BasicStroke(shadowRadius * 2));
+      //        // draw border
+      //        g.setColor(new Color(0, 0, 0, 50));
+      //        g.drawRect(
+      //            x - shadowRadius,
+      //            y - shadowRadius,
+      //            boardWidth + 2 * shadowRadius,
+      //            boardHeight + 2 * shadowRadius);
+      //      }
       g.setStroke(new BasicStroke(1));
 
     } else {
@@ -1511,8 +1512,11 @@ public class BoardRenderer {
    * @param boardLength the boardLength of the board
    */
   public void setBoardLength(int boardWidth, int boardHeight) {
-    this.shadowRadius =
-        Lizzie.config.showBorder ? (int) (max(boardWidth, boardHeight) * MARGIN / 6) : 0;
+    // The board border is no longer supported, add another option if needed
+    //    this.shadowRadius =
+    //        Lizzie.config.showBorder ? (int) (max(boardWidth, boardHeight) * MARGIN / 6) :
+    // 0;this.shadowRadius =
+    this.shadowRadius = 0;
     this.boardWidth = boardWidth - 4 * shadowRadius;
     this.boardHeight = boardHeight - 4 * shadowRadius;
     this.x = x + 2 * shadowRadius;
@@ -1534,8 +1538,10 @@ public class BoardRenderer {
     // re-center board
     //    setLocation(x + (boardWidth0 - boardWidth) / 2, y + (boardHeight0 - boardHeight) / 2);
 
-    this.shadowRadius =
-        Lizzie.config.showBorder ? (int) (max(boardWidth, boardHeight) * MARGIN / 6) : 0;
+    // The board border is no longer supported, add another option if needed
+    //    this.shadowRadius =
+    //        Lizzie.config.showBorder ? (int) (max(boardWidth, boardHeight) * MARGIN / 6) : 0;
+    this.shadowRadius = 0;
     this.boardWidth = boardWidth - 4 * shadowRadius;
     this.boardHeight = boardHeight - 4 * shadowRadius;
     this.x = x + 2 * shadowRadius;
