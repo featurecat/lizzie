@@ -467,7 +467,9 @@ public class Config {
 
     // About engine parameter
     JSONObject leelaz = new JSONObject();
-    leelaz.put("_comment", "note, network-file is obselete in Lizzie 0.7+, ignore network-file, kept for compatibility");
+    leelaz.put(
+        "_comment",
+        "note, network-file is obselete in Lizzie 0.7+, ignore network-file, kept for compatibility");
     leelaz.put("network-file", "lznetwork.gz");
     if (this.macAppBundle) {
       // Mac Apps don't really expect the user to modify the current working directory, since that
