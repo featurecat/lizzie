@@ -82,7 +82,6 @@ public class GtpConsolePane extends JDialog {
     scrollPane.setViewportView(console);
     getRootPane().setBorder(BorderFactory.createEmptyBorder());
     getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
-    setVisible(true);
 
     txtCommand.addActionListener(e -> postCommand(e));
   }
