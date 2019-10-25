@@ -1404,6 +1404,7 @@ public class Board implements LeelazListener {
       if (!history.getNext().isPresent() || isSuccessivePass) {
         // Reached the end...
         toggleAnalysis();
+        Lizzie.leelaz.togglePonder();
       } else if (bestMoves.isEmpty()) {
         // If we get empty list, something strange happened, ignore notification
       } else {

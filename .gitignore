@@ -8,7 +8,7 @@ out/*
 *.iml
 *.exe
 network
-network.gz
+*.gz
 leelaz
 src/main/resources/META-INF
 target
