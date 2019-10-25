@@ -20,7 +20,7 @@ public class Lizzie {
   public static GtpConsolePane gtpConsole;
   public static Board board;
   public static Leelaz leelaz;
-  public static String lizzieVersion = "0.7.1";
+  public static String lizzieVersion = "0.7.2";
   private static String[] mainArgs;
   public static EngineManager engineManager;
 
