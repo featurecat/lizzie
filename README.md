@@ -13,7 +13,7 @@ See the [Wiki](https://github.com/featurecat/lizzie/wiki) for learning more.
 ## Running a release
 
 Just follow the instructions in the provided readme in the
-[release](https://github.com/featurecat/lizzie/releases/tag/0.7).
+[release](https://github.com/featurecat/lizzie/releases/tag/0.7.2).
 
 The first run may take a while because Leela Zero needs to set up the
 OpenCL tunings. Just hang tight, and wait for it to finish, then you
