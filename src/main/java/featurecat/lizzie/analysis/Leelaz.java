@@ -94,7 +94,7 @@ public class Leelaz {
    *
    * @throws IOException
    */
-  public Leelaz(String engineCommand) throws IOException, JSONException {
+  public Leelaz(String engineCommand) throws JSONException {
     board = new Board();
     bestMoves = new ArrayList<>();
     bestMovesTemp = new ArrayList<>();
@@ -521,11 +521,13 @@ public class Leelaz {
     Lizzie.gtpConsole.addCommand(command, cmdNumber);
     command = cmdNumber + " " + command;
     cmdNumber++;
-    try {
-      outputStream.write((command + "\n").getBytes());
-      outputStream.flush();
-    } catch (IOException e) {
-      e.printStackTrace();
+    if (outputStream != null) {
+      try {
+        outputStream.write((command + "\n").getBytes());
+        outputStream.flush();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 
@@ -690,7 +692,8 @@ public class Leelaz {
 
   /** End the process */
   public void shutdown() {
-    process.destroy();
+    if (process != null)
+      process.destroy();
   }
 
   public List<MoveData> getBestMoves() {
@@ -901,6 +904,13 @@ public class Leelaz {
   }
 
   public boolean isLoaded() {
+    if (engineCommand.isEmpty()) {
+      // we can use Lizzie even without an engine, if the config defaults to ""
+      if (!isLoaded) {
+        Lizzie.frame.refresh();
+        isLoaded = true;
+      }
+    }
     return isLoaded;
   }
 
