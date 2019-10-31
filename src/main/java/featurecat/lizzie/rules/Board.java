@@ -473,9 +473,7 @@ public class Board implements LeelazListener {
    * @param newBranch add a new branch
    */
   public void place(int x, int y, Stone color, boolean newBranch, boolean changeMove) {
-    if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen(false);
-    }
+    Lizzie.frame.clearBeforeMove();
     synchronized (this) {
       if (scoreMode) {
         // Mark clicked stone as dead
@@ -754,9 +752,7 @@ public class Board implements LeelazListener {
 
   /** Goes to the next coordinate, thread safe */
   public boolean nextMove() {
-    if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen(false);
-    }
+    Lizzie.frame.clearBeforeMove();
     synchronized (this) {
       updateWinrate();
       if (history.next().isPresent()) {
@@ -1108,9 +1104,7 @@ public class Board implements LeelazListener {
 
   /** Goes to the previous coordinate, thread safe */
   public boolean previousMove() {
-    if (Lizzie.frame.isEstimating) {
-      Lizzie.frame.noEstimateByZen(false);
-    }
+    Lizzie.frame.clearBeforeMove();
     synchronized (this) {
       if (inScoreMode()) setScoreMode(false);
       updateWinrate();

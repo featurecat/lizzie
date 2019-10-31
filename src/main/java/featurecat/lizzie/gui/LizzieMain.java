@@ -744,4 +744,25 @@ public class LizzieMain extends MainFrame {
   private void showMenu(int x, int y) {
     rightClickMenu.show(boardPane, x, y);
   }
+
+  @Override
+  public void clearBeforeMove() {
+    // TODO Auto-generated method stub
+    subBoardPane.clearBeforeMove();
+    if (Lizzie.frame.isEstimating) {
+      Lizzie.frame.noEstimateByZen(false);
+    }
+  }
+
+  @Override
+  public boolean subBoardOnClick(MouseEvent e) {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  @Override
+  public void clearIsMouseOverSub() {
+    // TODO Auto-generated method stub
+    subBoardPane.clearIsMouseOverSub();
+  }
 }

@@ -28,6 +28,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -1179,9 +1180,6 @@ public class LizzieFrame extends MainFrame {
       isPlayingAgainstLeelaz = false;
       Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
     }
-    if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
-      Lizzie.config.toggleLargeSubBoard();
-    }
     if (Lizzie.config.showVariationGraph) {
       variationTree.onClicked(x, y);
     }
@@ -1200,6 +1198,20 @@ public class LizzieFrame extends MainFrame {
         }
       }
     }
+  }
+
+  public boolean subBoardOnClick(MouseEvent e) {
+    int x = e.getX();
+    int y = e.getY();
+    if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
+      if (e.getButton() == MouseEvent.BUTTON1) subBoardRenderer.increaseBestmoveIndexSub(1);
+      if (e.getButton() == MouseEvent.BUTTON3) subBoardRenderer.increaseBestmoveIndexSub(-1);
+      if (e.getButton() == MouseEvent.BUTTON2) Lizzie.config.toggleLargeSubBoard();
+      subBoardRenderer.setClickedSub(true);
+      repaint();
+      return true;
+    }
+    return false;
   }
 
   private final Consumer<String> placeVariation =
@@ -1225,6 +1237,17 @@ public class LizzieFrame extends MainFrame {
         });
     if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
       repaint();
+    }
+    if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
+      if (!subBoardRenderer.getIsMouseOverSub()) {
+        subBoardRenderer.setIsMouseOverSub(true);
+        repaint();
+      }
+    } else {
+      if (subBoardRenderer.getIsMouseOverSub()) {
+        subBoardRenderer.setIsMouseOverSub(false);
+        repaint();
+      }
     }
   }
 
@@ -1535,5 +1558,19 @@ public class LizzieFrame extends MainFrame {
 
   private void showMenu(int x, int y) {
     rightClickMenu.show(mainPanel, x, y);
+  }
+
+  @Override
+  public void clearBeforeMove() {
+    // TODO Auto-generated method stub
+    subBoardRenderer.clearBeforeMove();
+    if (Lizzie.frame.isEstimating) {
+      Lizzie.frame.noEstimateByZen(false);
+    }
+  }
+
+  @Override
+  public void clearIsMouseOverSub() {
+    // TODO Auto-generated method stub
   }
 }

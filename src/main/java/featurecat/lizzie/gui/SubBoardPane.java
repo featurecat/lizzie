@@ -10,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -37,11 +38,21 @@ public class SubBoardPane extends LizziePane {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON1) { // left click
-              if (Lizzie.config.showSubBoard) {
-                Lizzie.config.toggleLargeSubBoard();
-                owner.invalidLayout();
-              }
+            if (e.getButton() == MouseEvent.BUTTON1) subBoardRenderer.increaseBestmoveIndexSub(1);
+            if (e.getButton() == MouseEvent.BUTTON3) subBoardRenderer.increaseBestmoveIndexSub(-1);
+            if (e.getButton() == MouseEvent.BUTTON2) Lizzie.config.toggleLargeSubBoard();
+            subBoardRenderer.setClickedSub(true);
+            owner.invalidLayout();
+          }
+        });
+
+    addMouseMotionListener(
+        new MouseMotionAdapter() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (!subBoardRenderer.getIsMouseOverSub()) {
+              subBoardRenderer.setIsMouseOverSub(true);
+              owner.invalidLayout();
             }
           }
         });
@@ -126,5 +137,16 @@ public class SubBoardPane extends LizziePane {
 
   public void drawEstimateRect(ArrayList<Double> estimateArray, boolean isZen) {
     subBoardRenderer.drawEstimateRect(estimateArray, isZen);
+  }
+
+  public void clearBeforeMove() {
+    subBoardRenderer.clearBeforeMove();
+  }
+
+  public void clearIsMouseOverSub() {
+    if (subBoardRenderer.getIsMouseOverSub()) {
+      subBoardRenderer.setIsMouseOverSub(false);
+      repaint();
+    }
   }
 }

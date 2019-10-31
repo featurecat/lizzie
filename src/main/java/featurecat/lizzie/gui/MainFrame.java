@@ -12,6 +12,7 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.HeadlessException;
 import java.awt.LayoutManager;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
 import java.io.IOException;
@@ -131,6 +132,8 @@ public abstract class MainFrame extends JFrame {
   public abstract void onClicked(int x, int y);
 
   public abstract void onDoubleClicked(int x, int y);
+
+  public abstract boolean subBoardOnClick(MouseEvent e);
 
   public abstract void onMouseDragged(int x, int y);
 
@@ -384,4 +387,8 @@ public abstract class MainFrame extends JFrame {
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
 
   public abstract boolean openRightClickMenu(int x, int y);
+
+  public abstract void clearBeforeMove();
+
+  public abstract void clearIsMouseOverSub();
 }
