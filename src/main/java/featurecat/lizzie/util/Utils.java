@@ -332,7 +332,7 @@ public class Utils {
       };
 
   public static void playVoice() throws Exception {
-    if (isPlayingSound || !Lizzie.config.playSound) return;
+    if (isPlayingSound) return;
     isPlayingSound = true;
     Runnable runnable =
         new Runnable() {
