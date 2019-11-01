@@ -1757,6 +1757,9 @@ public class BoardRenderer {
       default:
         // force nonnegative
         displayedBranchLength = max(0, displayedBranchLength + n);
+        if (variation != null) {
+          displayedBranchLength = min(displayedBranchLength, variation.size() + 1);
+        } else displayedBranchLength = 0;
         return true;
     }
   }

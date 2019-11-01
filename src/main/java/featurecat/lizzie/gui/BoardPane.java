@@ -128,11 +128,15 @@ public class BoardPane extends LizziePane {
             onMouseExited(e.getX(), e.getY());
           }
         });
+
     addMouseMotionListener(
         new MouseMotionListener() {
           @Override
           public void mouseMoved(MouseEvent e) {
             onMouseMoved(e.getX(), e.getY());
+            if (Lizzie.config.showSubBoard) {
+              Lizzie.frame.clearIsMouseOverSub();
+            }
           }
 
           @Override

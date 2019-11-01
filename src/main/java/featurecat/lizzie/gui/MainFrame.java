@@ -391,4 +391,6 @@ public abstract class MainFrame extends JFrame {
   public abstract void clearBeforeMove();
 
   public abstract void clearIsMouseOverSub();
+
+  public abstract boolean processSubBoardMouseWheelMoved(MouseWheelEvent e);
 }

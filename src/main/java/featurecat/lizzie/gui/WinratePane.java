@@ -15,7 +15,7 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.Optional;
 
@@ -52,7 +52,14 @@ public class WinratePane extends LizziePane {
         });
 
     addMouseMotionListener(
-        new MouseMotionAdapter() {
+        new MouseMotionListener() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (Lizzie.config.showSubBoard) {
+              Lizzie.frame.clearIsMouseOverSub();
+            }
+          }
+
           @Override
           public void mouseDragged(MouseEvent e) {
             onMouseDragged(e.getX(), e.getY());

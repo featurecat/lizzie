@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 /** The window used to display the game. */
@@ -67,6 +69,20 @@ public class BasicInfoPane extends LizziePane {
     // cleanup
     bsGraphics.dispose();
     //    bs.show();
+    addMouseMotionListener(
+        new MouseMotionListener() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (Lizzie.config.showSubBoard) {
+              Lizzie.frame.clearIsMouseOverSub();
+            }
+          }
+
+          @Override
+          public void mouseDragged(MouseEvent e) {
+            // TODO Auto-generated method stub
+          }
+        });
   }
 
   private void drawCaptured(Graphics2D g, int posX, int posY, int width, int height) {

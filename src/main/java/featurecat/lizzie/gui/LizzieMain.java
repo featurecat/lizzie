@@ -23,6 +23,8 @@ import java.awt.RenderingHints;
 import java.awt.TexturePaint;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -248,6 +250,21 @@ public class LizzieMain extends MainFrame {
         new WindowAdapter() {
           public void windowClosing(WindowEvent e) {
             Lizzie.shutdown();
+          }
+        });
+
+    addMouseMotionListener(
+        new MouseMotionListener() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (Lizzie.config.showSubBoard) {
+              Lizzie.frame.clearIsMouseOverSub();
+            }
+          }
+
+          @Override
+          public void mouseDragged(MouseEvent e) {
+            // TODO Auto-generated method stub
           }
         });
 
@@ -764,5 +781,20 @@ public class LizzieMain extends MainFrame {
   public void clearIsMouseOverSub() {
     // TODO Auto-generated method stub
     subBoardPane.clearIsMouseOverSub();
+  }
+
+  @Override
+  public boolean processSubBoardMouseWheelMoved(MouseWheelEvent e) {
+    // TODO Auto-generated method stub
+    if (Lizzie.config.showSubBoard) {
+      int x = e.getX();
+      int y = e.getY();
+      if (x >= subBoardPane.getX()
+          && x <= (subBoardPane.getX() + subBoardPane.getWidth())
+          && y >= subBoardPane.getY()
+          && y <= (subBoardPane.getY() + subBoardPane.getHeight())) {
+        return true;
+      } else return false;
+    } else return false;
   }
 }
