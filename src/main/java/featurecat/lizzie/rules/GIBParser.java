@@ -54,6 +54,7 @@ public class GIBParser {
   }
 
   private static boolean parse(String value) {
+    boolean originalPlaySound = Lizzie.config.playSound;
     String[] lines = value.trim().split("\n");
     String whitePlayer = "Player 1";
     String blackPlayer = "Player 2";
@@ -102,6 +103,7 @@ public class GIBParser {
     Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
     // Rewind to game start
     while (Lizzie.board.previousMove()) ;
+    Lizzie.config.playSound = originalPlaySound;
 
     return false;
   }

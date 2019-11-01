@@ -89,6 +89,7 @@ public class SGFParser {
 
   private static boolean parse(String value) {
     // Drop anything outside "(;...)"
+    boolean originalPlaySound = Lizzie.config.playSound;
     final Pattern SGF_PATTERN = Pattern.compile("(?s).*?(\\(\\s*;{0,1}.*\\))(?s).*?");
     Matcher sgfMatcher = SGF_PATTERN.matcher(value);
     if (sgfMatcher.matches()) {
@@ -122,7 +123,7 @@ public class SGFParser {
     }
 
     parseValue(value, null, false);
-
+    Lizzie.config.playSound = originalPlaySound;
     return true;
   }
 
