@@ -55,6 +55,7 @@ public class GIBParser {
 
   private static boolean parse(String value) {
     boolean originalPlaySound = Lizzie.config.playSound;
+    Lizzie.config.playSound = false;
     String[] lines = value.trim().split("\n");
     String whitePlayer = "Player 1";
     String blackPlayer = "Player 2";
