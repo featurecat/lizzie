@@ -72,6 +72,7 @@ public class Config {
   public boolean showToolBar = true;
   public String toolbarPosition = "South";
   public boolean showNameInBoard = true;
+  public boolean playSound;
 
   public JSONObject config;
   public JSONObject leelazConfig;
@@ -246,6 +247,7 @@ public class Config {
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
     showToolBar = uiConfig.optBoolean("show-toolbar", true);
     showNameInBoard = uiConfig.optBoolean("show-name-in-board", true);
+    playSound = uiConfig.optBoolean("play-sound", true);
     toolbarPosition =
         uiConfig.optString("toolbar-position", persistedUi.optString("toolbar-position", "South"));
 
@@ -436,6 +438,16 @@ public class Config {
 
   public boolean showBranchNow() {
     return showBranch || showBestMovesTemporarily;
+  }
+
+  public void togglePlaySound() {
+    this.playSound = !this.playSound;
+    Lizzie.config.uiConfig.put("play-sound", playSound);
+    try {
+      Lizzie.config.save();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**

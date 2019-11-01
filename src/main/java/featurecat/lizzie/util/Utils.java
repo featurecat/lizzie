@@ -4,6 +4,7 @@ import static java.lang.Math.round;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.Color;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageTypeSpecifier;
@@ -26,12 +28,20 @@ import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.SourceDataLine;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.TransferHandler;
 import org.w3c.dom.Node;
 
 public class Utils {
+  public static boolean isPlayingSound = false;
+  private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public static boolean isBlank(String str) {
     return str == null || str.trim().isEmpty();
@@ -320,4 +330,80 @@ public class Utils {
           return false;
         }
       };
+
+  public static void playVoice() throws Exception {
+    if (isPlayingSound || !Lizzie.config.playSound) return;
+    isPlayingSound = true;
+    Runnable runnable =
+        new Runnable() {
+          public void run() {
+            try {
+              Thread.sleep(100);
+              isPlayingSound = false;
+            } catch (Exception e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+          }
+        };
+    Thread thread = new Thread(runnable);
+    thread.start();
+    BoardHistoryNode node = Lizzie.board.getHistory().getCurrentHistoryNode();
+    if (node.previous().isPresent()) {
+      if (node.getData().blackCaptures > node.previous().get().getData().blackCaptures) {
+        if (node.getData().blackCaptures - node.previous().get().getData().blackCaptures >= 3)
+          playVoice("\\sound\\deadStoneMore.wav");
+        else playVoice("\\sound\\deadStone.wav");
+      } else {
+        if (node.getData().whiteCaptures > node.previous().get().getData().whiteCaptures) {
+          if (node.getData().whiteCaptures - node.previous().get().getData().whiteCaptures >= 3)
+            playVoice("\\sound\\deadStoneMore.wav");
+          else playVoice("\\sound\\deadStone.wav");
+        } else playVoice("\\sound\\Stone.wav");
+      }
+    } else {
+      playVoice("\\sound\\Stone.wav");
+    }
+    return;
+  }
+
+  private static void playVoice(String wav) throws Exception {
+    File file = new File("");
+    String courseFile = "";
+    try {
+      courseFile = file.getCanonicalPath();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    String filePath = courseFile + wav;
+    if (!filePath.equals("")) {
+      // Get audio input stream
+      AudioInputStream audioInputStream = null;
+      try {
+        audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
+      } catch (Exception e) {
+        JOptionPane.showMessageDialog(
+            Lizzie.frame,
+            resourceBundle.getString("Utils.playSound.noFileHint") + " \"" + wav + "\"");
+        Lizzie.config.togglePlaySound();
+        return;
+      }
+      AudioFormat audioFormat = audioInputStream.getFormat();
+      DataLine.Info dataLineInfo =
+          new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
+      SourceDataLine sourceDataLine = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
+      sourceDataLine.open(audioFormat);
+      sourceDataLine.start();
+      int count;
+      byte tempBuffer[] = new byte[1024];
+      while ((count = audioInputStream.read(tempBuffer, 0, tempBuffer.length)) != -1) {
+        if (count > 0) {
+          sourceDataLine.write(tempBuffer, 0, count);
+        }
+      }
+      sourceDataLine.drain();
+      sourceDataLine.close();
+    }
+  }
 }
