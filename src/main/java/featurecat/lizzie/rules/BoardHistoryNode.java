@@ -81,21 +81,7 @@ public class BoardHistoryNode {
     //                }
     //            }
     //        }
-    if (Lizzie.config.playSound) {
-      Runnable runnable =
-          new Runnable() {
-            public void run() {
-              try {
-                Utils.playVoice();
-              } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-              }
-            }
-          };
-      Thread thread = new Thread(runnable);
-      thread.start();
-    }
+    Utils.playVoice();
     Optional<BoardHistoryNode> next = next(true);
     boolean nextDummy = next.isPresent() && next.get().isEndDummay();
     if (!newBranch && nextDummy) {

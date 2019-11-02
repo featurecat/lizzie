@@ -331,15 +331,44 @@ public class Utils {
         }
       };
 
-  public static void playVoice() throws Exception {
-    if (isPlayingSound) return;
-    isPlayingSound = true;
+  public static void playVoice() {
+    if (!Lizzie.config.playSound || isPlayingSound) return;
     Runnable runnable =
         new Runnable() {
           public void run() {
             try {
-              Thread.sleep(100);
-              isPlayingSound = false;
+              isPlayingSound = true;
+              Runnable runnable =
+                  new Runnable() {
+                    public void run() {
+                      try {
+                        Thread.sleep(100);
+                        isPlayingSound = false;
+                      } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                      }
+                    }
+                  };
+              Thread thread = new Thread(runnable);
+              thread.start();
+              BoardHistoryNode node = Lizzie.board.getHistory().getCurrentHistoryNode();
+              if (node.previous().isPresent()) {
+                if (node.getData().blackCaptures > node.previous().get().getData().blackCaptures) {
+                  if (node.getData().blackCaptures - node.previous().get().getData().blackCaptures
+                      >= 3) playVoice("\\sound\\deadStoneMore.wav");
+                  else playVoice("\\sound\\deadStone.wav");
+                } else {
+                  if (node.getData().whiteCaptures
+                      > node.previous().get().getData().whiteCaptures) {
+                    if (node.getData().whiteCaptures - node.previous().get().getData().whiteCaptures
+                        >= 3) playVoice("\\sound\\deadStoneMore.wav");
+                    else playVoice("\\sound\\deadStone.wav");
+                  } else playVoice("\\sound\\Stone.wav");
+                }
+              } else {
+                playVoice("\\sound\\Stone.wav");
+              }
             } catch (Exception e) {
               // TODO Auto-generated catch block
               e.printStackTrace();
@@ -348,35 +377,10 @@ public class Utils {
         };
     Thread thread = new Thread(runnable);
     thread.start();
-    BoardHistoryNode node = Lizzie.board.getHistory().getCurrentHistoryNode();
-    if (node.previous().isPresent()) {
-      if (node.getData().blackCaptures > node.previous().get().getData().blackCaptures) {
-        if (node.getData().blackCaptures - node.previous().get().getData().blackCaptures >= 3)
-          playVoice("\\sound\\deadStoneMore.wav");
-        else playVoice("\\sound\\deadStone.wav");
-      } else {
-        if (node.getData().whiteCaptures > node.previous().get().getData().whiteCaptures) {
-          if (node.getData().whiteCaptures - node.previous().get().getData().whiteCaptures >= 3)
-            playVoice("\\sound\\deadStoneMore.wav");
-          else playVoice("\\sound\\deadStone.wav");
-        } else playVoice("\\sound\\Stone.wav");
-      }
-    } else {
-      playVoice("\\sound\\Stone.wav");
-    }
-    return;
   }
 
   private static void playVoice(String wav) throws Exception {
-    File file = new File("");
-    String courseFile = "";
-    try {
-      courseFile = file.getCanonicalPath();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    String filePath = courseFile + wav;
+    String filePath = (new File("")).getAbsolutePath() + wav;
     if (!filePath.equals("")) {
       // Get audio input stream
       AudioInputStream audioInputStream = null;
