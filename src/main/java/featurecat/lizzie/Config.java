@@ -383,6 +383,7 @@ public class Config {
 
   public void toggleKataGoEstimate() {
     showKataGoEstimate = !showKataGoEstimate;
+    uiConfig.put("show-katago-estimate", showKataGoEstimate);
   }
 
   public void cycleKataGoEstimateMode() {
@@ -410,6 +411,7 @@ public class Config {
         kataGoEstimateMode = "small";
         break;
     }
+    uiConfig.put("katago-estimate-mode", kataGoEstimateMode);
   }
 
   public void toggleShowStatus() {
