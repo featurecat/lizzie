@@ -1721,6 +1721,10 @@ public class BoardRenderer {
     cachedEstimateSmallRectImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
   }
 
+  public static int roundToInt(double number) {
+    return (int) round(number);
+  }
+
   // isZen: estimates are for black (Zen) rather than player to move (KataGo)
   // and estimates are just <0/=0/>0 (Zen) rather than -1..+1 (KataGo)
   public void drawEstimateRect(ArrayList<Double> estimateArray, boolean isZen) {
@@ -1773,13 +1777,10 @@ public class BoardRenderer {
       double estimate = estimateArray.get(i);
       if (isZen) {
         // Zen's estimates are only <0 / =0 / >0
-        if (estimate < 0) estimate = -1;
-        else if (estimate > 0) estimate = +1;
-      }
-      boolean isBlack = (estimate > 0);
-      if (!isZen) {
+        estimate = Math.signum(estimate);
+      } else {
         // KataGo's estimates are for player to move, not for black.
-        if (!Lizzie.board.getHistory().isBlacksTurn()) isBlack = !isBlack;
+        if (!Lizzie.board.getHistory().isBlacksTurn()) estimate = -estimate;
       }
       int[] c = Lizzie.board.getCoord(i);
       int x = c[1];
@@ -1788,13 +1789,13 @@ public class BoardRenderer {
       int stoneY = scaledMarginHeight + squareHeight * y;
       // g.setColor(Color.BLACK);
 
-      int grey = isBlack ? 0 : 255;
-      double alpha = Math.abs(estimate);
+      int grey = (estimate > 0) ? 0 : 255;
+      double alpha = 255 * Math.abs(estimate);
 
       // Large rectangles (will go behind stones).
 
       if (drawLarge) {
-        Color cl = new Color(grey, grey, grey, (int) (255 * (0.75 * alpha)));
+        Color cl = new Color(grey, grey, grey, roundToInt(0.75 * alpha));
         gl.setColor(cl);
         gl.fillRect(
             (int) (stoneX - squareWidth * 0.5),
@@ -1806,17 +1807,18 @@ public class BoardRenderer {
       // Small rectangles (will go on top of stones; perhaps only "dead" stones).
 
       Stone stoneHere = Lizzie.board.getStones()[Board.getIndex(x, y)];
-      boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
-      boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
+      boolean deadStone =
+          (estimate >= 0 && stoneHere.isWhite()) || (estimate <= 0 && stoneHere.isBlack());
+      boolean anyStone = stoneHere.isWhite() || stoneHere.isBlack();
       boolean allowed =
           drawSmart == 0
-              || (drawSmart == 1 && differentColor)
-              || (drawSmart == 2 && anyColor)
-              || (drawSmart == 1 && !anyColor && drawSmall);
+              || (drawSmart == 1 && deadStone)
+              || (drawSmart == 2 && anyStone)
+              || (drawSmart == 1 && !anyStone && drawSmall);
       if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);
-        int ialpha = drawSize ? 180 : (int) (255 * alpha);
+        int ialpha = drawSize ? 180 : roundToInt(alpha);
         Color cl = new Color(grey, grey, grey, ialpha);
         gs.setColor(cl);
         gs.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);
