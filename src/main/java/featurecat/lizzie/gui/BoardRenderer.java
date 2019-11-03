@@ -1789,13 +1789,20 @@ public class BoardRenderer {
       int stoneY = scaledMarginHeight + squareHeight * y;
       // g.setColor(Color.BLACK);
 
-      int grey = (estimate > 0) ? 0 : 255;
-      double alpha = 255 * Math.abs(estimate);
+      boolean blend = Lizzie.config.kataGoEstimateBlend;
+      int grey;
+      double alpha = 255;
+      if (blend) {
+        grey = (estimate > 0) ? 0 : 255;
+        alpha *= Math.abs(estimate);
+      } else {
+        grey = roundToInt((1 - estimate) * 255 / 2.0);
+      }
 
       // Large rectangles (will go behind stones).
 
       if (drawLarge) {
-        Color cl = new Color(grey, grey, grey, roundToInt(0.75 * alpha));
+        Color cl = new Color(grey, grey, grey, roundToInt(blend ? 0.75 * alpha : alpha));
         gl.setColor(cl);
         gl.fillRect(
             (int) (stoneX - squareWidth * 0.5),
@@ -1818,7 +1825,7 @@ public class BoardRenderer {
       if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);
-        int ialpha = drawSize ? 180 : roundToInt(alpha);
+        int ialpha = (blend && drawSize) ? 180 : roundToInt(alpha);
         Color cl = new Color(grey, grey, grey, ialpha);
         gs.setColor(cl);
         gs.fillRect(stoneX - length / 2, stoneY - length / 2, length, length);

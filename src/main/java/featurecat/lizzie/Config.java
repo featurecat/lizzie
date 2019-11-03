@@ -58,6 +58,7 @@ public class Config {
   public boolean showKataGoEstimateOnSubboard = true;
   public boolean showKataGoEstimateOnMainboard = true;
   public String kataGoEstimateMode = "small+dead";
+  public boolean kataGoEstimateBlend = true;
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -241,6 +242,7 @@ public class Config {
     showKataGoEstimateOnSubboard = uiConfig.optBoolean("show-katago-estimate-onsubboard", true);
     showKataGoEstimateOnMainboard = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
     kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "small+dead");
+    kataGoEstimateBlend = uiConfig.optBoolean("katago-estimate-blend", true);
     showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
@@ -414,6 +416,11 @@ public class Config {
     uiConfig.put("katago-estimate-mode", kataGoEstimateMode);
   }
 
+  public void toggleKataGoEstimateBlend() {
+    kataGoEstimateBlend = !kataGoEstimateBlend;
+    uiConfig.put("katago-estimate-blend", kataGoEstimateBlend);
+  }
+
   public void toggleShowStatus() {
     this.showStatus = !this.showStatus;
     Lizzie.config.uiConfig.put("show-status", showStatus);
@@ -546,6 +553,7 @@ public class Config {
     ui.put("show-katago-estimate-onsubboard", true);
     ui.put("show-katago-estimate-onmainboard", true);
     ui.put("katago-estimate-mode", "small");
+    ui.put("katago-estimate-blend", true);
     config.put("ui", ui);
     return config;
   }
