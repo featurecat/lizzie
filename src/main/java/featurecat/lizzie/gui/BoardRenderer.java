@@ -165,8 +165,8 @@ public class BoardRenderer {
       }
 
       if (!Lizzie.frame.isShowingPolicy
-              && !Lizzie.frame.isPlayingAgainstLeelaz
-              && Lizzie.config.showBestMovesNow()) drawLeelazSuggestionsForeground(g, textDatas);
+          && !Lizzie.frame.isPlayingAgainstLeelaz
+          && Lizzie.config.showBestMovesNow()) drawLeelazSuggestionsForeground(g, textDatas);
 
       drawStoneMarkup(g);
     }
@@ -187,12 +187,12 @@ public class BoardRenderer {
 
   /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
   public static int[] availableLength(
-          int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
     int[] calculatedPixelMargins =
-            calculatePixelMargins(boardWidth, boardHeight, showCoordinates, isMainBoard);
+        calculatePixelMargins(boardWidth, boardHeight, showCoordinates, isMainBoard);
     return (calculatedPixelMargins != null && calculatedPixelMargins.length >= 6)
-            ? calculatedPixelMargins
-            : new int[] {boardWidth, 0, boardWidth, boardHeight, 0, boardHeight};
+        ? calculatedPixelMargins
+        : new int[] {boardWidth, 0, boardWidth, boardHeight, 0, boardHeight};
   }
 
   /** Calculate good values for boardLength, scaledMargin, availableLength, and squareLength */
@@ -240,14 +240,14 @@ public class BoardRenderer {
 
     // Draw the cached background image if frame size changes
     if (cachedBackgroundImage.getWidth() != width
-            || cachedBackgroundImage.getHeight() != height
-            || cachedBoardWidth != boardWidth
-            || cachedBoardHeight != boardHeight
-            || cachedX != x
-            || cachedY != y
-            || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
-            || (changedName && isMainBoard)
-            || Lizzie.frame.isForceRefresh()) {
+        || cachedBackgroundImage.getHeight() != height
+        || cachedBoardWidth != boardWidth
+        || cachedBoardHeight != boardHeight
+        || cachedX != x
+        || cachedY != y
+        || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
+        || (changedName && isMainBoard)
+        || Lizzie.frame.isForceRefresh()) {
       changedName = false;
       cachedBoardWidth = boardWidth;
       cachedBoardHeight = boardHeight;
@@ -267,17 +267,17 @@ public class BoardRenderer {
       g.setColor(Color.BLACK);
       for (int i = 0; i < Board.boardHeight; i++) {
         g.drawLine(
-                x + scaledMarginWidth,
-                y + scaledMarginHeight + squareHeight * i,
-                x + scaledMarginWidth + availableWidth - 1,
-                y + scaledMarginHeight + squareHeight * i);
+            x + scaledMarginWidth,
+            y + scaledMarginHeight + squareHeight * i,
+            x + scaledMarginWidth + availableWidth - 1,
+            y + scaledMarginHeight + squareHeight * i);
       }
       for (int i = 0; i < Board.boardWidth; i++) {
         g.drawLine(
-                x + scaledMarginWidth + squareWidth * i,
-                y + scaledMarginHeight,
-                x + scaledMarginWidth + squareWidth * i,
-                y + scaledMarginHeight + availableHeight - 1);
+            x + scaledMarginWidth + squareWidth * i,
+            y + scaledMarginHeight,
+            x + scaledMarginWidth + squareWidth * i,
+            y + scaledMarginHeight + availableHeight - 1);
       }
 
       // Draw the star points
@@ -288,44 +288,44 @@ public class BoardRenderer {
         g.setColor(Color.BLACK);
         for (int i = 0; i < Board.boardWidth; i++) {
           drawString(
-                  g,
-                  x + scaledMarginWidth + squareWidth * i,
-                  y + scaledMarginHeight / 3,
-                  MainFrame.uiFont,
-                  Board.asName(i),
-                  stoneRadius * 4 / 5,
-                  stoneRadius);
+              g,
+              x + scaledMarginWidth + squareWidth * i,
+              y + scaledMarginHeight / 3,
+              MainFrame.uiFont,
+              Board.asName(i),
+              stoneRadius * 4 / 5,
+              stoneRadius);
           if (!Lizzie.config.showNameInBoard
-                  || Lizzie.board != null
+              || Lizzie.board != null
                   && (Lizzie.board.getHistory().getGameInfo().getPlayerWhite().equals("")
-                  && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals(""))) {
+                      && Lizzie.board.getHistory().getGameInfo().getPlayerBlack().equals(""))) {
             drawString(
-                    g,
-                    x + scaledMarginWidth + squareWidth * i,
-                    y - scaledMarginHeight / 3 + boardHeight,
-                    MainFrame.uiFont,
-                    Board.asName(i),
-                    stoneRadius * 4 / 5,
-                    stoneRadius);
+                g,
+                x + scaledMarginWidth + squareWidth * i,
+                y - scaledMarginHeight / 3 + boardHeight,
+                MainFrame.uiFont,
+                Board.asName(i),
+                stoneRadius * 4 / 5,
+                stoneRadius);
           }
         }
         for (int i = 0; i < Board.boardHeight; i++) {
           drawString(
-                  g,
-                  x + scaledMarginWidth / 3,
-                  y + scaledMarginHeight + squareHeight * i,
-                  MainFrame.uiFont,
-                  "" + (Board.boardHeight <= 25 ? (Board.boardHeight - i) : (i + 1)),
-                  stoneRadius * 4 / 5,
-                  stoneRadius);
+              g,
+              x + scaledMarginWidth / 3,
+              y + scaledMarginHeight + squareHeight * i,
+              MainFrame.uiFont,
+              "" + (Board.boardHeight <= 25 ? (Board.boardHeight - i) : (i + 1)),
+              stoneRadius * 4 / 5,
+              stoneRadius);
           drawString(
-                  g,
-                  x - scaledMarginWidth / 3 + boardWidth,
-                  y + scaledMarginHeight + squareHeight * i,
-                  MainFrame.uiFont,
-                  "" + (Board.boardHeight <= 25 ? (Board.boardHeight - i) : (i + 1)),
-                  stoneRadius * 4 / 5,
-                  stoneRadius);
+              g,
+              x - scaledMarginWidth / 3 + boardWidth,
+              y + scaledMarginHeight + squareHeight * i,
+              MainFrame.uiFont,
+              "" + (Board.boardHeight <= 25 ? (Board.boardHeight - i) : (i + 1)),
+              stoneRadius * 4 / 5,
+              stoneRadius);
         }
       }
       g.dispose();
@@ -361,57 +361,57 @@ public class BoardRenderer {
     if (Lizzie.board.getHistory().isBlacksTurn()) {
       g0.setColor(Color.WHITE);
       g0.fillOval(
-              x + boardWidth / 2 - stoneRadius * 1 / 5,
-              y - scaledMarginHeight + stoneRadius + boardHeight,
-              stoneRadius,
-              stoneRadius);
+          x + boardWidth / 2 - stoneRadius * 1 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
 
       g0.setColor(Color.BLACK);
       g0.fillOval(
-              x + boardWidth / 2 - stoneRadius * 4 / 5,
-              y - scaledMarginHeight + stoneRadius + boardHeight,
-              stoneRadius,
-              stoneRadius);
+          x + boardWidth / 2 - stoneRadius * 4 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
     } else {
       g0.setColor(Color.BLACK);
       g0.fillOval(
-              x + boardWidth / 2 - stoneRadius * 4 / 5,
-              y - scaledMarginHeight + stoneRadius + boardHeight,
-              stoneRadius,
-              stoneRadius);
+          x + boardWidth / 2 - stoneRadius * 4 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
       g0.setColor(Color.WHITE);
       g0.fillOval(
-              x + boardWidth / 2 - stoneRadius * 1 / 5,
-              y - scaledMarginHeight + stoneRadius + boardHeight,
-              stoneRadius,
-              stoneRadius);
+          x + boardWidth / 2 - stoneRadius * 1 / 5,
+          y - scaledMarginHeight + stoneRadius + boardHeight,
+          stoneRadius,
+          stoneRadius);
     }
     g0.setColor(Color.BLACK);
     String regex = "[\u4e00-\u9fa5]";
 
     drawStringBold(
-            g0,
-            x
-                    + boardWidth / 2
-                    - black.replaceAll(regex, "12").length() * stoneRadius / 4
-                    - stoneRadius * 5 / 4,
-            y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
-            Lizzie.frame.uiFont,
-            black,
-            stoneRadius,
-            stoneRadius * black.replaceAll(regex, "12").length() / 2);
+        g0,
+        x
+            + boardWidth / 2
+            - black.replaceAll(regex, "12").length() * stoneRadius / 4
+            - stoneRadius * 5 / 4,
+        y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
+        Lizzie.frame.uiFont,
+        black,
+        stoneRadius,
+        stoneRadius * black.replaceAll(regex, "12").length() / 2);
     g0.setColor(Color.WHITE);
     drawStringBold(
-            g0,
-            x
-                    + boardWidth / 2
-                    + white.replaceAll(regex, "12").length() * stoneRadius / 4
-                    + stoneRadius * 5 / 4,
-            y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
-            Lizzie.frame.uiFont,
-            white,
-            stoneRadius,
-            stoneRadius * white.replaceAll(regex, "12").length() / 2);
+        g0,
+        x
+            + boardWidth / 2
+            + white.replaceAll(regex, "12").length() * stoneRadius / 4
+            + stoneRadius * 5 / 4,
+        y - scaledMarginHeight + stoneRadius + boardHeight + stoneRadius * 3 / 5,
+        Lizzie.frame.uiFont,
+        white,
+        stoneRadius,
+        stoneRadius * white.replaceAll(regex, "12").length() / 2);
   }
 
   /**
@@ -434,7 +434,7 @@ public class BoardRenderer {
   }
 
   private void drawStarPoints0(
-          int nStarpoints, int edgeOffset, int gridDistance, boolean center, Graphics2D g) {
+      int nStarpoints, int edgeOffset, int gridDistance, boolean center, Graphics2D g) {
     g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
     int starPointRadius = (int) (STARPOINT_DIAMETER * min(boardWidth, boardHeight)) / 2;
     for (int i = 0; i < nStarpoints; i++) {
@@ -458,12 +458,12 @@ public class BoardRenderer {
 
     // draw a new image if frame size changes or board state changes
     if (cachedStonesImage.getWidth() != boardWidth
-            || cachedStonesImage.getHeight() != boardHeight
-            || cachedDisplayedBranchLength != displayedBranchLength
-            || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
-            || !cachedZhash.equals(Lizzie.board.getData().zobrist)
-            || Lizzie.board.inScoreMode()
-            || lastInScoreMode) {
+        || cachedStonesImage.getHeight() != boardHeight
+        || cachedDisplayedBranchLength != displayedBranchLength
+        || cachedBackgroundImageHasCoordinatesEnabled != showCoordinates()
+        || !cachedZhash.equals(Lizzie.board.getData().zobrist)
+        || Lizzie.board.inScoreMode()
+        || lastInScoreMode) {
 
       cachedStonesImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
       cachedStonesShadowImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
@@ -482,7 +482,7 @@ public class BoardRenderer {
           int stoneX = scaledMarginWidth + squareWidth * i;
           int stoneY = scaledMarginHeight + squareHeight * j;
           drawStone(
-                  g, gShadow, stoneX, stoneY, Lizzie.board.getStones()[Board.getIndex(i, j)], i, j);
+              g, gShadow, stoneX, stoneY, Lizzie.board.getStones()[Board.getIndex(i, j)], i, j);
         }
       }
 
@@ -546,7 +546,7 @@ public class BoardRenderer {
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
     if (Lizzie.config.showBestMovesByHold
-            && MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
+        && MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
       bestMoves = Lizzie.board.getData().bestMoves;
     }
 
@@ -563,8 +563,8 @@ public class BoardRenderer {
 
     Optional<MoveData> suggestedMove = (isMainBoard ? mouseOveredMove() : getBestMove());
     if (!suggestedMove.isPresent()
-            || (!isMainBoard && Lizzie.frame.isAutoEstimating)
-            || (isMainBoard && Lizzie.frame.isShowingPolicy)) {
+        || (!isMainBoard && Lizzie.frame.isAutoEstimating)
+        || (isMainBoard && Lizzie.frame.isShowingPolicy)) {
       return;
     }
     List<String> variation = suggestedMove.get().variation;
@@ -597,13 +597,13 @@ public class BoardRenderer {
 
   public Optional<MoveData> mouseOveredMove() {
     return bestMoves
-            .stream()
-            .filter(
-                    move ->
-                            Board.asCoordinates(move.coordinate)
-                                    .map(c -> Lizzie.frame.isMouseOver(c[0], c[1]))
-                                    .orElse(false))
-            .findFirst();
+        .stream()
+        .filter(
+            move ->
+                Board.asCoordinates(move.coordinate)
+                    .map(c -> Lizzie.frame.isMouseOver(c[0], c[1]))
+                    .orElse(false))
+        .findFirst();
   }
 
   private Optional<MoveData> getBestMove() {
@@ -653,35 +653,35 @@ public class BoardRenderer {
         }
       } else if (board.getData().moveNumber != 0 && !board.inScoreMode()) {
         g.setColor(
-                board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
+            board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
         g.fillOval(
-                x + boardWidth / 2 - 4 * stoneRadius,
-                y + boardHeight / 2 - 4 * stoneRadius,
-                stoneRadius * 8,
-                stoneRadius * 8);
+            x + boardWidth / 2 - 4 * stoneRadius,
+            y + boardHeight / 2 - 4 * stoneRadius,
+            stoneRadius * 8,
+            stoneRadius * 8);
         g.setColor(
-                board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
+            board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
         drawString(
-                g,
-                x + boardWidth / 2,
-                y + boardHeight / 2,
-                MainFrame.uiFont,
-                "pass",
-                stoneRadius * 4,
-                stoneRadius * 6);
+            g,
+            x + boardWidth / 2,
+            y + boardHeight / 2,
+            MainFrame.uiFont,
+            "pass",
+            stoneRadius * 4,
+            stoneRadius * 6);
       }
 
       return;
     }
 
     int[] moveNumberList =
-            branchOpt.map(b -> b.data.moveNumberList).orElse(board.getMoveNumberList());
+        branchOpt.map(b -> b.data.moveNumberList).orElse(board.getMoveNumberList());
 
     // Allow to display only last move number
     int lastMoveNumber =
-            branchOpt
-                    .map(b -> b.data.moveNumber)
-                    .orElse(Arrays.stream(moveNumberList).max().getAsInt());
+        branchOpt
+            .map(b -> b.data.moveNumber)
+            .orElse(Arrays.stream(moveNumberList).max().getAsInt());
 
     for (int i = 0; i < Board.boardWidth; i++) {
       for (int j = 0; j < Board.boardHeight; j++) {
@@ -691,7 +691,7 @@ public class BoardRenderer {
 
         // Allow to display only last move number
         if (Lizzie.config.allowMoveNumber > -1
-                && lastMoveNumber - moveNumberList[here] >= Lizzie.config.allowMoveNumber) {
+            && lastMoveNumber - moveNumberList[here] >= Lizzie.config.allowMoveNumber) {
           continue;
         }
 
@@ -700,7 +700,7 @@ public class BoardRenderer {
         // don't write the move number if either: the move number is 0, or there will already be
         // playout information written
         if (moveNumberList[Board.getIndex(i, j)] > 0
-                && (!branchOpt.isPresent() || !Lizzie.frame.isMouseOver(i, j))) {
+            && (!branchOpt.isPresent() || !Lizzie.frame.isMouseOver(i, j))) {
           boolean reverse = (moveNumberList[Board.getIndex(i, j)] > maxBranchMoves());
           if (lastMoveOpt.isPresent() && lastMoveOpt.get()[0] == i && lastMoveOpt.get()[1] == j) {
             if (reverse) continue;
@@ -715,13 +715,13 @@ public class BoardRenderer {
 
           String moveNumberString = moveNumberList[Board.getIndex(i, j)] + "";
           drawString(
-                  g,
-                  stoneX,
-                  stoneY,
-                  MainFrame.uiFont,
-                  moveNumberString,
-                  (float) (stoneRadius * 1.4),
-                  (int) (stoneRadius * 1.4));
+              g,
+              stoneX,
+              stoneY,
+              MainFrame.uiFont,
+              moveNumberString,
+              (float) (stoneRadius * 1.4),
+              (int) (stoneRadius * 1.4));
         }
       }
     }
@@ -755,7 +755,7 @@ public class BoardRenderer {
         boolean isBestMove = bestMoves.get(0) == move;
         boolean hasMaxWinrate = move.winrate == maxWinrate;
         boolean flipWinrate =
-                uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay;
+            uiConfig.getBoolean("win-rate-always-black") && !Lizzie.board.getData().blackToPlay;
 
         if (move.playouts == 0) {
           continue; // This actually can happen
@@ -763,10 +763,10 @@ public class BoardRenderer {
 
         float percentPlayouts = (float) move.playouts / maxPlayouts;
         double percentWinrate =
-                Math.min(
-                        1,
-                        Math.max(0.01, move.winrate - minWinrate)
-                                / Math.max(0.01, maxWinrate - minWinrate));
+            Math.min(
+                1,
+                Math.max(0.01, move.winrate - minWinrate)
+                    / Math.max(0.01, maxWinrate - minWinrate));
 
         Optional<int[]> coordsOpt = Board.asCoordinates(move.coordinate);
         if (!coordsOpt.isPresent()) {
@@ -779,7 +779,7 @@ public class BoardRenderer {
 
         float hue;
         if (isBestMove && !Lizzie.config.colorByWinrateInsteadOfVisits
-                || hasMaxWinrate && Lizzie.config.colorByWinrateInsteadOfVisits) {
+            || hasMaxWinrate && Lizzie.config.colorByWinrateInsteadOfVisits) {
           hue = cyanHue;
         } else {
           double fraction;
@@ -807,21 +807,21 @@ public class BoardRenderer {
         float saturation = 1.0f;
         float brightness = 0.85f;
         float alpha =
-                minAlpha
-                        + (maxAlpha - minAlpha)
-                        * max(
+            minAlpha
+                + (maxAlpha - minAlpha)
+                    * max(
                         0,
                         (float)
-                                log(
+                                    log(
                                         Lizzie.config.colorByWinrateInsteadOfVisits
-                                                ? percentWinrate
-                                                : percentPlayouts)
+                                            ? percentWinrate
+                                            : percentPlayouts)
                                 / alphaFactor
-                                + 1);
+                            + 1);
 
         Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
         Color color =
-                new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
+            new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
 
         boolean isMouseOver = Lizzie.frame.isMouseOver(coords[0], coords[1]);
         if (!branchOpt.isPresent()) {
@@ -852,8 +852,8 @@ public class BoardRenderer {
         fillCircle(g, textData.suggestionX, textData.suggestionY, stoneRadius);
       }
       boolean ringedMove =
-              !Lizzie.config.colorByWinrateInsteadOfVisits
-                      && (textData.isBestMove || textData.hasMaxWinrate);
+          !Lizzie.config.colorByWinrateInsteadOfVisits
+              && (textData.isBestMove || textData.hasMaxWinrate);
       if (!branchOpt.isPresent() || (ringedMove && textData.isMouseOver)) {
         int strokeWidth = 1;
         if (ringedMove) {
@@ -883,7 +883,7 @@ public class BoardRenderer {
     for (TextData textData : textDatas) {
       if ((textData.hasMaxWinrate
               || textData.percentPlayouts >= Lizzie.config.minPlayoutRatioForStats)
-              || textData.isMouseOver) {
+          || textData.isMouseOver) {
         double roundedWinrate = round(textData.move.winrate * 10) / 10.0;
         if (textData.flipWinrate) {
           roundedWinrate = 100.0 - roundedWinrate;
@@ -902,104 +902,104 @@ public class BoardRenderer {
           double score = Utils.actualScoreMean(textData.move.scoreMean);
           if (!Lizzie.config.showWinrateInSuggestion) {
             drawString(
-                    g,
-                    textData.suggestionX,
-                    textData.suggestionY
-                            + (Lizzie.config.showPlayoutsInSuggestion
-                            ? (-stoneRadius * 3 / 16)
-                            : stoneRadius / 4),
-                    MainFrame.winrateFont,
-                    Font.PLAIN,
-                    String.format("%.1f", score),
-                    stoneRadius,
-                    stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.5 : 1.8),
-                    1);
+                g,
+                textData.suggestionX,
+                textData.suggestionY
+                    + (Lizzie.config.showPlayoutsInSuggestion
+                        ? (-stoneRadius * 3 / 16)
+                        : stoneRadius / 4),
+                MainFrame.winrateFont,
+                Font.PLAIN,
+                String.format("%.1f", score),
+                stoneRadius,
+                stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.5 : 1.8),
+                1);
 
             if (Lizzie.config.showPlayoutsInSuggestion) {
               drawString(
-                      g,
-                      textData.suggestionX,
-                      textData.suggestionY + stoneRadius * 2 / 5,
-                      MainFrame.uiFont,
-                      Utils.getPlayoutsString(textData.move.playouts),
-                      (float) (stoneRadius * 0.8),
-                      stoneRadius * 1.4);
+                  g,
+                  textData.suggestionX,
+                  textData.suggestionY + stoneRadius * 2 / 5,
+                  MainFrame.uiFont,
+                  Utils.getPlayoutsString(textData.move.playouts),
+                  (float) (stoneRadius * 0.8),
+                  stoneRadius * 1.4);
             }
           } else {
             drawString(
-                    g,
-                    textData.suggestionX,
-                    textData.suggestionY
-                            - (Lizzie.config.showPlayoutsInSuggestion ? stoneRadius * 5 / 16 : 0),
-                    LizzieFrame.winrateFont,
-                    Font.PLAIN,
-                    text,
-                    stoneRadius,
-                    stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.45 : 1.5),
-                    1);
+                g,
+                textData.suggestionX,
+                textData.suggestionY
+                    - (Lizzie.config.showPlayoutsInSuggestion ? stoneRadius * 5 / 16 : 0),
+                LizzieFrame.winrateFont,
+                Font.PLAIN,
+                text,
+                stoneRadius,
+                stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.45 : 1.5),
+                1);
             if (Lizzie.config.showPlayoutsInSuggestion) {
               drawString(
-                      g,
-                      textData.suggestionX,
-                      textData.suggestionY + stoneRadius * 2 / 16,
-                      MainFrame.uiFont,
-                      Utils.getPlayoutsString(textData.move.playouts),
-                      (float) (stoneRadius * 0.7),
-                      stoneRadius * 1.4);
+                  g,
+                  textData.suggestionX,
+                  textData.suggestionY + stoneRadius * 2 / 16,
+                  MainFrame.uiFont,
+                  Utils.getPlayoutsString(textData.move.playouts),
+                  (float) (stoneRadius * 0.7),
+                  stoneRadius * 1.4);
             }
             drawString(
-                    g,
-                    textData.suggestionX,
-                    textData.suggestionY
-                            + (Lizzie.config.showPlayoutsInSuggestion
-                            ? stoneRadius * 11 / 16
-                            : stoneRadius * 2 / 5),
-                    LizzieFrame.uiFont,
-                    String.format("%.1f", score),
-                    (float) (stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 0.75 : 0.8)),
-                    stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.3 : 1.4));
+                g,
+                textData.suggestionX,
+                textData.suggestionY
+                    + (Lizzie.config.showPlayoutsInSuggestion
+                        ? stoneRadius * 11 / 16
+                        : stoneRadius * 2 / 5),
+                LizzieFrame.uiFont,
+                String.format("%.1f", score),
+                (float) (stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 0.75 : 0.8)),
+                stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.3 : 1.4));
           }
         } else {
           if (Lizzie.config.showWinrateInSuggestion && Lizzie.config.showPlayoutsInSuggestion) {
             drawString(
-                    g,
-                    textData.suggestionX,
-                    textData.suggestionY,
-                    MainFrame.winrateFont,
-                    Font.PLAIN,
-                    text,
-                    stoneRadius,
-                    stoneRadius * 1.5,
-                    1);
+                g,
+                textData.suggestionX,
+                textData.suggestionY,
+                MainFrame.winrateFont,
+                Font.PLAIN,
+                text,
+                stoneRadius,
+                stoneRadius * 1.5,
+                1);
             drawString(
-                    g,
-                    textData.suggestionX,
-                    textData.suggestionY + stoneRadius * 2 / 5,
-                    MainFrame.uiFont,
-                    Utils.getPlayoutsString(textData.move.playouts),
-                    (float) (stoneRadius * 0.8),
-                    stoneRadius * 1.4);
+                g,
+                textData.suggestionX,
+                textData.suggestionY + stoneRadius * 2 / 5,
+                MainFrame.uiFont,
+                Utils.getPlayoutsString(textData.move.playouts),
+                (float) (stoneRadius * 0.8),
+                stoneRadius * 1.4);
           } else {
             if (Lizzie.config.showWinrateInSuggestion) {
               drawString(
-                      g,
-                      textData.suggestionX,
-                      textData.suggestionY + stoneRadius / 4,
-                      MainFrame.winrateFont,
-                      Font.PLAIN,
-                      text,
-                      stoneRadius,
-                      stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.5 : 1.6),
-                      1);
+                  g,
+                  textData.suggestionX,
+                  textData.suggestionY + stoneRadius / 4,
+                  MainFrame.winrateFont,
+                  Font.PLAIN,
+                  text,
+                  stoneRadius,
+                  stoneRadius * (Lizzie.config.showPlayoutsInSuggestion ? 1.5 : 1.6),
+                  1);
             } else if (Lizzie.config.showPlayoutsInSuggestion) {
               drawString(
-                      g,
-                      textData.suggestionX,
-                      textData.suggestionY + stoneRadius / 6,
-                      MainFrame.uiFont,
-                      Utils.getPlayoutsString(textData.move.playouts),
-                      (float) (stoneRadius * 0.8),
-                      stoneRadius * 1.4);
+                  g,
+                  textData.suggestionX,
+                  textData.suggestionY + stoneRadius / 6,
+                  MainFrame.uiFont,
+                  Utils.getPlayoutsString(textData.move.playouts),
+                  (float) (stoneRadius * 0.8),
+                  stoneRadius * 1.4);
             }
           }
         }
@@ -1016,17 +1016,17 @@ public class BoardRenderer {
     for (int i = 0; i < nexts.size(); i++) {
       boolean first = (i == 0);
       nexts
-              .get(i)
-              .getData()
-              .lastMove
-              .ifPresent(
-                      nextMove -> {
-                        int moveX = x + scaledMarginWidth + squareWidth * nextMove[0];
-                        int moveY = y + scaledMarginHeight + squareHeight * nextMove[1];
-                        if (first) g.setStroke(new BasicStroke(2.0f));
-                        drawCircle(g, moveX, moveY, stoneRadius + 1); // Slightly outside best move circle
-                        if (first) g.setStroke(new BasicStroke(1.0f));
-                      });
+          .get(i)
+          .getData()
+          .lastMove
+          .ifPresent(
+              nextMove -> {
+                int moveX = x + scaledMarginWidth + squareWidth * nextMove[0];
+                int moveY = y + scaledMarginHeight + squareHeight * nextMove[1];
+                if (first) g.setStroke(new BasicStroke(2.0f));
+                drawCircle(g, moveX, moveY, stoneRadius + 1); // Slightly outside best move circle
+                if (first) g.setStroke(new BasicStroke(1.0f));
+              });
     }
   }
 
@@ -1038,12 +1038,12 @@ public class BoardRenderer {
       }
 
       drawTextureImage(
-              g,
-              cachedBoardImage,
-              x - 2 * shadowRadius,
-              y - 2 * shadowRadius,
-              boardWidth + 4 * shadowRadius,
-              boardHeight + 4 * shadowRadius);
+          g,
+          cachedBoardImage,
+          x - 2 * shadowRadius,
+          y - 2 * shadowRadius,
+          boardWidth + 4 * shadowRadius,
+          boardHeight + 4 * shadowRadius);
 
       // The board border is no longer supported, add another option if needed
       //      if (Lizzie.config.showBorder) {
@@ -1073,7 +1073,7 @@ public class BoardRenderer {
    * @return an array containing the three outputs: new boardLength, scaledMargin, availableLength
    */
   private static int[] calculatePixelMargins(
-          int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
+      int boardWidth, int boardHeight, boolean showCoordinates, boolean isMainBoard) {
     // boardLength -= boardLength*MARGIN/3; // account for the shadows we will draw around the edge
     // of the board
     //        if (boardLength < Board.BOARD_SIZE - 1)
@@ -1090,11 +1090,11 @@ public class BoardRenderer {
 
     // decrease boardLength until the availableLength will result in square board intersections
     double marginWidth =
-            (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
-                    ? (Board.boardWidth > 3 ? 0.06 : 0.04)
-                    : 0.03)
-                    / Board.boardWidth
-                    * 19.0;
+        (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                : 0.03)
+            / Board.boardWidth
+            * 19.0;
     boardWidth++;
     do {
       boardWidth--;
@@ -1106,11 +1106,11 @@ public class BoardRenderer {
     int squareHeight = 0;
     if (Board.boardWidth != Board.boardHeight) {
       double marginHeight =
-              (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
-                      ? (Board.boardWidth > 3 ? 0.06 : 0.04)
-                      : 0.03)
-                      / Board.boardHeight
-                      * 19.0;
+          (showCoordinates || Lizzie.config.showNameInBoard && isMainBoard && !emptyName
+                  ? (Board.boardWidth > 3 ? 0.06 : 0.04)
+                  : 0.03)
+              / Board.boardHeight
+              * 19.0;
       boardHeight++;
       do {
         boardHeight--;
@@ -1140,12 +1140,12 @@ public class BoardRenderer {
       availableHeight = availableWidth;
     }
     return new int[] {
-            boardWidth,
-            scaledMarginWidth,
-            availableWidth,
-            boardHeight,
-            scaledMarginHeight,
-            availableHeight
+      boardWidth,
+      scaledMarginWidth,
+      availableWidth,
+      boardHeight,
+      scaledMarginHeight,
+      availableHeight
     };
   }
 
@@ -1155,8 +1155,9 @@ public class BoardRenderer {
 
   private BufferedImage cachedShadow = null;
   private BufferedImage cachedGhostShadow = null;
+
   private void drawShadow(
-          Graphics2D g1, int centerX, int centerY, boolean isGhost, float shadowStrength) {
+      Graphics2D g1, int centerX, int centerY, boolean isGhost, float shadowStrength) {
     if (!uiConfig.getBoolean("shadows-enabled")) return;
 
     double r = stoneRadius * Lizzie.config.shadowSize / 100;
@@ -1176,19 +1177,19 @@ public class BoardRenderer {
       {
         Graphics2D g = (Graphics2D) cachedGhostShadow.getGraphics();
         TOP_GRADIENT_PAINT =
-                new RadialGradientPaint(
-                        new Point2D.Float(stoneCenter, stoneCenter),
-                        stoneRadius + shadowSize,
-                        new float[]{
-                                ((float) stoneRadius / (stoneRadius + shadowSize)) - 0.0001f,
-                                ((float) stoneRadius / (stoneRadius + shadowSize)),
-                                1.0f
-                        },
-                        new Color[]{
-                                new Color(0, 0, 0, 0),
-                                new Color(50, 50, 50, (int) (90 * shadowStrength)),
-                                new Color(0, 0, 0, 0)
-                        });
+            new RadialGradientPaint(
+                new Point2D.Float(stoneCenter, stoneCenter),
+                stoneRadius + shadowSize,
+                new float[] {
+                  ((float) stoneRadius / (stoneRadius + shadowSize)) - 0.0001f,
+                  ((float) stoneRadius / (stoneRadius + shadowSize)),
+                  1.0f
+                },
+                new Color[] {
+                  new Color(0, 0, 0, 0),
+                  new Color(50, 50, 50, (int) (90 * shadowStrength)),
+                  new Color(0, 0, 0, 0)
+                });
 
         Paint originalPaint = g.getPaint();
 
@@ -1199,36 +1200,36 @@ public class BoardRenderer {
       {
         Graphics2D g = (Graphics2D) cachedShadow.getGraphics();
         TOP_GRADIENT_PAINT =
-                new RadialGradientPaint(
-                        new Point2D.Float(stoneCenter, stoneCenter),
-                        stoneRadius + shadowSize,
-                        new float[]{0.3f, 1.0f},
-                        new Color[]{new Color(50, 50, 50, 150), new Color(0, 0, 0, 0)});
+            new RadialGradientPaint(
+                new Point2D.Float(stoneCenter, stoneCenter),
+                stoneRadius + shadowSize,
+                new float[] {0.3f, 1.0f},
+                new Color[] {new Color(50, 50, 50, 150), new Color(0, 0, 0, 0)});
         LOWER_RIGHT_GRADIENT_PAINT =
-                new RadialGradientPaint(
-                        new Point2D.Float(stoneCenter + shadowSize, stoneCenter + shadowSize),
-                        stoneRadius + fartherShadowSize,
-                        new float[]{0.6f, 1.0f},
-                        new Color[]{new Color(0, 0, 0, 140), new Color(0, 0, 0, 0)});
+            new RadialGradientPaint(
+                new Point2D.Float(stoneCenter + shadowSize, stoneCenter + shadowSize),
+                stoneRadius + fartherShadowSize,
+                new float[] {0.6f, 1.0f},
+                new Color[] {new Color(0, 0, 0, 140), new Color(0, 0, 0, 0)});
         Paint originalPaint = g.getPaint();
 
         g.setPaint(TOP_GRADIENT_PAINT);
         fillCircle(g, stoneCenter, stoneCenter, stoneRadius + shadowSize);
         g.setPaint(LOWER_RIGHT_GRADIENT_PAINT);
-        fillCircle(g, stoneCenter + shadowSize, stoneCenter + shadowSize, stoneRadius + fartherShadowSize);
+        fillCircle(
+            g, stoneCenter + shadowSize, stoneCenter + shadowSize, stoneRadius + fartherShadowSize);
         g.setPaint(originalPaint);
       }
     }
 
     if (isGhost)
-      g1.drawImage(cachedGhostShadow, centerX-stoneCenter, centerY-stoneCenter, null);
-    else
-      g1.drawImage(cachedShadow, centerX-stoneCenter, centerY-stoneCenter, null);
+      g1.drawImage(cachedGhostShadow, centerX - stoneCenter, centerY - stoneCenter, null);
+    else g1.drawImage(cachedShadow, centerX - stoneCenter, centerY - stoneCenter, null);
   }
 
   /** Draws a stone centered at (centerX, centerY) */
   private void drawStone(
-          Graphics2D g, Graphics2D gShadow, int centerX, int centerY, Stone color, int x, int y) {
+      Graphics2D g, Graphics2D gShadow, int centerX, int centerY, Stone color, int x, int y) {
     //        g.setRenderingHint(KEY_ALPHA_INTERPOLATION,
     //                VALUE_ALPHA_INTERPOLATION_QUALITY);
     g.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_BILINEAR);
@@ -1241,12 +1242,12 @@ public class BoardRenderer {
         drawShadow(gShadow, centerX, centerY, isGhost);
         int size = stoneRadius * 2 + 1;
         g.drawImage(
-                getScaleStone(isBlack, size),
-                centerX - stoneRadius,
-                centerY - stoneRadius,
-                size,
-                size,
-                null);
+            getScaleStone(isBlack, size),
+            centerX - stoneRadius,
+            centerY - stoneRadius,
+            size,
+            size,
+            null);
       } else {
         drawShadow(gShadow, centerX, centerY, true);
         Color blackColor = isGhost ? new Color(0, 0, 0) : Color.BLACK;
@@ -1339,9 +1340,9 @@ public class BoardRenderer {
 
   /** Draw texture image */
   public void drawTextureImage(
-          Graphics2D g, BufferedImage img, int x, int y, int width, int height) {
+      Graphics2D g, BufferedImage img, int x, int y, int width, int height) {
     TexturePaint paint =
-            new TexturePaint(img, new Rectangle(0, 0, img.getWidth(), img.getHeight()));
+        new TexturePaint(img, new Rectangle(0, 0, img.getWidth(), img.getHeight()));
     g.setPaint(paint);
     g.fill(new Rectangle(x, y, width, height));
   }
@@ -1356,49 +1357,49 @@ public class BoardRenderer {
     BoardData data = Lizzie.board.getHistory().getData();
 
     data.getProperties()
-            .forEach(
-                    (key, value) -> {
-                      if (SGFParser.isListProperty(key)) {
-                        String[] labels = value.split(",");
-                        for (String label : labels) {
-                          String[] moves = label.split(":");
-                          int[] move = SGFParser.convertSgfPosToCoord(moves[0]);
-                          if (move != null) {
-                            Optional<int[]> lastMove =
-                                    branchOpt.map(b -> b.data.lastMove).orElse(Lizzie.board.getLastMove());
-                            if (lastMove.map(m -> !Arrays.equals(move, m)).orElse(true)) {
-                              int moveX = x + scaledMarginWidth + squareWidth * move[0];
-                              int moveY = y + scaledMarginHeight + squareHeight * move[1];
-                              g.setColor(
-                                      Lizzie.board.getStones()[Board.getIndex(move[0], move[1])].isBlack()
-                                              ? Color.WHITE
-                                              : Color.BLACK);
-                              g.setStroke(new BasicStroke(2));
-                              if ("LB".equals(key) && moves.length > 1) {
-                                // Label
-                                double labelRadius = stoneRadius * 1.4;
-                                drawString(
-                                        g,
-                                        moveX,
-                                        moveY,
-                                        MainFrame.uiFont,
-                                        moves[1],
-                                        (float) labelRadius,
-                                        labelRadius);
-                              } else if ("TR".equals(key)) {
-                                drawTriangle(g, moveX, moveY, (stoneRadius + 1) * 2 / 3);
-                              } else if ("SQ".equals(key)) {
-                                drawSquare(g, moveX, moveY, (stoneRadius + 1) / 2);
-                              } else if ("CR".equals(key)) {
-                                drawCircle(g, moveX, moveY, stoneRadius * 2 / 3);
-                              } else if ("MA".equals(key)) {
-                                drawMarkX(g, moveX, moveY, (stoneRadius + 1) / 2);
-                              }
-                            }
-                          }
-                        }
+        .forEach(
+            (key, value) -> {
+              if (SGFParser.isListProperty(key)) {
+                String[] labels = value.split(",");
+                for (String label : labels) {
+                  String[] moves = label.split(":");
+                  int[] move = SGFParser.convertSgfPosToCoord(moves[0]);
+                  if (move != null) {
+                    Optional<int[]> lastMove =
+                        branchOpt.map(b -> b.data.lastMove).orElse(Lizzie.board.getLastMove());
+                    if (lastMove.map(m -> !Arrays.equals(move, m)).orElse(true)) {
+                      int moveX = x + scaledMarginWidth + squareWidth * move[0];
+                      int moveY = y + scaledMarginHeight + squareHeight * move[1];
+                      g.setColor(
+                          Lizzie.board.getStones()[Board.getIndex(move[0], move[1])].isBlack()
+                              ? Color.WHITE
+                              : Color.BLACK);
+                      g.setStroke(new BasicStroke(2));
+                      if ("LB".equals(key) && moves.length > 1) {
+                        // Label
+                        double labelRadius = stoneRadius * 1.4;
+                        drawString(
+                            g,
+                            moveX,
+                            moveY,
+                            MainFrame.uiFont,
+                            moves[1],
+                            (float) labelRadius,
+                            labelRadius);
+                      } else if ("TR".equals(key)) {
+                        drawTriangle(g, moveX, moveY, (stoneRadius + 1) * 2 / 3);
+                      } else if ("SQ".equals(key)) {
+                        drawSquare(g, moveX, moveY, (stoneRadius + 1) / 2);
+                      } else if ("CR".equals(key)) {
+                        drawCircle(g, moveX, moveY, stoneRadius * 2 / 3);
+                      } else if ("MA".equals(key)) {
+                        drawMarkX(g, moveX, moveY, (stoneRadius + 1) / 2);
                       }
-                    });
+                    }
+                  }
+                }
+              }
+            });
   }
 
   /** Draws the triangle of a circle centered at (centerX, centerY) with radius $radius$ */
@@ -1439,15 +1440,15 @@ public class BoardRenderer {
    * of the string
    */
   private void drawString(
-          Graphics2D g,
-          int x,
-          int y,
-          Font fontBase,
-          int style,
-          String string,
-          float maximumFontHeight,
-          double maximumFontWidth,
-          int aboveOrBelow) {
+      Graphics2D g,
+      int x,
+      int y,
+      Font fontBase,
+      int style,
+      String string,
+      float maximumFontHeight,
+      double maximumFontWidth,
+      int aboveOrBelow) {
 
     Font font = makeFont(fontBase, style);
 
@@ -1474,24 +1475,24 @@ public class BoardRenderer {
   }
 
   private void drawString(
-          Graphics2D g,
-          int x,
-          int y,
-          Font fontBase,
-          String string,
-          float maximumFontHeight,
-          double maximumFontWidth) {
+      Graphics2D g,
+      int x,
+      int y,
+      Font fontBase,
+      String string,
+      float maximumFontHeight,
+      double maximumFontWidth) {
     drawString(g, x, y, fontBase, Font.PLAIN, string, maximumFontHeight, maximumFontWidth, 0);
   }
 
   private void drawStringBold(
-          Graphics2D g,
-          int x,
-          int y,
-          Font fontBase,
-          String string,
-          float maximumFontHeight,
-          double maximumFontWidth) {
+      Graphics2D g,
+      int x,
+      int y,
+      Font fontBase,
+      String string,
+      float maximumFontHeight,
+      double maximumFontWidth) {
     drawString(g, x, y, fontBase, Font.BOLD, string, maximumFontHeight, maximumFontWidth, 0);
   }
 
@@ -1522,9 +1523,7 @@ public class BoardRenderer {
     return new Point(x, y);
   }
 
-  /**
-   * Set the maximum boardLength to render the board
-   */
+  /** Set the maximum boardLength to render the board */
   public void setBoardLength(int boardWidth, int boardHeight) {
     // The board border is no longer supported, add another option if needed
     //    this.shadowRadius =
@@ -1567,7 +1566,7 @@ public class BoardRenderer {
    */
   public int[] getActualBoardLength() {
     return new int[] {
-            (int) (boardWidth * (1 + MARGIN / 3)), (int) (boardHeight * (1 + MARGIN / 3))
+      (int) (boardWidth * (1 + MARGIN / 3)), (int) (boardHeight * (1 + MARGIN / 3))
     };
   }
 
@@ -1593,13 +1592,13 @@ public class BoardRenderer {
 
     // transform the pixel coordinates to board coordinates
     x =
-            squareWidth == 0
-                    ? 0
-                    : Math.floorDiv(x - this.x - marginWidth + squareWidth / 2, squareWidth);
+        squareWidth == 0
+            ? 0
+            : Math.floorDiv(x - this.x - marginWidth + squareWidth / 2, squareWidth);
     y =
-            squareHeight == 0
-                    ? 0
-                    : Math.floorDiv(y - this.y - marginHeight + squareHeight / 2, squareHeight);
+        squareHeight == 0
+            ? 0
+            : Math.floorDiv(y - this.y - marginHeight + squareHeight / 2, squareHeight);
 
     // return these values if they are valid board coordinates
     return Board.isValid(x, y) ? Optional.of(new int[] {x, y}) : Optional.empty();
@@ -1659,34 +1658,34 @@ public class BoardRenderer {
 
   public void addSuggestionAsBranch() {
     mouseOveredMove()
-            .ifPresent(
-                    m -> {
-                      if (m.variation.size() > 0) {
-                        if (Lizzie.board.getHistory().getCurrentHistoryNode().numberOfChildren() == 0) {
-                          Stone color =
-                                  Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
-                                          ? Stone.BLACK
-                                          : Stone.WHITE;
-                          Lizzie.board.getHistory().pass(color, false, true);
-                          Lizzie.board.getHistory().previous();
-                        }
-                        for (int i = 0; i < m.variation.size(); i++) {
-                          Stone color =
-                                  Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
-                                          ? Stone.BLACK
-                                          : Stone.WHITE;
-                          Optional<int[]> coordOpt = Board.asCoordinates(m.variation.get(i));
-                          if (!coordOpt.isPresent()
-                                  || !Board.isValid(coordOpt.get()[0], coordOpt.get()[1])) {
-                            break;
-                          }
-                          int[] coord = coordOpt.get();
-                          Lizzie.board.getHistory().place(coord[0], coord[1], color, i == 0);
-                        }
-                        Lizzie.board.getHistory().toBranchTop();
-                        Lizzie.frame.refresh(2);
-                      }
-                    });
+        .ifPresent(
+            m -> {
+              if (m.variation.size() > 0) {
+                if (Lizzie.board.getHistory().getCurrentHistoryNode().numberOfChildren() == 0) {
+                  Stone color =
+                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
+                          ? Stone.BLACK
+                          : Stone.WHITE;
+                  Lizzie.board.getHistory().pass(color, false, true);
+                  Lizzie.board.getHistory().previous();
+                }
+                for (int i = 0; i < m.variation.size(); i++) {
+                  Stone color =
+                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
+                          ? Stone.BLACK
+                          : Stone.WHITE;
+                  Optional<int[]> coordOpt = Board.asCoordinates(m.variation.get(i));
+                  if (!coordOpt.isPresent()
+                      || !Board.isValid(coordOpt.get()[0], coordOpt.get()[1])) {
+                    break;
+                  }
+                  int[] coord = coordOpt.get();
+                  Lizzie.board.getHistory().place(coord[0], coord[1], color, i == 0);
+                }
+                Lizzie.board.getHistory().toBranchTop();
+                Lizzie.frame.refresh(2);
+              }
+            });
   }
 
   public boolean incrementDisplayedBranchLength(int n) {
@@ -1798,10 +1797,10 @@ public class BoardRenderer {
         Color cl = new Color(grey, grey, grey, (int) (255 * (0.75 * alpha)));
         gl.setColor(cl);
         gl.fillRect(
-                (int) (stoneX - squareWidth * 0.5),
-                (int) (stoneY - squareHeight * 0.5),
-                (int) squareWidth,
-                (int) squareHeight);
+            (int) (stoneX - squareWidth * 0.5),
+            (int) (stoneY - squareHeight * 0.5),
+            (int) squareWidth,
+            (int) squareHeight);
       }
 
       // Small rectangles (will go on top of stones; perhaps only "dead" stones).
@@ -1810,10 +1809,10 @@ public class BoardRenderer {
       boolean differentColor = isBlack ? stoneHere.isWhite() : stoneHere.isBlack();
       boolean anyColor = stoneHere.isWhite() || stoneHere.isBlack();
       boolean allowed =
-              drawSmart == 0
-                      || (drawSmart == 1 && differentColor)
-                      || (drawSmart == 2 && anyColor)
-                      || (drawSmart == 1 && !anyColor && drawSmall);
+          drawSmart == 0
+              || (drawSmart == 1 && differentColor)
+              || (drawSmart == 2 && anyColor)
+              || (drawSmart == 1 && !anyColor && drawSmall);
       if (drawSmall && allowed) {
         double lengthFactor = drawSize ? 2 * convertLength(estimate) : 1.2;
         int length = (int) (lengthFactor * stoneRadius);
@@ -1887,29 +1886,29 @@ public class BoardRenderer {
           float saturation = 1.0f;
           float brightness = 0.85f;
           float alpha =
-                  minAlpha + (maxAlpha - minAlpha) * max(0, (float) log(percent) / alphaFactor + 1);
+              minAlpha + (maxAlpha - minAlpha) * max(0, (float) log(percent) / alphaFactor + 1);
 
           Color hsbColor = Color.getHSBColor(hue, saturation, brightness);
           Color color =
-                  new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
+              new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), (int) alpha);
           if (!branchOpt.isPresent()) {
             drawShadow(g, suggestionX, suggestionY, true, alpha / 255.0f);
             g.setColor(color);
             fillCircle(g, suggestionX, suggestionY, stoneRadius);
 
             String text =
-                    String.format("%.1f", ((double) Lizzie.leelaz.getBestMoves().get(i).policy));
+                String.format("%.1f", ((double) Lizzie.leelaz.getBestMoves().get(i).policy));
             g.setColor(Color.WHITE);
             drawString(
-                    g,
-                    suggestionX,
-                    suggestionY,
-                    LizzieFrame.winrateFont,
-                    Font.PLAIN,
-                    text,
-                    stoneRadius,
-                    stoneRadius * 1.9,
-                    0);
+                g,
+                suggestionX,
+                suggestionY,
+                LizzieFrame.winrateFont,
+                Font.PLAIN,
+                text,
+                stoneRadius,
+                stoneRadius * 1.9,
+                0);
           }
         }
       }

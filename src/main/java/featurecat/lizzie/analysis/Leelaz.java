@@ -692,8 +692,7 @@ public class Leelaz {
 
   /** End the process */
   public void shutdown() {
-    if (process != null)
-      process.destroy();
+    if (process != null) process.destroy();
   }
 
   public List<MoveData> getBestMoves() {
