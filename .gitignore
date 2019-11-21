@@ -1,3 +1,7 @@
+.classpath
+.project
+.settings
+gtp.log
 persist.properties
 persist
 lizzie.properties
