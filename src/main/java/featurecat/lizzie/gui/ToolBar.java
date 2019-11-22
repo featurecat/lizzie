@@ -60,6 +60,7 @@ public class ToolBar extends JToolBar {
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
             Lizzie.leelaz.togglePonder();
+            Lizzie.frame.refresh();
           }
         });
     add(analyze);
