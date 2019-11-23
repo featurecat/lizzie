@@ -271,7 +271,7 @@ public class Config {
 
     gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
 
-    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
+    System.out.println("Setting default language:"+Locale.getDefault().getLanguage()); // todo add config option for language...
     setLanguage(Locale.getDefault().getLanguage());
   }
 
