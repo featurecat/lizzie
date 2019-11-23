@@ -1931,7 +1931,9 @@ public class ConfigDialog extends JDialog {
       Lizzie.initializeEngineManager();
     }
     try {
-      Lizzie.engineManager.refresh();
+      //if (Lizzie.engineManager != null) {
+        Lizzie.engineManager.refresh();
+      //}
     } catch (JSONException e) {
       e.printStackTrace();
     } catch (IOException e) {
