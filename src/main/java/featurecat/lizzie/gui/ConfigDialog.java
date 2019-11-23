@@ -1820,7 +1820,7 @@ public class ConfigDialog extends JDialog {
               resourceBundle.getString("LizzieConfig.title.engine"), "exe", "bat", "sh");
       chooser.setFileFilter(filter);
     } else {
-      setVisible(false);
+      //setVisible(false);
     }
     chooser.setMultiSelectionEnabled(false);
     chooser.setDialogTitle(resourceBundle.getString("LizzieConfig.prompt.selectEngine"));
