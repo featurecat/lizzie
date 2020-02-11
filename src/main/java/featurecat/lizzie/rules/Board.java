@@ -1454,9 +1454,6 @@ public class Board implements LeelazListener {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     if (stats.maxWinrate >= 0 && stats.totalPlayouts > history.getData().getPlayouts()) {
       history.getData().winrate = stats.maxWinrate;
-      if (Lizzie.leelaz.isKataGo) {
-        history.getData().scoreMean = stats.maxScoreMean;
-      }
       // we won't set playouts here. but setting winrate is ok... it shows the user that we are
       // computing. i think its fine.
     }
