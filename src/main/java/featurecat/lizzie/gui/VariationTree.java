@@ -86,9 +86,7 @@ public class VariationTree {
     int diff = (DOT_DIAM - diam) / 2;
 
     if (calc) {
-      System.out.println("SEARCHING "+curposx+" "+posy);
       if (inNode(curposx + dotoffset, posy + dotoffset)) {
-        System.out.println("FOUND");
         return Optional.of(startNode);
       }
     } else if (lane > 0) {
@@ -307,11 +305,9 @@ public class VariationTree {
   }
 
   public void onClicked(int x, int y) {
-    System.out.println(x+" "+ y);
     if (area.contains(x, y)) {
       clickPoint.setLocation(x, y);
       Optional<BoardHistoryNode> node = draw(null, area.x, area.y, area.width, area.height, true);
-      System.out.println("found node"+node);
       node.ifPresent(n -> Lizzie.board.moveToAnyPosition(n));
     }
   }
