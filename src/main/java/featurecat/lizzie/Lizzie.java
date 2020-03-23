@@ -32,11 +32,11 @@ public class Lizzie {
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
-    
+
     try {
       engineManager = new EngineManager(config);
     } catch (IOException e) {
-        frame.openConfigDialog();
+      frame.openConfigDialog();
     }
 
     if (mainArgs.length == 1) {

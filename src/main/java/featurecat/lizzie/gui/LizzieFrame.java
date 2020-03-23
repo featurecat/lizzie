@@ -5,7 +5,50 @@ import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+
+import javax.imageio.ImageIO;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+
+import org.json.JSONArray;
+
 import com.jhlabs.image.GaussianFilter;
+
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
@@ -14,38 +57,6 @@ import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.SGFParser;
 import featurecat.lizzie.util.Utils;
-import java.awt.*;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.*;
-import java.util.List;
-import java.util.Timer;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.StyleSheet;
-import org.json.JSONArray;
 
 /** The window used to display the game. */
 public class LizzieFrame extends MainFrame {
@@ -94,29 +105,20 @@ public class LizzieFrame extends MainFrame {
   private static Menu menu;
   private JPanel mainPanel;
 
-  private final BufferStrategy bs;
-
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
   public int[] mouseOverCoordinate = outOfBoundCoordinate;
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
 
-  // Display Comment
-  private HTMLDocument htmlDoc;
-  private LizziePane.HtmlKit htmlKit;
-  private StyleSheet htmlStyle;
-  private JScrollPane scrollPane;
-  private JTextPane commentPane;
-  private BufferedImage cachedCommentImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
-  private String cachedComment;
-  private Rectangle commentRect;
-
   // Show the playouts in the title
   private ScheduledExecutorService showPlayouts = Executors.newScheduledThreadPool(1);
   private long lastPlayouts = 0;
   public boolean isDrawVisitsInTitle = true;
   RightClickMenu rightClickMenu;
+  
+  private JPanel treePanel;
+  private JTextArea commentArea;
 
   /** Creates a window */
   public LizzieFrame() {
@@ -154,7 +156,69 @@ public class LizzieFrame extends MainFrame {
             paintMainPanel(g);
           }
         };
-    getContentPane().add(mainPanel);
+
+
+    
+    JPanel rightPanel  = new JPanel();
+    rightPanel.setLayout(new GridLayout(2, 1));
+    
+    treePanel = new JPanel() {
+      private BufferedImage bgImage = null;
+      
+      @Override
+      protected void paintComponent(Graphics g) {
+        if (Lizzie.config.showVariationGraph) {
+          int width = treePanel.getWidth();
+          int height = treePanel.getHeight();
+          
+          BufferedImage variationsGraphics = new BufferedImage(width, height, TYPE_INT_ARGB);
+          Graphics2D varG = (Graphics2D) variationsGraphics.getGraphics();
+          
+          if (cachedBackground != null) {
+            if (bgImage == null) {
+              bgImage = new BufferedImage(width, height, TYPE_INT_ARGB);
+              filter20.filter(cachedBackground.getSubimage(0, 0, width, height), bgImage);
+            }            
+            varG.drawImage(bgImage, 0, 0, null);
+          }
+          variationTree.draw(varG, 0, 0, width, height);
+          g.drawImage(variationsGraphics, 0, 0, null);
+        }
+      }
+      
+    };
+    
+    commentArea = new JTextArea("");
+    commentArea.setWrapStyleWord(true);
+    commentArea.setLineWrap(true);
+    commentArea.setEditable(false);
+    commentArea.setFocusable(false);
+    commentArea.setBackground(Color.black);
+    commentArea.setForeground(Color.white);
+    
+    JScrollPane scrollPane = new JScrollPane(commentArea);
+    scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+    scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+    scrollPane.setBackground(Color.BLACK);
+    
+    rightPanel.setPreferredSize(new Dimension(300, 0));    
+    
+    rightPanel.add(treePanel);
+    rightPanel.add(scrollPane);
+    
+    JPanel mainContentPane = new JPanel();
+    mainContentPane.setLayout(new GridBagLayout());
+    
+    GridBagConstraints gc = new GridBagConstraints();
+    gc.weightx = 1;
+    gc.weighty = 1.0;
+    gc.fill = GridBagConstraints.BOTH;
+    mainContentPane.add(mainPanel, gc);
+    
+    gc.weightx = 0.1;
+    mainContentPane.add(rightPanel, gc);
+    
+    getContentPane().add(mainContentPane);
     mainPanel.setTransferHandler(Utils.transFile);
     mainPanel.setFocusable(true);
     setJMenuBar(menu);
@@ -173,42 +237,6 @@ public class LizzieFrame extends MainFrame {
       setExtendedState(Frame.MAXIMIZED_BOTH);
     }
 
-    htmlKit = new LizziePane.HtmlKit();
-    htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
-    htmlStyle = htmlKit.getStyleSheet();
-    String style =
-        "body {background:#"
-            + String.format(
-                "%02x%02x%02x",
-                Lizzie.config.commentBackgroundColor.getRed(),
-                Lizzie.config.commentBackgroundColor.getGreen(),
-                Lizzie.config.commentBackgroundColor.getBlue())
-            + "; color:#"
-            + String.format(
-                "%02x%02x%02x",
-                Lizzie.config.commentFontColor.getRed(),
-                Lizzie.config.commentFontColor.getGreen(),
-                Lizzie.config.commentFontColor.getBlue())
-            + "; font-family:"
-            + Lizzie.config.fontName
-            + ", Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;"
-            + (Lizzie.config.commentFontSize > 0
-                ? "font-size:" + Lizzie.config.commentFontSize
-                : "")
-            + "}";
-    htmlStyle.addRule(style);
-    commentPane = new JTextPane();
-    commentPane.setBorder(BorderFactory.createEmptyBorder());
-    commentPane.setEditorKit(htmlKit);
-    commentPane.setDocument(htmlDoc);
-    commentPane.setEditable(false);
-    scrollPane = new JScrollPane();
-    scrollPane.setViewportView(commentPane);
-    scrollPane.setBorder(null);
-    scrollPane.setVerticalScrollBarPolicy(
-        javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-    commentRect = new Rectangle(0, 0, 0, 0);
-
     try {
       this.setIconImage(ImageIO.read(getClass().getResourceAsStream("/assets/logo.png")));
     } catch (IOException e) {
@@ -218,7 +246,6 @@ public class LizzieFrame extends MainFrame {
     setVisible(true);
 
     createBufferStrategy(2);
-    bs = getBufferStrategy();
 
     Input input = new Input();
 
@@ -226,6 +253,11 @@ public class LizzieFrame extends MainFrame {
     mainPanel.addKeyListener(input);
     mainPanel.addMouseWheelListener(input);
     mainPanel.addMouseMotionListener(input);
+    
+    treePanel.addMouseListener(input);
+    treePanel.addKeyListener(input);
+    treePanel.addMouseWheelListener(input);
+    treePanel.addMouseMotionListener(input);
 
     // necessary for Windows users - otherwise Lizzie shows a blank white screen on startup until
     // updates occur.
@@ -582,6 +614,11 @@ public class LizzieFrame extends MainFrame {
       // comment panel
       int cx = vx, cy = vy, cw = vw, ch = vh;
       if (Lizzie.config.showComment) {
+
+        if (Lizzie.board != null) {
+          String comment = Lizzie.board.getHistory().getData().comment;
+          commentArea.setText(comment);
+        }
         if (width >= height) {
           if (Lizzie.config.showVariationGraph) {
             treeh = vh / 2;
@@ -643,19 +680,7 @@ public class LizzieFrame extends MainFrame {
           drawMoveStatistics(g, statx, staty, statw, stath);
           winrateGraph.draw(g, grx, gry, grw, grh);
         }
-
-        if (Lizzie.config.showVariationGraph || Lizzie.config.showComment) {
-          if (backgroundG.isPresent()) {
-            drawContainer(backgroundG.get(), vx, vy, vw, vh);
-          }
-          if (Lizzie.config.showVariationGraph) {
-            variationTree.draw(g, treex, treey, treew, treeh);
-          }
-          if (Lizzie.config.showComment) {
-            drawComment(g, cx, cy, cw, ch);
-          }
-        }
-
+                
         if (Lizzie.config.showSubBoard) {
           try {
             subBoardRenderer.setLocation(subBoardX, subBoardY);
@@ -1185,6 +1210,7 @@ public class LizzieFrame extends MainFrame {
     if (Lizzie.config.showVariationGraph) {
       variationTree.onClicked(x, y);
     }
+
     repaint();
   }
 
@@ -1237,53 +1263,6 @@ public class LizzieFrame extends MainFrame {
     if (Lizzie.config.showWinrate && moveNumber >= 0) {
       if (Lizzie.board.goToMoveNumberWithinBranch(moveNumber)) {
         repaint();
-      }
-    }
-  }
-
-  /**
-   * Process Comment Mouse Wheel Moved
-   *
-   * @return true when the scroll event was processed by this method
-   */
-  @Override
-  public boolean processCommentMouseWheelMoved(MouseWheelEvent e) {
-    if (Lizzie.config.showComment && commentRect.contains(e.getX(), e.getY())) {
-      scrollPane.dispatchEvent(e);
-      createCommentImage(true, commentRect.width, commentRect.height);
-      getGraphics()
-          .drawImage(
-              cachedCommentImage,
-              commentRect.x,
-              commentRect.y,
-              commentRect.width,
-              commentRect.height,
-              null);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Create comment cached image
-   *
-   * @param forceRefresh
-   * @param w
-   * @param h
-   */
-  public void createCommentImage(boolean forceRefresh, int w, int h) {
-    if (forceRefresh || scrollPane.getWidth() != w || scrollPane.getHeight() != h) {
-      if (w > 0 && h > 0) {
-        scrollPane.setSize(w, h);
-        cachedCommentImage =
-            new BufferedImage(scrollPane.getWidth(), scrollPane.getHeight(), TYPE_INT_ARGB);
-        Graphics2D g2 = cachedCommentImage.createGraphics();
-        scrollPane.doLayout();
-        scrollPane.addNotify();
-        scrollPane.validate();
-        scrollPane.printAll(g2);
-        g2.dispose();
       }
     }
   }
@@ -1356,40 +1335,6 @@ public class LizzieFrame extends MainFrame {
 
   public void increaseMaxAlpha(int k) {
     boardRenderer.increaseMaxAlpha(k);
-  }
-
-  /**
-   * Draw the Comment of the Sgf file
-   *
-   * @param g
-   * @param x
-   * @param y
-   * @param w
-   * @param h
-   */
-  private void drawComment(Graphics2D g, int x, int y, int w, int h) {
-    String comment = Lizzie.board.getHistory().getData().comment;
-    int fontSize = (int) (min(mainPanel.getWidth(), mainPanel.getHeight()) * 0.0294);
-    if (Lizzie.config.commentFontSize > 0) {
-      fontSize = Lizzie.config.commentFontSize;
-    } else if (fontSize < 16) {
-      fontSize = 16;
-    }
-    Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
-    commentPane.setFont(font);
-    comment = comment.replaceAll("(\r\n)|(\n)", "<br />").replaceAll(" ", "&nbsp;");
-    commentPane.setText(comment);
-    commentPane.setSize(w, h);
-    createCommentImage(!comment.equals(this.cachedComment), w, h);
-    commentRect = new Rectangle(x, y, scrollPane.getWidth(), scrollPane.getHeight());
-    g.drawImage(
-        cachedCommentImage,
-        commentRect.x,
-        commentRect.y,
-        commentRect.width,
-        commentRect.height,
-        null);
-    cachedComment = comment;
   }
 
   public void replayBranch(boolean generateGif) {

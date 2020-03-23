@@ -1,8 +1,5 @@
 package featurecat.lizzie.gui;
 
-import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.rules.BoardHistoryNode;
-import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,6 +8,11 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Optional;
+
+import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.rules.BoardHistoryList;
+import featurecat.lizzie.rules.BoardHistoryNode;
+import featurecat.lizzie.util.Utils;
 
 public class VariationTree {
 
@@ -44,10 +46,12 @@ public class VariationTree {
       int variationNumber,
       boolean isMain,
       boolean calc) {
-    Optional<BoardHistoryNode> node = Optional.empty();
+    
     if (!calc) {
-      if (isMain) g.setColor(Color.white);
-      else g.setColor(Color.gray.brighter());
+      if (isMain)
+        g.setColor(Color.white);
+      else
+        g.setColor(Color.gray.brighter());
     }
 
     // Finds depth on leftmost variation of this tree
@@ -82,7 +86,9 @@ public class VariationTree {
     int diff = (DOT_DIAM - diam) / 2;
 
     if (calc) {
+      System.out.println("SEARCHING "+curposx+" "+posy);
       if (inNode(curposx + dotoffset, posy + dotoffset)) {
+        System.out.println("FOUND");
         return Optional.of(startNode);
       }
     } else if (lane > 0) {
@@ -221,7 +227,7 @@ public class VariationTree {
       }
       posy -= YSPACING;
     }
-    return node;
+    return Optional.empty();
   }
 
   public void draw(Graphics2D g, int posx, int posy, int width, int height) {
@@ -261,7 +267,8 @@ public class VariationTree {
     int xoffset = 30;
     laneUsageList.clear();
 
-    curMove = Lizzie.board.getHistory().getCurrentHistoryNode();
+    BoardHistoryList boardHistory = Lizzie.board.getHistory();
+    curMove = boardHistory.getCurrentHistoryNode();
 
     // Is current move a variation? If so, find top of variation
     BoardHistoryNode top = curMove.findTop();
@@ -300,9 +307,11 @@ public class VariationTree {
   }
 
   public void onClicked(int x, int y) {
+    System.out.println(x+" "+ y);
     if (area.contains(x, y)) {
       clickPoint.setLocation(x, y);
       Optional<BoardHistoryNode> node = draw(null, area.x, area.y, area.width, area.height, true);
+      System.out.println("found node"+node);
       node.ifPresent(n -> Lizzie.board.moveToAnyPosition(n));
     }
   }

@@ -10,7 +10,6 @@ import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.FontFormatException;
-import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.LayoutManager;
 import java.awt.event.MouseWheelEvent;
@@ -97,22 +96,21 @@ public abstract class MainFrame extends JFrame {
   /**
    * Refresh
    *
-   * 
    * @param type: 0-All, 1-Only Board, 2-Invalid Layout, 3-All but okay not to repaint all the times
    */
   long prevTimeinMillis = System.currentTimeMillis();
+
   public void refresh(int type) {
     // we skip most of the repaints as info is coming in so quickly
     // that it does not add much value to show everything
     if (4 == type) {
       long timeInMillis = System.currentTimeMillis();
-      if ((timeInMillis-prevTimeinMillis) < 700) {
+      if ((timeInMillis - prevTimeinMillis) < 700) {
         return;
       }
       prevTimeinMillis = timeInMillis;
       repaint();
-    }
-    else {
+    } else {
       repaint();
     }
   }
