@@ -301,7 +301,7 @@ public class VariationTree {
   }
 
   public boolean inNode(int x, int y) {
-    return Math.abs(clickPoint.x - x) < XSPACING / 2 && Math.abs(clickPoint.y - y) < YSPACING / 2;
+    return Math.abs(clickPoint.x - x) < XSPACING / 2 && Math.abs(clickPoint.y - y) < YSPACING;
   }
 
   public void onClicked(int x, int y) {
