@@ -39,6 +39,7 @@ public class Leelaz {
   private int cmdNumber;
   private int currentCmdNum;
   private ArrayDeque<String> cmdQueue;
+  private boolean isModifyingBoard = false;
 
   private Process process;
 
@@ -305,7 +306,7 @@ public class Leelaz {
         switching = false;
         // Display engine command in the title
         Lizzie.frame.updateTitle();
-        if (isResponseUpToDate()) {
+        if (isAnalysisUpToDate()) {
           // This should not be stale data when the command number match
           if (isKataGo) {
             this.bestMoves = parseInfoKatago(line.substring(5));
@@ -535,6 +536,22 @@ public class Leelaz {
   private boolean isResponseUpToDate() {
     // Use >= instead of == for avoiding hang-up, though it cannot happen
     return currentCmdNum >= cmdNumber - 1;
+  }
+
+  private boolean isAnalysisUpToDate() {
+    return !isModifyingBoard && isResponseUpToDate();
+  }
+
+  public void beginModifyingBoard() {
+    synchronized (this) {
+      isModifyingBoard = true;
+    }
+  }
+
+  public void endModifyingBoard() {
+    synchronized (this) {
+      isModifyingBoard = false;
+    }
   }
 
   /**
