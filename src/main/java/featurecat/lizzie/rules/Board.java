@@ -1104,6 +1104,7 @@ public class Board implements LeelazListener {
     Lizzie.frame.resetTitle();
     Lizzie.frame.clear();
     initialize();
+    setKomi(getHistory().getGameInfo().getKomi());
   }
 
   /** Goes to the previous coordinate, thread safe */
