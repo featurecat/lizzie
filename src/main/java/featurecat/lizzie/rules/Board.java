@@ -501,6 +501,7 @@ public class Board implements LeelazListener {
           && !changeMove) {
         // this is the next coordinate in history. Just increment history so that we don't erase the
         // redo's
+        Lizzie.leelaz.beginModifyingBoard();
         history.next();
         // should be opposite from the bottom case
         if (Lizzie.frame.isPlayingAgainstLeelaz
@@ -510,6 +511,7 @@ public class Board implements LeelazListener {
         } else if (!Lizzie.frame.isPlayingAgainstLeelaz) {
           Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
         }
+        Lizzie.leelaz.endModifyingBoard();
         return;
       }
 
@@ -572,6 +574,7 @@ public class Board implements LeelazListener {
       if (isSuicidal > 0 || history.violatesKoRule(newState)) return;
 
       // update leelaz with board position
+      Lizzie.leelaz.beginModifyingBoard();
       if (Lizzie.frame.isPlayingAgainstLeelaz
           && Lizzie.frame.playerIsBlack == getData().blackToPlay) {
         Lizzie.leelaz.playMove(color, convertCoordinatesToName(x, y));
@@ -582,6 +585,7 @@ public class Board implements LeelazListener {
 
       // update history with this coordinate
       history.addOrGoto(newState, newBranch, changeMove);
+      Lizzie.leelaz.endModifyingBoard();
 
       Lizzie.frame.refresh();
     }
@@ -759,6 +763,7 @@ public class Board implements LeelazListener {
     }
     synchronized (this) {
       updateWinrate();
+      Lizzie.leelaz.beginModifyingBoard();
       if (history.next().isPresent()) {
         // update leelaz board position, before updating to next node
         Optional<int[]> lastMoveOpt = history.getData().lastMove;
@@ -770,8 +775,10 @@ public class Board implements LeelazListener {
           Lizzie.leelaz.playMove(history.getLastMoveColor(), "pass");
         }
         Lizzie.frame.refresh();
+        Lizzie.leelaz.endModifyingBoard();
         return true;
       }
+      Lizzie.leelaz.endModifyingBoard();
       return false;
     }
   }
@@ -1104,6 +1111,7 @@ public class Board implements LeelazListener {
     Lizzie.frame.resetTitle();
     Lizzie.frame.clear();
     initialize();
+    setKomi(getHistory().getGameInfo().getKomi());
   }
 
   /** Goes to the previous coordinate, thread safe */
@@ -1114,11 +1122,14 @@ public class Board implements LeelazListener {
     synchronized (this) {
       if (inScoreMode()) setScoreMode(false);
       updateWinrate();
+      Lizzie.leelaz.beginModifyingBoard();
       if (history.previous().isPresent()) {
         Lizzie.leelaz.undo();
         Lizzie.frame.refresh();
+        Lizzie.leelaz.endModifyingBoard();
         return true;
       }
+      Lizzie.leelaz.endModifyingBoard();
       return false;
     }
   }

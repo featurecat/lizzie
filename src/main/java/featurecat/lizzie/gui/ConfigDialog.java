@@ -222,7 +222,9 @@ public class ConfigDialog extends JDialog {
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
     setModalityType(ModalityType.APPLICATION_MODAL);
-    setType(Type.POPUP);
+    if (isWindows()) { // avoid suspicious behavior on Linux (#616)
+      setType(Type.POPUP);
+    }
     setBounds(100, 100, 661, 716);
     getContentPane().setLayout(new BorderLayout());
     JPanel buttonPane = new JPanel();
