@@ -19,6 +19,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.ElementIterator;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
@@ -37,6 +41,7 @@ public class GtpConsolePane extends JDialog {
   private final JTextField txtCommand = new JTextField();
   private JLabel lblCommand = new JLabel();
   private JPanel pnlCommand = new JPanel();
+  private final int MAX_HTML_LENGTH = 10000;
 
   /** Creates a Gtp Console Window */
   public GtpConsolePane(Window owner) {
@@ -124,9 +129,25 @@ public class GtpConsolePane extends JDialog {
   private void addText(String text) {
     try {
       htmlKit.insertHTML(htmlDoc, htmlDoc.getLength(), text, 0, 0, null);
+      removeOldText();
       console.setCaretPosition(htmlDoc.getLength());
     } catch (BadLocationException | IOException e) {
       e.printStackTrace();
+    }
+  }
+
+  private void removeOldText() {
+    Element body =
+            htmlDoc.getElement(
+                    htmlDoc.getDefaultRootElement(), StyleConstants.NameAttribute, HTML.Tag.BODY);
+    while (htmlDoc.getLength() > MAX_HTML_LENGTH) {
+      ElementIterator it = new ElementIterator(body);
+      it.first();
+      Element e = it.next();
+      if (e == null) {
+        break;
+      }
+      htmlDoc.removeElement(e);
     }
   }
 
