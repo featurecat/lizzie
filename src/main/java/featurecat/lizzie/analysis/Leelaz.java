@@ -172,11 +172,11 @@ public class Leelaz {
 
     // run leelaz
     ProcessBuilder processBuilder = new ProcessBuilder(commands);
+    System.out.println("Starting engine with command:" + commands);
     // Commented for remote ssh
     //    processBuilder.directory(startfolder);
     processBuilder.redirectErrorStream(true);
     process = processBuilder.start();
-
     initializeStreams();
 
     // Send a name request to check if the engine is KataGo
@@ -325,7 +325,7 @@ public class Leelaz {
             this.bestMoves = parseInfo(line.substring(5));
           }
           notifyBestMoveListeners();
-          Lizzie.frame.refresh(1);
+          Lizzie.frame.refresh(4);
           // don't follow the maxAnalyzeTime rule if we are in analysis mode
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
