@@ -7,6 +7,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.LeelazListener;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.util.Utils;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -766,6 +767,7 @@ public class Board implements LeelazListener {
       Lizzie.leelaz.beginModifyingBoard();
       if (history.next().isPresent()) {
         // update leelaz board position, before updating to next node
+        Utils.playVoice();
         Optional<int[]> lastMoveOpt = history.getData().lastMove;
         if (lastMoveOpt.isPresent()) {
           int[] lastMove = lastMoveOpt.get();

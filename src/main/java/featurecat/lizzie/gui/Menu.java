@@ -1337,6 +1337,31 @@ public class Menu extends JMenuBar {
         });
     configMenu.add(about);
 
+    final JCheckBoxMenuItem playSound =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.configMenu.playSound"));
+    playSound.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.togglePlaySound();
+          }
+        });
+    configMenu.add(playSound);
+
+    configMenu.addMenuListener(
+        new MenuListener() {
+          public void menuSelected(MenuEvent e) {
+            if (Lizzie.config.playSound) playSound.setState(true);
+            else playSound.setState(false);
+          }
+
+          @Override
+          public void menuDeselected(MenuEvent e) {}
+
+          @Override
+          public void menuCanceled(MenuEvent e) {}
+        });
+
     engineMenu = new JMenu(resourceBundle.getString("Menu.engineMenu"));
     this.add(engineMenu);
 

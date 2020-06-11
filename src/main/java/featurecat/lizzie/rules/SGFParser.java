@@ -122,13 +122,13 @@ public class SGFParser {
     }
 
     parseValue(value, null, false);
-
     return true;
   }
 
   private static BoardHistoryList parseValue(
       String value, BoardHistoryList history, boolean isBranch) {
-
+    boolean originalPlaySound = Lizzie.config.playSound;
+    Lizzie.config.playSound = false;
     int subTreeDepth = 0;
     // Save the variation step count
     Map<Integer, Integer> subTreeStepMap = new HashMap<Integer, Integer>();
@@ -520,6 +520,7 @@ public class SGFParser {
         }
       }
     }
+    Lizzie.config.playSound = originalPlaySound;
     return history;
   }
 
