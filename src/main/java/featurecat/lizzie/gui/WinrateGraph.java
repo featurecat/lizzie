@@ -339,7 +339,7 @@ public class WinrateGraph {
       double r = 0.5 + handicap / (2 * maxHandicap);
       return Math.max(0, Math.min(r, 1)) * 100;
     } else {
-      return winrate;
+      return Math.max(0, Math.min(winrate, 100));
     }
   }
 
