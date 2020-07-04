@@ -163,9 +163,7 @@ public class WinrateGraph {
         g.setStroke(previousStroke);
       }
       if (playouts > 0) {
-        if (wr < 0) {
-          wr = 100 - lastWr;
-        } else if (!node.getData().blackToPlay) {
+        if (!node.getData().blackToPlay) {
           wr = 100 - wr;
         }
         if (Lizzie.frame.isPlayingAgainstLeelaz
