@@ -32,16 +32,17 @@ public class Lizzie {
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
+    
     try {
       engineManager = new EngineManager(config);
-      if (mainArgs.length == 1) {
-        frame.loadFile(new File(mainArgs[0]));
-      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-        board.resumePreviousGame();
-      }
     } catch (IOException e) {
-      frame.openConfigDialog();
-      System.exit(1);
+        frame.openConfigDialog();
+    }
+
+    if (mainArgs.length == 1) {
+      frame.loadFile(new File(mainArgs[0]));
+    } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+      board.resumePreviousGame();
     }
   }
 
