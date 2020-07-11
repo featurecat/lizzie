@@ -256,13 +256,16 @@ public class WinrateGraph {
     if (numMoves < 1) return;
     lastOkMove = -1;
     movenum = node.getData().moveNumber - 1;
+    if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
+      numMoves = this.numMovesOfPlayed;
+    }
 
     if (Lizzie.leelaz.isKataGo) {
       double lastScoreMean = -500;
       int curMovenum = -1;
       double curCurscoreMean = 0;
       while (node.previous().isPresent()) {
-        if (!node.getData().bestMoves.isEmpty()) {
+        if (!node.getData().bestMoves.isEmpty() && node.getData().moveNumber - 1 <= numMoves) {
 
           double curscoreMean = node.getData().bestMoves.get(0).scoreMean;
           if (!node.getData().blackToPlay) {
