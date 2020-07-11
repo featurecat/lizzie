@@ -355,9 +355,12 @@ public class WinrateGraph {
     int width = params[2];
     int height = params[3];
     int numMoves = params[4];
+    if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
+      numMoves = this.numMovesOfPlayed;
+    }
     if (origPosx <= x && x < origPosx + origWidth && origPosy <= y && y < origPosy + origHeight) {
       // x == posx + (movenum * width / numMoves) ==> movenum = ...
-      int movenum = Math.round((x - posx) * numMoves / (float) width);
+      int movenum = Math.round(numMoves * Math.min((x - posx) / (float) width, 1));
       // movenum == moveNumber - 1 ==> moveNumber = ...
       return movenum + 1;
     } else {
