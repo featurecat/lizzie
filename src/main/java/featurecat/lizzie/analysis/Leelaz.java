@@ -514,8 +514,7 @@ public class Leelaz {
    * @param command a GTP command containing no newline characters
    */
   private void sendCommandToLeelaz(String command) {
-    if (command.startsWith("fixed_handicap")
-        || (isKataGo && command.startsWith("place_free_handicap"))) isSettingHandicap = true;
+    if (command.startsWith("fixed_handicap")) isSettingHandicap = true;
     if (printCommunication) {
       System.out.printf("> %d %s\n", cmdNumber, command);
     }
@@ -642,7 +641,7 @@ public class Leelaz {
   }
 
   public void handicap(int num) {
-    sendCommand((isKataGo ? "place_free_handicap " : "fixed_handicap ") + num);
+    sendCommand("fixed_handicap " + num);
   }
 
   public void undo() {
