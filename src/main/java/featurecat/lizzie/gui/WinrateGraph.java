@@ -131,16 +131,16 @@ public class WinrateGraph {
     if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
       numMoves = this.numMovesOfPlayed;
     }
+    if (Lizzie.config.dynamicWinrateGraphWidth
+        && curMove.getData().moveNumber - 1 > this.numMovesOfPlayed) {
+      this.numMovesOfPlayed = curMove.getData().moveNumber - 1;
+      numMoves = this.numMovesOfPlayed;
+    }
 
     while (node.previous().isPresent()) {
       double wr = node.getData().winrate;
       int playouts = node.getData().getPlayouts();
       if (node == curMove) {
-        if (Lizzie.config.dynamicWinrateGraphWidth
-            && node.getData().moveNumber - 1 > this.numMovesOfPlayed) {
-          this.numMovesOfPlayed = node.getData().moveNumber - 1;
-          numMoves = this.numMovesOfPlayed;
-        }
         Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
         double bwr = stats.maxWinrate;
         if (bwr >= 0 && stats.totalPlayouts > playouts) {
@@ -162,7 +162,7 @@ public class WinrateGraph {
         g.drawString(moveNumString, mx, posy + height - margin);
         g.setStroke(previousStroke);
       }
-      if (playouts > 0) {
+      if (playouts > 0 && node.getData().moveNumber - 1 <= numMoves) {
         if (wr < 0) {
           wr = 100 - lastWr;
         } else if (!node.getData().blackToPlay) {
