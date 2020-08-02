@@ -1917,6 +1917,9 @@ public class ConfigDialog extends JDialog {
   private void applyChange() {
     int[] size = getBoardSize();
     Lizzie.board.reopen(size[0], size[1]);
+    if (Lizzie.engineManager == null) {
+      Lizzie.initializeEngineManager();
+    }
     try {
       Lizzie.engineManager.refresh();
     } catch (JSONException e) {
