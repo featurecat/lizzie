@@ -175,7 +175,16 @@ public class Leelaz {
     // Commented for remote ssh
     //    processBuilder.directory(startfolder);
     processBuilder.redirectErrorStream(true);
-    process = processBuilder.start();
+    try {
+      process = processBuilder.start();
+    } catch (IOException e) {
+      JOptionPane.showMessageDialog(
+          Lizzie.frame,
+          "Failed to start the engine.",
+          "Lizzie - Error!",
+          JOptionPane.ERROR_MESSAGE);
+      throw e;
+    }
 
     initializeStreams();
 
