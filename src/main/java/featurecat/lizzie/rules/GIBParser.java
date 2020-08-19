@@ -63,10 +63,11 @@ public class GIBParser {
     for (String line : lines) {
       if (line.startsWith("\\[GAMEINFOMAIN=")) {
         // See if komi is included
-        int sk = line.indexOf("GONGJE:") + 7;
-        int ek = line.indexOf(',', sk);
+        int i = line.indexOf("GONGJE:");
 
-        if (sk > 0) {
+        if (i != -1) {
+          int sk = i + "GONGJE:".length();
+          int ek = line.indexOf(',', sk);
           komi = Integer.parseInt(line.substring(sk, ek)) / 10.0;
         }
       }
