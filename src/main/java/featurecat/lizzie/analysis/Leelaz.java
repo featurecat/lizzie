@@ -58,6 +58,9 @@ public class Leelaz {
   private boolean isPondering;
   private long startPonderTime;
 
+  // enable temporary detaching for efficiency
+  public boolean isAttached = true;
+
   // fixed_handicap
   public boolean isSettingHandicap = false;
 
@@ -559,6 +562,9 @@ public class Leelaz {
    * @param move coordinate of the coordinate
    */
   public void playMove(Stone color, String move) {
+    if (!isAttached) {
+      return;
+    }
     synchronized (this) {
       String colorString;
       switch (color) {
@@ -646,6 +652,9 @@ public class Leelaz {
   }
 
   public void undo() {
+    if (!isAttached) {
+      return;
+    }
     synchronized (this) {
       sendCommand("undo");
       bestMoves = new ArrayList<>();

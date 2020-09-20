@@ -121,7 +121,10 @@ public class SGFParser {
       Lizzie.leelaz.supportScoremean = false;
     }
 
+    // Detach engine for avoiding useless "play" and "undo" (#752).
+    Lizzie.leelaz.isAttached = false;
     parseValue(value, null, false);
+    Lizzie.leelaz.isAttached = true;
 
     return true;
   }
