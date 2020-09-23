@@ -46,6 +46,9 @@ public class Leelaz {
   private BufferedInputStream inputStream;
   private BufferedOutputStream outputStream;
 
+  private WriterThread writerThread;
+  private ArrayDeque<String> writerQueue;
+
   private boolean printCommunication;
   public boolean gtpConsole;
 
@@ -127,6 +130,8 @@ public class Leelaz {
     commands = splitCommand(engineCommand);
     // Initialize current engine number and start engine
     currentEngineN = 0;
+
+    startWriterThread();
   }
 
   public void startEngine() throws IOException {
@@ -522,14 +527,7 @@ public class Leelaz {
     Lizzie.gtpConsole.addCommand(command, cmdNumber);
     command = cmdNumber + " " + command;
     cmdNumber++;
-    if (outputStream != null) {
-      try {
-        outputStream.write((command + "\n").getBytes());
-        outputStream.flush();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
+    sendToWriterThread(command + "\n");
   }
 
   /** Check whether leelaz is responding to the last command */
@@ -968,6 +966,58 @@ public class Leelaz {
       currentWeightFile = wMatcher.group(2);
       String[] names = currentWeightFile.split("[\\\\|/]");
       currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
+    }
+  }
+
+  // Writer thread for avoiding deadlock (#752)
+  class WriterThread extends Thread {
+    private ArrayDeque<String> privateQueue = new ArrayDeque<>();
+
+    public void run() {
+      // ref.
+      // https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html
+      while (true) {
+        // move requests to privateQueue so that writerQueue is not blocked
+        // even when outputStream is stalled.
+        synchronized (writerQueue) {
+          while (!writerQueue.isEmpty()) {
+            String command = writerQueue.removeFirst();
+            privateQueue.addLast(command);
+          }
+        }
+        if (outputStream != null) {
+          try {
+            while (!privateQueue.isEmpty()) {
+              String command = privateQueue.removeFirst();
+              outputStream.write(command.getBytes());
+            }
+            outputStream.flush();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+        try {
+          synchronized (this) {
+            wait();
+          }
+        } catch (InterruptedException e) {
+        }
+      }
+    }
+  }
+
+  public void startWriterThread() {
+    writerQueue = new ArrayDeque<>();
+    writerThread = this.new WriterThread();
+    writerThread.start();
+  }
+
+  public void sendToWriterThread(String string) {
+    synchronized (writerQueue) {
+      writerQueue.addLast(string);
+    }
+    synchronized (writerThread) {
+      writerThread.notify();
     }
   }
 }
