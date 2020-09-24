@@ -47,7 +47,6 @@ public class Leelaz {
   private BufferedOutputStream outputStream;
 
   private WriterThread writerThread;
-  private ArrayDeque<String> writerQueue;
 
   private boolean printCommunication;
   public boolean gtpConsole;
@@ -130,8 +129,6 @@ public class Leelaz {
     commands = splitCommand(engineCommand);
     // Initialize current engine number and start engine
     currentEngineN = 0;
-
-    startWriterThread();
   }
 
   public void startEngine() throws IOException {
@@ -183,6 +180,7 @@ public class Leelaz {
     process = processBuilder.start();
 
     initializeStreams();
+    startWriterThread();
 
     // Send a name request to check if the engine is KataGo
     // Response handled in parseLine
@@ -235,6 +233,7 @@ public class Leelaz {
       executor.shutdownNow();
       Thread.currentThread().interrupt();
     }
+    stopWriterThread();
     started = false;
     isLoaded = false;
     Lizzie.engineManager.updateEngineIcon();
@@ -971,52 +970,75 @@ public class Leelaz {
 
   // Writer thread for avoiding deadlock (#752)
   class WriterThread extends Thread {
+    public ArrayDeque<String> writerQueue = new ArrayDeque<>();
     private ArrayDeque<String> privateQueue = new ArrayDeque<>();
+    public boolean shouldStopNow = false;
 
     public void run() {
       // ref.
       // https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html
       while (true) {
-        // move requests to privateQueue so that writerQueue is not blocked
-        // even when outputStream is stalled.
-        synchronized (writerQueue) {
+        synchronized (this) {
+          while (writerQueue.isEmpty() && !shouldStopNow) {
+            try {
+              wait();
+            } catch (InterruptedException e) {
+            }
+          }
+          if (shouldStopNow) return;
+          // Note that outputStream can be stalled by massive GTP commands (#752).
+          // We move requests from writerQueue to privateQueue
+          // so that we can release the lock BEFORE using outputStream.
+          // Then other threads can send new requests to writerQueue
+          // even when writer thread is blocked in writeToStream().
           while (!writerQueue.isEmpty()) {
             String command = writerQueue.removeFirst();
             privateQueue.addLast(command);
           }
         }
-        if (outputStream != null) {
-          try {
-            while (!privateQueue.isEmpty()) {
-              String command = privateQueue.removeFirst();
-              outputStream.write(command.getBytes());
-            }
-            outputStream.flush();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
+        writeToStream();
+      }
+    }
+
+    private void writeToStream() {
+      if (outputStream != null) {
         try {
-          synchronized (this) {
-            wait();
+          while (!privateQueue.isEmpty()) {
+            String command = privateQueue.removeFirst();
+            outputStream.write(command.getBytes());
           }
-        } catch (InterruptedException e) {
+          outputStream.flush();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
       }
     }
   }
 
   public void startWriterThread() {
-    writerQueue = new ArrayDeque<>();
     writerThread = this.new WriterThread();
     writerThread.start();
   }
 
-  public void sendToWriterThread(String string) {
-    synchronized (writerQueue) {
-      writerQueue.addLast(string);
-    }
+  public void stopWriterThread() {
+    if (writerThread == null) return;
     synchronized (writerThread) {
+      writerThread.shouldStopNow = true;
+      writerThread.notify();
+    }
+    // Wait for writer thread to notice the shouldStopNow and actually finish terminating
+    try {
+      writerThread.join();
+    } catch (InterruptedException e) {
+    }
+    // Reset it to null now that it is dead. All cleaned up
+    writerThread = null;
+  }
+
+  public void sendToWriterThread(String command) {
+    if (writerThread == null) return;
+    synchronized (writerThread) {
+      writerThread.writerQueue.addLast(command);
       writerThread.notify();
     }
   }
