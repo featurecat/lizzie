@@ -231,6 +231,7 @@ public class Leelaz {
 
   private void alertEngineDown(String message) {
     isDown = true;
+    Lizzie.frame.refresh();
     String displayedMessage = String.format("%s\n\nEngine command: %s", message, engineCommand);
     JOptionPane.showMessageDialog(
         Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
