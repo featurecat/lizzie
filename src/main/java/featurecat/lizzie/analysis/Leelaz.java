@@ -81,6 +81,7 @@ public class Leelaz {
   private int currentEngineN = -1;
   private ScheduledExecutorService executor;
   private boolean isQuittingNormally = false;
+  private boolean isDown = false;
 
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN;
@@ -138,6 +139,7 @@ public class Leelaz {
     isLoaded = false;
     isKataGo = false;
     isQuittingNormally = false;
+    isDown = false;
     bestMoves = new ArrayList<>();
     Lizzie.board.getData().tryToClearBestMoves();
 
@@ -183,10 +185,8 @@ public class Leelaz {
       String err = e.getLocalizedMessage();
       String message =
           String.format(
-              "Failed to start the engine.\n\nError: %s\nEngine command: %s",
-              (err == null) ? "(No message)" : err, engineCommand);
-      JOptionPane.showMessageDialog(
-          Lizzie.frame, message, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+              "Failed to start the engine.\n\nError: %s", (err == null) ? "(No message)" : err);
+      alertEngineDown(message);
       throw e;
     }
 
@@ -227,6 +227,13 @@ public class Leelaz {
     startEngine();
     //    currentEngineN = index;
     togglePonder();
+  }
+
+  private void alertEngineDown(String message) {
+    isDown = true;
+    String displayedMessage = String.format("%s\n\nEngine command: %s", message, engineCommand);
+    JOptionPane.showMessageDialog(
+        Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
   }
 
   public void normalQuit() {
@@ -469,12 +476,8 @@ public class Leelaz {
       // this line will be reached when Leelaz shuts down
       System.out.println("Engine process ended.");
       if (!isQuittingNormally) {
-        String message =
-            String.format(
-                "Engine process ended unintentionally for some reason.\n\nEngine command: %s",
-                engineCommand);
-        JOptionPane.showMessageDialog(
-            Lizzie.frame, message, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+        alertEngineDown(
+            "Engine process ended unintentionally for some reason.\nYou may find more information in GTP console.");
       }
 
       shutdown();
@@ -950,6 +953,10 @@ public class Leelaz {
       }
     }
     return isLoaded;
+  }
+
+  public boolean isDown() {
+    return isDown;
   }
 
   public boolean supportScoremean() {

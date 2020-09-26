@@ -667,7 +667,10 @@ public class LizzieFrame extends MainFrame {
           }
         }
       } else if (Lizzie.config.showStatus) {
-        String loadingText = resourceBundle.getString("LizzieFrame.display.loading");
+        String loadingText =
+            (Lizzie.leelaz != null) && Lizzie.leelaz.isDown()
+                ? "Engine is down."
+                : resourceBundle.getString("LizzieFrame.display.loading");
         drawPonderingState(g, loadingText, loadingX, loadingY, loadingSize);
       }
 
