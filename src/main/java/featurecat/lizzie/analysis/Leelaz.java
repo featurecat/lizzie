@@ -178,11 +178,13 @@ public class Leelaz {
     try {
       process = processBuilder.start();
     } catch (IOException e) {
+      String err = e.getLocalizedMessage();
+      String message =
+          String.format(
+              "Failed to start the engine.\n\nError: %s\nEngine command: %s",
+              (err == null) ? "(No message)" : err, engineCommand);
       JOptionPane.showMessageDialog(
-          Lizzie.frame,
-          "Failed to start the engine.",
-          "Lizzie - Error!",
-          JOptionPane.ERROR_MESSAGE);
+          Lizzie.frame, message, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
       throw e;
     }
 
