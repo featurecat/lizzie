@@ -280,7 +280,7 @@ public class Leelaz {
    */
   private void parseLine(String line) {
     synchronized (this) {
-      if (printCommunication || gtpConsole) {
+      if (printCommunication || gtpConsole || !isLoaded) {
         Lizzie.gtpConsole.addLine(line);
       }
       if (line.startsWith("komi=")) {
