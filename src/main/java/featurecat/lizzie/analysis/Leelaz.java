@@ -80,6 +80,7 @@ public class Leelaz {
   private boolean switching = false;
   private int currentEngineN = -1;
   private ScheduledExecutorService executor;
+  private boolean isQuittingNormally = false;
 
   // dynamic komi and opponent komi as reported by dynamic-komi version of leelaz
   private float dynamicKomi = Float.NaN;
@@ -136,6 +137,7 @@ public class Leelaz {
 
     isLoaded = false;
     isKataGo = false;
+    isQuittingNormally = false;
     bestMoves = new ArrayList<>();
     Lizzie.board.getData().tryToClearBestMoves();
 
@@ -228,6 +230,7 @@ public class Leelaz {
   }
 
   public void normalQuit() {
+    isQuittingNormally = true;
     sendCommand("quit");
     executor.shutdown();
     try {
@@ -465,6 +468,14 @@ public class Leelaz {
       }
       // this line will be reached when Leelaz shuts down
       System.out.println("Engine process ended.");
+      if (!isQuittingNormally) {
+        String message =
+            String.format(
+                "Engine process ended unintentionally for some reason.\n\nEngine command: %s",
+                engineCommand);
+        JOptionPane.showMessageDialog(
+            Lizzie.frame, message, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+      }
 
       shutdown();
       // Do no exit for switching weights
