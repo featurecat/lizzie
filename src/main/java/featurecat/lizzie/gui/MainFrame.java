@@ -355,6 +355,12 @@ public abstract class MainFrame extends JFrame {
     }
   }
 
+  protected String loadingText() {
+    return (Lizzie.leelaz != null) && Lizzie.leelaz.isDown()
+        ? "Engine is down."
+        : resourceBundle.getString("LizzieFrame.display.loading");
+  }
+
   public void toggleEstimateByZen() {
     if (isEstimating) {
       noEstimateByZen(true);

@@ -168,11 +168,7 @@ public class LizzieMain extends MainFrame {
                       bsGraphics, dynamicKomi.get(), dynamicKomiX, dynamicKomiY, dynamicKomiSize);
                 }
               } else if (Lizzie.config.showStatus) {
-                String loadingText =
-                    (Lizzie.leelaz != null) && Lizzie.leelaz.isDown()
-                        ? "Engine is down."
-                        : resourceBundle.getString("LizzieFrame.display.loading");
-                drawPonderingState(bsGraphics, loadingText, loadingX, loadingY, loadingSize);
+                drawPonderingState(bsGraphics, loadingText(), loadingX, loadingY, loadingSize);
               }
             }
           }
