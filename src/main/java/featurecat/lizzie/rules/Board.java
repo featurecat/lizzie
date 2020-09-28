@@ -813,8 +813,11 @@ public class Board implements LeelazListener {
   /** Save the back routing from children */
   public void saveBackRouting(BoardHistoryNode node) {
     Optional<BoardHistoryNode> prev = node.previous();
-    prev.ifPresent(n -> n.setFromBackChildren(n.getVariations().indexOf(node)));
-    prev.ifPresent(n -> n.previous().ifPresent(p -> saveBackRouting(p)));
+    prev.ifPresent(
+        n -> {
+          n.setFromBackChildren(n.getVariations().indexOf(node));
+          saveBackRouting(n);
+        });
   }
 
   /** Restore move number by saved node */
