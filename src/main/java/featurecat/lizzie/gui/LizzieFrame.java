@@ -1017,8 +1017,8 @@ public class LizzieFrame extends MainFrame {
 
     if (validWinrate || validLastWinrate) {
       int maxBarwidth = (int) (width);
-      int barWidthB = (int) (blackWR * maxBarwidth / 100);
-      int barWidthW = (int) (whiteWR * maxBarwidth / 100);
+      int barWidthB = (int) (Math.max(0, Math.min(blackWR, 100)) * maxBarwidth / 100);
+      int barWidthW = (int) (Math.max(0, Math.min(whiteWR, 100)) * maxBarwidth / 100);
       int barPosY = posY + height / 3;
       int barPosxB = (int) (posX);
       int barPosxW = barPosxB + barWidthB;

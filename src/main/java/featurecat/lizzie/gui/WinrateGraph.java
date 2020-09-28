@@ -163,9 +163,7 @@ public class WinrateGraph {
         g.setStroke(previousStroke);
       }
       if (playouts > 0) {
-        if (wr < 0) {
-          wr = 100 - lastWr;
-        } else if (!node.getData().blackToPlay) {
+        if (!node.getData().blackToPlay) {
           wr = 100 - wr;
         }
         if (Lizzie.frame.isPlayingAgainstLeelaz
@@ -341,7 +339,7 @@ public class WinrateGraph {
       double r = 0.5 + handicap / (2 * maxHandicap);
       return Math.max(0, Math.min(r, 1)) * 100;
     } else {
-      return winrate;
+      return Math.max(0, Math.min(winrate, 100));
     }
   }
 
