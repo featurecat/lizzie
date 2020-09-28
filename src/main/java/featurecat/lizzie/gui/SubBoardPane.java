@@ -5,11 +5,15 @@ import static java.lang.Math.max;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.util.Utils;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -37,11 +41,43 @@ public class SubBoardPane extends LizziePane {
         new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON1) { // left click
-              if (Lizzie.config.showSubBoard) {
-                Lizzie.config.toggleLargeSubBoard();
-                owner.invalidLayout();
-              }
+            if (e.getButton() == MouseEvent.BUTTON1) {
+              subBoardRenderer.increaseBestmoveIndexSub(1);
+              repaint();
+            }
+            if (e.getButton() == MouseEvent.BUTTON3) {
+              subBoardRenderer.increaseBestmoveIndexSub(-1);
+              repaint();
+            }
+            if (e.getButton() == MouseEvent.BUTTON2) {
+              Lizzie.config.toggleLargeSubBoard();
+              owner.invalidLayout();
+            }
+            subBoardRenderer.setClickedSub(true);
+          }
+        });
+
+    addMouseMotionListener(
+        new MouseMotionAdapter() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (!subBoardRenderer.getIsMouseOverSub()) {
+              subBoardRenderer.setIsMouseOverSub(true);
+              repaint();
+            }
+          }
+        });
+
+    addMouseWheelListener(
+        new MouseWheelListener() {
+          @Override
+          public void mouseWheelMoved(MouseWheelEvent e) {
+            if (e.getWheelRotation() > 0) {
+              Utils.doBranchSub(subBoardRenderer, 1);
+              repaint();
+            } else if (e.getWheelRotation() < 0) {
+              Utils.doBranchSub(subBoardRenderer, -1);
+              repaint();
             }
           }
         });
@@ -126,5 +162,25 @@ public class SubBoardPane extends LizziePane {
 
   public void drawEstimateRect(ArrayList<Double> estimateArray, boolean isZen) {
     subBoardRenderer.drawEstimateRect(estimateArray, isZen);
+  }
+
+  public void clearBeforeMove() {
+    subBoardRenderer.clearBeforeMove();
+  }
+
+  public void clearIsMouseOverSub() {
+    if (subBoardRenderer.getIsMouseOverSub()) {
+      subBoardRenderer.setIsMouseOverSub(false);
+      Utils.setDisplayedBranchLength(subBoardRenderer, -2);
+      repaint();
+    }
+  }
+
+  public boolean processSubBoardMouseWheelMoved(MouseWheelEvent e) {
+    // TODO Auto-generated method stub
+    if (subBoardRenderer.isInside(e.getX(), e.getY())) {
+      return true;
+    }
+    return false;
   }
 }

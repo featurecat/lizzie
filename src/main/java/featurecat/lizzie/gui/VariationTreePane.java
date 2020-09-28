@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 
 /** The window used to display the game. */
@@ -37,6 +38,21 @@ public class VariationTreePane extends LizziePane {
             if (e.getButton() == MouseEvent.BUTTON1) { // left click
               onClicked(e.getX(), e.getY());
             }
+          }
+        });
+
+    addMouseMotionListener(
+        new MouseMotionListener() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (Lizzie.config.showSubBoard) {
+              Lizzie.frame.clearIsMouseOverSub();
+            }
+          }
+
+          @Override
+          public void mouseDragged(MouseEvent e) {
+            // TODO Auto-generated method stub
           }
         });
   }

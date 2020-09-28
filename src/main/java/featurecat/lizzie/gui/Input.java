@@ -18,6 +18,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   @Override
   public void mousePressed(MouseEvent e) {
     Lizzie.frame.toolBar.setTxtUnfocus();
+    if (Lizzie.frame.subBoardOnClick(e)) return;
     if (e.getButton() == MouseEvent.BUTTON1) { // left click
       if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
         Lizzie.frame.onDoubleClicked(e.getX(), e.getY());
@@ -562,6 +563,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     if (Lizzie.frame.processCommentMouseWheelMoved(e)) {
+      return;
+    }
+    if (Lizzie.frame.processSubBoardMouseWheelMoved(e)) {
       return;
     }
     if (e.getWhen() - wheelWhen > 0) {

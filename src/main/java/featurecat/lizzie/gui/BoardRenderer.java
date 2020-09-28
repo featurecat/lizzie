@@ -100,6 +100,12 @@ public class BoardRenderer {
 
   private int maxAlpha = 240;
 
+  private boolean isMouseOverSub = false;
+  private boolean clickedSub = false;
+  private int bestmoveIndexSub = 0;
+  private List<String> variation;
+  private String mouseOverCoords = "";
+
   // Computed in drawLeelazSuggestionsBackground and stored for
   // display in drawLeelazSuggestionsForeground
   private class TextData {
@@ -130,6 +136,7 @@ public class BoardRenderer {
 
     //        Stopwatch timer = new Stopwatch();
     drawGoban(g);
+    if (!isMainBoard) drawSubBoardStatus(g);
     if (Lizzie.config.showNameInBoard && isMainBoard) drawName(g);
     //        timer.lap("background");
     drawStones();
@@ -338,6 +345,42 @@ public class BoardRenderer {
     cachedY = y;
   }
 
+  private void drawSubBoardStatus(Graphics2D g) {
+    // TODO Auto-generated method stub
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    g.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
+    g.setColor(Color.BLACK);
+    if (isMouseOverSub) {
+      g.fillRect(
+          x + boardWidth - stoneRadius * 7 / 2,
+          y + boardHeight - scaledMarginHeight * 9 / 10,
+          scaledMarginHeight * 3 / 10,
+          scaledMarginHeight * 8 / 10);
+      g.fillRect(
+          x + boardWidth + scaledMarginHeight * 5 / 10 - stoneRadius * 7 / 2,
+          y + boardHeight - scaledMarginHeight * 9 / 10,
+          scaledMarginHeight * 3 / 10,
+          scaledMarginHeight * 8 / 10);
+    } else {
+      int[] xPoints = {
+        x + boardWidth - stoneRadius * 7 / 2,
+        x + boardWidth - stoneRadius * 7 / 2,
+        x + boardWidth - stoneRadius * 5 / 2
+      };
+      int[] yPoints = {
+        y + boardHeight - 1,
+        y + boardHeight - scaledMarginHeight + 1,
+        y + boardHeight - scaledMarginHeight / 2
+      };
+      g.fillPolygon(xPoints, yPoints, 3);
+    }
+    g.setFont(new Font(Lizzie.config.uiFontName, Font.BOLD, stoneRadius * 3 / 2));
+    g.drawString(
+        "" + (this.bestmoveIndexSub + 1),
+        x + boardWidth - stoneRadius * 9 / 5,
+        y + boardHeight - stoneRadius / 10);
+  }
+
   private void drawName(Graphics2D g0) {
     if (Lizzie.board == null) {
       return;
@@ -532,6 +575,7 @@ public class BoardRenderer {
 
   /** Draw the 'ghost stones' which show a variationOpt Leelaz is thinking about */
   private void drawBranch() {
+    boolean isShowingBranch = showingBranch;
     showingBranch = false;
     branchStonesImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
     branchStonesShadowImage = new BufferedImage(boardWidth, boardHeight, TYPE_INT_ARGB);
@@ -570,8 +614,21 @@ public class BoardRenderer {
         || (isMainBoard && Lizzie.frame.isShowingPolicy)) {
       return;
     }
-    List<String> variation = suggestedMove.get().variation;
+    if (isMainBoard) {
+      if (!Lizzie.config.notRefreshVariation
+          || (!isShowingBranch || !mouseOverCoords.equals(suggestedMove.get().coordinate)))
+        variation = suggestedMove.get().variation;
+    } else {
+      if (!isMouseOverSub || clickedSub) {
+        if (clickedSub) {
+          clickedSub = false;
+          setDisplayedBranchLength(SHOW_NORMAL_BOARD);
+        }
+        variation = suggestedMove.get().variation;
+      }
+    }
     Branch branch = new Branch(Lizzie.board, variation, displayedBranchLength);
+    if (isMainBoard) mouseOverCoords = suggestedMove.get().coordinate;
     branchOpt = Optional.of(branch);
     variationOpt = Optional.of(variation);
     showingBranch = true;
@@ -610,7 +667,11 @@ public class BoardRenderer {
   }
 
   private Optional<MoveData> getBestMove() {
-    return bestMoves.isEmpty() ? Optional.empty() : Optional.of(bestMoves.get(0));
+    if (!bestMoves.isEmpty()) {
+      if (bestMoves.size() < this.bestmoveIndexSub + 1) bestmoveIndexSub = bestMoves.size() - 1;
+      return Optional.of(bestMoves.get(bestmoveIndexSub));
+    }
+    return Optional.empty();
   }
 
   /** Render the shadows and stones in correct background-foreground order */
@@ -1699,6 +1760,9 @@ public class BoardRenderer {
       default:
         // force nonnegative
         displayedBranchLength = max(0, displayedBranchLength + n);
+        if (variation != null) {
+          displayedBranchLength = min(displayedBranchLength, variation.size() + 1);
+        } else displayedBranchLength = 0;
         return true;
     }
   }
@@ -1916,5 +1980,27 @@ public class BoardRenderer {
         }
       }
     }
+  }
+
+  public boolean getIsMouseOverSub() {
+    return isMouseOverSub;
+  }
+
+  public void setIsMouseOverSub(boolean status) {
+    isMouseOverSub = status;
+  }
+
+  public void setClickedSub(boolean status) {
+    clickedSub = status;
+  }
+
+  public void increaseBestmoveIndexSub(int n) {
+    if (bestmoveIndexSub + n >= 0) bestmoveIndexSub = bestmoveIndexSub + n;
+  }
+
+  public void clearBeforeMove() {
+    setDisplayedBranchLength(SHOW_NORMAL_BOARD);
+    clickedSub = false;
+    bestmoveIndexSub = 0;
   }
 }

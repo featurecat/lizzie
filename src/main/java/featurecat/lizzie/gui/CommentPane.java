@@ -85,6 +85,20 @@ public class CommentPane extends LizziePane {
     scrollPane.setViewportView(commentPane);
     setVisible(false);
 
+    commentPane.addMouseMotionListener(
+        new MouseMotionListener() {
+          @Override
+          public void mouseMoved(MouseEvent e) {
+            if (Lizzie.config.showSubBoard) {
+              Lizzie.frame.clearIsMouseOverSub();
+            }
+          }
+
+          @Override
+          public void mouseDragged(MouseEvent e) {
+            // TODO Auto-generated method stub
+          }
+        });
     //    mouseMotionAdapter = new MouseMotionAdapter() {
     //      @Override
     //      public void mouseDragged(MouseEvent e) {

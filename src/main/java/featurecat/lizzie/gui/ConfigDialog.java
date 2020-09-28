@@ -178,6 +178,7 @@ public class ConfigDialog extends JDialog {
   public JCheckBox chkHoldBestMovesToSgf;
   public JCheckBox chkShowBestMovesByHold;
   public JCheckBox chkColorByWinrateInsteadOfVisits;
+  public JCheckBox chkNotRefreshVariation;
   public JSlider sldBoardPositionProportion;
   public JTextField txtLimitBestMoveNum;
   public JTextField txtLimitBranchLength;
@@ -1098,6 +1099,14 @@ public class ConfigDialog extends JDialog {
     chkShowBestMovesByHold.setBounds(536, 278, 57, 23);
     uiTab.add(chkShowBestMovesByHold);
 
+    JLabel lblNotRefreshVaritions =
+        new JLabel(resourceBundle.getString("LizzieConfig.title.notRefreshVariation"));
+    lblNotRefreshVaritions.setBounds(372, 308, 187, 16);
+    uiTab.add(lblNotRefreshVaritions);
+    chkNotRefreshVariation = new JCheckBox("");
+    chkNotRefreshVariation.setBounds(536, 305, 57, 23);
+    uiTab.add(chkNotRefreshVariation);
+
     JLabel lblColorByWinrateInsteadOfVisits =
         new JLabel(resourceBundle.getString("LizzieConfig.title.colorByWinrateInsteadOfVisits"));
     lblColorByWinrateInsteadOfVisits.setBounds(6, 308, 163, 16);
@@ -1202,6 +1211,7 @@ public class ConfigDialog extends JDialog {
     chkAppendWinrateToComment.setSelected(Lizzie.config.appendWinrateToComment);
     chkHoldBestMovesToSgf.setSelected(Lizzie.config.holdBestMovesToSgf);
     chkShowBestMovesByHold.setSelected(Lizzie.config.showBestMovesByHold);
+    chkNotRefreshVariation.setSelected(Lizzie.config.notRefreshVariation);
     chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
     sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
     txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
@@ -2530,6 +2540,8 @@ public class ConfigDialog extends JDialog {
       Lizzie.config.uiConfig.putOpt("hold-bestmoves-to-sgf", Lizzie.config.holdBestMovesToSgf);
       Lizzie.config.showBestMovesByHold = chkShowBestMovesByHold.isSelected();
       Lizzie.config.uiConfig.putOpt("show-bestmoves-by-hold", Lizzie.config.showBestMovesByHold);
+      Lizzie.config.notRefreshVariation = chkNotRefreshVariation.isSelected();
+      Lizzie.config.uiConfig.putOpt("not-refresh-variation", Lizzie.config.notRefreshVariation);
       Lizzie.config.colorByWinrateInsteadOfVisits = chkColorByWinrateInsteadOfVisits.isSelected();
       Lizzie.config.uiConfig.putOpt(
           "color-by-winrate-instead-of-visits", Lizzie.config.colorByWinrateInsteadOfVisits);
