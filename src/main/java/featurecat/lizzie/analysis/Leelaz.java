@@ -296,6 +296,12 @@ public class Leelaz {
         } catch (NumberFormatException nfe) {
           dynamicOppKomi = Float.NaN;
         }
+      } else if (line.startsWith("Tuning")) {
+        // Show GTP console during initial tuning of KataGo
+        // to avoid long no-response
+        if (!Lizzie.gtpConsole.isVisible()) {
+          Lizzie.frame.toggleGtpConsole();
+        }
       } else if (line.equals("\n")) {
         // End of response
       } else if (line.startsWith("info")) {
