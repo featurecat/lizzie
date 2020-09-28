@@ -131,16 +131,16 @@ public class WinrateGraph {
     if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
       numMoves = this.numMovesOfPlayed;
     }
+    if (Lizzie.config.dynamicWinrateGraphWidth
+        && curMove.getData().moveNumber - 1 > this.numMovesOfPlayed) {
+      this.numMovesOfPlayed = curMove.getData().moveNumber - 1;
+      numMoves = this.numMovesOfPlayed;
+    }
 
     while (node.previous().isPresent()) {
       double wr = node.getData().winrate;
       int playouts = node.getData().getPlayouts();
       if (node == curMove) {
-        if (Lizzie.config.dynamicWinrateGraphWidth
-            && node.getData().moveNumber - 1 > this.numMovesOfPlayed) {
-          this.numMovesOfPlayed = node.getData().moveNumber - 1;
-          numMoves = this.numMovesOfPlayed;
-        }
         Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
         double bwr = stats.maxWinrate;
         if (bwr >= 0 && stats.totalPlayouts > playouts) {
@@ -162,7 +162,7 @@ public class WinrateGraph {
         g.drawString(moveNumString, mx, posy + height - margin);
         g.setStroke(previousStroke);
       }
-      if (playouts > 0) {
+      if (playouts > 0 && node.getData().moveNumber - 1 <= numMoves) {
         if (!node.getData().blackToPlay) {
           wr = 100 - wr;
         }
@@ -254,13 +254,16 @@ public class WinrateGraph {
     if (numMoves < 1) return;
     lastOkMove = -1;
     movenum = node.getData().moveNumber - 1;
+    if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
+      numMoves = this.numMovesOfPlayed;
+    }
 
     if (Lizzie.leelaz.isKataGo) {
       double lastScoreMean = -500;
       int curMovenum = -1;
       double curCurscoreMean = 0;
       while (node.previous().isPresent()) {
-        if (!node.getData().bestMoves.isEmpty()) {
+        if (!node.getData().bestMoves.isEmpty() && node.getData().moveNumber - 1 <= numMoves) {
 
           double curscoreMean = node.getData().bestMoves.get(0).scoreMean;
           if (!node.getData().blackToPlay) {
@@ -353,9 +356,12 @@ public class WinrateGraph {
     int width = params[2];
     int height = params[3];
     int numMoves = params[4];
+    if (Lizzie.config.dynamicWinrateGraphWidth && this.numMovesOfPlayed > 0) {
+      numMoves = this.numMovesOfPlayed;
+    }
     if (origPosx <= x && x < origPosx + origWidth && origPosy <= y && y < origPosy + origHeight) {
       // x == posx + (movenum * width / numMoves) ==> movenum = ...
-      int movenum = Math.round((x - posx) * numMoves / (float) width);
+      int movenum = Math.round(numMoves * Math.min((x - posx) / (float) width, 1));
       // movenum == moveNumber - 1 ==> moveNumber = ...
       return movenum + 1;
     } else {
