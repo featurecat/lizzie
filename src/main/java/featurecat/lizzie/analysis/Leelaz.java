@@ -46,6 +46,8 @@ public class Leelaz {
   private BufferedInputStream inputStream;
   private BufferedOutputStream outputStream;
 
+  private WriterThread writerThread;
+
   private boolean printCommunication;
   public boolean gtpConsole;
 
@@ -192,6 +194,7 @@ public class Leelaz {
     }
 
     initializeStreams();
+    startWriterThread();
 
     // Send a name request to check if the engine is KataGo
     // Response handled in parseLine
@@ -263,6 +266,7 @@ public class Leelaz {
       executor.shutdownNow();
       Thread.currentThread().interrupt();
     }
+    stopWriterThread();
     started = false;
     isLoaded = false;
     Lizzie.engineManager.updateEngineIcon();
@@ -567,14 +571,7 @@ public class Leelaz {
     Lizzie.gtpConsole.addCommand(command, cmdNumber);
     command = cmdNumber + " " + command;
     cmdNumber++;
-    if (outputStream != null) {
-      try {
-        outputStream.write((command + "\n").getBytes());
-        outputStream.flush();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
-    }
+    sendToWriterThread(command + "\n");
   }
 
   /** Check whether leelaz is responding to the last command */
@@ -1015,6 +1012,81 @@ public class Leelaz {
       currentWeightFile = wMatcher.group(2);
       String[] names = currentWeightFile.split("[\\\\|/]");
       currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
+    }
+  }
+
+  // Writer thread for avoiding deadlock (#752)
+  class WriterThread extends Thread {
+    public ArrayDeque<String> writerQueue = new ArrayDeque<>();
+    private ArrayDeque<String> privateQueue = new ArrayDeque<>();
+    public boolean shouldStopNow = false;
+
+    public void run() {
+      // ref.
+      // https://docs.oracle.com/en/java/javase/15/docs/api/java.base/java/lang/doc-files/threadPrimitiveDeprecation.html
+      while (true) {
+        synchronized (this) {
+          while (writerQueue.isEmpty() && !shouldStopNow) {
+            try {
+              wait();
+            } catch (InterruptedException e) {
+            }
+          }
+          if (shouldStopNow) return;
+          // Note that outputStream can be stalled by massive GTP commands (#752).
+          // We move requests from writerQueue to privateQueue
+          // so that we can release the lock BEFORE using outputStream.
+          // Then other threads can send new requests to writerQueue
+          // even when writer thread is blocked in writeToStream().
+          while (!writerQueue.isEmpty()) {
+            String command = writerQueue.removeFirst();
+            privateQueue.addLast(command);
+          }
+        }
+        writeToStream();
+      }
+    }
+
+    private void writeToStream() {
+      if (outputStream != null) {
+        try {
+          while (!privateQueue.isEmpty()) {
+            String command = privateQueue.removeFirst();
+            outputStream.write(command.getBytes());
+          }
+          outputStream.flush();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  public void startWriterThread() {
+    writerThread = this.new WriterThread();
+    writerThread.start();
+  }
+
+  public void stopWriterThread() {
+    if (writerThread == null) return;
+    synchronized (writerThread) {
+      writerThread.shouldStopNow = true;
+      writerThread.notify();
+    }
+    // Wait for writer thread to notice the shouldStopNow and actually finish terminating
+    try {
+      writerThread.join();
+    } catch (InterruptedException e) {
+    }
+    // Reset it to null now that it is dead. All cleaned up
+    writerThread = null;
+  }
+
+  public void sendToWriterThread(String command) {
+    if (writerThread == null) return;
+    synchronized (writerThread) {
+      writerThread.writerQueue.addLast(command);
+      writerThread.notify();
     }
   }
 }
