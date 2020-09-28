@@ -168,8 +168,7 @@ public class LizzieMain extends MainFrame {
                       bsGraphics, dynamicKomi.get(), dynamicKomiX, dynamicKomiY, dynamicKomiSize);
                 }
               } else if (Lizzie.config.showStatus) {
-                String loadingText = resourceBundle.getString("LizzieFrame.display.loading");
-                drawPonderingState(bsGraphics, loadingText, loadingX, loadingY, loadingSize);
+                drawPonderingState(bsGraphics, loadingText(), loadingX, loadingY, loadingSize);
               }
             }
           }

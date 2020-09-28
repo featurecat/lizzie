@@ -667,8 +667,7 @@ public class LizzieFrame extends MainFrame {
           }
         }
       } else if (Lizzie.config.showStatus) {
-        String loadingText = resourceBundle.getString("LizzieFrame.display.loading");
-        drawPonderingState(g, loadingText, loadingX, loadingY, loadingSize);
+        drawPonderingState(g, loadingText(), loadingX, loadingY, loadingSize);
       }
 
       if (Lizzie.config.showCaptured) drawCaptured(g, capx, capy, capw, caph);
