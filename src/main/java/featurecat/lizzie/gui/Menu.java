@@ -916,6 +916,22 @@ public class Menu extends JMenuBar {
           }
         });
 
+    final JCheckBoxMenuItem kataEstimateBlend =
+        new JCheckBoxMenuItem(resourceBundle.getString("Menu.view.kataGo.kataEstimate.blend"));
+    kataEstimateBlend.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleKataGoEstimateBlend();
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    kataEstimate.add(kataEstimateBlend);
+
     viewMenu.addMenuListener(
         new MenuListener() {
           public void menuSelected(MenuEvent e) {
@@ -960,6 +976,7 @@ public class Menu extends JMenuBar {
             kataEstimateModeLargeAndStones.setState(
                 Lizzie.config.kataGoEstimateMode.equals("large+stones"));
             kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode.equals("size"));
+            kataEstimateBlend.setState(Lizzie.config.kataGoEstimateBlend);
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);
