@@ -128,6 +128,7 @@ public class WinratePane extends LizziePane {
       curWR = Lizzie.board.getHistory().getData().winrate;
       validWinrate = Lizzie.board.getHistory().getData().getPlayouts() > 0;
     }
+    boolean validScore = validWinrate;
     if (Lizzie.frame.isPlayingAgainstLeelaz
         && Lizzie.frame.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
       validWinrate = false;
@@ -177,7 +178,7 @@ public class WinratePane extends LizziePane {
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
     String text = "";
-    if (Lizzie.leelaz.isKataGo) {
+    if (Lizzie.leelaz.isKataGo && validScore) {
       double score = Lizzie.leelaz.scoreMean;
       if (Lizzie.board.getHistory().isBlacksTurn()) {
         if (Lizzie.config.showKataGoBoardScoreMean) {
