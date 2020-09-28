@@ -32,6 +32,10 @@ public class Lizzie {
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
     gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
+    initializeEngineManager();
+  }
+
+  public static void initializeEngineManager() {
     try {
       engineManager = new EngineManager(config);
       if (mainArgs.length == 1) {
@@ -41,6 +45,7 @@ public class Lizzie {
       }
     } catch (IOException e) {
       frame.openConfigDialog();
+      JOptionPane.showMessageDialog(frame, "Please restart Lizzie to apply changes.");
       System.exit(1);
     }
   }
