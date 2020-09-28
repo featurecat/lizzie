@@ -89,6 +89,7 @@ public class Leelaz {
   ArrayList<Double> estimateArray = new ArrayList<Double>();
   public double scoreMean = 0;
   public double scoreStdev = 0;
+  public static int engineIndex = 0;
 
   /**
    * Initializes the leelaz process and starts reading output
@@ -901,6 +902,7 @@ public class Leelaz {
   public boolean isCommandChange(String command) {
     List<String> newList = splitCommand(command);
     if (this.commands.size() != newList.size()) {
+      engineIndex++;
       return true;
     } else {
       for (int i = 0; i < this.commands.size(); i++) {
@@ -908,6 +910,7 @@ public class Leelaz {
         String newParam = newList.get(i);
         if ((!Utils.isBlank(param) || !Utils.isBlank(newParam))
             && (Utils.isBlank(param) || !param.equals(newParam))) {
+          engineIndex++;
           return true;
         }
       }

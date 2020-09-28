@@ -1,6 +1,7 @@
 package featurecat.lizzie.rules;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.util.Utils;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ public class BoardData {
 
   public double winrate;
   private int playouts;
+  public int engineIndex;
+  public double komi;
   public double scoreMean;
   public List<MoveData> bestMoves;
   public int blackCaptures;
@@ -61,6 +64,8 @@ public class BoardData {
 
     this.winrate = winrate;
     this.playouts = playouts;
+    this.engineIndex = Leelaz.engineIndex;
+    this.komi = 0.0;
     this.scoreMean = scoreMean;
     this.blackCaptures = blackCaptures;
     this.whiteCaptures = whiteCaptures;
@@ -172,6 +177,8 @@ public class BoardData {
   public void tryToClearBestMoves() {
     bestMoves = new ArrayList<>();
     playouts = 0;
+    engineIndex = Leelaz.engineIndex;
+    komi = Lizzie.board.getHistory().getGameInfo().getKomi();
     if (Lizzie.leelaz.isKataGo) {
       Lizzie.leelaz.scoreMean = 0;
       Lizzie.leelaz.scoreStdev = 0;
@@ -186,6 +193,8 @@ public class BoardData {
       if (Lizzie.leelaz.isKataGo) {
         scoreMean = getScoreMeanFromBestMoves(moves);
       }
+      engineIndex = Leelaz.engineIndex;
+      komi = Lizzie.board.getHistory().getGameInfo().getKomi();
     }
     if (Lizzie.leelaz.isKataGo) {
       Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;

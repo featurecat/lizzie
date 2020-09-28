@@ -13,6 +13,7 @@ import static java.lang.Math.round;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Branch;
+import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.rules.Board;
 import featurecat.lizzie.rules.BoardData;
@@ -546,6 +547,8 @@ public class BoardRenderer {
     // calculate best moves and branch
     bestMoves = Lizzie.leelaz.getBestMoves();
     if (Lizzie.config.showBestMovesByHold
+        && Leelaz.engineIndex == Lizzie.board.getData().engineIndex
+        && Lizzie.board.getHistory().getGameInfo().getKomi() == Lizzie.board.getData().komi
         && MoveData.getPlayouts(bestMoves) < Lizzie.board.getData().getPlayouts()) {
       bestMoves = Lizzie.board.getData().bestMoves;
     }
