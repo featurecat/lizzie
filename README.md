@@ -1,4 +1,5 @@
-# Lizzie - Leela Zero Interface
+# Lizzie - Leela Zero Interface: This is [unofficial Lizzie 0.7.3 + patches](https://github.com/featurecat/lizzie/issues/762).
+
 ![screenshot](https://raw.githubusercontent.com/featurecat/lizzie/master/screenshot0.7.jpg?raw=true)
 
 Lizzie is a graphical interface allowing the user to analyze games in
