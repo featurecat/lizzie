@@ -137,8 +137,8 @@ public class GtpConsolePane extends JDialog {
 
   private void removeOldText() {
     Element body =
-            htmlDoc.getElement(
-                    htmlDoc.getDefaultRootElement(), StyleConstants.NameAttribute, HTML.Tag.BODY);
+        htmlDoc.getElement(
+            htmlDoc.getDefaultRootElement(), StyleConstants.NameAttribute, HTML.Tag.BODY);
     while (htmlDoc.getLength() > MAX_HTML_LENGTH) {
       ElementIterator it = new ElementIterator(body);
       it.first();
