@@ -1,4 +1,4 @@
-# Lizzie - Leela Zero Interface: This is [unofficial Lizzie 0.7.3 + patches](https://github.com/featurecat/lizzie/issues/762).
+# Lizzie - Leela Zero Interface
 
 ![screenshot](https://raw.githubusercontent.com/featurecat/lizzie/master/screenshot0.7.jpg?raw=true)
 
