@@ -36,11 +36,12 @@ details).
 
 ### Building Lizzie
 
-The simplest way to build Lizzie is to use [Maven](https://maven.apache.org/).
+The simplest way to build Lizzie is to use the included [Maven](https://maven.apache.org/)
+wrapper.
 
 To build the code and package it:
 
-    $ mvn package
+    $ ./mvn package
 
 ### Running Lizzie
 
