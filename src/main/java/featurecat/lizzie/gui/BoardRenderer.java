@@ -763,8 +763,8 @@ public class BoardRenderer {
 
         // don't write the move number if either: the move number is 0, or there will already be
         // playout information written
-        if (moveNumberList[Board.getIndex(i, j)] > 0
-            && (!branchOpt.isPresent() || !Lizzie.frame.isMouseOver(i, j))) {
+        boolean isMouseOver = isMainBoard && Lizzie.frame.isMouseOver(i, j);
+        if (moveNumberList[Board.getIndex(i, j)] > 0 && (!branchOpt.isPresent() || !isMouseOver)) {
           boolean reverse = (moveNumberList[Board.getIndex(i, j)] > maxBranchMoves());
           if (lastMoveOpt.isPresent() && lastMoveOpt.get()[0] == i && lastMoveOpt.get()[1] == j) {
             if (reverse) continue;
