@@ -241,6 +241,7 @@ public class LizzieMain extends MainFrame {
           @Override
           public void mouseClicked(MouseEvent e) {
             Lizzie.frame.getFocus();
+            Lizzie.frame.checkRightClick(e);
           }
         });
 
