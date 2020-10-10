@@ -49,7 +49,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,7 +62,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class OnlineDialog extends JDialog {
+public class OnlineDialog extends LizzieDialog {
   public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
   private ScheduledExecutorService online = Executors.newScheduledThreadPool(1);
   private ScheduledFuture<?> schedule = null;
