@@ -343,7 +343,7 @@ public class BoardPane extends LizziePane {
       if (!owner.isPlayingAgainstLeelaz
           || (owner.playerIsBlack == Lizzie.board.getData().blackToPlay))
         Lizzie.board.place(coords[0], coords[1]);
-      //      repaint();
+      repaint(); // for #772
       //      owner.updateStatus();
     }
   }
