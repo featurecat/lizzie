@@ -726,7 +726,10 @@ public class Leelaz {
   public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid && !isKataGo)
+    if (Lizzie.board.isAvoding
+        && Lizzie.board.isKeepingAvoid
+        && !isKataGo
+        && Lizzie.config.useAvoidInAnalysis())
       analyzeAvoid(
           "avoid b "
               + Lizzie.board.avoidCoords
