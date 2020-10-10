@@ -16,7 +16,6 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.text.DecimalFormat;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,7 +23,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 /** @author unknown */
-public class GameInfoDialog extends JDialog {
+public class GameInfoDialog extends LizzieDialog {
   // create formatters
   public static final DecimalFormat FORMAT_KOMI = new DecimalFormat("#0.0#");
   public static final DecimalFormat FORMAT_HANDICAP = new DecimalFormat("0");

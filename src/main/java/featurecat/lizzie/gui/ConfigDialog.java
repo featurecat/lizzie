@@ -42,7 +42,6 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -99,14 +98,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ConfigDialog extends JDialog {
+public class ConfigDialog extends LizzieDialog {
   public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public String enginePath = "";
   public String weightPath = "";
   public String commandHelp = "";
 
-  private String osName;
   private Path curPath;
   private BufferedInputStream inputStream;
   private JSONObject leelazConfig;
@@ -223,9 +221,7 @@ public class ConfigDialog extends JDialog {
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
     setModalityType(ModalityType.APPLICATION_MODAL);
-    if (isWindows()) { // avoid suspicious behavior on Linux (#616)
-      setType(Type.POPUP);
-    }
+    setType(Type.POPUP);
     setBounds(100, 100, 661, 716);
     getContentPane().setLayout(new BorderLayout());
     JPanel buttonPane = new JPanel();
@@ -792,7 +788,6 @@ public class ConfigDialog extends JDialog {
         String.valueOf(leelazConfig.getInt("max-game-thinking-time-seconds")));
     chkPrintEngineLog.setSelected(leelazConfig.getBoolean("print-comms"));
     curPath = (new File("")).getAbsoluteFile().toPath();
-    osName = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
     setShowLcbWinrate();
     JLabel lblBoardSize = new JLabel(resourceBundle.getString("LizzieConfig.title.boardSize"));
     lblBoardSize.setBounds(6, 6, 67, 16);
@@ -2150,10 +2145,6 @@ public class ConfigDialog extends JDialog {
     public boolean isCellEditable(int row, int col) {
       return true;
     }
-  }
-
-  public boolean isWindows() {
-    return osName != null && !osName.contains("darwin") && osName.contains("win");
   }
 
   private void setShowLcbWinrate() {

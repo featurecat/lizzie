@@ -11,7 +11,6 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
@@ -27,7 +26,7 @@ import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.StyleSheet;
 import org.json.JSONArray;
 
-public class GtpConsolePane extends JDialog {
+public class GtpConsolePane extends LizzieDialog {
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   // Display Comment
