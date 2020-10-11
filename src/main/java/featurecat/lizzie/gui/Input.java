@@ -29,6 +29,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     {
       if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) undo(1);
     }
+    if (e.getButton() == MouseEvent.BUTTON2) { // center click
+      Lizzie.frame.onCenterClicked(e.getX(), e.getY());
+    }
   }
 
   @Override

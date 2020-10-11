@@ -1189,6 +1189,14 @@ public class LizzieFrame extends MainFrame {
     }
   }
 
+  public void onCenterClicked(int x, int y) {
+    boolean isWinrateGraphClicked = (winrateGraph.moveNumber(x, y) >= 0);
+    if (isWinrateGraphClicked) {
+      Lizzie.config.toggleLargeWinrate();
+      repaint();
+    }
+  }
+
   public boolean subBoardOnClick(MouseEvent e) {
     int x = e.getX();
     int y = e.getY();
