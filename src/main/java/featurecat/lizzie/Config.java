@@ -330,8 +330,8 @@ public class Config {
   }
 
   public void toggleLargeWinrate() {
-    this.largeSubBoard = false;
-    this.largeWinrate = !this.largeWinrate;
+    this.largeSubBoard = setUIConfigBoolean("large-subboard", false);
+    this.largeWinrate = toggleUIConfig("large-winrate");
   }
 
   public void toggleShowLcbWinrate() {
@@ -363,8 +363,8 @@ public class Config {
   }
 
   public void toggleLargeSubBoard() {
-    this.largeWinrate = false;
-    this.largeSubBoard = !this.largeSubBoard;
+    this.largeWinrate = setUIConfigBoolean("large-winrate", false);
+    this.largeSubBoard = toggleUIConfig("large-subboard");
   }
 
   public void toggleCoordinates() {
@@ -428,9 +428,12 @@ public class Config {
   }
 
   private boolean toggleUIConfig(String key) {
-    boolean newValue = !uiConfig.getBoolean(key);
-    uiConfig.put(key, newValue);
-    return newValue;
+    return setUIConfigBoolean(key, !uiConfig.getBoolean(key));
+  }
+
+  private boolean setUIConfigBoolean(String key, boolean value) {
+    uiConfig.put(key, value);
+    return value;
   }
 
   public boolean showLargeSubBoard() {
