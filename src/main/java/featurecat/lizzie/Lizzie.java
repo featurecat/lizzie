@@ -89,6 +89,7 @@ public class Lizzie {
     board.autosaveToMemory();
 
     try {
+      config.save();
       config.persist();
     } catch (IOException e) {
       e.printStackTrace(); // Failed to save config
