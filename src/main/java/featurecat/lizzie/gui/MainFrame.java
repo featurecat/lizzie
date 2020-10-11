@@ -135,6 +135,8 @@ public abstract class MainFrame extends JFrame {
 
   public abstract boolean subBoardOnClick(MouseEvent e);
 
+  public abstract void onCenterClicked(int x, int y);
+
   public abstract void onMouseDragged(int x, int y);
 
   public abstract void onMouseMoved(int x, int y);

@@ -571,6 +571,9 @@ public class LizzieMain extends MainFrame {
   }
 
   @Override
+  public void onCenterClicked(int x, int y) {}
+
+  @Override
   public void onMouseDragged(int x, int y) {
     winratePane.onMouseDragged(x, y);
   }
