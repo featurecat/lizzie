@@ -6,6 +6,7 @@ import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.util.Utils;
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -23,6 +24,7 @@ import java.util.ResourceBundle;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONObject;
 
@@ -78,6 +80,7 @@ public abstract class MainFrame extends JFrame {
 
   public MainFrame() throws HeadlessException {
     super(DEFAULT_TITLE);
+    Utils.mustBeEventDispatchThread();
   }
 
   public boolean isDesignMode() {
@@ -89,6 +92,20 @@ public abstract class MainFrame extends JFrame {
   public void updateBasicInfo() {}
 
   public void updateBasicInfo(String bTime, String wTime) {}
+
+  public void repaint() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            repaintInEDT();
+          }
+        });
+  }
+
+  private void repaintInEDT() {
+    Utils.mustBeEventDispatchThread();
+    super.repaint();
+  }
 
   public void refresh() {
     repaint();
@@ -161,6 +178,16 @@ public abstract class MainFrame extends JFrame {
   }
 
   public void updateTitle() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateTitleInEDT();
+          }
+        });
+  }
+
+  private void updateTitleInEDT() {
+    Utils.mustBeEventDispatchThread();
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
     sb.append(playerTitle);
     sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");

@@ -41,6 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import org.json.JSONArray;
 
 public class LizzieMain extends MainFrame {
@@ -109,6 +110,7 @@ public class LizzieMain extends MainFrame {
         new JPanel() {
           @Override
           protected void paintComponent(Graphics g) {
+            Utils.mustBeEventDispatchThread();
             if (g instanceof Graphics2D) {
               int width = getWidth();
               int height = getHeight();
@@ -493,6 +495,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void invalidLayout() {
+    Utils.mustBeEventDispatchThread();
     // TODO
     layout.layoutContainer(getContentPane());
     layout.invalidateLayout(getContentPane());
@@ -506,6 +509,16 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void refresh(int type) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            refreshInEDT(type);
+          }
+        });
+  }
+
+  private void refreshInEDT(int type) {
+    Utils.mustBeEventDispatchThread();
     if (type == 2) {
       invalidLayout();
     } else {
@@ -517,6 +530,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void repaintSub() {
+    Utils.mustBeEventDispatchThread();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showSubBoard && !subBoardPane.isVisible()) {
         subBoardPane.setVisible(true);
@@ -530,6 +544,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void updateStatus() {
+    Utils.mustBeEventDispatchThread();
     //    basicInfoPane.revalidate();
     basicInfoPane.repaint();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
@@ -547,6 +562,7 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void drawControls() {
+    Utils.mustBeEventDispatchThread();
     boardPane.drawControls();
   }
 

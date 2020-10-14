@@ -150,6 +150,7 @@ public class LizzieFrame extends MainFrame {
         new JPanel(true) {
           @Override
           protected void paintComponent(Graphics g) {
+            Utils.mustBeEventDispatchThread();
             super.paintComponent(g);
 
             paintMainPanel(g);

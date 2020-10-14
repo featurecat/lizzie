@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.Utils;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -19,10 +20,10 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JWindow;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.plaf.UIResource;
 import javax.swing.text.html.HTMLEditorKit;
@@ -88,10 +89,12 @@ public class LizziePane extends JPanel {
 
   public LizziePane() {
     super();
+    Utils.mustBeEventDispatchThread();
   }
 
   /** Creates a window */
   public LizziePane(LizzieMain owner) {
+    Utils.mustBeEventDispatchThread();
     //    super(owner);
     //    initCompotents();
     //    input = owner.input;
@@ -117,6 +120,7 @@ public class LizziePane extends JPanel {
   }
 
   public void updateUI() {
+    Utils.mustBeEventDispatchThread();
     setUI((LizziePaneUI) UIManager.getUI(this));
     if (getLayout() == null) {
       setLayout(new DefaultLizziePaneLayout());
@@ -168,9 +172,18 @@ public class LizziePane extends JPanel {
     }
   }
 
-  private void initCompotents() {
-    setBorder(BorderFactory.createEmptyBorder());
-    setVisible(true);
+  public void repaint() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            repaintInEDT();
+          }
+        });
+  }
+
+  private void repaintInEDT() {
+    Utils.mustBeEventDispatchThread();
+    super.repaint();
   }
 
   private class PaneDragListener extends MouseAdapter {
