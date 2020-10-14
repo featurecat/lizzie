@@ -75,6 +75,7 @@ public class CommentPane extends LizziePane {
           @Override
           public void mouseClicked(MouseEvent e) {
             Lizzie.frame.getFocus();
+            Lizzie.frame.checkRightClick(e);
           }
         });
     scrollPane = new JScrollPane();

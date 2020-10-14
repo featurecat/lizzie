@@ -449,6 +449,10 @@ public class Config {
     return showBranch || showBestMovesTemporarily;
   }
 
+  public boolean useAvoidInAnalysis() {
+    return config.getJSONObject("leelaz").getInt("avoid-keep-variations") > 0;
+  }
+
   /**
    * Scans the current directory as well as the current PATH to find a reasonable default leelaz
    * binary.

@@ -118,7 +118,7 @@ public class BoardPane extends LizziePane {
               // if (Lizzie.frame.isMouseOver) {
               //  Lizzie.frame.addSuggestionAsBranch();
               // } else {
-              if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) Input.undo();
+              Lizzie.frame.onRightClicked(e.getX(), e.getY());
               // }
             }
           }
@@ -142,6 +142,10 @@ public class BoardPane extends LizziePane {
           @Override
           public void mouseDragged(MouseEvent e) {}
         });
+  }
+
+  protected void checkRightClick(MouseEvent e) {
+    // cancel default behavior of LizziePane
   }
 
   /** Clears related status from empty board. */
@@ -343,8 +347,8 @@ public class BoardPane extends LizziePane {
       if (!owner.isPlayingAgainstLeelaz
           || (owner.playerIsBlack == Lizzie.board.getData().blackToPlay))
         Lizzie.board.place(coords[0], coords[1]);
-      //      repaint();
-      //      owner.updateStatus();
+      repaint(); // for #772
+      owner.updateStatus();
     }
   }
 

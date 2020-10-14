@@ -83,6 +83,10 @@ public class SubBoardPane extends LizziePane {
         });
   }
 
+  protected void checkRightClick(MouseEvent e) {
+    // cancel default behavior of LizziePane
+  }
+
   /**
    * Draws the game board and interface
    *

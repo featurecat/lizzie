@@ -241,6 +241,7 @@ public class LizzieMain extends MainFrame {
           @Override
           public void mouseClicked(MouseEvent e) {
             Lizzie.frame.getFocus();
+            Lizzie.frame.checkRightClick(e);
           }
         });
 
@@ -735,6 +736,9 @@ public class LizzieMain extends MainFrame {
       return false;
     }
     if (isPlayingAgainstLeelaz) {
+      return false;
+    }
+    if (!Lizzie.config.useAvoidInAnalysis()) {
       return false;
     }
     if (Lizzie.leelaz.isPondering()) {
