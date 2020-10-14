@@ -348,7 +348,7 @@ public class BoardPane extends LizziePane {
           || (owner.playerIsBlack == Lizzie.board.getData().blackToPlay))
         Lizzie.board.place(coords[0], coords[1]);
       repaint(); // for #772
-      //      owner.updateStatus();
+      owner.updateStatus();
     }
   }
 
