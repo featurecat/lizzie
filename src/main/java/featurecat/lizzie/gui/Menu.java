@@ -1247,6 +1247,7 @@ public class Menu extends JMenuBar {
               Lizzie.leelaz.isThinking = false;
             }
             Lizzie.leelaz.togglePonder();
+            Lizzie.frame.refresh();
           }
         });
     analyzeMenu.add(toggleAnalyze);
