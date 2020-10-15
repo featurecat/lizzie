@@ -32,7 +32,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
@@ -94,8 +93,6 @@ public class LizzieFrame extends MainFrame {
   private static WinrateGraph winrateGraph;
   private static Menu menu;
   private JPanel mainPanel;
-
-  private final BufferStrategy bs;
 
   private static final int[] outOfBoundCoordinate = new int[] {-1, -1};
   public int[] mouseOverCoordinate = outOfBoundCoordinate;
@@ -218,9 +215,6 @@ public class LizzieFrame extends MainFrame {
 
     setVisible(true);
 
-    createBufferStrategy(2);
-    bs = getBufferStrategy();
-
     Input input = new Input();
 
     mainPanel.addMouseListener(input);
@@ -267,6 +261,13 @@ public class LizzieFrame extends MainFrame {
         1,
         1,
         TimeUnit.SECONDS);
+  }
+
+  public void addNotify() {
+    // needless?
+    // https://stackoverflow.com/questions/3435994/buffers-have-not-been-created-whilst-creating-buffers
+    super.addNotify();
+    createBufferStrategy(2);
   }
 
   /** Clears related status from empty board. */
