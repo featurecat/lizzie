@@ -1431,14 +1431,16 @@ public class LizzieFrame extends MainFrame {
     thread.start();
   }
 
-  public void removeEstimateRect() {
+  protected void removeEstimateRectInEDT() {
+    Utils.mustBeEventDispatchThread();
     boardRenderer.removeEstimateRect();
     if (Lizzie.config.showSubBoard) {
       subBoardRenderer.removeEstimateRect();
     }
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+  protected void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray) {
+    Utils.mustBeEventDispatchThread();
     if (!Lizzie.config.showKataGoEstimate) {
       return;
     }
@@ -1499,11 +1501,13 @@ public class LizzieFrame extends MainFrame {
     if (byToolBar) countResults.setVisible(false);
   }
 
-  public void updateEngineMenu(List<Leelaz> engineList) {
+  protected void updateEngineMenuInEDT(List<Leelaz> engineList) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineMenu(engineList);
   }
 
-  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+  protected void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineIcon(engineList, currentEngineNo);
   }
 

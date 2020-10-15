@@ -480,6 +480,26 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void updateBasicInfo(String bTime, String wTime) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateBasicInfoInEDT(bTime, wTime);
+          }
+        });
+  }
+
+  @Override
+  public void updateBasicInfo() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateBasicInfoInEDT();
+          }
+        });
+  }
+
+  private void updateBasicInfoInEDT(String bTime, String wTime) {
+    Utils.mustBeEventDispatchThread();
     if (basicInfoPane != null) {
       basicInfoPane.bTime = bTime;
       basicInfoPane.wTime = wTime;
@@ -487,8 +507,8 @@ public class LizzieMain extends MainFrame {
     }
   }
 
-  @Override
-  public void updateBasicInfo() {
+  private void updateBasicInfoInEDT() {
+    Utils.mustBeEventDispatchThread();
     if (basicInfoPane != null) {
       basicInfoPane.repaint();
     }
@@ -650,14 +670,16 @@ public class LizzieMain extends MainFrame {
     boardPane.clear();
   }
 
-  public void removeEstimateRect() {
+  protected void removeEstimateRectInEDT() {
+    Utils.mustBeEventDispatchThread();
     boardPane.removeEstimateRect();
     if (Lizzie.config.showSubBoard) {
       subBoardPane.removeEstimateRect();
     }
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+  protected void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray) {
+    Utils.mustBeEventDispatchThread();
     if (!Lizzie.config.showKataGoEstimate) {
       return;
     }
@@ -730,11 +752,14 @@ public class LizzieMain extends MainFrame {
     boardPane.saveImage();
   };
 
-  public void updateEngineMenu(List<Leelaz> engineList) {
+  protected void updateEngineMenuInEDT(List<Leelaz> engineList) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineMenu(engineList);
+    refresh(); // update "Engine is loading..."
   }
 
-  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+  protected void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineIcon(engineList, currentEngineNo);
   }
 

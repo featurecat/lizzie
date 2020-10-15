@@ -132,9 +132,27 @@ public abstract class MainFrame extends JFrame {
     return false;
   }
 
-  public abstract void removeEstimateRect();
+  public void removeEstimateRect() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            removeEstimateRectInEDT();
+          }
+        });
+  }
 
-  public abstract void drawEstimateRectKata(ArrayList<Double> estimateArray);
+  protected abstract void removeEstimateRectInEDT();
+
+  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            drawEstimateRectKataInEDT(estimateArray);
+          }
+        });
+  }
+
+  protected abstract void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray);
 
   public abstract void drawControls();
 
@@ -413,9 +431,27 @@ public abstract class MainFrame extends JFrame {
 
   public void saveImage() {};
 
-  public abstract void updateEngineMenu(List<Leelaz> engineList);
+  public void updateEngineMenu(List<Leelaz> engineList) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateEngineMenuInEDT(engineList);
+          }
+        });
+  }
 
-  public abstract void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo);
+  protected abstract void updateEngineMenuInEDT(List<Leelaz> engineList);
+
+  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateEngineIconInEDT(engineList, currentEngineNo);
+          }
+        });
+  }
+
+  protected abstract void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo);
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
 
