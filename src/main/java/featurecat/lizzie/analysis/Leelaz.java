@@ -78,6 +78,7 @@ public class Leelaz {
 
   // for Multiple Engine
   private String engineCommand;
+  private String engineNickname;
   private List<String> commands;
   private JSONObject config;
   private String currentWeightFile = "";
@@ -128,6 +129,14 @@ public class Leelaz {
       // substitute in the weights file
       engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
     }
+    Matcher nicknameMatcher = Pattern.compile("<([^<]*)>\\s*(.*)").matcher(engineCommand);
+    if (nicknameMatcher.matches()) {
+      engineNickname = nicknameMatcher.group(1);
+      engineCommand = nicknameMatcher.group(2);
+    } else {
+      engineNickname = null;
+    }
+
     this.engineCommand = engineCommand;
     if (engineCommand.toLowerCase().contains("override-version")) {
       this.isKataGo = true;
@@ -985,6 +994,10 @@ public class Leelaz {
 
   public boolean supportScoremean() {
     return isKataGo || supportScoremean;
+  }
+
+  public String nicknameOrcurrentWeight() {
+    return (engineNickname == null) ? currentWeight : engineNickname;
   }
 
   public String currentWeight() {

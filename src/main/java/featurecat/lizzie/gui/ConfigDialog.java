@@ -761,6 +761,9 @@ public class ConfigDialog extends JDialog {
                     txts[i].setText(a.getString(i));
                   });
         });
+    Arrays.asList(txts)
+        .stream()
+        .forEach(t -> t.setToolTipText("Engine Command or <Label> Engine Command"));
 
     chkPreloads =
         new JCheckBox[] {
