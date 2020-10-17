@@ -996,7 +996,7 @@ public class Leelaz {
     return isKataGo || supportScoremean;
   }
 
-  public String nicknameOrcurrentWeight() {
+  public String nicknameOrCurrentWeight() {
     return (engineNickname == null) ? currentWeight : engineNickname;
   }
 
