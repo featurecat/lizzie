@@ -55,6 +55,8 @@ public class LizzieMain extends MainFrame {
   private static Menu menu;
   public static boolean designMode;
   private LizzieLayout layout;
+  private int supposedPonderingHeight;
+  private final double ponderingSize = .02;
 
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
 
@@ -130,20 +132,22 @@ public class LizzieMain extends MainFrame {
 
               // pondering message
               int maxBound = Math.max(width, height);
-              double ponderingSize = .02;
               LizzieLayout ll = (LizzieLayout) this.getLayout();
               int ponderingX = ll.ponderingX;
               int ponderingY = ll.ponderingY;
+              supposedPonderingHeight = ll.supposedPonderingHeight;
 
               // dynamic komi
-              double dynamicKomiSize = .02;
+              // Don't change the next line. See "Fix #790" in drawPonderingState.
+              double dynamicKomiSize = ponderingSize;
               int dynamicKomiX = 0;
               int dynamicKomiY = ponderingY - (int) (maxBound * dynamicKomiSize);
               int dynamicKomiLabelX = 0;
               int dynamicKomiLabelY = dynamicKomiY - (int) (maxBound * dynamicKomiSize);
 
               // loading message;
-              double loadingSize = 0.02;
+              // Don't change the next line. See "Fix #790" in drawPonderingState.
+              double loadingSize = ponderingSize;
               int loadingX = ponderingX;
               int loadingY = ponderingY - (int) (maxBound * (loadingSize - ponderingSize));
 
@@ -344,7 +348,7 @@ public class LizzieMain extends MainFrame {
     return g;
   }
 
-  private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
+  private void drawPonderingState(Graphics2D g, String text, int x, int supposedY, double size) {
     int fontSize = (int) (max(getWidth(), getHeight()) * size);
     Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     FontMetrics fm = g.getFontMetrics(font);
@@ -364,6 +368,15 @@ public class LizzieMain extends MainFrame {
     int stringHeight = fm.getAscent() - fm.getDescent();
     int width = max(stringWidth, 1);
     int height = max((int) (stringHeight * 1.7), 1);
+
+    // Fix #790 in an ad hoc way. This works only when size == ponderingSize.
+    // The right fix is tiresome due to the implementation of related parts.
+    if (size != ponderingSize) {
+      System.out.printf(
+          "Different sizes cause wrong layouts: size=%f ponderingSize=%f\n", size, ponderingSize);
+      (new Throwable()).printStackTrace();
+    }
+    int y = supposedY - (height - supposedPonderingHeight);
 
     BufferedImage result = new BufferedImage(width, height, TYPE_INT_ARGB);
     // commenting this out for now... always causing an exception on startup. will fix in the
