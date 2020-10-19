@@ -260,10 +260,9 @@ public abstract class MainFrame extends JFrame {
     boolean isHandicapGame = gameInfo.getHandicap() != 0;
     if (isNewGame) {
       Lizzie.board.getHistory().setGameInfo(gameInfo);
-      if (isHandicapGame) {
+      if (isHandicapGame && !playerIsBlack) {
         Lizzie.board.getHistory().getData().blackToPlay = false;
         Lizzie.leelaz.handicap(gameInfo.getHandicap());
-        if (playerIsBlack) Lizzie.leelaz.genmove("W");
       } else if (!playerIsBlack) {
         Lizzie.leelaz.genmove("B");
       }
