@@ -288,7 +288,8 @@ public abstract class MainFrame extends JFrame {
   }
 
   public void saveFile() {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "*.SGF");
+    FileNameExtensionFilter filter =
+        new FileNameExtensionFilter("Smart Game Format (*.sgf *.SGF)", "sgf");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
     chooser.setFileFilter(filter);
@@ -307,7 +308,7 @@ public abstract class MainFrame extends JFrame {
           return;
         }
       }
-      if (!file.getPath().endsWith(".sgf")) {
+      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF"))) {
         file = new File(file.getPath() + ".sgf");
       }
       try {
@@ -338,14 +339,21 @@ public abstract class MainFrame extends JFrame {
 
   public void loadFile(File file) {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
+    if (!(file.getPath().endsWith(".sgf")
+        || file.getPath().endsWith(".gib")
+        || file.getPath().endsWith(".SGF")
+        || file.getPath().endsWith(".GIB"))) {
+      System.out.println(
+          "ended with non-supported file extensions, added lower-case sgf extension as default");
       file = new File(file.getPath() + ".sgf");
     }
     try {
       System.out.println(file.getPath());
-      if (file.getPath().endsWith(".sgf")) {
+      if (file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF")) {
+        System.out.println("use SGFParser");
         SGFParser.load(file.getPath());
       } else {
+        System.out.println("use GIBParser");
         GIBParser.load(file.getPath());
       }
       filesystem.put("last-folder", file.getParent());
