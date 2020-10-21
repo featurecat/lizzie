@@ -343,17 +343,13 @@ public abstract class MainFrame extends JFrame {
         || file.getPath().endsWith(".gib")
         || file.getPath().endsWith(".SGF")
         || file.getPath().endsWith(".GIB"))) {
-      System.out.println(
-          "ended with non-supported file extensions, added lower-case sgf extension as default");
       file = new File(file.getPath() + ".sgf");
     }
     try {
       System.out.println(file.getPath());
       if (file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF")) {
-        System.out.println("use SGFParser");
         SGFParser.load(file.getPath());
       } else {
-        System.out.println("use GIBParser");
         GIBParser.load(file.getPath());
       }
       filesystem.put("last-folder", file.getParent());
