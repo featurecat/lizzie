@@ -297,6 +297,9 @@ public abstract class MainFrame extends JFrame {
     int result = chooser.showSaveDialog(null);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
+      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF"))) {
+        file = new File(file.getPath() + ".sgf");
+      }
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
@@ -307,9 +310,6 @@ public abstract class MainFrame extends JFrame {
         if (ret == JOptionPane.CANCEL_OPTION) {
           return;
         }
-      }
-      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF"))) {
-        file = new File(file.getPath() + ".sgf");
       }
       try {
         SGFParser.save(Lizzie.board, file.getPath());
