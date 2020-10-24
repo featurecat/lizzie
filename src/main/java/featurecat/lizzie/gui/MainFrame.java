@@ -349,7 +349,8 @@ public abstract class MainFrame extends JFrame {
   }
 
   public void saveFile() {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "*.SGF");
+    FileNameExtensionFilter filter =
+        new FileNameExtensionFilter("Smart Game Format (*.sgf *.SGF)", "sgf");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
     chooser.setFileFilter(filter);
@@ -357,6 +358,9 @@ public abstract class MainFrame extends JFrame {
     int result = chooser.showSaveDialog(null);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
+      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF"))) {
+        file = new File(file.getPath() + ".sgf");
+      }
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
@@ -367,9 +371,6 @@ public abstract class MainFrame extends JFrame {
         if (ret == JOptionPane.CANCEL_OPTION) {
           return;
         }
-      }
-      if (!file.getPath().endsWith(".sgf")) {
-        file = new File(file.getPath() + ".sgf");
       }
       try {
         SGFParser.save(Lizzie.board, file.getPath());
@@ -399,12 +400,15 @@ public abstract class MainFrame extends JFrame {
 
   public void loadFile(File file) {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
+    if (!(file.getPath().endsWith(".sgf")
+        || file.getPath().endsWith(".gib")
+        || file.getPath().endsWith(".SGF")
+        || file.getPath().endsWith(".GIB"))) {
       file = new File(file.getPath() + ".sgf");
     }
     try {
       System.out.println(file.getPath());
-      if (file.getPath().endsWith(".sgf")) {
+      if (file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF")) {
         SGFParser.load(file.getPath());
       } else {
         GIBParser.load(file.getPath());
