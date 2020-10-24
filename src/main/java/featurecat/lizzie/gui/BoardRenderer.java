@@ -132,6 +132,7 @@ public class BoardRenderer {
 
   /** Draw a go board */
   public void draw(Graphics2D g) {
+    if (Lizzie.frame == null) return;
     //    setupSizeParameters();
 
     //        Stopwatch timer = new Stopwatch();
