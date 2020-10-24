@@ -31,7 +31,7 @@ public class Lizzie {
     config = new Config();
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
-    gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
+    gtpConsole.setVisible(config.persistedUi.optBoolean("gtp-console-opened", false));
     initializeEngineManager();
   }
 
@@ -89,6 +89,7 @@ public class Lizzie {
     board.autosaveToMemory();
 
     try {
+      config.save();
       config.persist();
     } catch (IOException e) {
       e.printStackTrace(); // Failed to save config

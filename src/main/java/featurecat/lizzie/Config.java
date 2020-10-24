@@ -322,16 +322,16 @@ public class Config {
   }
 
   public void toggleShowCaptured() {
-    this.showCaptured = !this.showCaptured;
+    this.showCaptured = toggleUIConfig("show-captured");
   }
 
   public void toggleShowWinrate() {
-    this.showWinrate = !this.showWinrate;
+    this.showWinrate = toggleUIConfig("show-winrate");
   }
 
   public void toggleLargeWinrate() {
-    this.largeSubBoard = false;
-    this.largeWinrate = !this.largeWinrate;
+    this.largeSubBoard = setUIConfigBoolean("large-subboard", false);
+    this.largeWinrate = toggleUIConfig("large-winrate");
   }
 
   public void toggleShowLcbWinrate() {
@@ -339,11 +339,11 @@ public class Config {
   }
 
   public void toggleShowVariationGraph() {
-    this.showVariationGraph = !this.showVariationGraph;
+    this.showVariationGraph = toggleUIConfig("show-variation-graph");
   }
 
   public void toggleShowComment() {
-    this.showComment = !this.showComment;
+    this.showComment = toggleUIConfig("show-comment");
   }
 
   public void toggleShowCommentNodeColor() {
@@ -363,8 +363,8 @@ public class Config {
   }
 
   public void toggleLargeSubBoard() {
-    this.largeWinrate = false;
-    this.largeSubBoard = !this.largeSubBoard;
+    this.largeWinrate = setUIConfigBoolean("large-winrate", false);
+    this.largeSubBoard = toggleUIConfig("large-subboard");
   }
 
   public void toggleCoordinates() {
@@ -376,7 +376,7 @@ public class Config {
   }
 
   public void toggleShowSubBoard() {
-    showSubBoard = !showSubBoard;
+    showSubBoard = toggleUIConfig("show-subboard");
   }
 
   public void toggleShowPolicy() {
@@ -424,13 +424,16 @@ public class Config {
   }
 
   public void toggleShowStatus() {
-    this.showStatus = !this.showStatus;
-    Lizzie.config.uiConfig.put("show-status", showStatus);
-    try {
-      Lizzie.config.save();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    this.showStatus = toggleUIConfig("show-status");
+  }
+
+  private boolean toggleUIConfig(String key) {
+    return setUIConfigBoolean(key, !uiConfig.getBoolean(key));
+  }
+
+  private boolean setUIConfigBoolean(String key, boolean value) {
+    uiConfig.put(key, value);
+    return value;
   }
 
   public boolean showLargeSubBoard() {
