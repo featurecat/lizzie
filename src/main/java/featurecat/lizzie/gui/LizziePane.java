@@ -103,8 +103,13 @@ public class LizziePane extends JPanel {
           @Override
           public void mouseClicked(MouseEvent e) {
             Lizzie.frame.getFocus();
+            checkRightClick(e); // actual behavior may be modified in subclasses
           }
         });
+  }
+
+  protected void checkRightClick(MouseEvent e) {
+    Lizzie.frame.checkRightClick(e);
   }
 
   @Override

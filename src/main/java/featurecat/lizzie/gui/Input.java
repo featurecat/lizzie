@@ -27,7 +27,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       }
     } else if (e.getButton() == MouseEvent.BUTTON3) // right click
     {
-      if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) undo(1);
+      Lizzie.frame.onRightClicked(e.getX(), e.getY());
     }
   }
 

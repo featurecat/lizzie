@@ -133,6 +133,20 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void onDoubleClicked(int x, int y);
 
+  public void checkRightClick(MouseEvent e) {
+    if (e.getButton() == MouseEvent.BUTTON3) {
+      onRightClickedOutsideBoard();
+    }
+  }
+
+  public void onRightClicked(int x, int y) {
+    if (!openRightClickMenu(x, y)) onRightClickedOutsideBoard();
+  }
+
+  private void onRightClickedOutsideBoard() {
+    Input.undo();
+  }
+
   public abstract boolean subBoardOnClick(MouseEvent e);
 
   public abstract void onMouseDragged(int x, int y);
