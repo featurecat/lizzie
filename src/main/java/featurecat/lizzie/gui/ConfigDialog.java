@@ -757,6 +757,9 @@ public class ConfigDialog extends LizzieDialog {
                     txts[i].setText(a.getString(i));
                   });
         });
+    Arrays.asList(txts)
+        .stream()
+        .forEach(t -> t.setToolTipText("Engine Command or <Label> Engine Command"));
 
     chkPreloads =
         new JCheckBox[] {

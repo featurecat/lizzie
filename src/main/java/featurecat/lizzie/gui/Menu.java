@@ -1385,8 +1385,8 @@ public class Menu extends JMenuBar {
       engine[i].setVisible(false);
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
-        if (engineDt.currentWeight() != "")
-          engine[i].setText(engine[i].getText() + " : " + engineDt.currentWeight());
+        if (engineDt.nicknameOrCurrentWeight() != "")
+          engine[i].setText(engine[i].getText() + " : " + engineDt.nicknameOrCurrentWeight());
         engine[i].setVisible(true);
         int a = i;
         engine[i].addActionListener(
