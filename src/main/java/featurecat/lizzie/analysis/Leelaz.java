@@ -344,14 +344,6 @@ public class Leelaz {
       } else if (line.equals("\n")) {
         // End of response
       } else if (line.startsWith("info")) {
-        if (!isLoaded) {
-          Lizzie.frame.refresh();
-        }
-        isLoaded = true;
-        // Clear switching prompt
-        switching = false;
-        // Display engine command in the title
-        Lizzie.frame.updateTitle();
         if (isAnalysisUpToDate()) {
           // This should not be stale data when the command number match
           if (isKataGo) {
@@ -404,6 +396,14 @@ public class Leelaz {
         isThinking = false;
 
       } else if (line.startsWith("=") || line.startsWith("?")) {
+        if (!isLoaded) {
+          isLoaded = true;
+          // Clear switching prompt
+          switching = false;
+          // Display engine command in the title
+          Lizzie.frame.updateTitle();
+          Lizzie.frame.refresh();
+        }
         if (printCommunication || gtpConsole) {
           System.out.print(line);
           Lizzie.gtpConsole.addLine(line);
