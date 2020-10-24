@@ -1,6 +1,7 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
+import featurecat.lizzie.util.Utils;
 import featurecat.lizzie.util.WindowPosition;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,6 +18,7 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Element;
 import javax.swing.text.ElementIterator;
@@ -45,6 +47,7 @@ public class GtpConsolePane extends LizzieDialog {
   /** Creates a Gtp Console Window */
   public GtpConsolePane(Window owner) {
     super(owner);
+    Utils.mustBeEventDispatchThread();
     setTitle("Gtp Console");
 
     JSONArray pos = WindowPosition.gtpWindowPos();
@@ -90,6 +93,20 @@ public class GtpConsolePane extends LizzieDialog {
     txtCommand.addActionListener(e -> postCommand(e));
   }
 
+  public void setVisible(boolean b) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            setVisibleInEDT(b);
+          }
+        });
+  }
+
+  private void setVisibleInEDT(boolean b) {
+    Utils.mustBeEventDispatchThread();
+    super.setVisible(b);
+  }
+
   public void addCommand(String command, int commandNumber) {
     if (command == null || command.trim().length() == 0) {
       return;
@@ -125,6 +142,16 @@ public class GtpConsolePane extends LizzieDialog {
   }
 
   private void addText(String text) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            addTextInEDT(text);
+          }
+        });
+  }
+
+  private void addTextInEDT(String text) {
+    Utils.mustBeEventDispatchThread();
     try {
       htmlKit.insertHTML(htmlDoc, htmlDoc.getLength(), text, 0, 0, null);
       removeOldText();
@@ -135,6 +162,7 @@ public class GtpConsolePane extends LizzieDialog {
   }
 
   private void removeOldText() {
+    Utils.mustBeEventDispatchThread();
     Element body =
         htmlDoc.getElement(
             htmlDoc.getDefaultRootElement(), StyleConstants.NameAttribute, HTML.Tag.BODY);

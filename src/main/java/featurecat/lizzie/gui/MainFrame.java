@@ -6,6 +6,7 @@ import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.util.Utils;
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Font;
@@ -23,6 +24,7 @@ import java.util.ResourceBundle;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONObject;
 
@@ -78,6 +80,7 @@ public abstract class MainFrame extends JFrame {
 
   public MainFrame() throws HeadlessException {
     super(DEFAULT_TITLE);
+    Utils.mustBeEventDispatchThread();
   }
 
   public boolean isDesignMode() {
@@ -89,6 +92,20 @@ public abstract class MainFrame extends JFrame {
   public void updateBasicInfo() {}
 
   public void updateBasicInfo(String bTime, String wTime) {}
+
+  public void repaint() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            repaintInEDT();
+          }
+        });
+  }
+
+  private void repaintInEDT() {
+    Utils.mustBeEventDispatchThread();
+    super.repaint();
+  }
 
   public void refresh() {
     repaint();
@@ -115,9 +132,27 @@ public abstract class MainFrame extends JFrame {
     return false;
   }
 
-  public abstract void removeEstimateRect();
+  public void removeEstimateRect() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            removeEstimateRectInEDT();
+          }
+        });
+  }
 
-  public abstract void drawEstimateRectKata(ArrayList<Double> estimateArray);
+  protected abstract void removeEstimateRectInEDT();
+
+  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            drawEstimateRectKataInEDT(estimateArray);
+          }
+        });
+  }
+
+  protected abstract void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray);
 
   public abstract void drawControls();
 
@@ -177,6 +212,16 @@ public abstract class MainFrame extends JFrame {
   }
 
   public void updateTitle() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateTitleInEDT();
+          }
+        });
+  }
+
+  private void updateTitleInEDT() {
+    Utils.mustBeEventDispatchThread();
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
     sb.append(playerTitle);
     sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
@@ -402,9 +447,27 @@ public abstract class MainFrame extends JFrame {
 
   public void saveImage() {};
 
-  public abstract void updateEngineMenu(List<Leelaz> engineList);
+  public void updateEngineMenu(List<Leelaz> engineList) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateEngineMenuInEDT(engineList);
+          }
+        });
+  }
 
-  public abstract void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo);
+  protected abstract void updateEngineMenuInEDT(List<Leelaz> engineList);
+
+  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateEngineIconInEDT(engineList, currentEngineNo);
+          }
+        });
+  }
+
+  protected abstract void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo);
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
 

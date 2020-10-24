@@ -150,6 +150,7 @@ public class BoardPane extends LizziePane {
 
   /** Clears related status from empty board. */
   public void clear() {
+    Utils.mustBeEventDispatchThread();
     if (LizzieMain.winratePane != null) {
       LizzieMain.winratePane.clear();
     }
@@ -166,6 +167,7 @@ public class BoardPane extends LizziePane {
    */
   @Override
   protected void paintComponent(Graphics g0) {
+    Utils.mustBeEventDispatchThread();
     super.paintComponent(g0);
     autosaveMaybe();
 
@@ -223,6 +225,7 @@ public class BoardPane extends LizziePane {
 
   /** Display the controls */
   void drawControls() {
+    Utils.mustBeEventDispatchThread();
     userAlreadyKnowsAboutCommandString = true;
 
     cachedImage = new BufferedImage(getWidth(), getHeight(), TYPE_INT_ARGB);

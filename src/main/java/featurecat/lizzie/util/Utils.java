@@ -29,6 +29,7 @@ import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import org.w3c.dom.Node;
 
@@ -284,6 +285,16 @@ public class Utils {
       return true;
     } catch (ClassNotFoundException e) {
       return false;
+    }
+  }
+
+  public static void mustBeEventDispatchThread() {
+    // assert SwingUtilities.isEventDispatchThread();
+    if (!SwingUtilities.isEventDispatchThread()) {
+      // shouldn't happen.
+      System.out.println("---- Outside EDT! ----");
+      (new Throwable()).printStackTrace();
+      System.out.println("----------------------");
     }
   }
 
