@@ -47,6 +47,9 @@ public class WinratePane extends LizziePane {
           public void mouseClicked(MouseEvent e) {
             if (e.getButton() == MouseEvent.BUTTON1) { // left click
               onClicked(e.getX(), e.getY());
+            } else if (e.getButton() == MouseEvent.BUTTON2) { // center click
+              Lizzie.config.toggleLargeWinrate();
+              owner.invalidLayout();
             }
           }
         });
