@@ -2005,6 +2005,7 @@ public class BoardRenderer {
 
   public void increaseBestmoveIndexSub(int n) {
     if (bestmoveIndexSub + n >= 0) bestmoveIndexSub = bestmoveIndexSub + n;
+    getBestMove(); // call this here to correct exceeding bestmoveIndexSub
   }
 
   public void clearBeforeMove() {
