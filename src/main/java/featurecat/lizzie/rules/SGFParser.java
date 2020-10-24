@@ -307,6 +307,8 @@ public class SGFParser {
                         .getScoreMeanFromBestMoves(Lizzie.board.getData().bestMoves);
               }
             }
+            Lizzie.board.getData().engineIndex = Leelaz.engineIndex;
+            Lizzie.board.getData().komi = Lizzie.board.getHistory().getGameInfo().getKomi();
           } else if (tag.equals("AB") || tag.equals("AW")) {
             int[] move = convertSgfPosToCoord(tagContent);
             Stone color = tag.equals("AB") ? Stone.BLACK : Stone.WHITE;
