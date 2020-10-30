@@ -132,18 +132,18 @@ public class VariationTree {
           }
           g.setColor(Utils.getBlunderNodeColor(cur));
           g.fillOval(curposx + diff, posy + diff, diam, diam);
-          if (startNode == curMove) {
-            g.setColor(Color.BLACK);
-            g.fillOval(
-                curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
-                posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
-                CENTER_DIAM,
-                CENTER_DIAM);
-          }
         } else {
           g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
           g.setColor(Color.BLACK);
           g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
+        }
+        if (startNode == curMove) {
+          g.setColor(Color.BLACK);
+          g.fillOval(
+              curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+              posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+              CENTER_DIAM,
+              CENTER_DIAM);
         }
       }
       g.setColor(curcolor);
