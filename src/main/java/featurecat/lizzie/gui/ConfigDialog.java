@@ -41,6 +41,7 @@ import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -2158,6 +2159,15 @@ public class ConfigDialog extends JDialog {
         return invalid;
       }
     }
+
+    public void sortData() {
+      data.sort(
+          new Comparator<Vector<Object>>() {
+            public int compare(Vector<Object> a, Vector<Object> b) {
+              return Double.compare(toDouble(a.get(0)), toDouble(b.get(0)));
+            }
+          });
+    }
   }
 
   public boolean isWindows() {
@@ -2488,7 +2498,9 @@ public class ConfigDialog extends JDialog {
   private void finalizeEditedBlunderColors() {
     if (tblBlunderNodes == null) return;
     TableCellEditor editor = tblBlunderNodes.getCellEditor();
+    BlunderNodeTableModel model = (BlunderNodeTableModel) tblBlunderNodes.getModel();
     if (editor != null) editor.stopCellEditing();
+    if (model != null) model.sortData();
   }
 
   private void saveConfig() {
