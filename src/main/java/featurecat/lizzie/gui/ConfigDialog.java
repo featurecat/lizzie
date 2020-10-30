@@ -233,6 +233,7 @@ public class ConfigDialog extends JDialog {
     okButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+            finalizeEditedBlunderColors();
             setVisible(false);
             saveConfig();
             applyChange();
@@ -2482,6 +2483,12 @@ public class ConfigDialog extends JDialog {
     Lizzie.config.uiConfig.put(
         "blunder-node-colors",
         ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getColorArray());
+  }
+
+  private void finalizeEditedBlunderColors() {
+    if (tblBlunderNodes == null) return;
+    TableCellEditor editor = tblBlunderNodes.getCellEditor();
+    if (editor != null) editor.stopCellEditing();
   }
 
   private void saveConfig() {
