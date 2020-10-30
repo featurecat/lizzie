@@ -2095,7 +2095,7 @@ public class ConfigDialog extends JDialog {
 
     public JSONArray getThresholdArray() {
       JSONArray thresholds = new JSONArray("[]");
-      data.forEach(d -> thresholds.put(new Double((String) d.get(0))));
+      data.forEach(d -> thresholds.put(toDouble(d.get(0))));
       return thresholds;
     }
 
@@ -2147,6 +2147,15 @@ public class ConfigDialog extends JDialog {
 
     public boolean isCellEditable(int row, int col) {
       return true;
+    }
+
+    private double toDouble(Object x) {
+      final double invalid = -777;
+      try {
+        return new Double((String) x);
+      } catch (NumberFormatException e) {
+        return invalid;
+      }
     }
   }
 
