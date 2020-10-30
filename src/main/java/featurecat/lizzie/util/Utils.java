@@ -127,6 +127,10 @@ public class Utils {
       Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
       curWR = stats.maxWinrate;
       validWinrate = (stats.totalPlayouts > 0);
+      if (!validWinrate && (data.getPlayouts() > 0)) {
+        validWinrate = true;
+        curWR = data.winrate;
+      }
       if (Lizzie.frame.isPlayingAgainstLeelaz
           && Lizzie.frame.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
         validWinrate = false;
