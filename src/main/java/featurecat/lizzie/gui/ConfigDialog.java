@@ -2116,7 +2116,7 @@ public class ConfigDialog extends JDialog {
     public void removeRow(int index) {
       if (index >= 0 && index < data.size()) {
         data.remove(index);
-        fireTableRowsDeleted(0, data.size() - 1);
+        fireTableRowsDeleted(index, index);
       }
     }
 
