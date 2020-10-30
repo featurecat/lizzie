@@ -1925,6 +1925,7 @@ public class ConfigDialog extends JDialog {
   }
 
   private void applyChange() {
+    Lizzie.config.applyTheme();
     int[] size = getBoardSize();
     Lizzie.board.reopen(size[0], size[1]);
     if (Lizzie.engineManager == null) {
@@ -1937,6 +1938,9 @@ public class ConfigDialog extends JDialog {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    Lizzie.frame.resetImages();
+    Lizzie.frame.refreshBackground();
+    Lizzie.frame.refresh();
   }
 
   private Integer txtFieldIntValue(JTextField txt) {

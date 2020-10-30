@@ -138,6 +138,10 @@ public class SubBoardPane extends LizziePane {
     //    bs.show();
   }
 
+  public void resetImages() {
+    subBoardRenderer.resetImages();
+  }
+
   /**
    * Checks whether or not something was clicked and performs the appropriate action
    *
