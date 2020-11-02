@@ -557,6 +557,8 @@ public class LizzieMain extends MainFrame {
       invalidLayout();
     } else {
       boardPane.repaint();
+      //    variationTreePane.revalidate();
+      variationTreePane.repaint();
       if (type != 1) {
         updateStatus();
       }
@@ -586,8 +588,6 @@ public class LizzieMain extends MainFrame {
         variationTreePane.setVisible(true);
       }
     }
-    //    variationTreePane.revalidate();
-    variationTreePane.repaint();
     commentPane.drawComment();
     //    commentPane.revalidate();
     commentPane.repaint();
