@@ -1541,7 +1541,7 @@ public class ConfigDialog extends JDialog {
       btnAdd.addActionListener(
           new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              ((BlunderNodeTableModel) tblBlunderNodes.getModel()).addRow("", Color.WHITE);
+              ((BlunderNodeTableModel) tblBlunderNodes.getModel()).addRow(null, Color.WHITE);
             }
           });
       themeTab.add(btnAdd);
@@ -2092,7 +2092,7 @@ public class ConfigDialog extends JDialog {
       if (blunderWinrateThresholds != null) {
         for (Double d : blunderWinrateThresholds) {
           Vector<Object> row = new Vector<Object>();
-          row.add(String.valueOf(d));
+          row.add(d);
           row.add(blunderNodeColors.get(d));
           data.add(row);
         }
@@ -2111,7 +2111,7 @@ public class ConfigDialog extends JDialog {
       return colors;
     }
 
-    public void addRow(String threshold, Color color) {
+    public void addRow(Double threshold, Color color) {
       Vector<Object> row = new Vector<Object>();
       row.add(threshold);
       row.add(color);
@@ -2143,7 +2143,7 @@ public class ConfigDialog extends JDialog {
     }
 
     public Class<?> getColumnClass(int c) {
-      return getValueAt(0, c).getClass();
+      return c == 0 ? Double.class : Color.class;
     }
 
     public void setValueAt(Object value, int row, int col) {
@@ -2156,10 +2156,10 @@ public class ConfigDialog extends JDialog {
     }
 
     private double toDouble(Object x) {
-      final double invalid = -777;
+      final double invalid = 0.0;
       try {
-        return new Double((String) x);
-      } catch (NumberFormatException e) {
+        return (Double) x;
+      } catch (Exception e) {
         return invalid;
       }
     }
