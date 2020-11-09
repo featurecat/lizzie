@@ -650,7 +650,10 @@ public class LizzieFrame extends MainFrame {
             drawContainer(backgroundG.get(), vx, vy, vw, vh);
           }
           if (Lizzie.config.showVariationGraph) {
+            Shape origClip = g.getClip();
+            g.setClip(treex, treey, treew, treeh);
             variationTree.draw(g, treex, treey, treew, treeh);
+            g.setClip(origClip);
           }
           if (Lizzie.config.showComment) {
             drawComment(g, cx, cy, cw, ch);
