@@ -236,7 +236,7 @@ public class Config {
     uiConfig = config.getJSONObject("ui");
     persistedUi = persisted.getJSONObject("ui-persist");
 
-    theme = new Theme(uiConfig);
+    applyTheme();
 
     panelUI = uiConfig.optBoolean("panel-ui", false);
     showBorder = uiConfig.optBoolean("show-border", false);
@@ -272,9 +272,6 @@ public class Config {
     limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
     minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.1);
 
-    winrateStrokeWidth = theme.winrateStrokeWidth();
-    minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
-    shadowSize = theme.shadowSize();
     showLcbWinrate = config.getJSONObject("leelaz").optBoolean("show-lcb-winrate");
 
     showKataGoScoreMean = uiConfig.optBoolean("show-katago-scoremean", true);
@@ -293,6 +290,18 @@ public class Config {
     showNameInBoard = uiConfig.optBoolean("show-name-in-board", true);
     toolbarPosition =
         uiConfig.optString("toolbar-position", persistedUi.optString("toolbar-position", "South"));
+
+    gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
+
+    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
+    setLanguage(Locale.getDefault().getLanguage());
+  }
+
+  public void applyTheme() {
+    theme = new Theme(uiConfig);
+    winrateStrokeWidth = theme.winrateStrokeWidth();
+    minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
+    shadowSize = theme.shadowSize();
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
@@ -313,11 +322,6 @@ public class Config {
     blunderWinrateThresholds = theme.blunderWinrateThresholds();
     blunderNodeColors = theme.blunderNodeColors();
     nodeColorMode = theme.nodeColorMode();
-
-    gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
-
-    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
-    setLanguage(Locale.getDefault().getLanguage());
   }
 
   // Modifies config by adding in values from default_config that are missing.

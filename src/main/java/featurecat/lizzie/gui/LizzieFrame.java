@@ -701,6 +701,11 @@ public class LizzieFrame extends MainFrame {
     redrawBackgroundAnyway = true;
   }
 
+  public void resetImages() {
+    boardRenderer.resetImages();
+    subBoardRenderer.resetImages();
+  }
+
   private Graphics2D createBackground(int width, int hight) {
     cachedBackground = new BufferedImage(width, hight, TYPE_INT_RGB);
     cachedBackgroundWidth = cachedBackground.getWidth();

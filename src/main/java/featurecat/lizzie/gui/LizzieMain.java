@@ -325,6 +325,15 @@ public class LizzieMain extends MainFrame {
     redrawBackgroundAnyway = true;
   }
 
+  public void resetImages() {
+    cachedBasicInfoContainer = emptyImage;
+    cachedWinrateContainer = emptyImage;
+    cachedVariationContainer = emptyImage;
+    cachedWallpaperImage = emptyImage;
+    boardPane.resetImages();
+    subBoardPane.resetImages();
+  }
+
   public BufferedImage getWallpaper() {
     if (cachedWallpaperImage == emptyImage) {
       cachedWallpaperImage = Lizzie.config.theme.background();

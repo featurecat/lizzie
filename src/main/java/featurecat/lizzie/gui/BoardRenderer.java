@@ -1353,6 +1353,18 @@ public class BoardRenderer {
     return cachedWallpaperImage;
   }
 
+  public void resetImages() {
+    cachedBackgroundImage = emptyImage;
+    cachedStonesImage = emptyImage;
+    cachedBoardImage = emptyImage;
+    cachedWallpaperImage = emptyImage;
+    cachedStonesShadowImage = emptyImage;
+    cachedBlackStoneImage = emptyImage;
+    cachedWhiteStoneImage = emptyImage;
+    cachedEstimateLargeRectImage = emptyImage;
+    cachedEstimateSmallRectImage = emptyImage;
+  }
+
   /**
    * Draw scale smooth image, enhanced display quality (Not use, for future) This function use the
    * traditional Image.getScaledInstance() method to provide the nice quality, but the performance

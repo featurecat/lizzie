@@ -158,9 +158,9 @@ public class Utils {
     Optional<Double> st =
         diffWinrate >= 0
             ? Lizzie.config.blunderWinrateThresholds.flatMap(
-                l -> l.stream().filter(t -> (t > 0 && t <= diffWinrate)).reduce((f, s) -> s))
+                l -> l.stream().filter(t -> (t >= 0 && t <= diffWinrate)).reduce((f, s) -> s))
             : Lizzie.config.blunderWinrateThresholds.flatMap(
-                l -> l.stream().filter(t -> (t < 0 && t >= diffWinrate)).reduce((f, s) -> f));
+                l -> l.stream().filter(t -> (t <= 0 && t >= diffWinrate)).reduce((f, s) -> f));
     if (st.isPresent()) {
       return Lizzie.config.blunderNodeColors.map(m -> m.get(st.get())).get();
     } else {

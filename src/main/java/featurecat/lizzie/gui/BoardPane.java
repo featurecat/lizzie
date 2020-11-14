@@ -600,6 +600,10 @@ public class BoardPane extends LizziePane {
     boardRenderer.drawEstimateRect(estimateArray, isZen);
   }
 
+  public void resetImages() {
+    boardRenderer.resetImages();
+  }
+
   public void saveImage() {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));

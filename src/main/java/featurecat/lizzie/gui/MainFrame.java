@@ -160,6 +160,8 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void refreshBackground();
 
+  public abstract void resetImages();
+
   public abstract void clear();
 
   public abstract boolean isMouseOver(int x, int y);
