@@ -130,12 +130,12 @@ public class WinratePane extends LizziePane {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     double curWR = stats.maxWinrate; // winrate on this move
     boolean validWinrate = (stats.totalPlayouts > 0); // and whether it was actually calculated
+    boolean validScore = validWinrate;
     if (!validWinrate) {
       // ref. drawMoveStatistics() in LizzieFrame.java
       curWR = Lizzie.board.getHistory().getData().winrate;
       validWinrate = Lizzie.board.getHistory().getData().getPlayouts() > 0;
     }
-    boolean validScore = validWinrate;
     if (Lizzie.frame.isPlayingAgainstLeelaz
         && Lizzie.frame.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
       validWinrate = false;
