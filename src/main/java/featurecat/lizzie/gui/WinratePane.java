@@ -5,7 +5,9 @@ import static java.lang.Math.min;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.rules.BoardData;
+import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -130,7 +132,6 @@ public class WinratePane extends LizziePane {
     Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
     double curWR = stats.maxWinrate; // winrate on this move
     boolean validWinrate = (stats.totalPlayouts > 0); // and whether it was actually calculated
-    boolean validScore = validWinrate;
     if (!validWinrate) {
       // ref. drawMoveStatistics() in LizzieFrame.java
       curWR = Lizzie.board.getHistory().getData().winrate;
@@ -185,8 +186,11 @@ public class WinratePane extends LizziePane {
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
     String text = "";
+    MoveData bestMove = Utils.getBestMove();
+    boolean validScore = (bestMove != null);
     if (Lizzie.leelaz.isKataGo && validScore) {
-      double score = Lizzie.leelaz.scoreMean;
+      double score = bestMove.scoreMean;
+      double stdev = bestMove.scoreStdev;
       if (Lizzie.board.getHistory().isBlacksTurn()) {
         if (Lizzie.config.showKataGoBoardScoreMean) {
           score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
@@ -208,7 +212,7 @@ public class WinratePane extends LizziePane {
           text
               + LizzieMain.resourceBundle.getString("LizzieFrame.katago.scoreStdev")
               + ":"
-              + String.format("%.1f", Lizzie.leelaz.scoreStdev)
+              + String.format("%.1f", stdev)
               + " ";
     }
     // Last move

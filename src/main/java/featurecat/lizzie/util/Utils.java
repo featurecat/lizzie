@@ -4,6 +4,7 @@ import static java.lang.Math.round;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.gui.BoardRenderer;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
@@ -178,6 +179,11 @@ public class Utils {
       }
     }
     return score;
+  }
+
+  public static MoveData getBestMove() {
+    List<MoveData> bestMoves = Lizzie.board.getHistory().getData().bestMoves;
+    return (bestMoves.size() > 0) ? bestMoves.get(0) : null;
   }
 
   public static Integer txtFieldValue(JTextField txt) {
