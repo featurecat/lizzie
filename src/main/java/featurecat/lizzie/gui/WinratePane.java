@@ -5,7 +5,9 @@ import static java.lang.Math.min;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.rules.BoardData;
+import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -138,7 +140,6 @@ public class WinratePane extends LizziePane {
       curWR = Lizzie.board.getHistory().getData().winrate;
       validWinrate = Lizzie.board.getHistory().getData().getPlayouts() > 0;
     }
-    boolean validScore = validWinrate;
     if (Lizzie.frame.isPlayingAgainstLeelaz
         && Lizzie.frame.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
       validWinrate = false;
@@ -188,8 +189,11 @@ public class WinratePane extends LizziePane {
     setPanelFont(g, (int) (min(width, height) * 0.2));
 
     String text = "";
+    MoveData bestMove = Utils.getBestMove();
+    boolean validScore = (bestMove != null);
     if (Lizzie.leelaz.isKataGo && validScore) {
-      double score = Lizzie.leelaz.scoreMean;
+      double score = bestMove.scoreMean;
+      double stdev = bestMove.scoreStdev;
       if (Lizzie.board.getHistory().isBlacksTurn()) {
         if (Lizzie.config.showKataGoBoardScoreMean) {
           score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
@@ -211,7 +215,7 @@ public class WinratePane extends LizziePane {
           text
               + LizzieMain.resourceBundle.getString("LizzieFrame.katago.scoreStdev")
               + ":"
-              + String.format("%.1f", Lizzie.leelaz.scoreStdev)
+              + String.format("%.1f", stdev)
               + " ";
     }
     // Last move
@@ -230,14 +234,10 @@ public class WinratePane extends LizziePane {
                 + LizzieMain.resourceBundle.getString("LizzieFrame.display.lastMove")
                 + String.format(":%.1f%%", 100 - lastWR - curWR);
       }
-
+    }
+    if (text != "") {
       g.drawString(
           text, posX + 2 * strokeRadius, posY + height - 2 * strokeRadius); // - font.getSize());
-    } else {
-      // I think it's more elegant to just not display anything when we don't have
-      // valid data --dfannius
-      // g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + ": ?%",
-      //              posX + 2 * strokeRadius, posY + height - 2 * strokeRadius);
     }
 
     if (validWinrate || validLastWinrate) {
