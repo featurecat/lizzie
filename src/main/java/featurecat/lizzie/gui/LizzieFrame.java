@@ -1009,13 +1009,10 @@ public class LizzieFrame extends MainFrame {
                 + resourceBundle.getString("LizzieFrame.display.lastMove")
                 + String.format(": %.1f%%", 100 - lastWR - curWR);
       }
+    }
+    if (text != "") {
       g.drawString(
           text, posX + 2 * strokeRadius, posY + height - 2 * strokeRadius); // - font.getSize());
-    } else {
-      // I think it's more elegant to just not display anything when we don't have
-      // valid data --dfannius
-      // g.drawString(resourceBundle.getString("LizzieFrame.display.lastMove") + ": ?%",
-      //              posX + 2 * strokeRadius, posY + height - 2 * strokeRadius);
     }
 
     if (validWinrate || validLastWinrate) {
