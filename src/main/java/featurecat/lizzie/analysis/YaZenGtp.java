@@ -3,6 +3,7 @@ package featurecat.lizzie.analysis;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.gui.CountResults;
 import featurecat.lizzie.rules.MoveList;
+import featurecat.lizzie.util.Utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.swing.JOptionPane;
 
 public class YaZenGtp {
   private static final ResourceBundle resourceBundle =
@@ -53,7 +53,7 @@ public class YaZenGtp {
       process = processBuilder.start();
     } catch (IOException e) {
       // TODO Auto-generated catch block
-      JOptionPane.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
+      Utils.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
       return;
     }
     initializeStreams();
@@ -99,7 +99,7 @@ public class YaZenGtp {
       }
 
       if (line.startsWith("Throw")) {
-        JOptionPane.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
+        Utils.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
         shutdown();
       }
       if (line.startsWith(" ")) {

@@ -8,6 +8,7 @@ import featurecat.lizzie.gui.BoardRenderer;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -28,6 +29,7 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
@@ -296,6 +298,27 @@ public class Utils {
       (new Throwable()).printStackTrace();
       System.out.println("----------------------");
     }
+  }
+
+  public static void showMessageDialog(Component parentComponent, Object message) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            mustBeEventDispatchThread();
+            JOptionPane.showMessageDialog(parentComponent, message);
+          }
+        });
+  }
+
+  public static void showMessageDialog(
+      Component parentComponent, Object message, String title, int messageType) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            mustBeEventDispatchThread();
+            JOptionPane.showMessageDialog(parentComponent, message, title, messageType);
+          }
+        });
   }
 
   public static TransferHandler transFile =
