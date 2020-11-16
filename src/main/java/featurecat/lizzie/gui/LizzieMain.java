@@ -765,6 +765,7 @@ public class LizzieMain extends MainFrame {
   public void clearBeforeMove() {
     // TODO Auto-generated method stub
     subBoardPane.clearBeforeMove();
+    Lizzie.frame.isMouseOver = false;
     if (Lizzie.frame.isEstimating) {
       Lizzie.frame.noEstimateByZen(false);
     }
