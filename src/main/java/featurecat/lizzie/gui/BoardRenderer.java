@@ -264,6 +264,8 @@ public class BoardRenderer {
 
       cachedShadow = null;
       cachedGhostShadow = null;
+      cachedEstimateLargeRectImage = emptyImage;
+      cachedEstimateSmallRectImage = emptyImage;
 
       cachedBackgroundImage = new BufferedImage(width, height, TYPE_INT_ARGB);
       Graphics2D g = cachedBackgroundImage.createGraphics();
