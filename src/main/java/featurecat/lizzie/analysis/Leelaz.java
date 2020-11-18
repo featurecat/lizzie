@@ -53,7 +53,6 @@ public class Leelaz {
 
   public Board board;
   private List<MoveData> bestMoves;
-  private List<MoveData> bestMovesTemp;
 
   private List<LeelazListener> listeners;
 
@@ -107,7 +106,6 @@ public class Leelaz {
   public Leelaz(String engineCommand) throws JSONException {
     board = new Board();
     bestMoves = new ArrayList<>();
-    bestMovesTemp = new ArrayList<>();
     listeners = new CopyOnWriteArrayList<>();
 
     isPondering = false;
@@ -463,26 +461,6 @@ public class Leelaz {
           }
           isCheckingVersion = false;
           Lizzie.initializeAfterVersionCheck(this);
-        }
-      }
-    }
-  }
-
-  /**
-   * Parse a move-data line of Leelaz output
-   *
-   * @param line output line
-   */
-  private void parseMoveDataLine(String line) {
-    line = line.trim();
-    // ignore passes, and only accept lines that start with a coordinate letter
-    if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
-      if (!(Lizzie.frame.isPlayingAgainstLeelaz
-          && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
-        try {
-          bestMovesTemp.add(MoveData.fromInfo(line));
-        } catch (ArrayIndexOutOfBoundsException e) {
-          // this is very rare but is possible. ignore
         }
       }
     }
