@@ -7,6 +7,7 @@ import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.gui.LizzieMain;
 import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JOptionPane;
@@ -55,7 +56,7 @@ public class Lizzie {
       }
     } catch (IOException e) {
       frame.openConfigDialog();
-      JOptionPane.showMessageDialog(frame, "Please restart Lizzie to apply changes.");
+      Utils.showMessageDialog(frame, "Please restart Lizzie to apply changes.");
       System.exit(1);
     }
   }
