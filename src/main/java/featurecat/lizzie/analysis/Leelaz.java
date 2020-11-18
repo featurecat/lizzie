@@ -406,7 +406,6 @@ public class Leelaz {
       } else if (line.startsWith("=") || line.startsWith("?")) {
         if (printCommunication || gtpConsole) {
           System.out.print(line);
-          Lizzie.gtpConsole.addLine(line);
         }
         String[] params = line.trim().split(" ");
         currentCmdNum = Integer.parseInt(params[0].substring(1).trim());
