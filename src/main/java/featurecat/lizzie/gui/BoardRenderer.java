@@ -1924,15 +1924,15 @@ public class BoardRenderer {
     float redHue = Color.RGBtoHSB(255, 0, 0, null)[0];
     float greenHue = Color.RGBtoHSB(0, 255, 0, null)[0];
     float cyanHue = Color.RGBtoHSB(0, 255, 255, null)[0];
+    List<MoveData> bestMoves = Lizzie.leelaz.getBestMoves();
 
-    if (Lizzie.frame.isShowingPolicy && !Lizzie.leelaz.getBestMoves().isEmpty()) {
+    if (Lizzie.frame.isShowingPolicy && !bestMoves.isEmpty()) {
       Double maxPolicy = 0.0;
-      for (int n = 0; n < Lizzie.leelaz.getBestMoves().size(); n++) {
-        if (Lizzie.leelaz.getBestMoves().get(n).policy > maxPolicy)
-          maxPolicy = Lizzie.leelaz.getBestMoves().get(n).policy;
+      for (int n = 0; n < bestMoves.size(); n++) {
+        if (bestMoves.get(n).policy > maxPolicy) maxPolicy = bestMoves.get(n).policy;
       }
-      for (int i = 0; i < Lizzie.leelaz.getBestMoves().size(); i++) {
-        MoveData bestmove = Lizzie.leelaz.getBestMoves().get(i);
+      for (int i = 0; i < bestMoves.size(); i++) {
+        MoveData bestmove = bestMoves.get(i);
         int y1 = 0;
         int x1 = 0;
         Optional<int[]> coord = Board.asCoordinates(bestmove.coordinate);
@@ -1972,8 +1972,7 @@ public class BoardRenderer {
             g.setColor(color);
             fillCircle(g, suggestionX, suggestionY, stoneRadius);
 
-            String text =
-                String.format("%.1f", ((double) Lizzie.leelaz.getBestMoves().get(i).policy));
+            String text = String.format("%.1f", ((double) bestMoves.get(i).policy));
             g.setColor(Color.WHITE);
             drawString(
                 g,
