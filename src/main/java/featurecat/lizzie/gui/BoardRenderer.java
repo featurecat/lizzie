@@ -1926,6 +1926,9 @@ public class BoardRenderer {
     float cyanHue = Color.RGBtoHSB(0, 255, 255, null)[0];
     List<MoveData> bestMoves = Lizzie.leelaz.getBestMoves();
 
+    if (bestMoves.isEmpty() && Lizzie.config.showBestMovesByHold)
+      bestMoves = Lizzie.board.getData().bestMoves;
+
     if (Lizzie.frame.isShowingPolicy && !bestMoves.isEmpty()) {
       Double maxPolicy = 0.0;
       for (int n = 0; n < bestMoves.size(); n++) {
