@@ -698,6 +698,12 @@ public class Menu extends JMenuBar {
             Lizzie.config.showKataGoEstimate = false;
             if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
             Lizzie.frame.removeEstimateRect();
+            Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
           }
         });
 
