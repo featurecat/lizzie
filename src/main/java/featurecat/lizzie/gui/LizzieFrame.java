@@ -252,11 +252,18 @@ public class LizzieFrame extends MainFrame {
             if (Lizzie.leelaz == null) return;
             try {
               int totalPlayouts = MoveData.getPlayouts(Lizzie.leelaz.getBestMoves());
-              if (totalPlayouts <= 0) return;
+              int recorderTotalPlayouts = Lizzie.board.getData().getPlayouts();
+              int displayedTotalPlayouts = Math.max(totalPlayouts, recorderTotalPlayouts);
+              if (displayedTotalPlayouts <= 0) return;
+              boolean showingRecorded =
+                  (totalPlayouts < displayedTotalPlayouts) && (totalPlayouts > 0);
+              String backgroundTotalPlayoutsString =
+                  showingRecorded ? String.format("%d/", totalPlayouts) : "";
               visitsString =
                   String.format(
-                      " %d playouts, %d visits/second",
-                      totalPlayouts,
+                      " %s%d playouts, %d visits/second",
+                      backgroundTotalPlayoutsString,
+                      displayedTotalPlayouts,
                       (totalPlayouts > lastPlayouts) ? totalPlayouts - lastPlayouts : 0);
               updateTitle();
               lastPlayouts = totalPlayouts;
