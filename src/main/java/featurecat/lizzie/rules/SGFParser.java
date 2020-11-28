@@ -290,12 +290,12 @@ public class SGFParser {
             line1[1] =
                 line1[1].replaceAll(",", "."); // fix a decimal representation localization issue
             Lizzie.board.getData().winrate = 100 - Double.parseDouble(line1[1]);
+            String playoutsStr = line1[2];
+            int kilo = 1000;
+            int playoutsUnit =
+                playoutsStr.endsWith("m") ? kilo * kilo : playoutsStr.endsWith("k") ? kilo : 1;
             int numPlayouts =
-                Integer.parseInt(
-                    line1[2]
-                        .replaceAll("k", "000")
-                        .replaceAll("m", "000000")
-                        .replaceAll("[^0-9]", ""));
+                (int) (Double.parseDouble(playoutsStr.replaceAll("[^0-9.]", "")) * playoutsUnit);
             Lizzie.board.getData().setPlayouts(numPlayouts);
             if (numPlayouts > 0 && !line2.isEmpty()) {
               Lizzie.board.getData().bestMoves = Lizzie.leelaz.parseInfo(line2);
