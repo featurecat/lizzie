@@ -1829,9 +1829,8 @@ public class ConfigDialog extends JDialog {
           new FileNameExtensionFilter(
               resourceBundle.getString("LizzieConfig.title.engine"), "exe", "bat", "sh");
       chooser.setFileFilter(filter);
-    } else {
-      //setVisible(false);
     }
+
     chooser.setMultiSelectionEnabled(false);
     chooser.setDialogTitle(resourceBundle.getString("LizzieConfig.prompt.selectEngine"));
     int result = chooser.showOpenDialog(this);
@@ -1931,9 +1930,7 @@ public class ConfigDialog extends JDialog {
       Lizzie.initializeEngineManager();
     }
     try {
-      //if (Lizzie.engineManager != null) {
-        Lizzie.engineManager.refresh();
-      //}
+      Lizzie.engineManager.refresh();
     } catch (JSONException e) {
       e.printStackTrace();
     } catch (IOException e) {
