@@ -38,15 +38,16 @@ public class Lizzie {
   public static void initializeEngineManager() {
     try {
       engineManager = new EngineManager(config);
-      if (mainArgs.length == 1) {
-        frame.loadFile(new File(mainArgs[0]));
-      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-        board.resumePreviousGame();
-      }
     } catch (IOException e) {
       frame.openConfigDialog();
       JOptionPane.showMessageDialog(frame, "Please restart Lizzie to apply changes.");
       System.exit(1);
+    }
+
+    if (mainArgs.length == 1) {
+      frame.loadFile(new File(mainArgs[0]));
+    } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+      board.resumePreviousGame();
     }
   }
 
