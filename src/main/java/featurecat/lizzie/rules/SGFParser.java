@@ -29,6 +29,7 @@ public class SGFParser {
   private static final String[] listProps =
       new String[] {"LB", "CR", "SQ", "MA", "TR", "AB", "AW", "AE"};
   private static final String[] markupProps = new String[] {"LB", "CR", "SQ", "MA", "TR"};
+  private static final String writerEncoding = "UTF-8";
 
   public static boolean load(String filename) throws IOException {
     // Clear the board
@@ -567,7 +568,7 @@ public class SGFParser {
   }
 
   public static void save(Board board, String filename) throws IOException {
-    try (Writer writer = new OutputStreamWriter(new FileOutputStream(filename))) {
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(filename), writerEncoding)) {
       saveToStream(board, writer);
     }
   }
@@ -588,7 +589,8 @@ public class SGFParser {
     if (handicap != 0) generalProps.append(String.format("HA[%s]", handicap));
     generalProps.append(
         String.format(
-            "KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]SZ[%s]",
+            "CA[%s]KM[%s]PW[%s]PB[%s]DT[%s]AP[Lizzie: %s]SZ[%s]",
+            writerEncoding,
             komi,
             playerW,
             playerB,
@@ -935,7 +937,11 @@ public class SGFParser {
    */
   public static String propertiesString(Map<String, String> props) {
     StringBuilder sb = new StringBuilder();
-    props.forEach((key, value) -> sb.append(nodeString(key, value)));
+    // Place "CA" before non-ASCII characters for safety.
+    String charsetKey = "CA";
+    String charsetValue = props.get(charsetKey);
+    if (charsetValue != null) sb.append(nodeString(charsetKey, charsetValue));
+    props.forEach((key, value) -> sb.append(key == charsetKey ? "" : nodeString(key, value)));
     return sb.toString();
   }
 
