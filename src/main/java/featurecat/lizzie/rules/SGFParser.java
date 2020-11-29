@@ -937,7 +937,11 @@ public class SGFParser {
    */
   public static String propertiesString(Map<String, String> props) {
     StringBuilder sb = new StringBuilder();
-    props.forEach((key, value) -> sb.append(nodeString(key, value)));
+    // Place "CA" before non-ASCII characters for safety.
+    String charsetKey = "CA";
+    String charsetValue = props.get(charsetKey);
+    if (charsetValue != null) sb.append(nodeString(charsetKey, charsetValue));
+    props.forEach((key, value) -> sb.append(key == charsetKey ? "" : nodeString(key, value)));
     return sb.toString();
   }
 
