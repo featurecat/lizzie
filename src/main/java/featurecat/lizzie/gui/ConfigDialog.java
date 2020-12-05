@@ -1827,9 +1827,8 @@ public class ConfigDialog extends LizzieDialog {
           new FileNameExtensionFilter(
               resourceBundle.getString("LizzieConfig.title.engine"), "exe", "bat", "sh");
       chooser.setFileFilter(filter);
-    } else {
-      setVisible(false);
     }
+
     chooser.setMultiSelectionEnabled(false);
     chooser.setDialogTitle(resourceBundle.getString("LizzieConfig.prompt.selectEngine"));
     int result = chooser.showOpenDialog(this);

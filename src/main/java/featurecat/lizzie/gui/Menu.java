@@ -698,6 +698,12 @@ public class Menu extends JMenuBar {
             Lizzie.config.showKataGoEstimate = false;
             if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
             Lizzie.frame.removeEstimateRect();
+            Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
           }
         });
 
@@ -1387,6 +1393,7 @@ public class Menu extends JMenuBar {
       if (engineDt != null) {
         if (engineDt.nicknameOrCurrentWeight() != "")
           engine[i].setText(engine[i].getText() + " : " + engineDt.nicknameOrCurrentWeight());
+        engine[i].setToolTipText(engineDt.engineCommand());
         engine[i].setVisible(true);
         int a = i;
         engine[i].addActionListener(
