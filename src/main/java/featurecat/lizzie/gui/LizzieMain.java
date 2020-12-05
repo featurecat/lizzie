@@ -126,6 +126,11 @@ public class LizzieMain extends MainFrame {
               }
               // draw the image
               Graphics2D bsGraphics = (Graphics2D) g; // bs.getDrawGraphics();
+              // Note: #781 is caused by repaint of other parts (toolBar in particular) with
+              // VALUE_ANTIALIAS_ON. To prevent such unwilling side effects, we change
+              // RenderingHints only temporary here and restore their old values at the bottom of
+              // this method.
+              RenderingHints oldHints = bsGraphics.getRenderingHints();
               bsGraphics.setRenderingHint(
                   RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
               bsGraphics.setRenderingHint(
@@ -178,6 +183,7 @@ public class LizzieMain extends MainFrame {
               } else if (Lizzie.config.showStatus) {
                 drawPonderingState(bsGraphics, loadingText(), loadingX, loadingY, loadingSize);
               }
+              bsGraphics.setRenderingHints(oldHints);
             }
           }
         };
