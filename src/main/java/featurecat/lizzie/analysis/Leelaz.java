@@ -694,6 +694,7 @@ public class Leelaz {
       isPondering = true;
       startPonderTime = System.currentTimeMillis();
     }
+    Lizzie.board.regionOfInterest.reset();
     sendCommand(
         String.format(
             "lz-analyze %d %s",
@@ -725,9 +726,24 @@ public class Leelaz {
                   .config
                   .getJSONObject("leelaz")
                   .getInt("analyze-update-interval-centisec")
+              + regionOfInterestCommand()
               + (this.isKataGo && Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
     // until it responds to this, incoming
     // ponder results are obsolete
+  }
+
+  private String regionOfInterestCommand() {
+    return regionOfInterestCommand("B") + regionOfInterestCommand("W");
+  }
+
+  private String regionOfInterestCommand(String color) {
+    if (Lizzie.board.regionOfInterest.isEnabled()) {
+      int untilDepth = 1;
+      String vertices = Lizzie.board.regionOfInterest.vertices();
+      return String.format(" allow %s %s %d", color, vertices, untilDepth);
+    } else {
+      return "";
+    }
   }
 
   public void togglePonder() {
