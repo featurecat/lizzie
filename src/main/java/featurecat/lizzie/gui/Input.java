@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.*;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
@@ -19,6 +20,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   public void mousePressed(MouseEvent e) {
     Lizzie.frame.toolBar.setTxtUnfocus();
     if (Lizzie.frame.subBoardOnClick(e)) return;
+    if (e.isAltDown() && e.getButton() == MouseEvent.BUTTON1) {
+      startSettingRegionOfInterest(e);
+      Lizzie.frame.refresh();
+      return;
+    }
     if (e.getButton() == MouseEvent.BUTTON1) { // left click
       if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
         Lizzie.frame.onDoubleClicked(e.getX(), e.getY());
@@ -32,7 +38,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   }
 
   @Override
-  public void mouseReleased(MouseEvent e) {}
+  public void mouseReleased(MouseEvent e) {
+    finishSettingRegionOfInterest();
+  }
 
   @Override
   public void mouseEntered(MouseEvent e) {}
@@ -42,6 +50,10 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseDragged(MouseEvent e) {
+    if (e.isAltDown()) {
+      if (updateRegionOfInterest(e)) Lizzie.frame.refresh();
+      return;
+    }
     Lizzie.frame.onMouseDragged(e.getX(), e.getY());
   }
 
@@ -52,6 +64,27 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void keyTyped(KeyEvent e) {}
+
+  public void startSettingRegionOfInterest(MouseEvent e) {
+    Optional<int[]> coord = mouseToCoord(e);
+    if (coord.isPresent()) Lizzie.board.regionOfInterest.startSetting(coord.get());
+  }
+
+  private void finishSettingRegionOfInterest() {
+    if (!Lizzie.board.regionOfInterest.isInSetting()) return;
+    Lizzie.board.regionOfInterest.finishSetting();
+    Lizzie.frame.refresh();
+    if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
+  }
+
+  private boolean updateRegionOfInterest(MouseEvent e) {
+    Optional<int[]> coord = mouseToCoord(e);
+    return coord.isPresent() && Lizzie.board.regionOfInterest.updateSetting(coord.get());
+  }
+
+  private Optional<int[]> mouseToCoord(MouseEvent e) {
+    return Lizzie.frame.convertScreenToCoordinates(e.getX(), e.getY());
+  }
 
   public static void undo() {
     undo(1);

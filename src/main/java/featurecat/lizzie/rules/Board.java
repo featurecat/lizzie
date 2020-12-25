@@ -58,6 +58,8 @@ public class Board implements LeelazListener {
   public boolean isAvoding = false;
   public boolean isKeepingAvoid = false;
 
+  public RegionOfInterest regionOfInterest = new RegionOfInterest();
+
   // Save the node for restore move when in the branch
   private Optional<BoardHistoryNode> saveNode;
 
