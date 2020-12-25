@@ -2,9 +2,11 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
@@ -1391,6 +1393,28 @@ public class Menu extends JMenuBar {
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    }
+
+    final JMenu helpMenu = new JMenu("Help");
+    this.add(helpMenu);
+
+    final JMenuItem keyboardControlsHelp = new JMenuItem("Keyboard controls");
+    keyboardControlsHelp.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            browse("https://github.com/featurecat/lizzie/issues/832");
+          }
+        });
+    helpMenu.add(keyboardControlsHelp);
+  }
+
+  private void browse(String uriString) {
+    if (Desktop.isDesktopSupported()) {
+      try {
+        Desktop.getDesktop().browse(new URI(uriString));
+      } catch (Exception ex) {
+      }
     }
   }
 
