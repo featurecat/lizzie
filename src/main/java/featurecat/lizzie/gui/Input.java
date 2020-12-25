@@ -192,10 +192,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   private void moveBranchUp() {
     Lizzie.board.moveBranchUp();
+    Lizzie.frame.repaint();
   }
 
   private void moveBranchDown() {
     Lizzie.board.moveBranchDown();
+    Lizzie.frame.repaint();
   }
 
   private void deleteMove() {
