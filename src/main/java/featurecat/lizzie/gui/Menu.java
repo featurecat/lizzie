@@ -1233,6 +1233,19 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoRight);
 
+    gameMenu.addSeparator();
+
+    final JCheckBoxMenuItem scoreMode = new JCheckBoxMenuItem("Score game");
+    gameMenu.add(scoreMode);
+    scoreMode.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.board.setScoreMode(scoreMode.isSelected());
+            Lizzie.frame.repaint();
+          }
+        });
+
     final JMenu analyzeMenu = new JMenu(resourceBundle.getString("Menu.analyze"));
     this.add(analyzeMenu);
 
