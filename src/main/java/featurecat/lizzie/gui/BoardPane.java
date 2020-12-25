@@ -54,7 +54,8 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.mouseWheelScroll"),
     resourceBundle.getString("LizzieFrame.commands.keyC"),
     resourceBundle.getString("LizzieFrame.commands.keyP"),
-    resourceBundle.getString("LizzieFrame.commands.keyPeriod"),
+    // scoreMode has no keyboard binding in 0.7.4.
+    // resourceBundle.getString("LizzieFrame.commands.keyPeriod"),
     resourceBundle.getString("LizzieFrame.commands.keyA"),
     resourceBundle.getString("LizzieFrame.commands.keyM"),
     resourceBundle.getString("LizzieFrame.commands.keyI"),
@@ -79,7 +80,8 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
     resourceBundle.getString("LizzieFrame.commands.keyDelete"),
     resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
-    resourceBundle.getString("LizzieFrame.commands.keyE"),
+    // This is keyK actually in 0.7.4.
+    // resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
 
   private static BoardRenderer boardRenderer;
