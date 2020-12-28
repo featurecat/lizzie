@@ -24,6 +24,21 @@ public class Menu extends JMenuBar {
   public static JMenu engineMenu;
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
+  private static JMenu kataGoRuleMenu;
+  private static final String[] kataGoRuleNames = {
+    "tromp-taylor",
+    "chinese",
+    "chinese-ogs",
+    "chinese-kgs",
+    "japanese",
+    "korean",
+    "stone-scoring",
+    "aga",
+    "bga",
+    "new-zealand",
+    "aga-button",
+  };
+
   public Menu() {
     setBorder(new EmptyBorder(0, 0, 0, 0));
     final JMenu fileMenu = new JMenu(resourceBundle.getString("Menu.file"));
@@ -1294,6 +1309,35 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(estimate);
 
+    kataGoRuleMenu = new JMenu("Rule");
+    kataGoRuleMenu.setEnabled(false);
+    analyzeMenu.add(kataGoRuleMenu);
+
+    final ButtonGroup kataGoRuleGroup = new ButtonGroup();
+
+    for (String rule : kataGoRuleNames) {
+      boolean selected = rule.equals(Lizzie.config.kataGoRule);
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(rule, selected);
+      item.addActionListener(
+          new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              if (rule.equals(Lizzie.config.kataGoRule)) return;
+              Lizzie.config.setKataGoRule(rule);
+              Lizzie.leelaz.updateKataGoRule(true);
+              Lizzie.board.clearAnalysis();
+              Lizzie.frame.refresh();
+              try {
+                Lizzie.config.save();
+              } catch (IOException es) {
+                // TODO Auto-generated catch block
+              }
+            }
+          });
+      kataGoRuleGroup.add(item);
+      kataGoRuleMenu.add(item);
+    }
+
     analyzeMenu.addMenuListener(
         new MenuListener() {
           public void menuSelected(MenuEvent e) {
@@ -1407,6 +1451,7 @@ public class Menu extends JMenuBar {
             if (i == currentEngineNo) {
               engine[i].setIcon(running);
               engineMenu.setText(engine[i].getText());
+              kataGoRuleMenu.setEnabled(engineDt.isKataGo);
             } else if (engineDt.isLoaded()) engine[i].setIcon(ready);
             else if (engine[i].getIcon() != null) engine[i].setIcon(null);
           }
