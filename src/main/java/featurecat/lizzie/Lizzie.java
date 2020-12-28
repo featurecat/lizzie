@@ -51,6 +51,7 @@ public class Lizzie {
   }
 
   public static void initializeAfterVersionCheck(Leelaz lz) {
+    lz.updateKataGoRule();
     if (config.handicapInsteadOfWinrate) {
       lz.estimatePassWinrate();
     }
