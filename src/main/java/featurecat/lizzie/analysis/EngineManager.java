@@ -117,6 +117,7 @@ public class EngineManager {
       if (!newEng.isStarted()) {
         newEng.startEngine();
       } else {
+        newEng.updateKataGoRule();
         if (!newEng.isPondering()) {
           newEng.togglePonder();
         }
