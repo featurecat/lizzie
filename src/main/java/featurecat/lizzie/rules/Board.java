@@ -1385,7 +1385,10 @@ public class Board implements LeelazListener {
       Lizzie.leelaz.removeListener(this);
       analysisMode = false;
     } else {
-      if (!getNextMove().isPresent()) return;
+      if (!getNextMove().isPresent()) {
+        JOptionPane.showMessageDialog(null, "No next move.");
+        return;
+      }
       String answer =
           JOptionPane.showInputDialog(
               "# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
