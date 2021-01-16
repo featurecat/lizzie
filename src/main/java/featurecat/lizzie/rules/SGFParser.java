@@ -1,12 +1,11 @@
 package featurecat.lizzie.rules;
 
-import static java.util.Arrays.asList;
-
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.util.EncodingDetector;
 import featurecat.lizzie.util.Utils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,6 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.util.Arrays.asList;
 
 public class SGFParser {
   private static final SimpleDateFormat SGF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -165,6 +166,7 @@ public class SGFParser {
     }
 
     String blackPlayer = "", whitePlayer = "";
+    String blackPlayerRank = "", whitePlayerRank = "";
 
     // Support unicode characters (UTF-8)
     for (int i = 0; i < value.length(); i++) {
@@ -384,6 +386,10 @@ public class SGFParser {
             } else {
               history.getGameInfo().setPlayerWhite(whitePlayer);
             }
+          } else if (tag.equals("BR")) {
+            blackPlayerRank = tagContent;
+          } else if (tag.equals("WR")) {
+            whitePlayerRank = tagContent;
           } else if (tag.equals("KM")) {
             try {
               if (tagContent.trim().isEmpty()) {
@@ -428,11 +434,11 @@ public class SGFParser {
                   // Save the step count
                   subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                   Stone color =
-                      ((history == null
+                          ((history == null
                                   && Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE)
-                              || (history != null && history.getLastMoveColor() == Stone.WHITE))
-                          ? Stone.BLACK
-                          : Stone.WHITE;
+                                  || (history != null && history.getLastMoveColor() == Stone.WHITE))
+                                  ? Stone.BLACK
+                                  : Stone.WHITE;
                   boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
                   if (history == null) {
                     Lizzie.board.pass(color, newBranch, true);
@@ -457,10 +463,10 @@ public class SGFParser {
                 if (move != null) {
                   if (history == null) {
                     Lizzie.board.removeStone(
-                        move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                            move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
                   } else {
                     history.removeStone(
-                        move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                            move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
                   }
                 }
               } else {
@@ -500,13 +506,31 @@ public class SGFParser {
       }
     }
 
+    //adjust player name
+    if (!Utils.isBlank(blackPlayerRank)) {
+      blackPlayer = blackPlayer + " " + blackPlayerRank;
+      if (history == null) {
+        Lizzie.board.getHistory().getGameInfo().setPlayerBlack(blackPlayer);
+      } else {
+        history.getGameInfo().setPlayerBlack(blackPlayer);
+      }
+    }
+    if (!Utils.isBlank(whitePlayerRank)) {
+      whitePlayer = whitePlayer + " " + whitePlayerRank;
+      if (history == null) {
+        Lizzie.board.getHistory().getGameInfo().setPlayerWhite(whitePlayer);
+      } else {
+        history.getGameInfo().setPlayerWhite(whitePlayer);
+      }
+    }
+
     if (isBranch) {
       history.toBranchTop();
     } else {
       Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
       if (history == null) {
         if (!Utils.isBlank(gameProperties.get("RE"))
-            && Utils.isBlank(Lizzie.board.getHistory().getData().comment)) {
+                && Utils.isBlank(Lizzie.board.getHistory().getData().comment)) {
           Lizzie.board.getHistory().getData().comment = gameProperties.get("RE");
         }
 
