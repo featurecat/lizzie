@@ -3,12 +3,8 @@ package featurecat.lizzie.gui;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.util.Utils;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -135,16 +131,18 @@ public class VariationTree {
           if (startNode == curMove) {
             g.setColor(Color.BLACK);
             g.fillOval(
-                curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
-                posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
-                CENTER_DIAM,
-                CENTER_DIAM);
+                    curposx + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+                    posy + (DOT_DIAM + diff - CENTER_DIAM) / 2,
+                    CENTER_DIAM,
+                    CENTER_DIAM);
           }
         } else {
           g.fillRect(curposx, posy, DOT_DIAM, DOT_DIAM);
           g.setColor(Color.BLACK);
           g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
         }
+        g.setColor(Color.black);
+        g.drawString(String.valueOf(startNode.getData().moveNumber), curposx + RING_DIAM, posy + RING_DIAM);
       }
       g.setColor(curcolor);
     }
@@ -189,14 +187,16 @@ public class VariationTree {
         }
         g.setColor(curcolor);
         g.drawLine(
-            curposx + dotoffset,
-            posy - 1 + diff,
-            curposx + dotoffset,
-            posy
-                - YSPACING
-                + dotoffset
-                + (diff > 0 ? dotoffset + 1 : dotoffsety)
-                + (Lizzie.config.nodeColorMode == 0 ? 1 : 0));
+                curposx + dotoffset,
+                posy - 1 + diff,
+                curposx + dotoffset,
+                posy
+                        - YSPACING
+                        + dotoffset
+                        + (diff > 0 ? dotoffset + 1 : dotoffsety)
+                        + (Lizzie.config.nodeColorMode == 0 ? 1 : 0));
+        g.setColor(Color.black);
+        g.drawString(String.valueOf(cur.getData().moveNumber), curposx + RING_DIAM, posy + RING_DIAM);
       }
     }
     // Now we have drawn all the nodes in this variation, and has reached the bottom of this
