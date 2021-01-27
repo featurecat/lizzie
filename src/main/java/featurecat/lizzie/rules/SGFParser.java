@@ -686,20 +686,20 @@ public class SGFParser {
         // Node properties
         builder.append(data.propertiesString());
 
-//        if (Lizzie.config.appendWinrateToComment) {
-//          // Append the winrate to the comment of sgf
-//          data.comment = formatComment(node);
-//        }
-//
-//        // Write the comment
-//        if (!data.comment.isEmpty()) {
-//          builder.append(String.format("C[%s]", Escaping(data.comment)));
-//        }
-//
-//        // Add LZ specific data to restore on next load
-//        if (Lizzie.config.holdBestMovesToSgf) {
-//          builder.append(String.format("LZ[%s]", formatNodeData(node)));
-//        }
+        if (Lizzie.config.appendWinrateToComment) {
+          // Append the winrate to the comment of sgf
+          data.comment = formatComment(node);
+        }
+
+        // Write the comment
+        if (!data.comment.isEmpty()) {
+          builder.append(String.format("C[%s]", Escaping(data.comment)));
+        }
+
+        // Add LZ specific data to restore on next load
+        if (Lizzie.config.holdBestMovesToSgf) {
+          builder.append(String.format("LZ[%s]", formatNodeData(node)));
+        }
       }
 
       if (node.numberOfChildren() > 1) {
