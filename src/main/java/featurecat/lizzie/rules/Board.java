@@ -518,8 +518,7 @@ public class Board implements LeelazListener {
       Zobrist zobrist = history.getZobrist();
       Optional<int[]> lastMove = Optional.of(new int[] {x, y});
       int moveNumber = history.getMoveNumber() + 1;
-      int moveMNNumber =
-          history.getMoveMNNumber() > -1 && !newBranch ? history.getMoveMNNumber() + 1 : -1;
+      int moveMNNumber =!newBranch||history.getData().firstBranch ? history.getMoveMNNumber() + 1 : 1;
       int[] moveNumberList =
           newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardWidth * Board.boardHeight]

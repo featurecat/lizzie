@@ -166,6 +166,7 @@ public class SGFParser {
 
     String blackPlayer = "", whitePlayer = "";
 
+    int previousDepth=-1;
     // Support unicode characters (UTF-8)
     for (int i = 0; i < value.length(); i++) {
       char c = value.charAt(i);
@@ -181,6 +182,8 @@ public class SGFParser {
           if (!inTag) {
             subTreeDepth += 1;
             // Initialize the step count
+            Lizzie.board.getData().firstBranch=previousDepth<subTreeDepth;
+            previousDepth=subTreeDepth;
             subTreeStepMap.put(subTreeDepth, 0);
             addPassForMove = true;
             pendingProps = new HashMap<String, String>();
@@ -683,20 +686,20 @@ public class SGFParser {
         // Node properties
         builder.append(data.propertiesString());
 
-        if (Lizzie.config.appendWinrateToComment) {
-          // Append the winrate to the comment of sgf
-          data.comment = formatComment(node);
-        }
-
-        // Write the comment
-        if (!data.comment.isEmpty()) {
-          builder.append(String.format("C[%s]", Escaping(data.comment)));
-        }
-
-        // Add LZ specific data to restore on next load
-        if (Lizzie.config.holdBestMovesToSgf) {
-          builder.append(String.format("LZ[%s]", formatNodeData(node)));
-        }
+//        if (Lizzie.config.appendWinrateToComment) {
+//          // Append the winrate to the comment of sgf
+//          data.comment = formatComment(node);
+//        }
+//
+//        // Write the comment
+//        if (!data.comment.isEmpty()) {
+//          builder.append(String.format("C[%s]", Escaping(data.comment)));
+//        }
+//
+//        // Add LZ specific data to restore on next load
+//        if (Lizzie.config.holdBestMovesToSgf) {
+//          builder.append(String.format("LZ[%s]", formatNodeData(node)));
+//        }
       }
 
       if (node.numberOfChildren() > 1) {
