@@ -1683,7 +1683,12 @@ public class ConfigDialog extends JDialog {
                 int squareLength = 30;
                 int stoneRadius = squareLength < 4 ? 1 : squareLength / 2 - 1;
                 int size = stoneRadius * 2 + 1;
-                double r = stoneRadius * Lizzie.config.shadowSize / 100;
+                double r =
+                    stoneRadius
+                        * (theme == null || cmbThemes.getSelectedIndex() <= 0
+                            ? Lizzie.config.shadowSize
+                            : theme.shadowSize())
+                        / 100;
                 int shadowSize = (int) (r * 0.3) == 0 ? 1 : (int) (r * 0.3);
                 int fartherShadowSize = (int) (r * 0.17) == 0 ? 1 : (int) (r * 0.17);
                 int stoneX = x + squareLength * 2;
@@ -2034,9 +2039,23 @@ public class ConfigDialog extends JDialog {
 
   private class ColorEditor extends AbstractCellEditor implements TableCellEditor, ActionListener {
     ColorLabel cl;
+    int row;
 
     public ColorEditor(JDialog owner) {
       cl = new ColorLabel(owner);
+      cl.addMouseListener(
+          new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+              Vector<Object> newRow = new Vector<Object>();
+              Vector<Vector<Object>> data =
+                  ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getData();
+              newRow.add(String.valueOf(data.get(row).get(0)));
+              newRow.add(cl.getColor());
+              data.remove(row);
+              data.add(row, newRow);
+            }
+          });
     }
 
     public Object getCellEditorValue() {
@@ -2045,6 +2064,7 @@ public class ConfigDialog extends JDialog {
 
     public Component getTableCellEditorComponent(
         JTable table, Object value, boolean isSelected, int row, int column) {
+      this.row = row;
       cl.setColor((Color) value);
       return cl;
     }
@@ -2095,6 +2115,10 @@ public class ConfigDialog extends JDialog {
       }
     }
 
+    public Vector<Vector<Object>> getData() {
+      return data;
+    }
+
     public JSONArray getThresholdArray() {
       JSONArray thresholds = new JSONArray("[]");
       data.forEach(d -> thresholds.put(new Double((String) d.get(0))));
@@ -2118,7 +2142,8 @@ public class ConfigDialog extends JDialog {
     public void removeRow(int index) {
       if (index >= 0 && index < data.size()) {
         data.remove(index);
-        fireTableRowsDeleted(0, data.size() - 1);
+        if (data.size() > 0) fireTableRowsDeleted(0, data.size() - 1);
+        tblBlunderNodes.updateUI();
       }
     }
 
