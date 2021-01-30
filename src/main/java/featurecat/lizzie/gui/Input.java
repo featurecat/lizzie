@@ -470,23 +470,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_D:
-        if (Lizzie.leelaz.isKataGo) {
-          if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate) {
-            Lizzie.config.showKataGoScoreMean = false;
-            Lizzie.config.kataGoNotShowWinrate = false;
+        if (Lizzie.leelaz.supportScoremean()) {
+          if (Lizzie.config.showScoremeanInSuggestion && !Lizzie.config.showWinrateInSuggestion) {
+            Lizzie.config.showScoremeanInSuggestion = false;
+            Lizzie.config.showWinrateInSuggestion = true;
             break;
           }
-          if (Lizzie.config.showKataGoScoreMean && !Lizzie.config.kataGoNotShowWinrate) {
-            Lizzie.config.kataGoNotShowWinrate = true;
+          if (Lizzie.config.showScoremeanInSuggestion && Lizzie.config.showWinrateInSuggestion) {
+            Lizzie.config.showWinrateInSuggestion = false;
             break;
           }
-          if (Lizzie.config.showKataGoScoreMean) {
-            Lizzie.config.showKataGoScoreMean = false;
-            break;
-          }
-          if (!Lizzie.config.showKataGoScoreMean) {
-            Lizzie.config.showKataGoScoreMean = true;
-            Lizzie.config.kataGoNotShowWinrate = false;
+          if (!Lizzie.config.showScoremeanInSuggestion) {
+            Lizzie.config.showScoremeanInSuggestion = true;
+            Lizzie.config.showWinrateInSuggestion = true;
           }
         } else {
           toggleShowDynamicKomi();
