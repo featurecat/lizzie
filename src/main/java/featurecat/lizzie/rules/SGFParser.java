@@ -166,7 +166,7 @@ public class SGFParser {
 
     String blackPlayer = "", whitePlayer = "";
 
-    int previousDepth=-1;
+    int previousDepth = -1;
     // Support unicode characters (UTF-8)
     for (int i = 0; i < value.length(); i++) {
       char c = value.charAt(i);
@@ -182,8 +182,8 @@ public class SGFParser {
           if (!inTag) {
             subTreeDepth += 1;
             // Initialize the step count
-            Lizzie.board.getData().firstBranch=previousDepth<subTreeDepth;
-            previousDepth=subTreeDepth;
+            Lizzie.board.getData().firstBranch = previousDepth < subTreeDepth;
+            previousDepth = subTreeDepth;
             subTreeStepMap.put(subTreeDepth, 0);
             addPassForMove = true;
             pendingProps = new HashMap<String, String>();
