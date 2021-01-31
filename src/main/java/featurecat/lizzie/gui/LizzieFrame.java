@@ -102,6 +102,7 @@ public class LizzieFrame extends MainFrame {
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
+  private boolean isPonderingBeforeReplayVariation = false;
 
   // Display Comment
   private HTMLDocument htmlDoc;
@@ -1406,6 +1407,7 @@ public class LizzieFrame extends MainFrame {
     if (replaySteps <= 0) return; // Bad steps or no branch
     int oriBranchLength = boardRenderer.getDisplayedBranchLength();
     isReplayVariation = true;
+    isPonderingBeforeReplayVariation = Lizzie.leelaz.isPondering();
     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
     Runnable runnable =
         new Runnable() {
@@ -1423,7 +1425,8 @@ public class LizzieFrame extends MainFrame {
             }
             Utils.setDisplayedBranchLength(boardRenderer, oriBranchLength);
             isReplayVariation = false;
-            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+            if (isPonderingBeforeReplayVariation && !Lizzie.leelaz.isPondering())
+              Lizzie.leelaz.togglePonder();
           }
         };
     Thread thread = new Thread(runnable);

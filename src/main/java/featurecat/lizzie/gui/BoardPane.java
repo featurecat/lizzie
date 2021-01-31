@@ -92,6 +92,7 @@ public class BoardPane extends LizziePane {
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
+  private boolean isPonderingBeforeReplayVariation = false;
 
   LizzieMain owner;
   /** Creates a window */
@@ -547,6 +548,7 @@ public class BoardPane extends LizziePane {
     int height = this.getHeight();
     int oriBranchLength = boardRenderer.getDisplayedBranchLength();
     isReplayVariation = true;
+    isPonderingBeforeReplayVariation = Lizzie.leelaz.isPondering();
     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
     Runnable runnable =
         new Runnable() {
@@ -574,7 +576,8 @@ public class BoardPane extends LizziePane {
             }
             boardRenderer.setDisplayedBranchLength(oriBranchLength);
             isReplayVariation = false;
-            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+            if (isPonderingBeforeReplayVariation && !Lizzie.leelaz.isPondering())
+              Lizzie.leelaz.togglePonder();
           }
         };
     Thread thread = new Thread(runnable);
