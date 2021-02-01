@@ -165,6 +165,7 @@ public class SGFParser {
     }
 
     String blackPlayer = "", whitePlayer = "";
+    String blackPlayerRank = "", whitePlayerRank = "";
 
     // Support unicode characters (UTF-8)
     for (int i = 0; i < value.length(); i++) {
@@ -384,6 +385,10 @@ public class SGFParser {
             } else {
               history.getGameInfo().setPlayerWhite(whitePlayer);
             }
+          } else if (tag.equals("BR")) {
+            blackPlayerRank = tagContent;
+          } else if (tag.equals("WR")) {
+            whitePlayerRank = tagContent;
           } else if (tag.equals("KM")) {
             try {
               if (tagContent.trim().isEmpty()) {
@@ -497,6 +502,24 @@ public class SGFParser {
               tagBuilder.append(c);
             }
           }
+      }
+    }
+
+    // adjust player name
+    if (!Utils.isBlank(blackPlayerRank)) {
+      blackPlayer = blackPlayer + " " + blackPlayerRank;
+      if (history == null) {
+        Lizzie.board.getHistory().getGameInfo().setPlayerBlack(blackPlayer);
+      } else {
+        history.getGameInfo().setPlayerBlack(blackPlayer);
+      }
+    }
+    if (!Utils.isBlank(whitePlayerRank)) {
+      whitePlayer = whitePlayer + " " + whitePlayerRank;
+      if (history == null) {
+        Lizzie.board.getHistory().getGameInfo().setPlayerWhite(whitePlayer);
+      } else {
+        history.getGameInfo().setPlayerWhite(whitePlayer);
       }
     }
 
