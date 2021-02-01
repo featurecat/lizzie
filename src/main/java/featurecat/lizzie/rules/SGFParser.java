@@ -1,11 +1,12 @@
 package featurecat.lizzie.rules;
 
+import static java.util.Arrays.asList;
+
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.GameInfo;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.util.EncodingDetector;
 import featurecat.lizzie.util.Utils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -20,8 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.util.Arrays.asList;
 
 public class SGFParser {
   private static final SimpleDateFormat SGF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
@@ -434,11 +433,11 @@ public class SGFParser {
                   // Save the step count
                   subTreeStepMap.put(subTreeDepth, subTreeStepMap.get(subTreeDepth) + 1);
                   Stone color =
-                          ((history == null
+                      ((history == null
                                   && Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE)
-                                  || (history != null && history.getLastMoveColor() == Stone.WHITE))
-                                  ? Stone.BLACK
-                                  : Stone.WHITE;
+                              || (history != null && history.getLastMoveColor() == Stone.WHITE))
+                          ? Stone.BLACK
+                          : Stone.WHITE;
                   boolean newBranch = (subTreeStepMap.get(subTreeDepth) == 1);
                   if (history == null) {
                     Lizzie.board.pass(color, newBranch, true);
@@ -463,10 +462,10 @@ public class SGFParser {
                 if (move != null) {
                   if (history == null) {
                     Lizzie.board.removeStone(
-                            move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                        move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
                   } else {
                     history.removeStone(
-                            move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
+                        move[0], move[1], tag.equals("AB") ? Stone.BLACK : Stone.WHITE);
                   }
                 }
               } else {
@@ -506,7 +505,7 @@ public class SGFParser {
       }
     }
 
-    //adjust player name
+    // adjust player name
     if (!Utils.isBlank(blackPlayerRank)) {
       blackPlayer = blackPlayer + " " + blackPlayerRank;
       if (history == null) {
@@ -530,7 +529,7 @@ public class SGFParser {
       Lizzie.frame.setPlayers(whitePlayer, blackPlayer);
       if (history == null) {
         if (!Utils.isBlank(gameProperties.get("RE"))
-                && Utils.isBlank(Lizzie.board.getHistory().getData().comment)) {
+            && Utils.isBlank(Lizzie.board.getHistory().getData().comment)) {
           Lizzie.board.getHistory().getData().comment = gameProperties.get("RE");
         }
 
