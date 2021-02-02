@@ -972,7 +972,8 @@ public class Leelaz {
     if (engineCommand.isEmpty()) {
       // we can use Lizzie even without an engine, if the config defaults to ""
       if (!isLoaded) {
-        Lizzie.frame.refresh();
+        if (Lizzie.config.panelUI) Lizzie.frame.refresh(1);
+        else Lizzie.frame.refresh();
         isLoaded = true;
       }
     }
