@@ -268,7 +268,7 @@ public class VariationTree {
     int curposy = middleY - YSPACING * (curMove.getData().moveNumber - top.getData().moveNumber);
     // Go to very top of tree (visible in assigned area)
     BoardHistoryNode node = top;
-    while (curposy > posy + YSPACING && node.previous().isPresent()) {
+    while (curposy > posy - YSPACING && node.previous().isPresent()) {
       node = node.previous().get();
       curposy -= YSPACING;
     }
