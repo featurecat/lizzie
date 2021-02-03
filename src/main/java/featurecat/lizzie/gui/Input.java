@@ -53,10 +53,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void mouseDragged(MouseEvent e) {
-    if (e.isAltDown()) {
-      if (updateRegionOfInterest(e)) Lizzie.frame.refresh();
-      return;
-    }
+    if (dragRegionOfInterest(e)) return;
     Lizzie.frame.onMouseDragged(e.getX(), e.getY());
   }
 
@@ -78,6 +75,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
     Lizzie.board.regionOfInterest.finishSetting();
     Lizzie.frame.refresh();
     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
+  }
+
+  public boolean dragRegionOfInterest(MouseEvent e) {
+    boolean applied = e.isAltDown();
+    if (applied && updateRegionOfInterest(e)) Lizzie.frame.refresh();
+    return applied;
   }
 
   private boolean updateRegionOfInterest(MouseEvent e) {

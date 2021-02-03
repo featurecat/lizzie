@@ -154,7 +154,7 @@ public class BoardPane extends LizziePane {
 
           @Override
           public void mouseDragged(MouseEvent e) {
-            owner.input.mouseDragged(e);
+            owner.input.dragRegionOfInterest(e);
           }
         });
   }
