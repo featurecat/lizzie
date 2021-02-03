@@ -186,6 +186,7 @@ public class BoardData {
   }
 
   public void tryToSetBestMoves(List<MoveData> moves) {
+    if (Lizzie.board.regionOfInterest.isEnabled()) return;
     if (MoveData.getPlayouts(moves) > playouts) {
       bestMoves = moves;
       setPlayouts(MoveData.getPlayouts(moves));
