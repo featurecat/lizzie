@@ -149,14 +149,7 @@ public class Leelaz {
     bestMoves = new ArrayList<>();
     Lizzie.board.getData().tryToClearBestMoves();
 
-    // Get weight name
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
-    Matcher wMatcher = wPattern.matcher(engineCommand);
-    if (wMatcher.matches() && wMatcher.groupCount() == 2) {
-      currentWeightFile = wMatcher.group(2);
-      String[] names = currentWeightFile.split("[\\\\|/]");
-      currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
-    }
+    setWeightName();
 
     // Check if engine is present
     // Commented for remote ssh. TODO keep or remove this code?
