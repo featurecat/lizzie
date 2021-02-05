@@ -1008,7 +1008,7 @@ public class Leelaz {
   }
 
   public void setWeightName() {
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights|-w|-model)\\s+([^'\" ]+)(?s).*");
     Matcher wMatcher = wPattern.matcher(engineCommand);
     if (wMatcher.matches() && wMatcher.groupCount() == 2) {
       currentWeightFile = wMatcher.group(2);
