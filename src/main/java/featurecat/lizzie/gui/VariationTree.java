@@ -26,6 +26,7 @@ public class VariationTree {
   private BoardHistoryNode curMove;
   private Rectangle area;
   private Point clickPoint;
+  private int curMoveLane = 0;
 
   public VariationTree() {
     laneUsageList = new ArrayList<Integer>();
@@ -68,6 +69,8 @@ public class VariationTree {
     laneUsageList.set(lane, moveNumber);
 
     // At this point, lane contains the lane we should use (the main branch is in lane 0)
+
+    if (startNode == curMove) curMoveLane = lane;
 
     BoardHistoryNode cur = startNode;
     int curposx = posx + lane * XSPACING;
@@ -156,6 +159,7 @@ public class VariationTree {
       if (cur.isEndDummay()) {
         continue;
       }
+      if (cur == curMove) curMoveLane = lane;
       if (calc) {
         if (inNode(curposx + dotoffset, posy + dotoffset)) {
           return Optional.of(cur);
@@ -233,6 +237,16 @@ public class VariationTree {
     if (width <= 0 || height <= 0) {
       return Optional.empty(); // we don't have enough space
     }
+    area.setBounds(posx, posy, width, height);
+
+    // Get the lane of the current node by a dummy drawing.
+    if (!calc) {
+      int DUMMY = Integer.MIN_VALUE / 2;
+      clickPoint.setLocation(DUMMY, DUMMY);
+      curMoveLane = 0;
+      draw(g, posx, posy, width, height, true); // set curMoveLane as a side effect
+    }
+    int lane = curMoveLane;
 
     // Use dense tree for saving space if large-subboard
     YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
@@ -241,7 +255,6 @@ public class VariationTree {
     int strokeRadius = Lizzie.config.showBorder ? 2 : 0;
     if (!calc) {
       // Draw background
-      area.setBounds(posx, posy, width, height);
       g.setColor(new Color(0, 0, 0, 60));
       g.fillRect(posx, posy, width, height);
 
@@ -272,7 +285,6 @@ public class VariationTree {
       node = node.previous().get();
       curposy -= YSPACING;
     }
-    int lane = getCurLane(node, curMove, curposy, posy + height, 0, true);
     int startx = posx + xoffset;
     if (((lane + 1) * XSPACING + xoffset + DOT_DIAM + strokeRadius - width) > 0) {
       startx = startx - ((lane + 1) * XSPACING + xoffset + DOT_DIAM + strokeRadius - width);
@@ -305,38 +317,5 @@ public class VariationTree {
       Optional<BoardHistoryNode> node = draw(null, area.x, area.y, area.width, area.height, true);
       node.ifPresent(n -> Lizzie.board.moveToAnyPosition(n));
     }
-  }
-
-  private int getCurLane(
-      BoardHistoryNode start,
-      BoardHistoryNode curMove,
-      int curposy,
-      int maxy,
-      int laneCount,
-      boolean isMain) {
-    BoardHistoryNode next = start;
-    int nexty = curposy;
-    while (next.next().isPresent() && nexty + YSPACING < maxy) {
-      nexty += YSPACING;
-      next = next.next().get();
-    }
-    while (next.previous().isPresent() && (isMain || next != start)) {
-      next = next.previous().get();
-      for (int i = 1; i < next.numberOfChildren(); i++) {
-        laneCount++;
-        if (next.findIndexOfNode(curMove, true) == i) {
-          return laneCount;
-        }
-        Optional<BoardHistoryNode> variation = next.getVariation(i);
-        if (variation.isPresent()) {
-          int subLane = getCurLane(variation.get(), curMove, nexty, maxy, laneCount, false);
-          if (subLane > 0) {
-            return subLane;
-          }
-        }
-      }
-      nexty -= YSPACING;
-    }
-    return 0;
   }
 }
