@@ -1727,17 +1727,13 @@ public class BoardRenderer {
               if (m.variation.size() > 0) {
                 if (Lizzie.board.getHistory().getCurrentHistoryNode().numberOfChildren() == 0) {
                   Stone color =
-                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
-                          ? Stone.BLACK
-                          : Stone.WHITE;
+                      Lizzie.board.getHistory().isBlacksTurn() ? Stone.BLACK : Stone.WHITE;
                   Lizzie.board.getHistory().pass(color, false, true);
                   Lizzie.board.getHistory().previous();
                 }
                 for (int i = 0; i < m.variation.size(); i++) {
                   Stone color =
-                      Lizzie.board.getHistory().getLastMoveColor() == Stone.WHITE
-                          ? Stone.BLACK
-                          : Stone.WHITE;
+                      Lizzie.board.getHistory().isBlacksTurn() ? Stone.BLACK : Stone.WHITE;
                   Optional<int[]> coordOpt = Board.asCoordinates(m.variation.get(i));
                   if (!coordOpt.isPresent()
                       || !Board.isValid(coordOpt.get()[0], coordOpt.get()[1])) {
