@@ -1763,6 +1763,26 @@ public class BoardRenderer {
     }
   }
 
+  public void doBranch(int moveTo) {
+    BoardRenderer boardRenderer = this;
+    if (moveTo > 0) {
+      if (boardRenderer.isShowingNormalBoard()) {
+        setDisplayedBranchLength(2);
+      } else {
+        if (boardRenderer.getReplayBranch() > boardRenderer.getDisplayedBranchLength()) {
+          boardRenderer.incrementDisplayedBranchLength(1);
+        }
+      }
+    } else {
+      if (boardRenderer.isShowingNormalBoard()) {
+        setDisplayedBranchLength(boardRenderer.getReplayBranch());
+      }
+      if (boardRenderer.getDisplayedBranchLength() > 1) {
+        boardRenderer.incrementDisplayedBranchLength(-1);
+      }
+    }
+  }
+
   public boolean isInside(int x1, int y1) {
     return x <= x1 && x1 < x + boardWidth && y <= y1 && y1 < y + boardHeight;
   }

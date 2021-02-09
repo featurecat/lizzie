@@ -137,6 +137,8 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void onMouseDragged(int x, int y);
 
+  public void onMouseExited(int x, int y) {}
+
   public abstract void onMouseMoved(int x, int y);
 
   public abstract void startRawBoard();
