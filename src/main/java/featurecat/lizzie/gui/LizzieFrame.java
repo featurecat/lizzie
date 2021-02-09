@@ -1324,6 +1324,10 @@ public class LizzieFrame extends MainFrame {
     return boardRenderer.incrementDisplayedBranchLength(n);
   }
 
+  public void addSuggestionAsBranch() {
+    boardRenderer.addSuggestionAsBranch();
+  }
+
   public void copySgf() {
     try {
       // Get sgf content from game
