@@ -517,7 +517,8 @@ public class Board implements LeelazListener {
       Stone[] stones = history.getStones().clone();
       Zobrist zobrist = history.getZobrist();
       Optional<int[]> lastMove = Optional.of(new int[] {x, y});
-      boolean isNewSubBranch = newBranch && !history.getData().firstBranch;
+      boolean isNewSubBranch =
+          newBranch && (history.getCurrentHistoryNode().numberOfChildren() > 0);
       boolean isMissingMoveMNNumber = history.getMoveMNNumber() < 0;
       int moveNumber = history.getMoveNumber() + 1;
       int moveMNNumber =
