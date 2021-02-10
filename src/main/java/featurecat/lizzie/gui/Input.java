@@ -259,7 +259,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           undo(10);
         } else {
-          if (Lizzie.frame.isMouseOver) {
+          if (Lizzie.frame.isMouseOver && !Lizzie.config.showRawBoard) {
             Lizzie.frame.doBranch(-1);
           } else {
             undo();
@@ -281,7 +281,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           redo(10);
         } else {
-          if (Lizzie.frame.isMouseOver) {
+          if (Lizzie.frame.isMouseOver && !Lizzie.config.showRawBoard) {
             Lizzie.frame.doBranch(1);
           } else {
             redo();

@@ -660,7 +660,7 @@ public class BoardRenderer {
         variation = suggestedMove.get().variation;
       }
     }
-    Branch branch = new Branch(Lizzie.board, variation, displayedBranchLength);
+    Branch branch = new Branch(Lizzie.board, variation, -1);
     if (isMainBoard) mouseOverCoords = suggestedMove.get().coordinate;
     branchOpt = Optional.of(branch);
     variationOpt = Optional.of(variation);
@@ -799,14 +799,13 @@ public class BoardRenderer {
         boolean isMouseOver = isMainBoard && Lizzie.frame.isMouseOver(i, j);
         if (moveNumberList[Board.getIndex(i, j)] > 0 && (!branchOpt.isPresent() || !isMouseOver)) {
           boolean reverse = (moveNumberList[Board.getIndex(i, j)] > maxBranchMoves());
+          if (reverse && !Lizzie.config.showRawBoard) continue;
           if (lastMoveOpt.isPresent() && lastMoveOpt.get()[0] == i && lastMoveOpt.get()[1] == j) {
-            if (reverse) continue;
             g.setColor(Color.RED.brighter()); // stoneHere.isBlack() ? Color.RED.brighter() :
             // Color.BLUE.brighter());
           } else {
             // Draw white letters on black stones nomally.
             // But use black letters for showing black moves without stones.
-            if (reverse) continue;
             g.setColor(stoneHere.isBlack() ^ reverse ? Color.WHITE : Color.BLACK);
           }
 
