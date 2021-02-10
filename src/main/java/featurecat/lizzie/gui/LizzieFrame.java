@@ -1544,7 +1544,7 @@ public class LizzieFrame extends MainFrame {
   }
 
   public boolean openRightClickMenu(int x, int y) {
-    if (Lizzie.leelaz.isKataGo) {
+    if (Lizzie.leelaz.isKataGo && !Lizzie.frame.isMouseOver) {
       return false;
     }
     Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);
