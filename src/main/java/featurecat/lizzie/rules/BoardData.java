@@ -24,7 +24,6 @@ public class BoardData {
   public boolean verify;
 
   public double winrate;
-  public boolean firstBranch;
   private int playouts;
   public int engineIndex;
   public double komi;
