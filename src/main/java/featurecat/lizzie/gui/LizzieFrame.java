@@ -1215,16 +1215,40 @@ public class LizzieFrame extends MainFrame {
     boardRenderer.bestMoveCoordinateName().ifPresent(placeVariation);
   }
 
+  public void clearMoved() {
+    isReplayVariation = false;
+    if (Lizzie.frame != null && Lizzie.frame.isMouseOver) {
+      Lizzie.frame.isMouseOver = false;
+      boardRenderer.startNormalBoard();
+    }
+  }
+
+  public void onMouseExited(int x, int y) {
+    if (Lizzie.frame != null && Lizzie.frame.isShowingRightMenu) return;
+    mouseOverCoordinate = outOfBoundCoordinate;
+    clearMoved();
+  }
+
   public void onMouseMoved(int x, int y) {
     mouseOverCoordinate = outOfBoundCoordinate;
     Optional<int[]> coords = boardRenderer.convertScreenToCoordinates(x, y);
-    coords.filter(c -> !isMouseOver(c[0], c[1])).ifPresent(c -> repaint());
+    coords
+        .filter(c -> !isMouseOver(c[0], c[1]))
+        .ifPresent(
+            c -> {
+              clearMoved();
+              repaint();
+            });
     coords.ifPresent(
         c -> {
           mouseOverCoordinate = c;
           isReplayVariation = false;
+          if (Lizzie.frame != null) {
+            Lizzie.frame.isMouseOver = boardRenderer.isShowingBranch();
+          }
         });
     if (!coords.isPresent() && boardRenderer.isShowingBranch()) {
+      clearMoved();
       repaint();
     }
     if (Lizzie.config.showSubBoard && subBoardRenderer.isInside(x, y)) {
@@ -1322,6 +1346,15 @@ public class LizzieFrame extends MainFrame {
 
   public boolean incrementDisplayedBranchLength(int n) {
     return boardRenderer.incrementDisplayedBranchLength(n);
+  }
+
+  @Override
+  public void doBranch(int moveTo) {
+    boardRenderer.doBranch(moveTo);
+  }
+
+  public void addSuggestionAsBranch() {
+    boardRenderer.addSuggestionAsBranch();
   }
 
   public void copySgf() {
@@ -1511,7 +1544,7 @@ public class LizzieFrame extends MainFrame {
   }
 
   public boolean openRightClickMenu(int x, int y) {
-    if (Lizzie.leelaz.isKataGo) {
+    if (Lizzie.leelaz.isKataGo && !Lizzie.frame.isMouseOver) {
       return false;
     }
     Optional<int[]> boardCoordinates = boardRenderer.convertScreenToCoordinates(x, y);

@@ -54,7 +54,7 @@ public class RightClickMenu extends JPopupMenu {
     this.add(avoid);
     this.add(keepingAvoid);
     this.add(clearAvoidAllow);
-    if (Lizzie.config.panelUI && Lizzie.frame.isMouseOver) {
+    if (Lizzie.frame.isMouseOver) {
       addSuggestionAsBranch.setVisible(true);
     } else {
       addSuggestionAsBranch.setVisible(false);
