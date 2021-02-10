@@ -49,7 +49,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {}
+  public void mouseExited(MouseEvent e) {
+    Lizzie.frame.onMouseExited(e.getX(), e.getY());
+  }
 
   @Override
   public void mouseDragged(MouseEvent e) {

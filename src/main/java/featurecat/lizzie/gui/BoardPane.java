@@ -467,23 +467,7 @@ public class BoardPane extends LizziePane {
   }
 
   public void doBranch(int moveTo) {
-    if (moveTo > 0) {
-      if (boardRenderer.isShowingNormalBoard()) {
-        setDisplayedBranchLength(2);
-      } else {
-        if (boardRenderer.getReplayBranch() > boardRenderer.getDisplayedBranchLength()) {
-          boardRenderer.incrementDisplayedBranchLength(1);
-        }
-      }
-    } else {
-      if (boardRenderer.isShowingNormalBoard()) {
-        setDisplayedBranchLength(boardRenderer.getReplayBranch());
-      } else {
-        if (boardRenderer.getDisplayedBranchLength() > 1) {
-          boardRenderer.incrementDisplayedBranchLength(-1);
-        }
-      }
-    }
+    boardRenderer.doBranch(moveTo);
   }
 
   public void addSuggestionAsBranch() {
