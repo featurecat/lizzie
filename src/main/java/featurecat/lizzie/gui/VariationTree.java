@@ -253,8 +253,8 @@ public class VariationTree {
             posy + strokeRadius,
             posx + strokeRadius,
             posy - strokeRadius + height);
-        g.setStroke(new BasicStroke(1));
       }
+      g.setStroke(new BasicStroke(1));
     }
 
     int middleY = posy + height / 2;
