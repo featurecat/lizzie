@@ -566,6 +566,7 @@ public class Config {
     // About engine parameter
     JSONObject filesys = new JSONObject();
     filesys.put("last-folder", "");
+    filesys.put("last-image-folder", "");
 
     config.put("filesystem", filesys);
 
