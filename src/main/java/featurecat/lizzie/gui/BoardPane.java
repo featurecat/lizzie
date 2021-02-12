@@ -610,6 +610,15 @@ public class BoardPane extends LizziePane {
     int result = chooser.showSaveDialog(null);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
+      String ext =
+          chooser.getFileFilter() instanceof FileNameExtensionFilter
+              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
+              : "";
+      if (!Utils.isBlank(ext)) {
+        if (!file.getPath().toLowerCase().endsWith("." + ext)) {
+          file = new File(file.getPath() + "." + ext);
+        }
+      }
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
@@ -619,15 +628,6 @@ public class BoardPane extends LizziePane {
                 JOptionPane.OK_CANCEL_OPTION);
         if (ret == JOptionPane.CANCEL_OPTION) {
           return;
-        }
-      }
-      String ext =
-          chooser.getFileFilter() instanceof FileNameExtensionFilter
-              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
-              : "";
-      if (!Utils.isBlank(ext)) {
-        if (!file.getPath().toLowerCase().endsWith("." + ext)) {
-          file = new File(file.getPath() + "." + ext);
         }
       }
       BufferedImage bImg =
