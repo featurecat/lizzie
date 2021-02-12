@@ -615,7 +615,7 @@ public class BoardPane extends LizziePane {
               ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
               : "";
       if (!Utils.isBlank(ext)) {
-        if (!file.getPath().toLowerCase().endsWith("." + ext)) {
+        if (!chooser.getFileFilter().accept(file)) {
           file = new File(file.getPath() + "." + ext);
         }
       }
