@@ -695,6 +695,27 @@ public class BoardRenderer {
     if (Lizzie.board == null) return;
     Board board = Lizzie.board;
     Optional<int[]> lastMoveOpt = branchOpt.map(b -> b.data.lastMove).orElse(board.getLastMove());
+
+    if (!lastMoveOpt.isPresent() && board.getData().moveNumber != 0 && !board.inScoreMode()) {
+      g.setColor(
+          board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
+      g.fillOval(
+          x + boardWidth / 2 - 4 * stoneRadius,
+          y + boardHeight / 2 - 4 * stoneRadius,
+          stoneRadius * 8,
+          stoneRadius * 8);
+      g.setColor(
+          board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
+      drawString(
+          g,
+          x + boardWidth / 2,
+          y + boardHeight / 2,
+          MainFrame.uiFont,
+          "pass",
+          stoneRadius * 4,
+          stoneRadius * 6);
+    }
+
     if (Lizzie.config.allowMoveNumber == 0 && !branchOpt.isPresent()) {
       if (lastMoveOpt.isPresent()) {
         int[] lastMove = lastMoveOpt.get();
@@ -718,26 +739,6 @@ public class BoardRenderer {
       }
 
       return;
-    }
-
-    if (!lastMoveOpt.isPresent() && board.getData().moveNumber != 0 && !board.inScoreMode()) {
-      g.setColor(
-          board.getData().blackToPlay ? new Color(255, 255, 255, 150) : new Color(0, 0, 0, 150));
-      g.fillOval(
-          x + boardWidth / 2 - 4 * stoneRadius,
-          y + boardHeight / 2 - 4 * stoneRadius,
-          stoneRadius * 8,
-          stoneRadius * 8);
-      g.setColor(
-          board.getData().blackToPlay ? new Color(0, 0, 0, 255) : new Color(255, 255, 255, 255));
-      drawString(
-          g,
-          x + boardWidth / 2,
-          y + boardHeight / 2,
-          MainFrame.uiFont,
-          "pass",
-          stoneRadius * 4,
-          stoneRadius * 6);
     }
 
     int[] moveNumberList =
