@@ -635,7 +635,13 @@ public class BoardPane extends LizziePane {
       Graphics2D cg = bImg.createGraphics();
       paintAll(cg);
       try {
-        ImageIO.write(bImg, ext, file);
+        boolean supported = ImageIO.write(bImg, ext, file);
+        if (!supported) {
+          String displayedMessage =
+              String.format("Failed to save \"%s\".\n(unsupported image format?)", file.getName());
+          JOptionPane.showMessageDialog(
+              Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }
