@@ -630,8 +630,11 @@ public class BoardPane extends LizziePane {
           return;
         }
       }
+      // Never use ARGB here for supporting JPG!
+      // (cf.)
+      // https://stackoverflow.com/questions/57673051/writing-jpg-or-jpeg-image-with-imageio-write-does-not-create-image-file
       BufferedImage bImg =
-          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
       Graphics2D cg = bImg.createGraphics();
       paintAll(cg);
       try {
