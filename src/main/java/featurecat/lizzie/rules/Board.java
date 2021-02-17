@@ -412,6 +412,7 @@ public class Board implements LeelazListener {
       Stone[] stones = history.getStones().clone();
       Zobrist zobrist = history.getZobrist();
       int moveNumber = history.getMoveNumber() + 1;
+      int moveMNNumber = nextMoveMNNumber(newBranch);
       int[] moveNumberList =
           newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardWidth * Board.boardHeight]
@@ -432,6 +433,7 @@ public class Board implements LeelazListener {
               0.0,
               0,
               0.0);
+      newState.moveMNNumber = moveMNNumber;
       newState.dummy = dummy;
 
       // update leelaz with pass
@@ -449,6 +451,12 @@ public class Board implements LeelazListener {
   /** overloaded method for pass(), chooses color in an alternating pattern */
   public void pass() {
     pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+  }
+
+  private int nextMoveMNNumber(boolean newBranch) {
+    boolean isNewSubBranch = newBranch && (history.getCurrentHistoryNode().numberOfChildren() > 0);
+    boolean isMissingMoveMNNumber = history.getMoveMNNumber() < 0;
+    return isNewSubBranch ? 1 : isMissingMoveMNNumber ? -1 : history.getMoveMNNumber() + 1;
   }
 
   /**
@@ -519,12 +527,8 @@ public class Board implements LeelazListener {
       Stone[] stones = history.getStones().clone();
       Zobrist zobrist = history.getZobrist();
       Optional<int[]> lastMove = Optional.of(new int[] {x, y});
-      boolean isNewSubBranch =
-          newBranch && (history.getCurrentHistoryNode().numberOfChildren() > 0);
-      boolean isMissingMoveMNNumber = history.getMoveMNNumber() < 0;
       int moveNumber = history.getMoveNumber() + 1;
-      int moveMNNumber =
-          isNewSubBranch ? 1 : isMissingMoveMNNumber ? -1 : history.getMoveMNNumber() + 1;
+      int moveMNNumber = nextMoveMNNumber(newBranch);
       int[] moveNumberList =
           newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardWidth * Board.boardHeight]
