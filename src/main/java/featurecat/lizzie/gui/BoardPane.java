@@ -527,13 +527,14 @@ public class BoardPane extends LizziePane {
     if (generateGif) {
       FileNameExtensionFilter filter = new FileNameExtensionFilter("*.gif", "GIF");
       JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-      JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+      JFileChooser chooser = new JFileChooser(filesystem.getString("last-image-folder"));
       chooser.setAcceptAllFileFilterUsed(false);
       chooser.setFileFilter(filter);
       chooser.setMultiSelectionEnabled(false);
       int result = chooser.showSaveDialog(null);
       if (result == JFileChooser.APPROVE_OPTION) {
         File file = chooser.getSelectedFile();
+        filesystem.put("last-image-folder", file.getParent());
         if (file.exists()) {
           int ret =
               JOptionPane.showConfirmDialog(
@@ -607,7 +608,7 @@ public class BoardPane extends LizziePane {
 
   public void saveImage() {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+    JFileChooser chooser = new JFileChooser(filesystem.getString("last-image-folder"));
     chooser.setAcceptAllFileFilterUsed(false);
     //    String writerNames[] = ImageIO.getWriterFormatNames();
     FileNameExtensionFilter filter1 = new FileNameExtensionFilter("*.png", "PNG");
@@ -622,6 +623,16 @@ public class BoardPane extends LizziePane {
     int result = chooser.showSaveDialog(null);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
+      filesystem.put("last-image-folder", file.getParent());
+      String ext =
+          chooser.getFileFilter() instanceof FileNameExtensionFilter
+              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
+              : "";
+      if (!Utils.isBlank(ext)) {
+        if (!chooser.getFileFilter().accept(file)) {
+          file = new File(file.getPath() + "." + ext);
+        }
+      }
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
@@ -633,21 +644,21 @@ public class BoardPane extends LizziePane {
           return;
         }
       }
-      String ext =
-          chooser.getFileFilter() instanceof FileNameExtensionFilter
-              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
-              : "";
-      if (!Utils.isBlank(ext)) {
-        if (!file.getPath().toLowerCase().endsWith("." + ext)) {
-          file = new File(file.getPath() + "." + ext);
-        }
-      }
+      // Never use ARGB here for supporting JPG!
+      // (cf.)
+      // https://stackoverflow.com/questions/57673051/writing-jpg-or-jpeg-image-with-imageio-write-does-not-create-image-file
       BufferedImage bImg =
-          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
       Graphics2D cg = bImg.createGraphics();
       paintAll(cg);
       try {
-        ImageIO.write(bImg, ext, file);
+        boolean supported = ImageIO.write(bImg, ext, file);
+        if (!supported) {
+          String displayedMessage =
+              String.format("Failed to save \"%s\".\n(unsupported image format?)", file.getName());
+          JOptionPane.showMessageDialog(
+              Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }
