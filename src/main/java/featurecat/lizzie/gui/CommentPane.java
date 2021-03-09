@@ -4,19 +4,16 @@ import static java.lang.Math.min;
 
 import featurecat.lizzie.Lizzie;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
-import java.io.IOException;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.StyleSheet;
+import javax.swing.JTextArea;
 
 /** The window used to display the game. */
 public class CommentPane extends LizziePane {
@@ -24,11 +21,8 @@ public class CommentPane extends LizziePane {
   //  private final BufferStrategy bs;
 
   // Display Comment
-  private HTMLDocument htmlDoc;
-  private LizziePane.HtmlKit htmlKit;
-  private StyleSheet htmlStyle;
   public JScrollPane scrollPane;
-  private JTextPane commentPane;
+  private JTextArea commentPane;
   private JLabel dragPane = new JLabel("Drag out");
   private MouseMotionListener[] mouseMotionListeners;
   private MouseMotionAdapter mouseMotionAdapter;
@@ -38,38 +32,16 @@ public class CommentPane extends LizziePane {
     super(owner);
     setLayout(new BorderLayout(0, 0));
 
-    htmlKit = new LizziePane.HtmlKit();
-    htmlDoc = (HTMLDocument) htmlKit.createDefaultDocument();
-    htmlStyle = htmlKit.getStyleSheet();
-    String style =
-        "body {background:#"
-            + String.format(
-                "%02x%02x%02x",
-                Lizzie.config.commentBackgroundColor.getRed(),
-                Lizzie.config.commentBackgroundColor.getGreen(),
-                Lizzie.config.commentBackgroundColor.getBlue())
-            + "; color:#"
-            + String.format(
-                "%02x%02x%02x",
-                Lizzie.config.commentFontColor.getRed(),
-                Lizzie.config.commentFontColor.getGreen(),
-                Lizzie.config.commentFontColor.getBlue())
-            + "; font-family:"
-            + Lizzie.config.fontName
-            + ", Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace;"
-            + (Lizzie.config.commentFontSize > 0
-                ? "font-size:" + Lizzie.config.commentFontSize
-                : "")
-            + "}";
-    htmlStyle.addRule(style);
-
-    commentPane = new JTextPane();
+    commentPane = new JTextArea();
     commentPane.setBorder(BorderFactory.createEmptyBorder());
-    commentPane.setEditorKit(htmlKit);
-    commentPane.setDocument(htmlDoc);
     commentPane.setText("");
     commentPane.setEditable(false);
     commentPane.setFocusable(false);
+    commentPane.setWrapStyleWord(true);
+    commentPane.setLineWrap(true);
+    // drop alpha for backward compatibility with Lizze 0.7.4
+    commentPane.setBackground(new Color(Lizzie.config.commentBackgroundColor.getRGB()));
+    commentPane.setForeground(new Color(Lizzie.config.commentFontColor.getRGB()));
     commentPane.addMouseListener(
         new MouseAdapter() {
           @Override
@@ -123,19 +95,9 @@ public class CommentPane extends LizziePane {
         }
         Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
         commentPane.setFont(font);
-        comment = comment.replaceAll("(\r\n)|(\n)", "<br />").replaceAll(" ", "&nbsp;");
-        addText("<span class=\"comment\">" + comment + "</span>");
+        commentPane.setText(comment);
+        commentPane.setCaretPosition(0);
       }
-    }
-  }
-
-  private void addText(String text) {
-    try {
-      htmlDoc.remove(0, htmlDoc.getLength());
-      htmlKit.insertHTML(htmlDoc, htmlDoc.getLength(), text, 0, 0, null);
-      commentPane.setCaretPosition(htmlDoc.getLength());
-    } catch (BadLocationException | IOException e) {
-      e.printStackTrace();
     }
   }
 
