@@ -27,6 +27,8 @@ import java.util.ResourceBundle;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONObject;
 
@@ -158,6 +160,25 @@ public abstract class MainFrame extends JFrame {
   public abstract void copySgf();
 
   public abstract void pasteSgf();
+
+  public void editComment() {
+    String oldComment = Lizzie.board.getHistory().getData().comment;
+    // https://stackoverflow.com/questions/7765478/how-to-add-text-area-on-joptionpane
+    // https://stackoverflow.com/a/55678093
+    JTextArea textArea = new JTextArea(oldComment);
+    textArea.setColumns(40);
+    textArea.setRows(20);
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    textArea.setSize(textArea.getPreferredSize().width, textArea.getPreferredSize().height);
+    int ret =
+        JOptionPane.showConfirmDialog(
+            null, new JScrollPane(textArea), "Comment", JOptionPane.OK_CANCEL_OPTION);
+    if (ret == JOptionPane.OK_OPTION) {
+      Lizzie.board.getHistory().getData().comment = textArea.getText();
+      refresh();
+    }
+  }
 
   public void copyCommentToClipboard() {
     String comment = Lizzie.board.getHistory().getData().comment;

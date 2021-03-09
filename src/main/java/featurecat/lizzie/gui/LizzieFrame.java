@@ -1186,6 +1186,8 @@ public class LizzieFrame extends MainFrame {
           Lizzie.board.goToMoveNumberBeyondBranch(moveNumber);
         }
       }
+    } else if (Lizzie.config.showComment && commentRect.contains(x, y)) {
+      editComment();
     }
   }
 
