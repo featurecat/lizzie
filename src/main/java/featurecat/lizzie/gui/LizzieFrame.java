@@ -1263,7 +1263,8 @@ public class LizzieFrame extends MainFrame {
     if (Lizzie.config.showComment && commentRect.contains(e.getX(), e.getY())) {
       scrollPane.dispatchEvent(e);
       createCommentImage(true, commentRect.width, commentRect.height);
-      getGraphics()
+      mainPanel
+          .getGraphics()
           .drawImage(
               cachedCommentImage,
               commentRect.x,
