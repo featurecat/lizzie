@@ -1162,6 +1162,29 @@ public class Menu extends JMenuBar {
           }
         });
     gameMenu.add(pass);
+
+    gameMenu.addSeparator();
+
+    final JMenuItem editComment = new JMenuItem("Edit comment");
+    editComment.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.editComment();
+          }
+        });
+    gameMenu.add(editComment);
+
+    final JMenuItem copyComment = new JMenuItem("Copy comment(Ctrl+Shift+C)");
+    copyComment.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.copyCommentToClipboard();
+          }
+        });
+    gameMenu.add(copyComment);
+
     gameMenu.addSeparator();
 
     final JMenuItem clearBoard = new JMenuItem(resourceBundle.getString("Menu.game.clearBoard"));
