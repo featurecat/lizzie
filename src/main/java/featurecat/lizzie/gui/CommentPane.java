@@ -96,6 +96,7 @@ public class CommentPane extends LizziePane {
         Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
         commentPane.setFont(font);
         commentPane.setText(comment);
+        commentPane.setCaretPosition(0);
       }
     }
   }
