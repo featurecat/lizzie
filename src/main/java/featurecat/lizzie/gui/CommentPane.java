@@ -3,7 +3,6 @@ package featurecat.lizzie.gui;
 import static java.lang.Math.min;
 
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.util.Utils;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -124,7 +123,7 @@ public class CommentPane extends LizziePane {
         }
         Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
         commentPane.setFont(font);
-        comment = Utils.escapeHTML(comment);
+        comment = comment.replaceAll("(\r\n)|(\n)", "<br />").replaceAll(" ", "&nbsp;");
         addText("<span class=\"comment\">" + comment + "</span>");
       }
     }

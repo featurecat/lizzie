@@ -112,16 +112,6 @@ public class Utils {
     }
   }
 
-  public static String escapeHTML(String text) {
-    return text.replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll("\"", "&quot;")
-        .replaceAll("'", "&#39;")
-        .replaceAll(" ", "&nbsp;")
-        .replaceAll("(\r\n)|(\n)", "<br />");
-  }
-
   public static double lastWinrateDiff(BoardHistoryNode node) {
 
     // Last winrate
