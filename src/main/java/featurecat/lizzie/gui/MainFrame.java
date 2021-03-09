@@ -12,6 +12,10 @@ import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.HeadlessException;
 import java.awt.LayoutManager;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
@@ -154,6 +158,18 @@ public abstract class MainFrame extends JFrame {
   public abstract void copySgf();
 
   public abstract void pasteSgf();
+
+  public void copyCommentToClipboard() {
+    String comment = Lizzie.board.getHistory().getData().comment;
+    if (comment.isEmpty()) return;
+    try {
+      Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+      Transferable transferableString = new StringSelection(comment);
+      clipboard.setContents(transferableString, null);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
   public void setPlayers(String whitePlayer, String blackPlayer) {
     playerTitle = String.format("(%s [W] vs %s [B])", whitePlayer, blackPlayer);
