@@ -5,6 +5,7 @@ import featurecat.lizzie.rules.BoardHistoryNode;
 import featurecat.lizzie.util.Utils;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -118,8 +119,13 @@ public class VariationTree {
 
     // Draw all the nodes and lines in this lane (not variations)
     Color curcolor = null;
+    Font origFont = null, movenumFont = null;
     if (!calc) {
       curcolor = g.getColor();
+      origFont = g.getFont();
+      movenumFont =
+          new Font(
+              Lizzie.config.uiFontName, Font.PLAIN, Lizzie.config.showLargeSubBoard() ? 10 : 12);
       if (curposx > minposx && posy > 0) {
         if (startNode.previous().isPresent()) {
           if (Lizzie.config.showCommentNodeColor && !cur.getData().comment.isEmpty()) {
@@ -145,8 +151,16 @@ public class VariationTree {
           g.setColor(Color.BLACK);
           g.drawRect(curposx, posy, DOT_DIAM, DOT_DIAM);
         }
+        g.setColor(Color.WHITE);
+        g.setFont(movenumFont);
+        int moveMNNumber = startNode.getData().moveMNNumber;
+        g.drawString(
+            String.valueOf(moveMNNumber < 0 ? 0 : moveMNNumber),
+            curposx + RING_DIAM,
+            posy + RING_DIAM);
       }
       g.setColor(curcolor);
+      g.setFont(origFont);
     }
 
     // Draw main line
@@ -197,6 +211,11 @@ public class VariationTree {
                 + dotoffset
                 + (diff > 0 ? dotoffset + 1 : dotoffsety)
                 + (Lizzie.config.nodeColorMode == 0 ? 1 : 0));
+        g.setColor(Color.WHITE);
+        g.setFont(movenumFont);
+        g.drawString(
+            String.valueOf(cur.getData().moveMNNumber), curposx + RING_DIAM, posy + RING_DIAM);
+        g.setFont(origFont);
       }
     }
     // Now we have drawn all the nodes in this variation, and has reached the bottom of this
@@ -235,8 +254,8 @@ public class VariationTree {
     }
 
     // Use dense tree for saving space if large-subboard
-    YSPACING = (Lizzie.config.showLargeSubBoard() ? 20 : 30);
-    XSPACING = YSPACING;
+    XSPACING = 40;
+    YSPACING = (int) (XSPACING * (Lizzie.config.showLargeSubBoard() ? 0.75 : 1));
 
     int strokeRadius = Lizzie.config.showBorder ? 2 : 0;
     if (!calc) {
