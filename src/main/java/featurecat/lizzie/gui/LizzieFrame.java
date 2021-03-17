@@ -221,6 +221,11 @@ public class LizzieFrame extends MainFrame {
     createBufferStrategy(2);
     bs = getBufferStrategy();
 
+    // avoid IME issue
+    // https://github.com/featurecat/lizzie/pull/880#issuecomment-800804632
+    // https://github.com/yzyray/lizzie_adv/commit/e5e8be01b4e072615250e4c4cc8462938b7c0332
+    mainPanel.enableInputMethods(false);
+
     Input input = new Input();
 
     mainPanel.addMouseListener(input);
