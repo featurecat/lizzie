@@ -49,6 +49,13 @@ public class CommentPane extends LizziePane {
             Lizzie.frame.getFocus();
             Lizzie.frame.checkRightClick(e);
           }
+
+          @Override
+          public void mousePressed(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+              Lizzie.frame.editComment();
+            }
+          }
         });
     scrollPane = new JScrollPane();
     scrollPane.setBorder(BorderFactory.createEmptyBorder());
