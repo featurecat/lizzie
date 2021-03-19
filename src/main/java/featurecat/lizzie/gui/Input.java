@@ -391,7 +391,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_C:
-        if (controlIsPressed(e)) {
+        if (controlIsPressed(e) && e.isShiftDown()) {
+          Lizzie.frame.copyCommentToClipboard();
+        } else if (controlIsPressed(e)) {
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
