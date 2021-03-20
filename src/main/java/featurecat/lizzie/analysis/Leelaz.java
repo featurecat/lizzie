@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -466,7 +467,8 @@ public class Leelaz {
       while ((c = inputStream.read()) != -1) {
         line.append((char) c);
         if ((c == '\n')) {
-          parseLine(line.toString());
+          String cmd = line.toString();
+          SwingUtilities.invokeLater(() -> parseLine(cmd));
           line = new StringBuilder();
         }
       }
