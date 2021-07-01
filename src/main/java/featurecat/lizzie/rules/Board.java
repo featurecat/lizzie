@@ -1075,7 +1075,7 @@ public class Board implements LeelazListener {
         // Will delete more than one move, ask for confirmation
         int ret =
             JOptionPane.showConfirmDialog(
-                null,
+                Lizzie.frame,
                 "This will delete all moves and branches after this move",
                 "Delete",
                 JOptionPane.OK_CANCEL_OPTION);
@@ -1395,12 +1395,12 @@ public class Board implements LeelazListener {
       analysisMode = false;
     } else {
       if (!getNextMove().isPresent()) {
-        JOptionPane.showMessageDialog(null, "No next move.");
+        JOptionPane.showMessageDialog(Lizzie.frame, "No next move.");
         return;
       }
       String answer =
           JOptionPane.showInputDialog(
-              "# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
+              Lizzie.frame, "# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
       try {
         playoutsAnalysis = Integer.parseInt(answer);
       } catch (NumberFormatException err) {

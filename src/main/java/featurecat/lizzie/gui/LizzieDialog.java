@@ -1,5 +1,6 @@
 package featurecat.lizzie.gui;
 
+import featurecat.lizzie.Lizzie;
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.Window;
@@ -12,7 +13,7 @@ public class LizzieDialog extends JDialog {
   private String osName;
 
   public LizzieDialog() {
-    super();
+    super(Lizzie.frame); // Set owner for dual monitors. (#885)
     setOsName();
   }
 
