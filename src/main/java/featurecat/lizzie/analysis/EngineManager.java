@@ -123,6 +123,9 @@ public class EngineManager {
       }
       Lizzie.board.restoreMoveNumber();
       this.currentEngineNo = index;
+      if (curEng.preload && newEng.preload) {
+        updateEngineIcon();
+      }
       if (!curEng.preload) {
         curEng.normalQuit();
       }
