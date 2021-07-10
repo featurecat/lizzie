@@ -531,14 +531,14 @@ public class BoardPane extends LizziePane {
       chooser.setAcceptAllFileFilterUsed(false);
       chooser.setFileFilter(filter);
       chooser.setMultiSelectionEnabled(false);
-      int result = chooser.showSaveDialog(null);
+      int result = chooser.showSaveDialog(Lizzie.frame);
       if (result == JFileChooser.APPROVE_OPTION) {
         File file = chooser.getSelectedFile();
         filesystem.put("last-image-folder", file.getParent());
         if (file.exists()) {
           int ret =
               JOptionPane.showConfirmDialog(
-                  null,
+                  Lizzie.frame,
                   resourceBundle.getString("LizzieFrame.prompt.fileExists"),
                   "Warning",
                   JOptionPane.OK_CANCEL_OPTION);
@@ -620,7 +620,7 @@ public class BoardPane extends LizziePane {
     chooser.addChoosableFileFilter(filter3);
     chooser.addChoosableFileFilter(filter4);
     chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showSaveDialog(null);
+    int result = chooser.showSaveDialog(Lizzie.frame);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
       filesystem.put("last-image-folder", file.getParent());
@@ -636,7 +636,7 @@ public class BoardPane extends LizziePane {
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
-                null,
+                Lizzie.frame,
                 resourceBundle.getString("LizzieFrame.prompt.fileExists"),
                 "Warning",
                 JOptionPane.OK_CANCEL_OPTION);

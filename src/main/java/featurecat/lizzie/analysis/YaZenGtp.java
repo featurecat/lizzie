@@ -53,7 +53,7 @@ public class YaZenGtp {
       process = processBuilder.start();
     } catch (IOException e) {
       // TODO Auto-generated catch block
-      Utils.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
+      Utils.showMessageDialog(Lizzie.frame, resourceBundle.getString("YaZenGtp.nofile"));
       return;
     }
     initializeStreams();
@@ -99,7 +99,7 @@ public class YaZenGtp {
       }
 
       if (line.startsWith("Throw")) {
-        Utils.showMessageDialog(null, resourceBundle.getString("YaZenGtp.nofile"));
+        Utils.showMessageDialog(Lizzie.frame, resourceBundle.getString("YaZenGtp.nofile"));
         shutdown();
       }
       if (line.startsWith(" ")) {
