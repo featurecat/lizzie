@@ -80,6 +80,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -110,9 +111,9 @@ public class ConfigDialog extends LizzieDialog {
   private List<String> fontList;
   private Theme theme;
 
-  public JPanel uiTab;
-  public JPanel themeTab;
-  public JPanel aboutTab;
+  public PanelWithToolTip uiTab;
+  public PanelWithToolTip themeTab;
+  public PanelWithToolTip aboutTab;
   public JButton okButton;
 
   // Engine Tab
@@ -252,7 +253,7 @@ public class ConfigDialog extends LizzieDialog {
     tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
-    JPanel engineTab = new JPanel();
+    PanelWithToolTip engineTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.engine"), null, engineTab, null);
     engineTab.setLayout(null);
 
@@ -654,17 +655,17 @@ public class ConfigDialog extends LizzieDialog {
     chkPrintEngineLog.setBounds(167, 425, 201, 23);
     engineTab.add(chkPrintEngineLog);
 
-    uiTab = new JPanel();
+    uiTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.ui"), null, uiTab, null);
     uiTab.setLayout(null);
 
     // Theme Tab
-    themeTab = new JPanel();
+    themeTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.theme"), null, themeTab, null);
     themeTab.setLayout(null);
 
     // About Tab
-    aboutTab = new JPanel();
+    aboutTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.about"), null, aboutTab, null);
 
     JLabel lblLizzieName = new JLabel("Lizzie " + Lizzie.lizzieVersion);
@@ -1819,6 +1820,28 @@ public class ConfigDialog extends LizzieDialog {
     protected void done() {
       okButton.setEnabled(true);
       tabbedPane.repaint();
+    }
+  }
+
+  private class PanelWithToolTip extends JPanel {
+    public void add(JLabel label) {
+      super.add(label);
+      String text = label.getText();
+      String displayedText =
+          SwingUtilities.layoutCompoundLabel(
+              label,
+              label.getFontMetrics(label.getFont()),
+              text,
+              label.getIcon(),
+              label.getVerticalAlignment(),
+              label.getHorizontalAlignment(),
+              label.getVerticalTextPosition(),
+              label.getHorizontalTextPosition(),
+              label.getBounds(),
+              label.getBounds(),
+              label.getBounds(),
+              label.getIconTextGap());
+      if (displayedText != text) label.setToolTipText(text);
     }
   }
 
