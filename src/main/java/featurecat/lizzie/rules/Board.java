@@ -832,15 +832,10 @@ public class Board implements LeelazListener {
 
   /** Restore move number by node */
   public void restoreMoveNumber(BoardHistoryNode node) {
-    Stone[] stones = history.getStones();
-    for (int i = 0; i < stones.length; i++) {
-      Stone stone = stones[i];
-      if (stone.isBlack() || stone.isWhite()) {
-        int y = i % Board.boardWidth;
-        int x = (i - y) / Board.boardHeight;
-        Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
-      }
-    }
+    Lizzie.leelaz.clear();
+    boolean blackToPlay = node.getData().blackToPlay;
+    restoreInitialStones(blackToPlay);
+    restoreInitialStones(!blackToPlay);
     int moveNumber = node.getData().moveNumber;
     if (moveNumber > 0) {
       if (node.isMainTrunk()) {
@@ -848,6 +843,18 @@ public class Board implements LeelazListener {
       } else {
         // If in Branch, restore by the back routing
         goToMoveNumberByBackChildren(moveNumber);
+      }
+    }
+  }
+
+  private void restoreInitialStones(boolean isBlack) {
+    Stone[] stones = history.getStones();
+    for (int i = 0; i < stones.length; i++) {
+      Stone stone = stones[i];
+      if (isBlack ? stone.isBlack() : stone.isWhite()) {
+        int y = i % Board.boardWidth;
+        int x = (i - y) / Board.boardHeight;
+        Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
       }
     }
   }
