@@ -31,6 +31,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONObject;
 
@@ -87,6 +88,7 @@ public abstract class MainFrame extends JFrame {
   public MainFrame() throws HeadlessException {
     super(DEFAULT_TITLE);
     Utils.mustBeEventDispatchThread();
+    ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
   }
 
   public boolean isDesignMode() {
