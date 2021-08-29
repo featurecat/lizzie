@@ -1822,13 +1822,14 @@ public class ConfigDialog extends JDialog {
 
   private class PanelWithToolTip extends JPanel {
     public void add(JLabel label) {
-      super.add(label);
-      String text = label.getText();
+      String texts[] = label.getText().split("\n", 2);
+      String labelText = texts[0];
+      String toolTipText = (texts.length >= 2) ? texts[1] : labelText;
       String displayedText =
           SwingUtilities.layoutCompoundLabel(
               label,
               label.getFontMetrics(label.getFont()),
-              text,
+              labelText,
               label.getIcon(),
               label.getVerticalAlignment(),
               label.getHorizontalAlignment(),
@@ -1838,7 +1839,9 @@ public class ConfigDialog extends JDialog {
               label.getBounds(),
               label.getBounds(),
               label.getIconTextGap());
-      if (displayedText != text) label.setToolTipText(text);
+      label.setText(labelText);
+      if (displayedText != toolTipText) label.setToolTipText(toolTipText);
+      super.add(label);
     }
   }
 
