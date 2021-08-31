@@ -201,7 +201,7 @@ public class Config {
     String theme = ui.optString("theme", "");
     JSONArray blunderWinrateThresholds = ui.optJSONArray("blunder-winrate-thresholds");
     JSONArray blunderNodeColors = ui.optJSONArray("blunder-node-colors");
-    boolean isDefaultTheme = theme.equals("Default");
+    boolean isDefaultTheme = theme.toLowerCase().equals("default");
     boolean isEmptyBlunderWinrateThresholds =
         (blunderWinrateThresholds == null || blunderWinrateThresholds.length() == 0);
     boolean isEmptyBlunderNodeColors =
