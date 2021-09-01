@@ -179,17 +179,56 @@ public class Config {
       madeCorrections = true;
     }
 
+    if (checkEmptyBlunderThresholds(ui)) {
+      madeCorrections = true;
+    }
+
     return madeCorrections;
+  }
+
+  /**
+   * Apply the default blunder thresholds in Default theme if they are empty. This works only once
+   * as the fix of #423 (missing default thresholds) so that users can set them empty again if they
+   * like.
+   *
+   * @param ui The UI config json object to check
+   * @return if any correction has been made.
+   */
+  private boolean checkEmptyBlunderThresholds(JSONObject ui) {
+    boolean alreadyTriedOnce = persisted.optBoolean("checked-empty-blunder-thresholds", false);
+    if (alreadyTriedOnce) return false;
+
+    boolean modified = false;
+    JSONArray blunderWinrateThresholds = ui.optJSONArray("blunder-winrate-thresholds");
+    JSONArray blunderNodeColors = ui.optJSONArray("blunder-node-colors");
+    boolean isEmptyBlunderWinrateThresholds =
+        (blunderWinrateThresholds == null || blunderWinrateThresholds.length() == 0);
+    boolean isEmptyBlunderNodeColors =
+        (blunderNodeColors == null || blunderNodeColors.length() == 0);
+
+    if (isEmptyBlunderWinrateThresholds && isEmptyBlunderNodeColors) {
+      // https://github.com/featurecat/lizzie/issues/423#issuecomment-438878060
+      ui.put("blunder-winrate-thresholds", new JSONArray("[-30, -20, -10.1, -5.1, 5, 10.1]"));
+      ui.put(
+          "blunder-node-colors",
+          new JSONArray(
+              "[[255, 0, 0], [255, 120, 0], [255, 200, 0], [255, 255, 0], [150, 255, 0], [0, 255, 0]]"));
+      modified = true;
+    }
+
+    persisted.put("checked-empty-blunder-thresholds", true);
+    return modified;
   }
 
   public Config() throws IOException {
     JSONObject defaultConfig = createDefaultConfig();
     JSONObject persistConfig = createPersistConfig();
 
-    // Main properties
-    this.config = loadAndMergeConfig(defaultConfig, configFilename, true);
+    // Load "persisted" before "config" for checkEmptyBlunderThresholds.
     // Persisted properties
     this.persisted = loadAndMergeConfig(persistConfig, persistFilename, false);
+    // Main properties
+    this.config = loadAndMergeConfig(defaultConfig, configFilename, true);
 
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
