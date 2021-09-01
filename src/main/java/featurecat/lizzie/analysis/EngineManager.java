@@ -177,6 +177,9 @@ public class EngineManager {
                             i -> {
                               String cmd = m.optString(i);
                               int index = i + 1;
+                              while (engineList.size() < index + 1) {
+                                engineList.add(null);
+                              }
                               if (index != currentEngineNo) {
                                 updateEngine(
                                     index,
