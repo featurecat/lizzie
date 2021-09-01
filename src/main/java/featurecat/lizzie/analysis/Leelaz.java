@@ -362,6 +362,7 @@ public class Leelaz {
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
             togglePonder();
+            Lizzie.frame.refresh();
           }
         }
       } else if (line.contains(" -> ")) {
