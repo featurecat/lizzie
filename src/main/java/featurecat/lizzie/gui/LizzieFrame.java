@@ -1498,6 +1498,10 @@ public class LizzieFrame extends MainFrame {
     if (byToolBar) countResults.setVisible(false);
   }
 
+  public void updateScoreMenu(boolean on) {
+    menu.updateScoreMenu(on);
+  }
+
   public void updateEngineMenu(List<Leelaz> engineList) {
     menu.updateEngineMenu(engineList);
   }

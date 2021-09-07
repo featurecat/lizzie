@@ -1147,6 +1147,7 @@ public class Board implements LeelazListener {
       capturedStones = new Stone[] {};
     }
     scoreMode = on;
+    Lizzie.frame.updateScoreMenu(on);
   }
 
   /*

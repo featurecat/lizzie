@@ -714,6 +714,10 @@ public class LizzieMain extends MainFrame {
     boardPane.saveImage();
   };
 
+  public void updateScoreMenu(boolean on) {
+    menu.updateScoreMenu(on);
+  }
+
   public void updateEngineMenu(List<Leelaz> engineList) {
     menu.updateEngineMenu(engineList);
   }

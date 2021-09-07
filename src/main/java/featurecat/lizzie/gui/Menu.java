@@ -22,6 +22,7 @@ public class Menu extends JMenuBar {
   public static ImageIcon ready;
   public static JMenuItem[] engine;
   public static JMenu engineMenu;
+  private static JCheckBoxMenuItem scoreMode;
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public Menu() {
@@ -1235,7 +1236,7 @@ public class Menu extends JMenuBar {
 
     gameMenu.addSeparator();
 
-    final JCheckBoxMenuItem scoreMode = new JCheckBoxMenuItem("Score game");
+    scoreMode = new JCheckBoxMenuItem("Score game");
     gameMenu.add(scoreMode);
     scoreMode.addActionListener(
         new ActionListener() {
@@ -1385,6 +1386,10 @@ public class Menu extends JMenuBar {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  public void updateScoreMenu(boolean on) {
+    scoreMode.setSelected(on);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
