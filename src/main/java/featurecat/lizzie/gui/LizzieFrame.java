@@ -1030,6 +1030,17 @@ public class LizzieFrame extends MainFrame {
       g.setColor(Color.BLACK);
       g.fillRect(barPosxB, barPosY, barWidthB, barHeight);
 
+      // Draw change of winrate bars
+      if (validWinrate && validLastWinrate) {
+        double blackLastWR = Lizzie.board.getData().blackToPlay ? 100 - lastWR : lastWR;
+        int lastPosxW = barPosxB + (int) (blackLastWR * maxBarwidth / 100);
+        Stroke oldstroke = g.getStroke();
+        g.setStroke(new BasicStroke(strokeRadius));
+        g.setColor(Color.GRAY);
+        g.drawLine(lastPosxW, barPosY, lastPosxW, barPosY + barHeight);
+        g.setStroke(oldstroke);
+      }
+
       // Show percentage above bars
       g.setColor(Color.WHITE);
       g.drawString(
