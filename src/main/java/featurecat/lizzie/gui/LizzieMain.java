@@ -726,6 +726,10 @@ public class LizzieMain extends MainFrame {
     return boardPane.convertScreenToCoordinates(x, y);
   }
 
+  public void updateScoreMenu(boolean on) {
+    menu.updateScoreMenu(on);
+  }
+
   public boolean openRightClickMenu(int x, int y) {
     if (Lizzie.leelaz.isKataGo && !Lizzie.frame.isMouseOver) {
       return false;

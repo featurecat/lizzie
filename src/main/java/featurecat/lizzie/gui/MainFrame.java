@@ -392,6 +392,8 @@ public abstract class MainFrame extends JFrame {
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
 
+  public abstract void updateScoreMenu(boolean on);
+
   public abstract boolean openRightClickMenu(int x, int y);
 
   public abstract void clearBeforeMove();

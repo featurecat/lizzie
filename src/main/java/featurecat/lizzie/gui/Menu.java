@@ -22,6 +22,7 @@ public class Menu extends JMenuBar {
   public static ImageIcon ready;
   public static JMenuItem[] engine;
   public static JMenu engineMenu;
+  private static JCheckBoxMenuItem scoreMode;
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public Menu() {
@@ -1233,6 +1234,19 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoRight);
 
+    gameMenu.addSeparator();
+
+    scoreMode = new JCheckBoxMenuItem("Score game");
+    gameMenu.add(scoreMode);
+    scoreMode.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.board.setScoreMode(scoreMode.isSelected());
+            Lizzie.frame.repaint();
+          }
+        });
+
     final JMenu analyzeMenu = new JMenu(resourceBundle.getString("Menu.analyze"));
     this.add(analyzeMenu);
 
@@ -1372,6 +1386,10 @@ public class Menu extends JMenuBar {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+  }
+
+  public void updateScoreMenu(boolean on) {
+    scoreMode.setSelected(on);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
