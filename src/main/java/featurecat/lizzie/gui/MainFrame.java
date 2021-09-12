@@ -386,13 +386,13 @@ public abstract class MainFrame extends JFrame {
 
   public void saveImage() {};
 
-  public abstract void updateScoreMenu(boolean on);
-
   public abstract void updateEngineMenu(List<Leelaz> engineList);
 
   public abstract void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo);
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
+
+  public abstract void updateScoreMenu(boolean on);
 
   public abstract boolean openRightClickMenu(int x, int y);
 

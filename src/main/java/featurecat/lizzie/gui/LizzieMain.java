@@ -714,10 +714,6 @@ public class LizzieMain extends MainFrame {
     boardPane.saveImage();
   };
 
-  public void updateScoreMenu(boolean on) {
-    menu.updateScoreMenu(on);
-  }
-
   public void updateEngineMenu(List<Leelaz> engineList) {
     menu.updateEngineMenu(engineList);
   }
@@ -728,6 +724,10 @@ public class LizzieMain extends MainFrame {
 
   public Optional<int[]> convertScreenToCoordinates(int x, int y) {
     return boardPane.convertScreenToCoordinates(x, y);
+  }
+
+  public void updateScoreMenu(boolean on) {
+    menu.updateScoreMenu(on);
   }
 
   public boolean openRightClickMenu(int x, int y) {
