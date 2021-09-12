@@ -1130,7 +1130,7 @@ public class ConfigDialog extends LizzieDialog {
             }
           }
         });
-    sldBoardPositionProportion.setValue(4);
+    sldBoardPositionProportion.setValue(Lizzie.frame.boardPositionProportion);
     sldBoardPositionProportion.setMaximum(8);
     sldBoardPositionProportion.setBounds(170, 333, 200, 28);
     uiTab.add(sldBoardPositionProportion);
@@ -1212,7 +1212,6 @@ public class ConfigDialog extends LizzieDialog {
     chkShowBestMovesByHold.setSelected(Lizzie.config.showBestMovesByHold);
     chkNotRefreshVariation.setSelected(Lizzie.config.notRefreshVariation);
     chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
-    sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
     txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
     txtLimitBranchLength.setText(String.valueOf(Lizzie.config.limitBranchLength));
     chkShowWinrateInSuggestion.setSelected(Lizzie.config.showWinrateInSuggestion);
