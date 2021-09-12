@@ -522,7 +522,16 @@ public abstract class MainFrame extends JFrame {
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
 
-  public abstract void updateScoreMenu(boolean on);
+  public void updateScoreMenu(boolean on) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateScoreMenuInEDT(on);
+          }
+        });
+  }
+
+  protected abstract void updateScoreMenuInEDT(boolean on);
 
   public abstract boolean openRightClickMenu(int x, int y);
 

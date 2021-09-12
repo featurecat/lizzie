@@ -1568,7 +1568,8 @@ public class LizzieFrame extends MainFrame {
     return boardRenderer.convertScreenToCoordinates(x, y);
   }
 
-  public void updateScoreMenu(boolean on) {
+  protected void updateScoreMenuInEDT(boolean on) {
+    Utils.mustBeEventDispatchThread();
     menu.updateScoreMenu(on);
   }
 

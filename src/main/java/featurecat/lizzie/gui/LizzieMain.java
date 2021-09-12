@@ -811,7 +811,8 @@ public class LizzieMain extends MainFrame {
     return boardPane.convertScreenToCoordinates(x, y);
   }
 
-  public void updateScoreMenu(boolean on) {
+  protected void updateScoreMenuInEDT(boolean on) {
+    Utils.mustBeEventDispatchThread();
     menu.updateScoreMenu(on);
   }
 
