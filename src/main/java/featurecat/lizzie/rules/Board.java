@@ -1156,6 +1156,9 @@ public class Board implements LeelazListener {
   }
 
   public void setScoreMode(boolean on) {
+    if (history.getMoveNumber() == 0) {
+      on = false;
+    }
     if (on) {
       // load a copy of the data at the current node of history
       capturedStones = history.getStones().clone();
@@ -1163,6 +1166,7 @@ public class Board implements LeelazListener {
       capturedStones = new Stone[] {};
     }
     scoreMode = on;
+    Lizzie.frame.updateScoreMenu(on);
   }
 
   /*
