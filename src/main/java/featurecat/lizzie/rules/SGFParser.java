@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -652,8 +653,16 @@ public class SGFParser {
     // *  with 'xy' = coordinates ; or 'tt' for pass.
 
     // Write variation tree
-    builder.append(generateNode(board, history.getCurrentHistoryNode()));
-
+    Stack<BoardHistoryNode> stack = new Stack<>();
+    stack.push(history.getCurrentHistoryNode());
+    while (!stack.isEmpty()) {
+      BoardHistoryNode cur = stack.pop();
+      builder.append(generateNode(board, cur));
+      if (cur.numberOfChildren() >= 1) {
+        for (int i = cur.numberOfChildren() - 1; i >= 0; i--)
+          stack.push(cur.getVariations().get(i));
+      }
+    }
     // close file
     builder.append(')');
     writer.append(builder.toString());
@@ -697,19 +706,6 @@ public class SGFParser {
         if (Lizzie.config.holdBestMovesToSgf) {
           builder.append(String.format("LZ[%s]", formatNodeData(node)));
         }
-      }
-
-      if (node.numberOfChildren() > 1) {
-        // Variation
-        for (BoardHistoryNode sub : node.getVariations()) {
-          builder.append("(");
-          builder.append(generateNode(board, sub));
-          builder.append(")");
-        }
-      } else if (node.numberOfChildren() == 1) {
-        builder.append(generateNode(board, node.next().orElse(null)));
-      } else {
-        return builder.toString();
       }
     }
 
