@@ -653,14 +653,28 @@ public class SGFParser {
     // *  with 'xy' = coordinates ; or 'tt' for pass.
 
     // Write variation tree
+    BoardHistoryNode markerBeg = new BoardHistoryNode(null);
+    BoardHistoryNode markerEnd = new BoardHistoryNode(null);
     Stack<BoardHistoryNode> stack = new Stack<>();
     stack.push(history.getCurrentHistoryNode());
     while (!stack.isEmpty()) {
       BoardHistoryNode cur = stack.pop();
+      if (cur == markerBeg) {
+        builder.append('(');
+        continue;
+      }
+      if (cur == markerEnd) {
+        builder.append(')');
+        continue;
+      }
       builder.append(generateNode(board, cur));
+      boolean hasBrothers = (cur.numberOfChildren() > 1);
       if (cur.numberOfChildren() >= 1) {
-        for (int i = cur.numberOfChildren() - 1; i >= 0; i--)
+        for (int i = cur.numberOfChildren() - 1; i >= 0; i--) {
+          if (hasBrothers) stack.push(markerEnd);
           stack.push(cur.getVariations().get(i));
+          if (hasBrothers) stack.push(markerBeg);
+        }
       }
     }
     // close file
