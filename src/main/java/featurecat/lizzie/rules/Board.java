@@ -112,7 +112,11 @@ public class Board implements LeelazListener {
     Pattern p = Pattern.compile(reg);
     Matcher m = p.matcher(namedCoordinate);
     if (m.find() && m.groupCount() == 2) {
-      int x = asDigit(m.group(1));
+      String xCoords = m.group(1);
+      int x =
+          xCoords.length() == 2
+              ? (asDigit(xCoords.substring(0, 1)) + 1) * 25 + asDigit(xCoords.substring(1, 2))
+              : asDigit(xCoords);
       int y = boardHeight - Integer.parseInt(m.group(2));
       return Optional.of(new int[] {x, y});
     } else {
