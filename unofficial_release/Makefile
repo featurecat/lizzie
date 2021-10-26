@@ -13,9 +13,9 @@ FILES = Lizzie.vbs README.html README_ja.html config.txt jar jre katago
 # (4) Run "make add_model_to_zip" locally.
 
 KATA_DIR = katago
-KATA_URL1 = https://github.com/lightvector/KataGo/releases/download/v1.9.1/katago-v1.9.1-eigen-windows-x64.zip
-KATA_URL2 = https://github.com/lightvector/KataGo/releases/download/v1.9.1/katago-v1.9.1-eigenavx2-windows-x64.zip
-KATA_URL3 = https://github.com/lightvector/KataGo/releases/download/v1.9.1/katago-v1.9.1-opencl-windows-x64.zip
+KATA_URL1 = https://github.com/lightvector/KataGo/releases/download/v1.10.0/katago-v1.10.0-eigen-windows-x64.zip
+KATA_URL2 = https://github.com/lightvector/KataGo/releases/download/v1.10.0/katago-v1.10.0-eigenavx2-windows-x64.zip
+KATA_URL3 = https://github.com/lightvector/KataGo/releases/download/v1.10.0/katago-v1.10.0-opencl-windows-x64.zip
 # KATA_MODEL_URL = XXXXXXXXXXXXX
 
 KATA_MODEL_PATH = $(KATA_DIR)/default_model.bin.gz
