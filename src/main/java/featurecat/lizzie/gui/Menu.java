@@ -1162,6 +1162,23 @@ public class Menu extends JMenuBar {
           }
         });
     gameMenu.add(pass);
+
+    final JMenuItem continueLadder =
+        new JMenuItem(resourceBundle.getString("Menu.game.continueLadder"));
+    continueLadder.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (Lizzie.board.continueLadder() == 0)
+              JOptionPane.showMessageDialog(
+                  Lizzie.frame,
+                  String.format(
+                      resourceBundle.getString("Menu.game.continueLadderFail"),
+                      Lizzie.board.MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION));
+          }
+        });
+    gameMenu.add(continueLadder);
+
     gameMenu.addSeparator();
 
     final JMenuItem clearBoard = new JMenuItem(resourceBundle.getString("Menu.game.clearBoard"));
