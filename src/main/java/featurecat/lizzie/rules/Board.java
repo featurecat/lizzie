@@ -93,6 +93,12 @@ public class Board implements LeelazListener {
     return new int[] {x, y};
   }
 
+  public static int[] getCoordKataGo(int index) {
+    int x = index % Board.boardWidth;
+    int y = (index - x) / Board.boardWidth;
+    return new int[] {x, y};
+  }
+
   /**
    * Converts a named coordinate eg C16, T5, K10, etc to an x and y coordinate
    *
