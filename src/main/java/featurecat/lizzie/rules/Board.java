@@ -633,6 +633,47 @@ public class Board implements LeelazListener {
     }
   }
 
+  // at least 5. increase this to avoid wrong detection of ladders
+  public final int MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION = 5;
+
+  public int continueLadder() {
+    int k;
+    // Repeating continueLadderByOne() is inefficient. So what? :p
+    for (k = 0; continueLadderByOne(); k++) ;
+    Lizzie.frame.refresh();
+    return k;
+  }
+
+  private boolean continueLadderByOne() {
+    final int PERIOD = 4, CHECK_LENGTH = MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION;
+    BoardHistoryList copiedHistory = history.shallowCopy();
+    int[][] pastMove = new int[CHECK_LENGTH][];
+    int dx = 0, dy = 0;
+    for (int k = 0; k < CHECK_LENGTH; k++) {
+      Optional<int[]> lastMoveOpt = copiedHistory.getLastMove();
+      if (!lastMoveOpt.isPresent()) return false;
+      int[] move = pastMove[k] = lastMoveOpt.get();
+      copiedHistory.previous();
+      if (k < PERIOD) continue;
+      // check repeated pattern
+      int[] periodMove = pastMove[k - PERIOD];
+      int deltaX = periodMove[0] - move[0], deltaY = periodMove[1] - move[1];
+      if (k == PERIOD) { // first periodical move
+        dx = deltaX;
+        dy = deltaY;
+      }
+      boolean isRepeated = (deltaX == dx && deltaY == dy);
+      boolean isDiagonal = (Math.abs(deltaX) == 1 && Math.abs(deltaY) == 1);
+      if (!isRepeated || !isDiagonal) return false;
+    }
+    int[] myPeriodMove = pastMove[PERIOD - 1];
+    int x = myPeriodMove[0] + dx, y = myPeriodMove[1] + dy;
+    boolean continued = isValidEmpty(x, y) && isValidEmpty(x + dx, y) && isValidEmpty(x, y + dy);
+    if (!continued) return false;
+    place(x, y);
+    return true;
+  }
+
   /** for handicap */
   public void flatten() {
     Stone[] stones = history.getStones();
@@ -1673,6 +1714,10 @@ public class Board implements LeelazListener {
       return false;
     }
     return true;
+  }
+
+  private boolean isValidEmpty(int x, int y) {
+    return isValid(x, y) && isCoordsEmpty(x, y);
   }
 
   public boolean setAsMainBranch() {
