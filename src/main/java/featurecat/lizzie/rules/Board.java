@@ -90,8 +90,14 @@ public class Board implements LeelazListener {
   }
 
   public static int[] getCoord(int index) {
-    int y = index % Board.boardWidth;
-    int x = (index - y) / Board.boardWidth;
+    int y = index % Board.boardHeight;
+    int x = (index - y) / Board.boardHeight;
+    return new int[] {x, y};
+  }
+
+  public static int[] getCoordKataGo(int index) {
+    int x = index % Board.boardWidth;
+    int y = (index - x) / Board.boardWidth;
     return new int[] {x, y};
   }
 

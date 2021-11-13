@@ -1912,9 +1912,9 @@ public class BoardRenderer {
         // KataGo's estimates are for player to move, not for black.
         if (!Lizzie.board.getHistory().isBlacksTurn()) estimate = -estimate;
       }
-      int[] c = Lizzie.board.getCoord(i);
-      int x = c[1];
-      int y = c[0];
+      int[] c = Lizzie.board.getCoordKataGo(i);
+      int x = c[0];
+      int y = c[1];
       int stoneX = scaledMarginWidth + squareWidth * x;
       int stoneY = scaledMarginHeight + squareHeight * y;
       // g.setColor(Color.BLACK);
