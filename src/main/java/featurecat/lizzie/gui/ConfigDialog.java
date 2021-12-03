@@ -1100,7 +1100,7 @@ public class ConfigDialog extends LizzieDialog {
 
     JLabel lblNotRefreshVaritions =
         new JLabel(resourceBundle.getString("LizzieConfig.title.notRefreshVariation"));
-    lblNotRefreshVaritions.setBounds(372, 308, 187, 16);
+    lblNotRefreshVaritions.setBounds(372, 308, 157, 16);
     uiTab.add(lblNotRefreshVaritions);
     chkNotRefreshVariation = new JCheckBox("");
     chkNotRefreshVariation.setBounds(536, 305, 57, 23);
