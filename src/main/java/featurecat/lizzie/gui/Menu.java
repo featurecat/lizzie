@@ -1205,7 +1205,7 @@ public class Menu extends JMenuBar {
 
     gameMenu.addSeparator();
 
-    final JMenuItem editComment = new JMenuItem("Edit comment");
+    final JMenuItem editComment = new JMenuItem(resourceBundle.getString("Menu.game.editComment"));
     editComment.addActionListener(
         new ActionListener() {
           @Override
@@ -1215,7 +1215,7 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(editComment);
 
-    final JMenuItem copyComment = new JMenuItem("Copy comment(Ctrl+Shift+C)");
+    final JMenuItem copyComment = new JMenuItem(resourceBundle.getString("Menu.game.copyComment"));
     copyComment.addActionListener(
         new ActionListener() {
           @Override
@@ -1298,7 +1298,7 @@ public class Menu extends JMenuBar {
 
     gameMenu.addSeparator();
 
-    scoreMode = new JCheckBoxMenuItem("Score game");
+    scoreMode = new JCheckBoxMenuItem(resourceBundle.getString("Menu.game.scoreGame"));
     gameMenu.add(scoreMode);
     scoreMode.addActionListener(
         new ActionListener() {
@@ -1371,7 +1371,7 @@ public class Menu extends JMenuBar {
         });
     analyzeMenu.add(estimate);
 
-    kataGoRuleMenu = new JMenu("Rule");
+    kataGoRuleMenu = new JMenu(resourceBundle.getString("Menu.analyze.rule"));
     kataGoRuleMenu.setEnabled(false);
     analyzeMenu.add(kataGoRuleMenu);
 
@@ -1479,10 +1479,11 @@ public class Menu extends JMenuBar {
       e.printStackTrace();
     }
 
-    final JMenu helpMenu = new JMenu("Help");
+    final JMenu helpMenu = new JMenu(resourceBundle.getString("Menu.helpMenu"));
     this.add(helpMenu);
 
-    final JMenuItem keyboardControlsHelp = new JMenuItem("Keyboard controls");
+    final JMenuItem keyboardControlsHelp =
+        new JMenuItem(resourceBundle.getString("Menu.helpMenu.keyboardControls"));
     keyboardControlsHelp.addActionListener(
         new ActionListener() {
           @Override
