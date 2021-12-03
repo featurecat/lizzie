@@ -16,9 +16,9 @@ KATA_DIR = katago
 KATA_URL1 = https://github.com/lightvector/KataGo/releases/download/v1.10.0/katago-v1.10.0-eigen-windows-x64.zip
 KATA_URL2 = https://github.com/lightvector/KataGo/releases/download/v1.10.0/katago-v1.10.0-eigenavx2-windows-x64.zip
 KATA_URL3 = https://github.com/lightvector/KataGo/releases/download/v1.10.0/katago-v1.10.0-opencl-windows-x64.zip
-# KATA_MODEL_URL = XXXXXXXXXXXXX
+KATA_MODEL_URL = https://media.katagotraining.org/uploaded/networks/models/kata1/kata1-b15c192-s1672170752-d466197061.txt.gz
 
-KATA_MODEL_PATH = $(KATA_DIR)/default_model.bin.gz
+# KATA_MODEL_PATH = $(KATA_DIR)/default_model.bin.gz
 
 zip:
 	zip -r $(ZIP_NAME) $(FILES)
@@ -30,7 +30,7 @@ kata:
 	cd $(KATA_DIR); unzip -o ../tmp_kata1.zip; mv katago.exe katago-eigen.exe
 	cd $(KATA_DIR); unzip -o ../tmp_kata2.zip; mv katago.exe katago-eigenavx2.exe
 	cd $(KATA_DIR); unzip -o ../tmp_kata3.zip; mv katago.exe katago-opencl.exe
-#	cd $(KATA_DIR); \wget -O default_model.bin.gz $(KATA_MODEL_URL)
+	cd $(KATA_DIR); \wget -O default_model.txt.gz $(KATA_MODEL_URL)
 
-add_model_to_zip:
-	zip $(ZIP_NAME) $(KATA_MODEL_PATH)
+# add_model_to_zip:
+# 	zip $(ZIP_NAME) $(KATA_MODEL_PATH)
