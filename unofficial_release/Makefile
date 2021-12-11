@@ -1,4 +1,4 @@
-VERSION = 211113a
+VERSION = 211211a
 ZIP_NAME = tmp_Lizzie-patched-0.7.4_$(VERSION).zip
 FILES = Lizzie.vbs README.html README_ja.html config.txt jar jre katago
 
