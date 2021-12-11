@@ -12,8 +12,8 @@
       false
     ],
     "engine-command-list": [
-      "<KataGo (Modern CPU)> katago/katago-eigenavx2 gtp",
-      "<KataGo (GPU)> katago/katago-opencl gtp",
+      "<KataGo (Modern CPU)> katago/katago-eigenavx2 gtp -config katago/default_gtp.cfg -model katago/default_model.txt.gz",
+      "<KataGo (GPU)> katago/katago-opencl gtp -config katago/default_gtp.cfg -model katago/default_model.txt.gz",
       "",
       "",
       "",
@@ -29,7 +29,7 @@
     "max-game-thinking-time-seconds": 2,
     "engine-start-location": ".",
     "avoid-keep-variations": 30,
-    "engine-command": "<KataGo (CPU)> katago/katago-eigen gtp",
+    "engine-command": "<KataGo (CPU)> katago/katago-eigen gtp -config katago/default_gtp.cfg -model katago/default_model.txt.gz",
     "print-comms": false,
     "show-lcb-winrate": false
   },
