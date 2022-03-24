@@ -278,17 +278,17 @@ public class Theme {
 
   private BufferedImage getImageByKey(String key, String defaultValue, String defaultImg) {
     BufferedImage image = null;
-    String p = config.optString(key, defaultValue);
+    String imagePath = config.optString(key, defaultValue);
     try {
-      image = ImageIO.read(new File(p));
+      image = ImageIO.read(new File(imagePath));
     } catch (IOException e0) {
       try {
-        p = this.path + config.optString(key, defaultValue);
-        image = ImageIO.read(new File(p));
+        imagePath = this.path + config.optString(key, defaultValue);
+        image = ImageIO.read(new File(imagePath));
       } catch (IOException e) {
         try {
-          p = this.pathPrefix + uiConfig.optString(key, defaultValue);
-          image = ImageIO.read(new File(p));
+          imagePath = this.pathPrefix + uiConfig.optString(key, defaultValue);
+          image = ImageIO.read(new File(imagePath));
         } catch (IOException e1) {
           try {
             image = ImageIO.read(getClass().getResourceAsStream("/assets/" + defaultImg));
