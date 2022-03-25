@@ -963,7 +963,7 @@ public class BoardRenderer {
         }
 
         if (Lizzie.leelaz.supportScoremean() && Lizzie.config.showScoremeanInSuggestion) {
-          double score = Utils.actualScoreMean(textData.move.scoreMean);
+          double score = BoardData.actualScoreMean(textData.move.scoreMean);
           if (!Lizzie.config.showWinrateInSuggestion) {
             drawString(
                 g,
