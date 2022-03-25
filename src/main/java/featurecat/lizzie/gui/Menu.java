@@ -1,11 +1,9 @@
 package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
-import featurecat.lizzie.analysis.Leelaz;
 import java.awt.Font;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.List;
 import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -1371,47 +1369,6 @@ public class Menu extends JMenuBar {
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }
-  }
-
-  public void updateEngineMenu(List<Leelaz> engineList) {
-    engine = new JMenuItem[engineList.size()];
-    engineMenu.removeAll();
-    for (int i = 0; i < engineList.size(); i++) {
-      engine[i] = new JMenuItem();
-      engineMenu.add(engine[i]);
-      engine[i].setText(resourceBundle.getString("Menu.engineMenu") + i);
-      engine[i].setVisible(false);
-      Leelaz engineDt = engineList.get(i);
-      if (engineDt != null) {
-        if (engineDt.currentWeight() != "")
-          engine[i].setText(engine[i].getText() + " : " + engineDt.currentWeight());
-        engine[i].setVisible(true);
-        int a = i;
-        engine[i].addActionListener(
-            new ActionListener() {
-              public void actionPerformed(ActionEvent e) {
-                Lizzie.engineManager.switchEngine(a);
-              }
-            });
-      }
-    }
-  }
-
-  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
-    if (engine != null) {
-      for (int i = 0; i < engineList.size(); i++) {
-        if (engine[i] != null) {
-          Leelaz engineDt = engineList.get(i);
-          if (engineDt != null) {
-            if (i == currentEngineNo) {
-              engine[i].setIcon(running);
-              engineMenu.setText(engine[i].getText());
-            } else if (engineDt.isLoaded()) engine[i].setIcon(ready);
-            else if (engine[i].getIcon() != null) engine[i].setIcon(null);
-          }
-        }
-      }
     }
   }
 }

@@ -53,6 +53,7 @@ public class LizzieMain extends MainFrame {
   public static VariationTreePane variationTreePane;
   public static CommentPane commentPane;
   private static Menu menu;
+  private static UpdateEngine updateEngine;
   public static boolean designMode;
   private LizzieLayout layout;
 
@@ -188,6 +189,7 @@ public class LizzieMain extends MainFrame {
     commentPane = new CommentPane(this);
     countResults = new CountResults();
     menu = new Menu();
+    updateEngine = new UpdateEngine();
     setJMenuBar(menu);
     toolBar = new ToolBar();
     toolBar.setVisible(Lizzie.config.showToolBar);
@@ -715,11 +717,11 @@ public class LizzieMain extends MainFrame {
   };
 
   public void updateEngineMenu(List<Leelaz> engineList) {
-    menu.updateEngineMenu(engineList);
+    updateEngine.updateEngineMenu(engineList);
   }
 
   public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
-    menu.updateEngineIcon(engineList, currentEngineNo);
+    updateEngine.updateEngineIcon(engineList, currentEngineNo);
   }
 
   public Optional<int[]> convertScreenToCoordinates(int x, int y) {

@@ -963,7 +963,7 @@ public class BoardRenderer {
         }
 
         if (Lizzie.leelaz.supportScoremean() && Lizzie.config.showScoremeanInSuggestion) {
-          double score = Utils.actualScoreMean(textData.move.scoreMean);
+          double score = BoardData.actualScoreMean(textData.move.scoreMean);
           if (!Lizzie.config.showWinrateInSuggestion) {
             drawString(
                 g,
@@ -1690,14 +1690,7 @@ public class BoardRenderer {
   }
 
   private int maxBranchMoves() {
-    switch (displayedBranchLength) {
-      case SHOW_NORMAL_BOARD:
-        return Integer.MAX_VALUE;
-      case SHOW_RAW_BOARD:
-        return -1;
-      default:
-        return displayedBranchLength;
-    }
+    return BranchFactory.createBranch(displayedBranchLength).getBranchMove(displayedBranchLength);
   }
 
   public boolean isShowingBranch() {

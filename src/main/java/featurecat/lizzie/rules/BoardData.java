@@ -3,7 +3,6 @@ package featurecat.lizzie.rules;
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.MoveData;
-import featurecat.lizzie.util.Utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -211,7 +210,24 @@ public class BoardData {
   }
 
   public double getScoreMean() {
-    return Utils.actualScoreMean(scoreMean);
+    return actualScoreMean(scoreMean);
+  }
+
+  public static double actualScoreMean(double scoreMean) {
+    double score = scoreMean;
+    if (Lizzie.board.getHistory().isBlacksTurn()) {
+      if (Lizzie.config.showKataGoBoardScoreMean) {
+        score = score + Lizzie.board.getHistory().getGameInfo().getKomi();
+      }
+    } else {
+      if (Lizzie.config.showKataGoBoardScoreMean) {
+        score = score - Lizzie.board.getHistory().getGameInfo().getKomi();
+      }
+      if (Lizzie.config.kataGoScoreMeanAlwaysBlack) {
+        score = -score;
+      }
+    }
+    return score;
   }
 
   public static double getScoreMeanFromBestMoves(List<MoveData> bestMoves) {

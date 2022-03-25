@@ -324,145 +324,175 @@ public class Leelaz {
         Lizzie.gtpConsole.addLine(line);
       }
       if (line.startsWith("komi=")) {
-        try {
-          dynamicKomi = Float.parseFloat(line.substring("komi=".length()).trim());
-        } catch (NumberFormatException nfe) {
-          dynamicKomi = Float.NaN;
-        }
+        parseKomiLine(line);
       } else if (line.startsWith("opp_komi=")) {
-        try {
-          dynamicOppKomi = Float.parseFloat(line.substring("opp_komi=".length()).trim());
-        } catch (NumberFormatException nfe) {
-          dynamicOppKomi = Float.NaN;
-        }
+        parseOpp_komiLine(line);
       } else if (line.startsWith("Tuning")) {
-        // Show GTP console during initial tuning of KataGo
-        // to avoid long no-response
-        if (!Lizzie.gtpConsole.isVisible()) {
-          Lizzie.frame.toggleGtpConsole();
-        }
+        parseTuningLine(line);
       } else if (line.equals("\n")) {
-        // End of response
+        parseNewlineCharacter(line);
       } else if (line.startsWith("info")) {
-        if (!isLoaded) {
-          Lizzie.frame.refresh();
-        }
-        isLoaded = true;
-        // Clear switching prompt
-        switching = false;
-        // Display engine command in the title
-        Lizzie.frame.updateTitle();
-        if (isAnalysisUpToDate()) {
-          // This should not be stale data when the command number match
-          if (isKataGo) {
-            this.bestMoves = parseInfoKatago(line.substring(5));
-            if (Lizzie.config.showKataGoEstimate) {
-              if (line.contains("ownership")) {
-                estimateArray = new ArrayList<Double>();
-                String[] params = line.trim().split("ownership");
-                String[] params2 = params[1].trim().split(" ");
-                for (int i = 0; i < params2.length; i++) {
-                  estimateArray.add(Double.parseDouble(params2[i]));
-                }
-                Lizzie.frame.drawEstimateRectKata(estimateArray);
-              }
-            }
-          } else {
-            this.bestMoves = parseInfo(line.substring(5));
-          }
-          notifyBestMoveListeners();
-          Lizzie.frame.refresh(1);
-          // don't follow the maxAnalyzeTime rule if we are in analysis mode
-          if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
-              && !Lizzie.board.inAnalysisMode()) {
-            togglePonder();
-          }
-        }
+        parseInfoLine(line);
       } else if (line.contains(" -> ")) {
-        if (!isLoaded) {
-          Lizzie.frame.refresh();
-        }
-        isLoaded = true;
-        if (isResponseUpToDate()
-            || isThinking
-                && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
-          // TODO Do not update the best moves when playing against Leela Zero
-          // Because it is equivalent to the winrate of the previous move.
-          if (!Lizzie.frame.isPlayingAgainstLeelaz
-              && (Lizzie.config.limitBestMoveNum == 0
-                  || bestMoves.size() < Lizzie.config.limitBestMoveNum)) {
-            bestMoves.add(MoveData.fromSummary(line));
-            notifyBestMoveListeners();
-            Lizzie.frame.refresh(1);
+        parseArrowSymbolLine(line);
+      } else if (line.startsWith("play")) {
+        parsePlayLine(line);
+      } else if (line.startsWith("=") || line.startsWith("?")) {
+        parseEqualSignQuestionMarkLine(line);
+      }
+    }
+  }
+
+  private void parseKomiLine(String line) {
+    try {
+      dynamicKomi = Float.parseFloat(line.substring("komi=".length()).trim());
+    } catch (NumberFormatException nfe) {
+      dynamicKomi = Float.NaN;
+    }
+  }
+
+  private void parseOpp_komiLine(String line) {
+    try {
+      dynamicOppKomi = Float.parseFloat(line.substring("opp_komi=".length()).trim());
+    } catch (NumberFormatException nfe) {
+      dynamicOppKomi = Float.NaN;
+    }
+  }
+
+  private void parseTuningLine(String line) {
+    // Show GTP console during initial tuning of KataGo
+    // to avoid long no-response
+    if (!Lizzie.gtpConsole.isVisible()) {
+      Lizzie.frame.toggleGtpConsole();
+    }
+  }
+
+  private void parseNewlineCharacter(String line) {
+    // End of response
+  }
+
+  private void parseInfoLine(String line) {
+    if (!isLoaded) {
+      Lizzie.frame.refresh();
+    }
+    isLoaded = true;
+    // Clear switching prompt
+    switching = false;
+    // Display engine command in the title
+    Lizzie.frame.updateTitle();
+    if (isAnalysisUpToDate()) {
+      // This should not be stale data when the command number match
+      if (isKataGo) {
+        this.bestMoves = parseInfoKatago(line.substring(5));
+        if (Lizzie.config.showKataGoEstimate) {
+          if (line.contains("ownership")) {
+            estimateArray = new ArrayList<Double>();
+            String[] params = line.trim().split("ownership");
+            String[] params2 = params[1].trim().split(" ");
+            for (int i = 0; i < params2.length; i++) {
+              estimateArray.add(Double.parseDouble(params2[i]));
+            }
+            Lizzie.frame.drawEstimateRectKata(estimateArray);
           }
         }
-      } else if (line.startsWith("play")) {
-        // In lz-genmove_analyze
-        if (Lizzie.frame.isPlayingAgainstLeelaz) {
-          Lizzie.board.place(line.substring(5).trim());
+      } else {
+        this.bestMoves = parseInfo(line.substring(5));
+      }
+      notifyBestMoveListeners();
+      Lizzie.frame.refresh(1);
+      // don't follow the maxAnalyzeTime rule if we are in analysis mode
+      if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
+          && !Lizzie.board.inAnalysisMode()) {
+        togglePonder();
+      }
+    }
+  }
+
+  private void parseArrowSymbolLine(String line) {
+    if (!isLoaded) {
+      Lizzie.frame.refresh();
+    }
+    isLoaded = true;
+    if (isResponseUpToDate()
+        || isThinking && (!isPondering && Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand)) {
+      // TODO Do not update the best moves when playing against Leela Zero
+      // Because it is equivalent to the winrate of the previous move.
+      if (!Lizzie.frame.isPlayingAgainstLeelaz
+          && (Lizzie.config.limitBestMoveNum == 0
+              || bestMoves.size() < Lizzie.config.limitBestMoveNum)) {
+        bestMoves.add(MoveData.fromSummary(line));
+        notifyBestMoveListeners();
+        Lizzie.frame.refresh(1);
+      }
+    }
+  }
+
+  private void parsePlayLine(String line) {
+    // In lz-genmove_analyze
+    if (Lizzie.frame.isPlayingAgainstLeelaz) {
+      Lizzie.board.place(line.substring(5).trim());
+    }
+    isThinking = false;
+  }
+
+  private void parseEqualSignQuestionMarkLine(String line) {
+    if (printCommunication || gtpConsole) {
+      System.out.print(line);
+      Lizzie.gtpConsole.addLine(line);
+    }
+    String[] params = line.trim().split(" ");
+    currentCmdNum = Integer.parseInt(params[0].substring(1).trim());
+
+    trySendCommandFromQueue();
+
+    if (line.startsWith("?") || params.length == 1) return;
+
+    if (isSettingHandicap) {
+      bestMoves = new ArrayList<>();
+      for (int i = 1; i < params.length; i++) {
+        Lizzie.board
+            .asCoordinates(params[i])
+            .ifPresent(coords -> Lizzie.board.getHistory().setStone(coords, Stone.BLACK));
+      }
+      isSettingHandicap = false;
+    } else if (isThinking && !isPondering) {
+      if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
+        Lizzie.board.place(params[1]);
+        if (Lizzie.frame.isAutoEstimating) {
+          if (Lizzie.board.getHistory().isBlacksTurn())
+            Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
+          else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
+          Lizzie.frame.zen.countStones();
+        }
+        // TODO Do not ponder when playing against Leela Zero
+        //            togglePonder();
+        if (!isInputCommand) {
+          isPondering = false;
         }
         isThinking = false;
-
-      } else if (line.startsWith("=") || line.startsWith("?")) {
-        if (printCommunication || gtpConsole) {
-          System.out.print(line);
-          Lizzie.gtpConsole.addLine(line);
-        }
-        String[] params = line.trim().split(" ");
-        currentCmdNum = Integer.parseInt(params[0].substring(1).trim());
-
-        trySendCommandFromQueue();
-
-        if (line.startsWith("?") || params.length == 1) return;
-
-        if (isSettingHandicap) {
-          bestMoves = new ArrayList<>();
-          for (int i = 1; i < params.length; i++) {
-            Lizzie.board
-                .asCoordinates(params[i])
-                .ifPresent(coords -> Lizzie.board.getHistory().setStone(coords, Stone.BLACK));
-          }
-          isSettingHandicap = false;
-        } else if (isThinking && !isPondering) {
-          if (Lizzie.frame.isPlayingAgainstLeelaz || isInputCommand) {
-            Lizzie.board.place(params[1]);
-            if (Lizzie.frame.isAutoEstimating) {
-              if (Lizzie.board.getHistory().isBlacksTurn())
-                Lizzie.frame.zen.sendCommand("play " + "w " + params[1]);
-              else Lizzie.frame.zen.sendCommand("play " + "b " + params[1]);
-              Lizzie.frame.zen.countStones();
-            }
-            // TODO Do not ponder when playing against Leela Zero
-            //            togglePonder();
-            if (!isInputCommand) {
-              isPondering = false;
-            }
-            isThinking = false;
-            if (isInputCommand) {
-              isInputCommand = false;
-            }
-          }
-        } else if (isCheckingName) {
-          if (params[1].startsWith("KataGo")) {
-            this.isKataGo = true;
-            Lizzie.initializeAfterVersionCheck(this);
-          }
-          isCheckingName = false;
-        } else if (isCheckingVersion && !isKataGo) {
-          String[] ver = params[1].split("\\.");
-          int minor = Integer.parseInt(ver[1]);
-          // Gtp support added in version 15
-          if (minor < 15) {
-            JOptionPane.showMessageDialog(
-                Lizzie.frame,
-                "Lizzie requires version 0.15 or later of Leela Zero for analysis (found "
-                    + params[1]
-                    + ")");
-          }
-          isCheckingVersion = false;
-          Lizzie.initializeAfterVersionCheck(this);
+        if (isInputCommand) {
+          isInputCommand = false;
         }
       }
+    } else if (isCheckingName) {
+      if (params[1].startsWith("KataGo")) {
+        this.isKataGo = true;
+        Lizzie.initializeAfterVersionCheck(this);
+      }
+      isCheckingName = false;
+    } else if (isCheckingVersion && !isKataGo) {
+      String[] ver = params[1].split("\\.");
+      int minor = Integer.parseInt(ver[1]);
+      // Gtp support added in version 15
+      if (minor < 15) {
+        JOptionPane.showMessageDialog(
+            Lizzie.frame,
+            "Lizzie requires version 0.15 or later of Leela Zero for analysis (found "
+                + params[1]
+                + ")");
+      }
+      isCheckingVersion = false;
+      Lizzie.initializeAfterVersionCheck(this);
     }
   }
 

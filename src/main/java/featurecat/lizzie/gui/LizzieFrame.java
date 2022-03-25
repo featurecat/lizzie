@@ -93,6 +93,7 @@ public class LizzieFrame extends MainFrame {
   private static VariationTree variationTree;
   private static WinrateGraph winrateGraph;
   private static Menu menu;
+  private static UpdateEngine updateEngine;
   private JPanel mainPanel;
 
   private final BufferStrategy bs;
@@ -129,6 +130,7 @@ public class LizzieFrame extends MainFrame {
     winrateGraph = new WinrateGraph();
     countResults = new CountResults();
     menu = new Menu();
+    updateEngine = new UpdateEngine();
     toolBar = new ToolBar();
     toolBar.setVisible(Lizzie.config.showToolBar);
     add(toolBar, Lizzie.config.toolbarPosition);
@@ -1499,11 +1501,11 @@ public class LizzieFrame extends MainFrame {
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
-    menu.updateEngineMenu(engineList);
+    updateEngine.updateEngineMenu(engineList);
   }
 
   public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
-    menu.updateEngineIcon(engineList, currentEngineNo);
+    updateEngine.updateEngineIcon(engineList, currentEngineNo);
   }
 
   public Optional<int[]> convertScreenToCoordinates(int x, int y) {
