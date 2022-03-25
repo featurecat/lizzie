@@ -1690,14 +1690,7 @@ public class BoardRenderer {
   }
 
   private int maxBranchMoves() {
-    switch (displayedBranchLength) {
-      case SHOW_NORMAL_BOARD:
-        return Integer.MAX_VALUE;
-      case SHOW_RAW_BOARD:
-        return -1;
-      default:
-        return displayedBranchLength;
-    }
+    return BranchFactory.createBranch(displayedBranchLength).getBranchMove(displayedBranchLength);
   }
 
   public boolean isShowingBranch() {
