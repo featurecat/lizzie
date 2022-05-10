@@ -41,6 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import org.json.JSONArray;
 
 public class LizzieMain extends MainFrame {
@@ -109,6 +110,7 @@ public class LizzieMain extends MainFrame {
         new JPanel() {
           @Override
           protected void paintComponent(Graphics g) {
+            Utils.mustBeEventDispatchThread();
             if (g instanceof Graphics2D) {
               int width = getWidth();
               int height = getHeight();
@@ -478,6 +480,26 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void updateBasicInfo(String bTime, String wTime) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateBasicInfoInEDT(bTime, wTime);
+          }
+        });
+  }
+
+  @Override
+  public void updateBasicInfo() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateBasicInfoInEDT();
+          }
+        });
+  }
+
+  private void updateBasicInfoInEDT(String bTime, String wTime) {
+    Utils.mustBeEventDispatchThread();
     if (basicInfoPane != null) {
       basicInfoPane.bTime = bTime;
       basicInfoPane.wTime = wTime;
@@ -485,14 +507,15 @@ public class LizzieMain extends MainFrame {
     }
   }
 
-  @Override
-  public void updateBasicInfo() {
+  private void updateBasicInfoInEDT() {
+    Utils.mustBeEventDispatchThread();
     if (basicInfoPane != null) {
       basicInfoPane.repaint();
     }
   }
 
   public void invalidLayout() {
+    Utils.mustBeEventDispatchThread();
     // TODO
     layout.layoutContainer(getContentPane());
     layout.invalidateLayout(getContentPane());
@@ -506,6 +529,16 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void refresh(int type) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            refreshInEDT(type);
+          }
+        });
+  }
+
+  private void refreshInEDT(int type) {
+    Utils.mustBeEventDispatchThread();
     if (type == 2) {
       invalidLayout();
     } else {
@@ -517,6 +550,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void repaintSub() {
+    Utils.mustBeEventDispatchThread();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showSubBoard && !subBoardPane.isVisible()) {
         subBoardPane.setVisible(true);
@@ -530,6 +564,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void updateStatus() {
+    Utils.mustBeEventDispatchThread();
     //    basicInfoPane.revalidate();
     basicInfoPane.repaint();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
@@ -547,6 +582,7 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void drawControls() {
+    Utils.mustBeEventDispatchThread();
     boardPane.drawControls();
   }
 
@@ -634,14 +670,16 @@ public class LizzieMain extends MainFrame {
     boardPane.clear();
   }
 
-  public void removeEstimateRect() {
+  protected void removeEstimateRectInEDT() {
+    Utils.mustBeEventDispatchThread();
     boardPane.removeEstimateRect();
     if (Lizzie.config.showSubBoard) {
       subBoardPane.removeEstimateRect();
     }
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+  protected void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray) {
+    Utils.mustBeEventDispatchThread();
     if (!Lizzie.config.showKataGoEstimate) {
       return;
     }
@@ -714,11 +752,14 @@ public class LizzieMain extends MainFrame {
     boardPane.saveImage();
   };
 
-  public void updateEngineMenu(List<Leelaz> engineList) {
+  protected void updateEngineMenuInEDT(List<Leelaz> engineList) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineMenu(engineList);
+    refresh(); // update "Engine is loading..."
   }
 
-  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+  protected void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineIcon(engineList, currentEngineNo);
   }
 

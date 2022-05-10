@@ -164,7 +164,7 @@ public class Leelaz {
     //    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
     //    System.out.println(lef.getPath());
     //    if (!lef.exists()) {
-    //      JOptionPane.showMessageDialog(
+    //      Utils.showMessageDialog(
     //          null,
     //          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
     //          "Lizzie - Error!",
@@ -175,7 +175,7 @@ public class Leelaz {
     // Check if network file is present
     //    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
     //    if (!wf.exists()) {
-    //      JOptionPane.showMessageDialog(
+    //      Utils.showMessageDialog(
     //          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
     //      throw new IOException("network-file not present");
     //    }
@@ -240,7 +240,7 @@ public class Leelaz {
     isDown = true;
     Lizzie.frame.refresh();
     String displayedMessage = String.format("%s\n\nEngine command: %s", message, engineCommand);
-    JOptionPane.showMessageDialog(
+    Utils.showMessageDialog(
         Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
   }
 
@@ -258,7 +258,7 @@ public class Leelaz {
         executor.shutdownNow();
       }
       if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
-        JOptionPane.showMessageDialog(
+        Utils.showMessageDialog(
             Lizzie.frame,
             "Engine does not close its pipe after GTP command 'quit'.",
             "Lizzie - Error!",
@@ -453,7 +453,7 @@ public class Leelaz {
           int minor = Integer.parseInt(ver[1]);
           // Gtp support added in version 15
           if (minor < 15) {
-            JOptionPane.showMessageDialog(
+            Utils.showMessageDialog(
                 Lizzie.frame,
                 "Lizzie requires version 0.15 or later of Leela Zero for analysis (found "
                     + params[1]
