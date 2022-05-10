@@ -7,6 +7,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.LeelazListener;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.util.Utils;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.json.JSONException;
 
 public class Board implements LeelazListener {
@@ -1402,6 +1404,11 @@ public class Board implements LeelazListener {
   }
 
   public void bestMoveNotification(List<MoveData> bestMoves) {
+    SwingUtilities.invokeLater(() -> bestMoveNotificationInEDT(bestMoves));
+  }
+
+  private void bestMoveNotificationInEDT(List<MoveData> bestMoves) {
+    Utils.mustBeEventDispatchThread();
     if (analysisMode) {
       boolean isSuccessivePass =
           (history.getPrevious().isPresent()
@@ -1422,6 +1429,10 @@ public class Board implements LeelazListener {
           sum += move.playouts;
         }
         if (sum >= playoutsAnalysis) {
+          // We need to call this "nextMove()" in EDT.
+          // Otherwise, it can flip history.isBlacksTurn() BEFORE
+          // drawEstimateRectKataInEDT().
+          // Then the ownerships are drawn with wrong colors.
           nextMove();
         }
       }
