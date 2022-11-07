@@ -681,7 +681,7 @@ public class ConfigDialog extends LizzieDialog {
 
     LinkLabel lblContributors =
         new LinkLabel(resourceBundle.getString("LizzieConfig.lizzie.contributors"));
-    lblContributors.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    lblContributors.setFont(new Font("Tahoma", Font.PLAIN, 12));
     GroupLayout gl = new GroupLayout(aboutTab);
     gl.setHorizontalGroup(
         gl.createParallelGroup(Alignment.LEADING)
