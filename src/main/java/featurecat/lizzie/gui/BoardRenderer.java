@@ -152,7 +152,7 @@ public class BoardRenderer {
     //        timer.lap("rendering images");
 
     if (!isMainBoard) {
-      if (Lizzie.config.showBranchNow()) {
+      if (showingBranch) {
         drawMoveNumbers(g);
       }
       return;
