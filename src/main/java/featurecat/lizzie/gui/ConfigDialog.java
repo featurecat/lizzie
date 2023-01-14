@@ -1838,8 +1838,7 @@ public class ConfigDialog extends JDialog {
     if (result == JFileChooser.APPROVE_OPTION) {
       engineFile = chooser.getSelectedFile();
       if (engineFile != null) {
-        enginePath = engineFile.getAbsolutePath();
-        enginePath = relativizePath(engineFile.toPath(), this.curPath);
+        enginePath = relativizePath(engineFile.toPath(), this.curPath, true);
         getCommandHelp();
         JFileChooser chooserw = new JFileChooser(".");
         chooserw.setMultiSelectionEnabled(false);
@@ -1883,11 +1882,19 @@ public class ConfigDialog extends JDialog {
   }
 
   private String relativizePath(Path path, Path curPath) {
+    return relativizePath(path, curPath, false);
+  }
+
+  private String relativizePath(Path path, Path curPath, Boolean isCommand) {
     Path relatPath;
     if (path.startsWith(curPath)) {
       relatPath = curPath.relativize(path);
     } else {
       relatPath = path;
+    }
+    if (isCommand && relatPath.getFileName().equals(relatPath) && !isWindows()) {
+      // "leelaz" ==> "./leelaz" for Linux
+      relatPath = (new File(".")).toPath().resolve(relatPath);
     }
     return relatPath.toString();
   }
