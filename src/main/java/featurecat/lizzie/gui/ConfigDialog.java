@@ -1898,10 +1898,9 @@ public class ConfigDialog extends JDialog {
     commands.add(enginePath);
     commands.add("-h");
 
-    ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory();
-    processBuilder.redirectErrorStream(true);
     try {
+      ProcessBuilder processBuilder = new ProcessBuilder(commands);
+      processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
       inputStream = new BufferedInputStream(process.getInputStream());
       ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
