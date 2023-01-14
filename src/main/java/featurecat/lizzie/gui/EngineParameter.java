@@ -31,7 +31,11 @@ public class EngineParameter extends JDialog {
 
   /** Create the dialog. */
   public EngineParameter(
-      String enginePath, String weightPath, String engineType, ConfigDialog configDialog) {
+      String enginePath,
+      String weightPath,
+      String configPath,
+      String engineType,
+      ConfigDialog configDialog) {
     setTitle(configDialog.resourceBundle.getString("LizzieConfig.title.parameterConfig"));
     setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
     setModal(true);
@@ -49,8 +53,10 @@ public class EngineParameter extends JDialog {
     txtCommandLine = new JTextField();
     txtCommandLine.setEditable(false);
     txtCommandLine.setBounds(89, 12, 565, 26);
-    String weightOption = (engineType.equals("leelaz")) ? " --weights " : " gtp -model ";
-    txtCommandLine.setText(enginePath + weightOption + weightPath);
+    String weightOption = engineType.equals("leelaz") ? " --weights " : " gtp -model ";
+    String configArgs =
+        (engineType.equals("leelaz") || configPath.isEmpty()) ? "" : " -config " + configPath + " ";
+    txtCommandLine.setText(enginePath + weightOption + weightPath + configArgs);
     contentPanel.add(txtCommandLine);
     txtCommandLine.setColumns(10);
     JLabel lblParameter =

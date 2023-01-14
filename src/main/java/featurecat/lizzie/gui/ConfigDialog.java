@@ -104,6 +104,7 @@ public class ConfigDialog extends JDialog {
 
   public String enginePath = "";
   public String weightPath = "";
+  public String configPath = "";
   public String commandHelp = "";
 
   private String osName;
@@ -1848,8 +1849,9 @@ public class ConfigDialog extends JDialog {
           weightFile = chooserw.getSelectedFile();
           if (weightFile != null) {
             weightPath = relativizePath(weightFile.toPath(), this.curPath);
+            configPath = selectConfigFile();
             EngineParameter ep =
-                new EngineParameter(enginePath, weightPath, guessedEngineType(), this);
+                new EngineParameter(enginePath, weightPath, configPath, guessedEngineType(), this);
             ep.setVisible(true);
             if (!ep.commandLine.isEmpty()) {
               engineLine = ep.commandLine;
@@ -1859,6 +1861,20 @@ public class ConfigDialog extends JDialog {
       }
     }
     return engineLine;
+  }
+
+  private String selectConfigFile() {
+    if (!guessedEngineType().equals("katago")) return "";
+    String titleKey = "LizzieConfig.prompt.selectConfig";
+    // dare to copy code redundantly to keep the original code as much as possible
+    JFileChooser chooser = new JFileChooser(".");
+    chooser.setMultiSelectionEnabled(false);
+    chooser.setDialogTitle(resourceBundle.getString(titleKey));
+    int result = chooser.showOpenDialog(this);
+    if (result != JFileChooser.APPROVE_OPTION) return "";
+    File file = chooser.getSelectedFile();
+    if (file == null) return "";
+    return relativizePath(file.toPath(), this.curPath);
   }
 
   private String guessedEngineType() {
