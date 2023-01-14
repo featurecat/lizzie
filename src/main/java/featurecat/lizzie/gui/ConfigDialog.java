@@ -1848,7 +1848,8 @@ public class ConfigDialog extends JDialog {
           weightFile = chooserw.getSelectedFile();
           if (weightFile != null) {
             weightPath = relativizePath(weightFile.toPath(), this.curPath);
-            EngineParameter ep = new EngineParameter(enginePath, weightPath, this);
+            EngineParameter ep =
+                new EngineParameter(enginePath, weightPath, guessedEngineType(), this);
             ep.setVisible(true);
             if (!ep.commandLine.isEmpty()) {
               engineLine = ep.commandLine;
@@ -1858,6 +1859,13 @@ public class ConfigDialog extends JDialog {
       }
     }
     return engineLine;
+  }
+
+  private String guessedEngineType() {
+    String engineFileName = (new File(enginePath)).toPath().getFileName().toString();
+    // fixme: ad hoc!
+    Boolean isKataGo = engineFileName.toLowerCase().contains("katago");
+    return isKataGo ? "katago" : "leelaz";
   }
 
   private String getImagePath() {
@@ -1903,6 +1911,9 @@ public class ConfigDialog extends JDialog {
 
     List<String> commands = new ArrayList<String>();
     commands.add(enginePath);
+    if (guessedEngineType().equals("katago")) {
+      commands.add("gtp");
+    }
     commands.add("-h");
 
     try {
