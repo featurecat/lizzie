@@ -1024,6 +1024,10 @@ public class Leelaz {
     return currentEngineN;
   }
 
+  public String nicknameOrEngineCommand() {
+    return (engineNickname == null) ? engineCommand : engineNickname;
+  }
+
   public String engineCommand() {
     return this.engineCommand;
   }
