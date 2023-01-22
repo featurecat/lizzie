@@ -118,17 +118,17 @@ public class ConfigDialog extends LizzieDialog {
   public JButton okButton;
 
   // Engine Tab
-  private JTextField txtEngine;
-  private JTextField txtEngine1;
-  private JTextField txtEngine2;
-  private JTextField txtEngine3;
-  private JTextField txtEngine4;
-  private JTextField txtEngine5;
-  private JTextField txtEngine6;
-  private JTextField txtEngine7;
-  private JTextField txtEngine8;
-  private JTextField txtEngine9;
-  private JTextField[] txts;
+  private LeftTextField txtEngine;
+  private LeftTextField txtEngine1;
+  private LeftTextField txtEngine2;
+  private LeftTextField txtEngine3;
+  private LeftTextField txtEngine4;
+  private LeftTextField txtEngine5;
+  private LeftTextField txtEngine6;
+  private LeftTextField txtEngine7;
+  private LeftTextField txtEngine8;
+  private LeftTextField txtEngine9;
+  private LeftTextField[] txts;
   private JCheckBox chkPreload1;
   private JCheckBox chkPreload2;
   private JCheckBox chkPreload3;
@@ -268,7 +268,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine.setHorizontalAlignment(SwingConstants.LEFT);
     engineTab.add(lblEngine);
 
-    txtEngine = new JTextField();
+    txtEngine = new LeftTextField();
     txtEngine.setBounds(87, 40, 481, 26);
     engineTab.add(txtEngine);
     txtEngine.setColumns(10);
@@ -283,7 +283,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine1.setBounds(6, 80, 92, 16);
     engineTab.add(lblEngine1);
 
-    txtEngine2 = new JTextField();
+    txtEngine2 = new LeftTextField();
     txtEngine2.setColumns(10);
     txtEngine2.setBounds(87, 105, 481, 26);
     engineTab.add(txtEngine2);
@@ -296,7 +296,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine2.setBounds(6, 110, 92, 16);
     engineTab.add(lblEngine2);
 
-    txtEngine1 = new JTextField();
+    txtEngine1 = new LeftTextField();
     txtEngine1.setColumns(10);
     txtEngine1.setBounds(87, 75, 481, 26);
     engineTab.add(txtEngine1);
@@ -309,7 +309,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine3.setBounds(6, 140, 92, 16);
     engineTab.add(lblEngine3);
 
-    txtEngine3 = new JTextField();
+    txtEngine3 = new LeftTextField();
     txtEngine3.setColumns(10);
     txtEngine3.setBounds(87, 135, 481, 26);
     engineTab.add(txtEngine3);
@@ -322,7 +322,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine4.setBounds(6, 170, 92, 16);
     engineTab.add(lblEngine4);
 
-    txtEngine4 = new JTextField();
+    txtEngine4 = new LeftTextField();
     txtEngine4.setColumns(10);
     txtEngine4.setBounds(87, 165, 481, 26);
     engineTab.add(txtEngine4);
@@ -335,7 +335,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine5.setBounds(6, 200, 92, 16);
     engineTab.add(lblEngine5);
 
-    txtEngine5 = new JTextField();
+    txtEngine5 = new LeftTextField();
     txtEngine5.setColumns(10);
     txtEngine5.setBounds(87, 195, 481, 26);
     engineTab.add(txtEngine5);
@@ -348,7 +348,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine6.setBounds(6, 230, 92, 16);
     engineTab.add(lblEngine6);
 
-    txtEngine6 = new JTextField();
+    txtEngine6 = new LeftTextField();
     txtEngine6.setColumns(10);
     txtEngine6.setBounds(87, 225, 481, 26);
     engineTab.add(txtEngine6);
@@ -361,7 +361,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine7.setBounds(6, 260, 92, 16);
     engineTab.add(lblEngine7);
 
-    txtEngine7 = new JTextField();
+    txtEngine7 = new LeftTextField();
     txtEngine7.setColumns(10);
     txtEngine7.setBounds(87, 255, 481, 26);
     engineTab.add(txtEngine7);
@@ -374,7 +374,7 @@ public class ConfigDialog extends LizzieDialog {
     lblEngine8.setBounds(6, 290, 92, 16);
     engineTab.add(lblEngine8);
 
-    txtEngine8 = new JTextField();
+    txtEngine8 = new LeftTextField();
     txtEngine8.setColumns(10);
     txtEngine8.setBounds(87, 285, 481, 26);
     engineTab.add(txtEngine8);
@@ -382,7 +382,7 @@ public class ConfigDialog extends LizzieDialog {
     chkPreload8.setBounds(570, 286, 23, 23);
     engineTab.add(chkPreload8);
 
-    txtEngine9 = new JTextField();
+    txtEngine9 = new LeftTextField();
     txtEngine9.setColumns(10);
     txtEngine9.setBounds(87, 315, 481, 26);
     engineTab.add(txtEngine9);
@@ -736,7 +736,7 @@ public class ConfigDialog extends LizzieDialog {
 
     // Engines
     txts =
-        new JTextField[] {
+        new LeftTextField[] {
           txtEngine1,
           txtEngine2,
           txtEngine3,
