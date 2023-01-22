@@ -267,8 +267,8 @@ public abstract class MainFrame extends JFrame {
     Utils.mustBeEventDispatchThread();
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
     sb.append(playerTitle);
-    sb.append(" [" + Lizzie.leelaz.nicknameOrEngineCommand() + "]");
     sb.append(visitsString);
+    sb.append(" [" + Lizzie.leelaz.nicknameOrEngineCommand() + "]");
     setTitle(sb.toString());
   }
 
