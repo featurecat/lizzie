@@ -103,6 +103,7 @@ public class ConfigDialog extends LizzieDialog {
 
   public String enginePath = "";
   public String weightPath = "";
+  public String configPath = "";
   public String commandHelp = "";
 
   private Path curPath;
@@ -1865,8 +1866,7 @@ public class ConfigDialog extends LizzieDialog {
     if (result == JFileChooser.APPROVE_OPTION) {
       engineFile = chooser.getSelectedFile();
       if (engineFile != null) {
-        enginePath = engineFile.getAbsolutePath();
-        enginePath = relativizePath(engineFile.toPath(), this.curPath);
+        enginePath = relativizePath(engineFile.toPath(), this.curPath, true);
         getCommandHelp();
         JFileChooser chooserw = new JFileChooser(".");
         chooserw.setMultiSelectionEnabled(false);
@@ -1876,7 +1876,9 @@ public class ConfigDialog extends LizzieDialog {
           weightFile = chooserw.getSelectedFile();
           if (weightFile != null) {
             weightPath = relativizePath(weightFile.toPath(), this.curPath);
-            EngineParameter ep = new EngineParameter(enginePath, weightPath, this);
+            configPath = selectConfigFile();
+            EngineParameter ep =
+                new EngineParameter(enginePath, weightPath, configPath, guessedEngineType(), this);
             ep.setVisible(true);
             if (!ep.commandLine.isEmpty()) {
               engineLine = ep.commandLine;
@@ -1886,6 +1888,27 @@ public class ConfigDialog extends LizzieDialog {
       }
     }
     return engineLine;
+  }
+
+  private String selectConfigFile() {
+    if (!guessedEngineType().equals("katago")) return "";
+    String titleKey = "LizzieConfig.prompt.selectConfig";
+    // dare to copy code redundantly to keep the original code as much as possible
+    JFileChooser chooser = new JFileChooser(".");
+    chooser.setMultiSelectionEnabled(false);
+    chooser.setDialogTitle(resourceBundle.getString(titleKey));
+    int result = chooser.showOpenDialog(this);
+    if (result != JFileChooser.APPROVE_OPTION) return "";
+    File file = chooser.getSelectedFile();
+    if (file == null) return "";
+    return relativizePath(file.toPath(), this.curPath);
+  }
+
+  private String guessedEngineType() {
+    String engineFileName = (new File(enginePath)).toPath().getFileName().toString();
+    // fixme: ad hoc!
+    Boolean isKataGo = engineFileName.toLowerCase().contains("katago");
+    return isKataGo ? "katago" : "leelaz";
   }
 
   private String getImagePath() {
@@ -1910,11 +1933,19 @@ public class ConfigDialog extends LizzieDialog {
   }
 
   private String relativizePath(Path path, Path curPath) {
+    return relativizePath(path, curPath, false);
+  }
+
+  private String relativizePath(Path path, Path curPath, Boolean isCommand) {
     Path relatPath;
     if (path.startsWith(curPath)) {
       relatPath = curPath.relativize(path);
     } else {
       relatPath = path;
+    }
+    if (isCommand && relatPath.getFileName().equals(relatPath) && !isWindows()) {
+      // "leelaz" ==> "./leelaz" for Linux
+      relatPath = (new File(".")).toPath().resolve(relatPath);
     }
     return relatPath.toString();
   }
@@ -1923,12 +1954,14 @@ public class ConfigDialog extends LizzieDialog {
 
     List<String> commands = new ArrayList<String>();
     commands.add(enginePath);
+    if (guessedEngineType().equals("katago")) {
+      commands.add("gtp");
+    }
     commands.add("-h");
 
-    ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory();
-    processBuilder.redirectErrorStream(true);
     try {
+      ProcessBuilder processBuilder = new ProcessBuilder(commands);
+      processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
       inputStream = new BufferedInputStream(process.getInputStream());
       ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
