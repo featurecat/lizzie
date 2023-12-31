@@ -235,6 +235,14 @@ public class Board implements LeelazListener {
       clear();
       Lizzie.leelaz.boardSize(boardWidth, boardHeight);
       Lizzie.frame.setForceRefresh(true);
+      Lizzie.frame.refresh();
+      Lizzie.frame.removeEstimateRect();
+      if (Lizzie.leelaz.isPondering()) {
+        // The above boardSize() stops pondering.
+        // To restart it, call togglePonder() twice.
+        Lizzie.leelaz.togglePonder(); // turn off
+        Lizzie.leelaz.togglePonder(); // turn on ==> restart pondering
+      }
     }
   }
 
