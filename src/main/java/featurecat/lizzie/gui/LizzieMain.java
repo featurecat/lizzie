@@ -41,6 +41,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import org.json.JSONArray;
 
 public class LizzieMain extends MainFrame {
@@ -55,6 +56,8 @@ public class LizzieMain extends MainFrame {
   private static Menu menu;
   public static boolean designMode;
   private LizzieLayout layout;
+  private int supposedPonderingHeight;
+  private final double ponderingSize = .02;
 
   private static final BufferedImage emptyImage = new BufferedImage(1, 1, TYPE_INT_ARGB);
 
@@ -109,6 +112,7 @@ public class LizzieMain extends MainFrame {
         new JPanel() {
           @Override
           protected void paintComponent(Graphics g) {
+            Utils.mustBeEventDispatchThread();
             if (g instanceof Graphics2D) {
               int width = getWidth();
               int height = getHeight();
@@ -122,6 +126,11 @@ public class LizzieMain extends MainFrame {
               }
               // draw the image
               Graphics2D bsGraphics = (Graphics2D) g; // bs.getDrawGraphics();
+              // Note: #781 is caused by repaint of other parts (toolBar in particular) with
+              // VALUE_ANTIALIAS_ON. To prevent such unwilling side effects, we change
+              // RenderingHints only temporary here and restore their old values at the bottom of
+              // this method.
+              RenderingHints oldHints = bsGraphics.getRenderingHints();
               bsGraphics.setRenderingHint(
                   RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
               bsGraphics.setRenderingHint(
@@ -130,20 +139,22 @@ public class LizzieMain extends MainFrame {
 
               // pondering message
               int maxBound = Math.max(width, height);
-              double ponderingSize = .02;
               LizzieLayout ll = (LizzieLayout) this.getLayout();
               int ponderingX = ll.ponderingX;
               int ponderingY = ll.ponderingY;
+              supposedPonderingHeight = ll.supposedPonderingHeight;
 
               // dynamic komi
-              double dynamicKomiSize = .02;
+              // Don't change the next line. See "Fix #790" in drawPonderingState.
+              double dynamicKomiSize = ponderingSize;
               int dynamicKomiX = 0;
               int dynamicKomiY = ponderingY - (int) (maxBound * dynamicKomiSize);
               int dynamicKomiLabelX = 0;
               int dynamicKomiLabelY = dynamicKomiY - (int) (maxBound * dynamicKomiSize);
 
               // loading message;
-              double loadingSize = 0.02;
+              // Don't change the next line. See "Fix #790" in drawPonderingState.
+              double loadingSize = ponderingSize;
               int loadingX = ponderingX;
               int loadingY = ponderingY - (int) (maxBound * (loadingSize - ponderingSize));
 
@@ -172,6 +183,7 @@ public class LizzieMain extends MainFrame {
               } else if (Lizzie.config.showStatus) {
                 drawPonderingState(bsGraphics, loadingText(), loadingX, loadingY, loadingSize);
               }
+              bsGraphics.setRenderingHints(oldHints);
             }
           }
         };
@@ -230,6 +242,11 @@ public class LizzieMain extends MainFrame {
 
     setVisible(true);
 
+    // avoid IME issue
+    // https://github.com/featurecat/lizzie/pull/880#issuecomment-800804632
+    // https://github.com/yzyray/lizzie_adv/commit/e5e8be01b4e072615250e4c4cc8462938b7c0332
+    enableInputMethods(false);
+
     input = new Input();
     //  addMouseListener(input);
     addKeyListener(input);
@@ -241,6 +258,7 @@ public class LizzieMain extends MainFrame {
           @Override
           public void mouseClicked(MouseEvent e) {
             Lizzie.frame.getFocus();
+            Lizzie.frame.checkRightClick(e);
           }
         });
 
@@ -279,11 +297,18 @@ public class LizzieMain extends MainFrame {
             if (Lizzie.leelaz == null) return;
             try {
               int totalPlayouts = MoveData.getPlayouts(Lizzie.leelaz.getBestMoves());
-              if (totalPlayouts <= 0) return;
+              int recorderTotalPlayouts = Lizzie.board.getData().getPlayouts();
+              int displayedTotalPlayouts = Math.max(totalPlayouts, recorderTotalPlayouts);
+              if (displayedTotalPlayouts <= 0) return;
+              boolean showingRecorded =
+                  (totalPlayouts < displayedTotalPlayouts) && (totalPlayouts > 0);
+              String backgroundTotalPlayoutsString =
+                  showingRecorded ? String.format("%d/", totalPlayouts) : "";
               visitsString =
                   String.format(
-                      " %d playouts, %d visits/second",
-                      totalPlayouts,
+                      " %s%d playouts, %d visits/second",
+                      backgroundTotalPlayoutsString,
+                      displayedTotalPlayouts,
                       (totalPlayouts > lastPlayouts) ? totalPlayouts - lastPlayouts : 0);
               updateTitle();
               lastPlayouts = totalPlayouts;
@@ -318,6 +343,15 @@ public class LizzieMain extends MainFrame {
     redrawBackgroundAnyway = true;
   }
 
+  public void resetImages() {
+    cachedBasicInfoContainer = emptyImage;
+    cachedWinrateContainer = emptyImage;
+    cachedVariationContainer = emptyImage;
+    cachedWallpaperImage = emptyImage;
+    boardPane.resetImages();
+    subBoardPane.resetImages();
+  }
+
   public BufferedImage getWallpaper() {
     if (cachedWallpaperImage == emptyImage) {
       cachedWallpaperImage = Lizzie.config.theme.background();
@@ -344,7 +378,7 @@ public class LizzieMain extends MainFrame {
     return g;
   }
 
-  private void drawPonderingState(Graphics2D g, String text, int x, int y, double size) {
+  private void drawPonderingState(Graphics2D g, String text, int x, int supposedY, double size) {
     int fontSize = (int) (max(getWidth(), getHeight()) * size);
     Font font = new Font(Lizzie.config.fontName, Font.PLAIN, fontSize);
     FontMetrics fm = g.getFontMetrics(font);
@@ -364,6 +398,15 @@ public class LizzieMain extends MainFrame {
     int stringHeight = fm.getAscent() - fm.getDescent();
     int width = max(stringWidth, 1);
     int height = max((int) (stringHeight * 1.7), 1);
+
+    // Fix #790 in an ad hoc way. This works only when size == ponderingSize.
+    // The right fix is tiresome due to the implementation of related parts.
+    if (size != ponderingSize) {
+      System.out.printf(
+          "Different sizes cause wrong layouts: size=%f ponderingSize=%f\n", size, ponderingSize);
+      (new Throwable()).printStackTrace();
+    }
+    int y = supposedY - (height - supposedPonderingHeight);
 
     BufferedImage result = new BufferedImage(width, height, TYPE_INT_ARGB);
     // commenting this out for now... always causing an exception on startup. will fix in the
@@ -478,6 +521,26 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void updateBasicInfo(String bTime, String wTime) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateBasicInfoInEDT(bTime, wTime);
+          }
+        });
+  }
+
+  @Override
+  public void updateBasicInfo() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateBasicInfoInEDT();
+          }
+        });
+  }
+
+  private void updateBasicInfoInEDT(String bTime, String wTime) {
+    Utils.mustBeEventDispatchThread();
     if (basicInfoPane != null) {
       basicInfoPane.bTime = bTime;
       basicInfoPane.wTime = wTime;
@@ -485,14 +548,15 @@ public class LizzieMain extends MainFrame {
     }
   }
 
-  @Override
-  public void updateBasicInfo() {
+  private void updateBasicInfoInEDT() {
+    Utils.mustBeEventDispatchThread();
     if (basicInfoPane != null) {
       basicInfoPane.repaint();
     }
   }
 
   public void invalidLayout() {
+    Utils.mustBeEventDispatchThread();
     // TODO
     layout.layoutContainer(getContentPane());
     layout.invalidateLayout(getContentPane());
@@ -506,10 +570,22 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void refresh(int type) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            refreshInEDT(type);
+          }
+        });
+  }
+
+  private void refreshInEDT(int type) {
+    Utils.mustBeEventDispatchThread();
     if (type == 2) {
       invalidLayout();
     } else {
       boardPane.repaint();
+      //    variationTreePane.revalidate();
+      variationTreePane.repaint();
       if (type != 1) {
         updateStatus();
       }
@@ -517,6 +593,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void repaintSub() {
+    Utils.mustBeEventDispatchThread();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
       if (Lizzie.config.showSubBoard && !subBoardPane.isVisible()) {
         subBoardPane.setVisible(true);
@@ -530,6 +607,7 @@ public class LizzieMain extends MainFrame {
   }
 
   public void updateStatus() {
+    Utils.mustBeEventDispatchThread();
     //    basicInfoPane.revalidate();
     basicInfoPane.repaint();
     if (Lizzie.leelaz != null && Lizzie.leelaz.isLoaded()) {
@@ -537,8 +615,6 @@ public class LizzieMain extends MainFrame {
         variationTreePane.setVisible(true);
       }
     }
-    //    variationTreePane.revalidate();
-    variationTreePane.repaint();
     commentPane.drawComment();
     //    commentPane.revalidate();
     commentPane.repaint();
@@ -547,6 +623,7 @@ public class LizzieMain extends MainFrame {
 
   @Override
   public void drawControls() {
+    Utils.mustBeEventDispatchThread();
     boardPane.drawControls();
   }
 
@@ -569,6 +646,9 @@ public class LizzieMain extends MainFrame {
   public void onDoubleClicked(int x, int y) {
     boardPane.onDoubleClicked(x, y);
   }
+
+  @Override
+  public void onCenterClicked(int x, int y) {}
 
   @Override
   public void onMouseDragged(int x, int y) {
@@ -634,14 +714,16 @@ public class LizzieMain extends MainFrame {
     boardPane.clear();
   }
 
-  public void removeEstimateRect() {
+  protected void removeEstimateRectInEDT() {
+    Utils.mustBeEventDispatchThread();
     boardPane.removeEstimateRect();
     if (Lizzie.config.showSubBoard) {
       subBoardPane.removeEstimateRect();
     }
   }
 
-  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+  protected void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray) {
+    Utils.mustBeEventDispatchThread();
     if (!Lizzie.config.showKataGoEstimate) {
       return;
     }
@@ -714,16 +796,24 @@ public class LizzieMain extends MainFrame {
     boardPane.saveImage();
   };
 
-  public void updateEngineMenu(List<Leelaz> engineList) {
+  protected void updateEngineMenuInEDT(List<Leelaz> engineList) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineMenu(engineList);
+    refresh(); // update "Engine is loading..."
   }
 
-  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+  protected void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo) {
+    Utils.mustBeEventDispatchThread();
     menu.updateEngineIcon(engineList, currentEngineNo);
   }
 
   public Optional<int[]> convertScreenToCoordinates(int x, int y) {
     return boardPane.convertScreenToCoordinates(x, y);
+  }
+
+  protected void updateScoreMenuInEDT(boolean on) {
+    Utils.mustBeEventDispatchThread();
+    menu.updateScoreMenu(on);
   }
 
   public boolean openRightClickMenu(int x, int y) {
@@ -735,6 +825,9 @@ public class LizzieMain extends MainFrame {
       return false;
     }
     if (isPlayingAgainstLeelaz) {
+      return false;
+    }
+    if (!Lizzie.config.useAvoidInAnalysis()) {
       return false;
     }
     if (Lizzie.leelaz.isPondering()) {
@@ -765,6 +858,7 @@ public class LizzieMain extends MainFrame {
   public void clearBeforeMove() {
     // TODO Auto-generated method stub
     subBoardPane.clearBeforeMove();
+    Lizzie.frame.isMouseOver = false;
     if (Lizzie.frame.isEstimating) {
       Lizzie.frame.noEstimateByZen(false);
     }

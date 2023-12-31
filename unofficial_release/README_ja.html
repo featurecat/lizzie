@@ -1,0 +1,70 @@
+<html>
+<head><meta charset="utf-8" /><title>README</title></head>
+<body>
+
+<h1>Lizzie patched-0.7.4</h1>
+
+<p>
+(<a href="README.html">English</a> / <a href="README_ja.html">日本語</a>)
+</p>
+
+<p>
+（Windows用非公式パッケージ）みんな大好きな囲碁AIツール<a href="https://github.com/featurecat/lizzie">Lizzie</a>の一括パッケージです。インストールもJavaの設定もせずにそのまま使えます。GPUがなくてもそれなりに動くはず。
+</p>
+
+<h2>内容</h2>
+
+<ul>
+<li>Lizzie: <a href="https://github.com/featurecat/lizzie/issues/798">patched-0.7.4</a> 2023-12-31版 (Lizzie 0.7.4の大バグも修正済)</li>
+<li>KataGo: <a href="https://github.com/lightvector/KataGo/releases/tag/v1.14.0">1.14.0</a> + <a href="https://katagotraining.org/networks/">15ブロックネットワーク</a> (kata1-b15c192-s1672)</li>
+<li>Java: Lizzieに必要な最低限の実行環境入り (<a href="http://openjdk.java.net/">OpenJDK 11</a>より)
+</li>
+</ul>
+
+<h2>使い方</h2>
+
+<font color="red">ダウンロードしたzipファイルをまず右クリックして「展開」します（展開せずにそのままダブルクリックで開いてはいけません）。</font>あとはその中の「Lizzie」(Lizzie.vbs)をダブルクリックするだけ。分析の停止・再開はスペースキー。ルールを切りかえたければ「分析」メニューから。「エンジン」メニューでは3種類のAIを選べます。
+<ul>
+<li>KataGo (CPU): 遅いけれど、古めで性能低めのPCでも動くかも</li>
+<li>KataGo (Modern CPU): こちらのほうが速い</li>
+<li>KataGo (GPU): GPUがうまく動けば圧倒的に速い。ただし、初回は長時間のチューニングが必要。</li>
+</ul>
+
+<h2>独自機能</h2>
+
+<h3>石のエントロピー</h3>
+
+<p>
+メニュー（表示 &gt; KataGoの設定 &gt; 形勢情報 &gt; Show stone entropy）からこの機能を有効にすると、勝率グラフに赤い点列が表示されます。点の高さは石の生死のあいまいさを表し、大きな攻合いや見合いを含んだ激しい局面だと高くなります。もし表示されない場合は、メニューの表示 &gt; KataGoの設定 &gt; 形勢情報 &gt; 表示をオンにしてください。
+</p>
+
+<p>
+この機能は<a href="https://github.com/kaorahi/lizgoban">LizGoban</a>から移植されました。（本家Lizzieへの取り込みは断念しました。他の未採択の修正提案たちに依存するからです。）
+</p>
+
+<h2>ライセンス</h2>
+
+<ul>
+<li><a href="https://github.com/featurecat/lizzie/blob/master/LICENSE.txt">Lizzie</a></li>
+<li><a href="https://github.com/lightvector/KataGo/blob/master/LICENSE">KataGo</a></li>
+<li><a href="JRE_for_lizzie/legal/">Java</a></li>
+</ul>
+
+<h2>更新履歴</h2>
+
+<ul>
+<li>231231a: KataGo 1.14.0, 石の生死のあいまいさをプロット, その他微修正</li>
+<li>220510a: KataGo 1.11.0, 自動解析時のちらつきを修正</li>
+<li>211211b: 日本語フォルダ名でのエラーを再回避 (thx &gt; 江場さん)</li>
+<li>211211a: 翻訳の更新 (露, 日)</li>
+<li>211113a: <a href="https://github.com/featurecat/lizzie/pull/904">シチョウの自動継続機能</a></li>
+<li>211026a: KataGo 1.10.0</li>
+<li>210912a: 勝率バーの改善など</li>
+<li>210826a: SGFのバグ修正, 設定メニューへのツールチップ追加</li>
+<li>210710a: エンジンメニューのバグやデュアルモニター時の不具合を修正</li>
+<li>210704b: 日本語フォルダ名でのエラーを回避 (thx &gt; 江場さん)</li>
+<li>210704a: 最初のバージョン</li>
+</ul>
+
+</body>
+</html>

@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +54,6 @@ public class Leelaz {
 
   public Board board;
   private List<MoveData> bestMoves;
-  private List<MoveData> bestMovesTemp;
 
   private List<LeelazListener> listeners;
 
@@ -78,6 +78,7 @@ public class Leelaz {
 
   // for Multiple Engine
   private String engineCommand;
+  private String engineNickname;
   private List<String> commands;
   private JSONObject config;
   private String currentWeightFile = "";
@@ -106,7 +107,6 @@ public class Leelaz {
   public Leelaz(String engineCommand) throws JSONException {
     board = new Board();
     bestMoves = new ArrayList<>();
-    bestMovesTemp = new ArrayList<>();
     listeners = new CopyOnWriteArrayList<>();
 
     isPondering = false;
@@ -128,7 +128,8 @@ public class Leelaz {
       // substitute in the weights file
       engineCommand = engineCommand.replaceAll("%network-file", config.getString("network-file"));
     }
-    this.engineCommand = engineCommand;
+    updateEngineCommandAndNickname(engineCommand);
+    engineCommand = this.engineCommand;
     if (engineCommand.toLowerCase().contains("override-version")) {
       this.isKataGo = true;
     }
@@ -149,14 +150,7 @@ public class Leelaz {
     bestMoves = new ArrayList<>();
     Lizzie.board.getData().tryToClearBestMoves();
 
-    // Get weight name
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
-    Matcher wMatcher = wPattern.matcher(engineCommand);
-    if (wMatcher.matches() && wMatcher.groupCount() == 2) {
-      currentWeightFile = wMatcher.group(2);
-      String[] names = currentWeightFile.split("[\\\\|/]");
-      currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
-    }
+    setWeightName();
 
     // Check if engine is present
     // Commented for remote ssh. TODO keep or remove this code?
@@ -164,7 +158,7 @@ public class Leelaz {
     //    File lef = startfolder.toPath().resolve(new File(commands.get(0)).toPath()).toFile();
     //    System.out.println(lef.getPath());
     //    if (!lef.exists()) {
-    //      JOptionPane.showMessageDialog(
+    //      Utils.showMessageDialog(
     //          null,
     //          resourceBundle.getString("LizzieFrame.display.leelaz-missing"),
     //          "Lizzie - Error!",
@@ -175,7 +169,7 @@ public class Leelaz {
     // Check if network file is present
     //    File wf = startfolder.toPath().resolve(new File(currentWeightFile).toPath()).toFile();
     //    if (!wf.exists()) {
-    //      JOptionPane.showMessageDialog(
+    //      Utils.showMessageDialog(
     //          null, resourceBundle.getString("LizzieFrame.display.network-missing"));
     //      throw new IOException("network-file not present");
     //    }
@@ -240,7 +234,7 @@ public class Leelaz {
     isDown = true;
     Lizzie.frame.refresh();
     String displayedMessage = String.format("%s\n\nEngine command: %s", message, engineCommand);
-    JOptionPane.showMessageDialog(
+    Utils.showMessageDialog(
         Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
   }
 
@@ -258,7 +252,7 @@ public class Leelaz {
         executor.shutdownNow();
       }
       if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {
-        JOptionPane.showMessageDialog(
+        Utils.showMessageDialog(
             Lizzie.frame,
             "Engine does not close its pipe after GTP command 'quit'.",
             "Lizzie - Error!",
@@ -313,6 +307,25 @@ public class Leelaz {
     return bestMoves;
   }
 
+  private double getStoneEntropy(ArrayList<Double> estimateArray) {
+    Stone[] stones = Lizzie.board.getData().stones;
+    double sum = 0;
+    for (int i = 0; i < estimateArray.size(); i++) {
+      int[] c = Lizzie.board.getCoordKataGo(i);
+      Stone stone = stones[Board.getIndex(c[0], c[1])];
+      if (stone == Stone.BLACK || stone == Stone.WHITE) {
+        double probability = (estimateArray.get(i) + 1) * 0.5;
+        sum += entropy(probability);
+      }
+    }
+    return sum;
+  }
+
+  private double entropy(double p) {
+    if (p <= 0 || 1 <= p) return 0;
+    else return (-p * Math.log(p) - (1 - p) * Math.log(1 - p)) / Math.log(2);
+  }
+
   /**
    * Parse a line of Leelaz output
    *
@@ -344,14 +357,6 @@ public class Leelaz {
       } else if (line.equals("\n")) {
         // End of response
       } else if (line.startsWith("info")) {
-        if (!isLoaded) {
-          Lizzie.frame.refresh();
-        }
-        isLoaded = true;
-        // Clear switching prompt
-        switching = false;
-        // Display engine command in the title
-        Lizzie.frame.updateTitle();
         if (isAnalysisUpToDate()) {
           // This should not be stale data when the command number match
           if (isKataGo) {
@@ -365,6 +370,7 @@ public class Leelaz {
                   estimateArray.add(Double.parseDouble(params2[i]));
                 }
                 Lizzie.frame.drawEstimateRectKata(estimateArray);
+                Lizzie.board.getData().tryToSetStoneEntropy(getStoneEntropy(estimateArray));
               }
             }
           } else {
@@ -376,6 +382,7 @@ public class Leelaz {
           if (System.currentTimeMillis() - startPonderTime > maxAnalyzeTimeMillis
               && !Lizzie.board.inAnalysisMode()) {
             togglePonder();
+            Lizzie.frame.refresh();
           }
         }
       } else if (line.contains(" -> ")) {
@@ -404,9 +411,16 @@ public class Leelaz {
         isThinking = false;
 
       } else if (line.startsWith("=") || line.startsWith("?")) {
+        if (!isLoaded) {
+          isLoaded = true;
+          // Clear switching prompt
+          switching = false;
+          // Display engine command in the title
+          Lizzie.frame.updateTitle();
+          Lizzie.frame.refresh();
+        }
         if (printCommunication || gtpConsole) {
           System.out.print(line);
-          Lizzie.gtpConsole.addLine(line);
         }
         String[] params = line.trim().split(" ");
         currentCmdNum = Integer.parseInt(params[0].substring(1).trim());
@@ -453,7 +467,7 @@ public class Leelaz {
           int minor = Integer.parseInt(ver[1]);
           // Gtp support added in version 15
           if (minor < 15) {
-            JOptionPane.showMessageDialog(
+            Utils.showMessageDialog(
                 Lizzie.frame,
                 "Lizzie requires version 0.15 or later of Leela Zero for analysis (found "
                     + params[1]
@@ -461,26 +475,6 @@ public class Leelaz {
           }
           isCheckingVersion = false;
           Lizzie.initializeAfterVersionCheck(this);
-        }
-      }
-    }
-  }
-
-  /**
-   * Parse a move-data line of Leelaz output
-   *
-   * @param line output line
-   */
-  private void parseMoveDataLine(String line) {
-    line = line.trim();
-    // ignore passes, and only accept lines that start with a coordinate letter
-    if (line.length() > 0 && Character.isLetter(line.charAt(0)) && !line.startsWith("pass")) {
-      if (!(Lizzie.frame.isPlayingAgainstLeelaz
-          && Lizzie.frame.playerIsBlack != Lizzie.board.getData().blackToPlay)) {
-        try {
-          bestMovesTemp.add(MoveData.fromInfo(line));
-        } catch (ArrayIndexOutOfBoundsException e) {
-          // this is very rare but is possible. ignore
         }
       }
     }
@@ -494,7 +488,8 @@ public class Leelaz {
       while ((c = inputStream.read()) != -1) {
         line.append((char) c);
         if ((c == '\n')) {
-          parseLine(line.toString());
+          String cmd = line.toString();
+          SwingUtilities.invokeLater(() -> parseLine(cmd));
           line = new StringBuilder();
         }
       }
@@ -715,6 +710,7 @@ public class Leelaz {
       isPondering = true;
       startPonderTime = System.currentTimeMillis();
     }
+    Lizzie.board.regionOfInterest.reset();
     sendCommand(
         String.format(
             "lz-analyze %d %s",
@@ -726,7 +722,10 @@ public class Leelaz {
   public void ponder() {
     isPondering = true;
     startPonderTime = System.currentTimeMillis();
-    if (Lizzie.board.isAvoding && Lizzie.board.isKeepingAvoid && !isKataGo)
+    if (Lizzie.board.isAvoding
+        && Lizzie.board.isKeepingAvoid
+        && !isKataGo
+        && Lizzie.config.useAvoidInAnalysis())
       analyzeAvoid(
           "avoid b "
               + Lizzie.board.avoidCoords
@@ -743,9 +742,24 @@ public class Leelaz {
                   .config
                   .getJSONObject("leelaz")
                   .getInt("analyze-update-interval-centisec")
+              + regionOfInterestCommand()
               + (this.isKataGo && Lizzie.config.showKataGoEstimate ? " ownership true" : ""));
     // until it responds to this, incoming
     // ponder results are obsolete
+  }
+
+  private String regionOfInterestCommand() {
+    return regionOfInterestCommand("B") + regionOfInterestCommand("W");
+  }
+
+  private String regionOfInterestCommand(String color) {
+    if (Lizzie.board.regionOfInterest.isEnabled()) {
+      int untilDepth = 1;
+      String vertices = Lizzie.board.regionOfInterest.vertices();
+      return String.format(" allow %s %s %d", color, vertices, untilDepth);
+    } else {
+      return "";
+    }
   }
 
   public void togglePonder() {
@@ -764,9 +778,7 @@ public class Leelaz {
   }
 
   public List<MoveData> getBestMoves() {
-    synchronized (this) {
-      return bestMoves;
-    }
+    return bestMoves;
   }
 
   public Optional<String> getDynamicKomi() {
@@ -946,7 +958,8 @@ public class Leelaz {
   }
 
   public boolean isCommandChange(String command) {
-    List<String> newList = splitCommand(command);
+    updateEngineCommandAndNickname(command);
+    List<String> newList = splitCommand(engineCommand);
     if (this.commands.size() != newList.size()) {
       engineIndex++;
       return true;
@@ -964,6 +977,17 @@ public class Leelaz {
     }
   }
 
+  private void updateEngineCommandAndNickname(String command) {
+    Matcher nicknameMatcher = Pattern.compile("<(.*?)>\\s*(.*)").matcher(command);
+    if (nicknameMatcher.matches()) {
+      engineNickname = nicknameMatcher.group(1);
+      engineCommand = nicknameMatcher.group(2);
+    } else {
+      engineNickname = null;
+      engineCommand = command;
+    }
+  }
+
   public boolean isStarted() {
     return started;
   }
@@ -972,7 +996,8 @@ public class Leelaz {
     if (engineCommand.isEmpty()) {
       // we can use Lizzie even without an engine, if the config defaults to ""
       if (!isLoaded) {
-        Lizzie.frame.refresh();
+        if (Lizzie.config.panelUI) Lizzie.frame.refresh(1);
+        else Lizzie.frame.refresh();
         isLoaded = true;
       }
     }
@@ -985,6 +1010,10 @@ public class Leelaz {
 
   public boolean supportScoremean() {
     return isKataGo || supportScoremean;
+  }
+
+  public String nicknameOrCurrentWeight() {
+    return (engineNickname == null) ? currentWeight : engineNickname;
   }
 
   public String currentWeight() {
@@ -1006,6 +1035,10 @@ public class Leelaz {
     return currentEngineN;
   }
 
+  public String nicknameOrEngineCommand() {
+    return (engineNickname == null) ? engineCommand : engineNickname;
+  }
+
   public String engineCommand() {
     return this.engineCommand;
   }
@@ -1015,13 +1048,23 @@ public class Leelaz {
   }
 
   public void setWeightName() {
-    Pattern wPattern = Pattern.compile("(?s).*?(--weights |-w |-model )([^'\" ]+)(?s).*");
+    Pattern wPattern = Pattern.compile("(?s).*?(--weights|-w|-model)\\s+([^'\" ]+)(?s).*");
     Matcher wMatcher = wPattern.matcher(engineCommand);
     if (wMatcher.matches() && wMatcher.groupCount() == 2) {
       currentWeightFile = wMatcher.group(2);
       String[] names = currentWeightFile.split("[\\\\|/]");
       currentWeight = names.length > 1 ? names[names.length - 1] : currentWeightFile;
     }
+  }
+
+  public void updateKataGoRule() {
+    updateKataGoRule(false);
+  }
+
+  public void updateKataGoRule(boolean keepPondering) {
+    if (!isKataGo) return;
+    sendCommand("kata-set-rules " + Lizzie.config.kataGoRule);
+    if (isPondering && keepPondering) ponder();
   }
 
   // Writer thread for avoiding deadlock (#752)

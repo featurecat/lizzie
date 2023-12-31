@@ -50,15 +50,15 @@ public class Config {
   public double minPlayoutRatioForStats = 0.1;
   public boolean showLcbWinrate = false;
 
-  public boolean showKataGoScoreMean = true;
   public boolean showKataGoBoardScoreMean = false;
   public boolean kataGoScoreMeanAlwaysBlack = false;
-  public boolean kataGoNotShowWinrate = false;
   public boolean showKataGoEstimate = false;
   public boolean showKataGoEstimateOnSubboard = true;
   public boolean showKataGoEstimateOnMainboard = true;
   public String kataGoEstimateMode = "small+dead";
   public boolean kataGoEstimateBlend = true;
+  public boolean showStoneEntropy = false;
+  public String kataGoRule = "tromp-taylor";
 
   public boolean showStatus = true;
   public boolean showBranch = true;
@@ -179,23 +179,62 @@ public class Config {
       madeCorrections = true;
     }
 
+    if (checkEmptyBlunderThresholds(ui)) {
+      madeCorrections = true;
+    }
+
     return madeCorrections;
+  }
+
+  /**
+   * Apply the default blunder thresholds in Default theme if they are empty. This works only once
+   * as the fix of #423 (missing default thresholds) so that users can set them empty again if they
+   * like.
+   *
+   * @param ui The UI config json object to check
+   * @return if any correction has been made.
+   */
+  private boolean checkEmptyBlunderThresholds(JSONObject ui) {
+    boolean alreadyTriedOnce = persisted.optBoolean("checked-empty-blunder-thresholds", false);
+    if (alreadyTriedOnce) return false;
+
+    boolean modified = false;
+    JSONArray blunderWinrateThresholds = ui.optJSONArray("blunder-winrate-thresholds");
+    JSONArray blunderNodeColors = ui.optJSONArray("blunder-node-colors");
+    boolean isEmptyBlunderWinrateThresholds =
+        (blunderWinrateThresholds == null || blunderWinrateThresholds.length() == 0);
+    boolean isEmptyBlunderNodeColors =
+        (blunderNodeColors == null || blunderNodeColors.length() == 0);
+
+    if (isEmptyBlunderWinrateThresholds && isEmptyBlunderNodeColors) {
+      // https://github.com/featurecat/lizzie/issues/423#issuecomment-438878060
+      ui.put("blunder-winrate-thresholds", new JSONArray("[-30, -20, -10.1, -5.1, 5, 10.1]"));
+      ui.put(
+          "blunder-node-colors",
+          new JSONArray(
+              "[[255, 0, 0], [255, 120, 0], [255, 200, 0], [255, 255, 0], [150, 255, 0], [0, 255, 0]]"));
+      modified = true;
+    }
+
+    persisted.put("checked-empty-blunder-thresholds", true);
+    return modified;
   }
 
   public Config() throws IOException {
     JSONObject defaultConfig = createDefaultConfig();
     JSONObject persistConfig = createPersistConfig();
 
-    // Main properties
-    this.config = loadAndMergeConfig(defaultConfig, configFilename, true);
+    // Load "persisted" before "config" for checkEmptyBlunderThresholds.
     // Persisted properties
     this.persisted = loadAndMergeConfig(persistConfig, persistFilename, false);
+    // Main properties
+    this.config = loadAndMergeConfig(defaultConfig, configFilename, true);
 
     leelazConfig = config.getJSONObject("leelaz");
     uiConfig = config.getJSONObject("ui");
     persistedUi = persisted.getJSONObject("ui-persist");
 
-    theme = new Theme(uiConfig);
+    applyTheme();
 
     panelUI = uiConfig.optBoolean("panel-ui", false);
     showBorder = uiConfig.optBoolean("show-border", false);
@@ -231,20 +270,17 @@ public class Config {
     limitBranchLength = uiConfig.optInt("limit-branch-length", 0);
     minPlayoutRatioForStats = uiConfig.optDouble("min-playout-ratio-for-stats", 0.1);
 
-    winrateStrokeWidth = theme.winrateStrokeWidth();
-    minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
-    shadowSize = theme.shadowSize();
     showLcbWinrate = config.getJSONObject("leelaz").optBoolean("show-lcb-winrate");
 
-    showKataGoScoreMean = uiConfig.optBoolean("show-katago-scoremean", true);
     showKataGoBoardScoreMean = uiConfig.optBoolean("show-katago-boardscoremean", false);
     kataGoScoreMeanAlwaysBlack = uiConfig.optBoolean("katago-scoremean-alwaysblack", false);
-    kataGoNotShowWinrate = uiConfig.optBoolean("katago-notshow-winrate", false);
     showKataGoEstimate = uiConfig.optBoolean("show-katago-estimate", false);
     showKataGoEstimateOnSubboard = uiConfig.optBoolean("show-katago-estimate-onsubboard", true);
     showKataGoEstimateOnMainboard = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
     kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "small+dead");
     kataGoEstimateBlend = uiConfig.optBoolean("katago-estimate-blend", true);
+    showStoneEntropy = uiConfig.optBoolean("show-stone-entropy", false);
+    kataGoRule = uiConfig.optString("katago-rule", "tromp-taylor");
     showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
     showScoremeanInSuggestion = uiConfig.optBoolean("show-scoremean-in-suggestion", true);
@@ -252,6 +288,18 @@ public class Config {
     showNameInBoard = uiConfig.optBoolean("show-name-in-board", true);
     toolbarPosition =
         uiConfig.optString("toolbar-position", persistedUi.optString("toolbar-position", "South"));
+
+    gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
+
+    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
+    setLanguage(Locale.getDefault().getLanguage());
+  }
+
+  public void applyTheme() {
+    theme = new Theme(uiConfig);
+    winrateStrokeWidth = theme.winrateStrokeWidth();
+    minimumBlunderBarWidth = theme.minimumBlunderBarWidth();
+    shadowSize = theme.shadowSize();
 
     if (theme.fontName() != null) fontName = theme.fontName();
 
@@ -272,11 +320,6 @@ public class Config {
     blunderWinrateThresholds = theme.blunderWinrateThresholds();
     blunderNodeColors = theme.blunderNodeColors();
     nodeColorMode = theme.nodeColorMode();
-
-    gtpConsoleStyle = uiConfig.optString("gtp-console-style", defaultGtpConsoleStyle);
-
-    System.out.println(Locale.getDefault().getLanguage()); // todo add config option for language...
-    setLanguage(Locale.getDefault().getLanguage());
   }
 
   // Modifies config by adding in values from default_config that are missing.
@@ -322,16 +365,16 @@ public class Config {
   }
 
   public void toggleShowCaptured() {
-    this.showCaptured = !this.showCaptured;
+    this.showCaptured = toggleUIConfig("show-captured");
   }
 
   public void toggleShowWinrate() {
-    this.showWinrate = !this.showWinrate;
+    this.showWinrate = toggleUIConfig("show-winrate");
   }
 
   public void toggleLargeWinrate() {
-    this.largeSubBoard = false;
-    this.largeWinrate = !this.largeWinrate;
+    this.largeSubBoard = setUIConfigBoolean("large-subboard", false);
+    this.largeWinrate = toggleUIConfig("large-winrate");
   }
 
   public void toggleShowLcbWinrate() {
@@ -339,11 +382,11 @@ public class Config {
   }
 
   public void toggleShowVariationGraph() {
-    this.showVariationGraph = !this.showVariationGraph;
+    this.showVariationGraph = toggleUIConfig("show-variation-graph");
   }
 
   public void toggleShowComment() {
-    this.showComment = !this.showComment;
+    this.showComment = toggleUIConfig("show-comment");
   }
 
   public void toggleShowCommentNodeColor() {
@@ -363,8 +406,8 @@ public class Config {
   }
 
   public void toggleLargeSubBoard() {
-    this.largeWinrate = false;
-    this.largeSubBoard = !this.largeSubBoard;
+    this.largeWinrate = setUIConfigBoolean("large-winrate", false);
+    this.largeSubBoard = toggleUIConfig("large-subboard");
   }
 
   public void toggleCoordinates() {
@@ -376,7 +419,7 @@ public class Config {
   }
 
   public void toggleShowSubBoard() {
-    showSubBoard = !showSubBoard;
+    showSubBoard = toggleUIConfig("show-subboard");
   }
 
   public void toggleShowPolicy() {
@@ -423,14 +466,27 @@ public class Config {
     uiConfig.put("katago-estimate-blend", kataGoEstimateBlend);
   }
 
+  public void toggleShowStoneEntropy() {
+    showStoneEntropy = !showStoneEntropy;
+    uiConfig.put("show-stone-entropy", showStoneEntropy);
+  }
+
+  public void setKataGoRule(String rule) {
+    kataGoRule = rule;
+    uiConfig.put("katago-rule", kataGoRule);
+  }
+
   public void toggleShowStatus() {
-    this.showStatus = !this.showStatus;
-    Lizzie.config.uiConfig.put("show-status", showStatus);
-    try {
-      Lizzie.config.save();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    this.showStatus = toggleUIConfig("show-status");
+  }
+
+  private boolean toggleUIConfig(String key) {
+    return setUIConfigBoolean(key, !uiConfig.getBoolean(key));
+  }
+
+  private boolean setUIConfigBoolean(String key, boolean value) {
+    uiConfig.put(key, value);
+    return value;
   }
 
   public boolean showLargeSubBoard() {
@@ -447,6 +503,10 @@ public class Config {
 
   public boolean showBranchNow() {
     return showBranch || showBestMovesTemporarily;
+  }
+
+  public boolean useAvoidInAnalysis() {
+    return config.getJSONObject("leelaz").getInt("avoid-keep-variations") > 0;
   }
 
   /**
@@ -547,15 +607,15 @@ public class Config {
     ui.put("replay-branch-interval-seconds", 1.0);
     ui.put("gtp-console-style", defaultGtpConsoleStyle);
     ui.put("panel-ui", false);
-    ui.put("show-katago-scoremean", true);
     ui.put("show-katago-boardscoremean", false);
     ui.put("katago-scoremean-alwaysblack", false);
-    ui.put("katago-notshow-winrate", false);
     ui.put("show-katago-estimate", false);
     ui.put("show-katago-estimate-onsubboard", true);
     ui.put("show-katago-estimate-onmainboard", true);
     ui.put("katago-estimate-mode", "small");
     ui.put("katago-estimate-blend", true);
+    ui.put("show-stone-entropy", false);
+    ui.put("katago-rule", "tromp-taylor");
     config.put("ui", ui);
     return config;
   }
@@ -566,6 +626,7 @@ public class Config {
     // About engine parameter
     JSONObject filesys = new JSONObject();
     filesys.put("last-folder", "");
+    filesys.put("last-image-folder", "");
 
     config.put("filesystem", filesys);
 

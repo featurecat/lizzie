@@ -28,6 +28,7 @@ public class BoardData {
   public int engineIndex;
   public double komi;
   public double scoreMean;
+  private double stoneEntropy = -1;
   public List<MoveData> bestMoves;
   public int blackCaptures;
   public int whiteCaptures;
@@ -186,6 +187,7 @@ public class BoardData {
   }
 
   public void tryToSetBestMoves(List<MoveData> moves) {
+    if (Lizzie.board.regionOfInterest.isEnabled()) return;
     if (MoveData.getPlayouts(moves) > playouts) {
       bestMoves = moves;
       setPlayouts(MoveData.getPlayouts(moves));
@@ -200,6 +202,15 @@ public class BoardData {
       Lizzie.leelaz.scoreMean = moves.get(0).scoreMean;
       Lizzie.leelaz.scoreStdev = moves.get(0).scoreStdev;
     }
+  }
+
+  public void tryToSetStoneEntropy(double entropy) {
+    if (Lizzie.board.regionOfInterest.isEnabled()) return;
+    stoneEntropy = entropy;
+  }
+
+  public double getStoneEntropy() {
+    return stoneEntropy;
   }
 
   public static double getWinrateFromBestMoves(List<MoveData> bestMoves) {

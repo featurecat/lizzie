@@ -1,0 +1,143 @@
+{
+  "leelaz": {
+    "engine-preload-list": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "engine-command-list": [
+      "<KataGo (Modern CPU)> katago/katago-eigenavx2 gtp -config katago/default_gtp.cfg -model katago/default_model.txt.gz",
+      "<KataGo (GPU)> katago/katago-opencl gtp -config katago/default_gtp.cfg -model katago/default_model.txt.gz",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "max-analyze-time-minutes": 99999,
+    "analyze-update-interval-centisec": 10,
+    "network-file": "lznetwork.gz",
+    "_comment": "note, network-file is obselete in Lizzie 0.7+, ignore network-file, kept for compatibility",
+    "max-game-thinking-time-seconds": 2,
+    "engine-start-location": ".",
+    "avoid-keep-variations": 30,
+    "engine-command": "<KataGo (CPU)> katago/katago-eigen gtp -config katago/default_gtp.cfg -model katago/default_model.txt.gz",
+    "print-comms": false,
+    "show-lcb-winrate": false
+  },
+  "ui": {
+    "comment-font-size": 0,
+    "hold-bestmoves-to-sgf": true,
+    "shadow-size": 100,
+    "show-winrate": true,
+    "autosave-interval-seconds": -1,
+    "limit-best-move-num": 0,
+    "stone-indicator-type": 1,
+    "katago-estimate-blend": true,
+    "win-rate-always-black": false,
+    "board-width": 19,
+    "show-border": false,
+    "show-move-number": false,
+    "winrate-stroke-width": 3,
+    "show-next-moves": true,
+    "comment-node-color": [
+      0,
+      0,
+      255
+    ],
+    "show-comment": true,
+    "show-leelaz-variation": true,
+    "show-bestmoves-by-hold": true,
+    "min-playout-ratio-for-stats": 0.1,
+    "fancy-stones": true,
+    "resume-previous-game": false,
+    "comment-font-color": [
+      255,
+      255,
+      255
+    ],
+    "show-coordinates": false,
+    "shadows-enabled": true,
+    "show-katago-estimate-onsubboard": true,
+    "show-variation-graph": true,
+    "show-dynamic-komi": true,
+    "gtp-console-style": "body {background:#000000; color:#d0d0d0; font-family:Consolas, Menlo, Monaco, 'Ubuntu Mono', monospace; margin:4px;} .command {color:#ffffff;font-weight:bold;} .winrate {color:#ffffff;font-weight:bold;} .coord {color:#ffffff;font-weight:bold;}",
+    "katago-scoremean-alwaysblack": false,
+    "not-refresh-variation": false,
+    "minimum-blunder-bar-width": 3,
+    "large-winrate": false,
+    "confirm-exit": false,
+    "show-katago-estimate-onmainboard": true,
+    "scoremean-line-color": [
+      255,
+      0,
+      255
+    ],
+    "show-katago-estimate": false,
+    "show-best-moves": true,
+    "board-color": [
+      217,
+      152,
+      77
+    ],
+    "append-winrate-to-comment": false,
+    "fancy-board": true,
+    "color-by-winrate-instead-of-visits": false,
+    "show-captured": true,
+    "replay-branch-interval-seconds": 1,
+    "panel-ui": true,
+    "blunder-bar-color": [
+      255,
+      0,
+      0,
+      150
+    ],
+    "weighted-blunder-bar-height": false,
+    "katago-estimate-mode": "small",
+    "theme": "default",
+    "show-winrate-in-suggestion": true,
+    "show-scoremean-in-suggestion": true,
+    "new-move-number-in-branch": true,
+    "winrate-line-color": [
+      0,
+      255,
+      0
+    ],
+    "blunder-node-colors": [[255, 0, 0], [255, 120, 0], [255, 200, 0], [255, 255, 0], [150, 255, 0], [0, 255, 0]],
+    "show-katago-boardscoremean": false,
+    "katago-rule": "tromp-taylor",
+    "show-playouts-in-suggestion": true,
+    "limit-branch-length": 0,
+    "blunder-winrate-thresholds": [-30, -20, -10.1, -5.1, 5, 10.1],
+    "board-position-proportion": 4,
+    "show-blunder-bar": false,
+    "only-last-move-number": 0,
+    "board-height": 19,
+    "winrate-miss-line-color": [
+      0,
+      0,
+      178
+    ],
+    "show-status": true,
+    "handicap-instead-of-winrate": false,
+    "large-subboard": false,
+    "comment-background-color": [
+      0,
+      0,
+      0,
+      200
+    ],
+    "dynamic-winrate-graph-width": false,
+    "show-subboard": true,
+    "show-comment-node-color": false,
+    "board-size": 19
+  }
+}

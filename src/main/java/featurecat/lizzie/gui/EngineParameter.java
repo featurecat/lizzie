@@ -4,20 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-public class EngineParameter extends JDialog {
+public class EngineParameter extends LizzieDialog {
 
   public String enginePath = "";
   public String weightPath = "";
@@ -30,7 +31,12 @@ public class EngineParameter extends JDialog {
   private Color oriColor;
 
   /** Create the dialog. */
-  public EngineParameter(String enginePath, String weightPath, ConfigDialog configDialog) {
+  public EngineParameter(
+      String enginePath,
+      String weightPath,
+      String configPath,
+      String engineType,
+      ConfigDialog configDialog) {
     setTitle(configDialog.resourceBundle.getString("LizzieConfig.title.parameterConfig"));
     setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
     setModal(true);
@@ -48,7 +54,10 @@ public class EngineParameter extends JDialog {
     txtCommandLine = new JTextField();
     txtCommandLine.setEditable(false);
     txtCommandLine.setBounds(89, 12, 565, 26);
-    txtCommandLine.setText(enginePath + " --weights " + weightPath);
+    String weightOption = engineType.equals("leelaz") ? " --weights " : " gtp -model ";
+    String configArgs =
+        (engineType.equals("leelaz") || configPath.isEmpty()) ? "" : " -config " + configPath + " ";
+    txtCommandLine.setText(enginePath + weightOption + weightPath + configArgs);
     contentPanel.add(txtCommandLine);
     txtCommandLine.setColumns(10);
     JLabel lblParameter =
@@ -67,7 +76,9 @@ public class EngineParameter extends JDialog {
         });
     txtParameter.setColumns(10);
     txtParameter.setBounds(89, 44, 565, 26);
-    txtParameter.setText("-g --lagbuffer 0 ");
+    if (engineType.equals("leelaz")) {
+      txtParameter.setText("-g --lagbuffer 0 ");
+    }
     oriColor = txtParameter.getBackground();
     contentPanel.add(txtParameter);
 
@@ -83,6 +94,7 @@ public class EngineParameter extends JDialog {
     txtParams.setFont(font);
     txtParams.setText(configDialog.commandHelp);
     txtParams.setEditable(false);
+    SwingUtilities.invokeLater(() -> txtParams.scrollRectToVisible(new Rectangle(0, 0, 0, 0)));
 
     JLabel lblParameterList =
         new JLabel(configDialog.resourceBundle.getString("LizzieConfig.title.parameterList"));
@@ -95,7 +107,7 @@ public class EngineParameter extends JDialog {
     okButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            if (txtParameter.getText().isEmpty()) {
+            if (txtParameter.getText().isEmpty() && engineType.equals("leelaz")) {
               txtParameter.setBackground(Color.RED);
             } else {
               parameters = txtParameter.getText().trim();

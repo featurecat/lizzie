@@ -4,10 +4,12 @@ import static java.lang.Math.round;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import featurecat.lizzie.analysis.MoveData;
 import featurecat.lizzie.gui.BoardRenderer;
 import featurecat.lizzie.rules.BoardData;
 import featurecat.lizzie.rules.BoardHistoryNode;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -28,7 +30,9 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageOutputStream;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import org.w3c.dom.Node;
 
@@ -127,6 +131,10 @@ public class Utils {
       Leelaz.WinrateStats stats = Lizzie.leelaz.getWinrateStats();
       curWR = stats.maxWinrate;
       validWinrate = (stats.totalPlayouts > 0);
+      if (!validWinrate && (data.getPlayouts() > 0)) {
+        validWinrate = true;
+        curWR = data.winrate;
+      }
       if (Lizzie.frame.isPlayingAgainstLeelaz
           && Lizzie.frame.playerIsBlack == !Lizzie.board.getHistory().getData().blackToPlay) {
         validWinrate = false;
@@ -153,9 +161,9 @@ public class Utils {
     Optional<Double> st =
         diffWinrate >= 0
             ? Lizzie.config.blunderWinrateThresholds.flatMap(
-                l -> l.stream().filter(t -> (t > 0 && t <= diffWinrate)).reduce((f, s) -> s))
+                l -> l.stream().filter(t -> (t >= 0 && t <= diffWinrate)).reduce((f, s) -> s))
             : Lizzie.config.blunderWinrateThresholds.flatMap(
-                l -> l.stream().filter(t -> (t < 0 && t >= diffWinrate)).reduce((f, s) -> f));
+                l -> l.stream().filter(t -> (t <= 0 && t >= diffWinrate)).reduce((f, s) -> f));
     if (st.isPresent()) {
       return Lizzie.config.blunderNodeColors.map(m -> m.get(st.get())).get();
     } else {
@@ -178,6 +186,11 @@ public class Utils {
       }
     }
     return score;
+  }
+
+  public static MoveData getBestMove() {
+    List<MoveData> bestMoves = Lizzie.board.getHistory().getData().bestMoves;
+    return (bestMoves.size() > 0) ? bestMoves.get(0) : null;
   }
 
   public static Integer txtFieldValue(JTextField txt) {
@@ -285,6 +298,37 @@ public class Utils {
     } catch (ClassNotFoundException e) {
       return false;
     }
+  }
+
+  public static void mustBeEventDispatchThread() {
+    // assert SwingUtilities.isEventDispatchThread();
+    if (!SwingUtilities.isEventDispatchThread()) {
+      // shouldn't happen.
+      System.out.println("---- Outside EDT! ----");
+      (new Throwable()).printStackTrace();
+      System.out.println("----------------------");
+    }
+  }
+
+  public static void showMessageDialog(Component parentComponent, Object message) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            mustBeEventDispatchThread();
+            JOptionPane.showMessageDialog(parentComponent, message);
+          }
+        });
+  }
+
+  public static void showMessageDialog(
+      Component parentComponent, Object message, String title, int messageType) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            mustBeEventDispatchThread();
+            JOptionPane.showMessageDialog(parentComponent, message, title, messageType);
+          }
+        });
   }
 
   public static TransferHandler transFile =

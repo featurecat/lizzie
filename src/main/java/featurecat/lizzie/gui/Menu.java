@@ -2,9 +2,11 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
@@ -22,7 +24,23 @@ public class Menu extends JMenuBar {
   public static ImageIcon ready;
   public static JMenuItem[] engine;
   public static JMenu engineMenu;
+  private static JCheckBoxMenuItem scoreMode;
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
+
+  private static JMenu kataGoRuleMenu;
+  private static final String[] kataGoRuleNames = {
+    "tromp-taylor",
+    "chinese",
+    "chinese-ogs",
+    "chinese-kgs",
+    "japanese",
+    "korean",
+    "stone-scoring",
+    "aga",
+    "bga",
+    "new-zealand",
+    "aga-button",
+  };
 
   public Menu() {
     setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -698,6 +716,12 @@ public class Menu extends JMenuBar {
             Lizzie.config.showKataGoEstimate = false;
             if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
             Lizzie.frame.removeEstimateRect();
+            Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
           }
         });
 
@@ -932,6 +956,23 @@ public class Menu extends JMenuBar {
         });
     kataEstimate.add(kataEstimateBlend);
 
+    final JCheckBoxMenuItem showStoneEntropy =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.stoneEntropy"));
+    showStoneEntropy.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleShowStoneEntropy();
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    kataEstimate.add(showStoneEntropy);
+
     viewMenu.addMenuListener(
         new MenuListener() {
           public void menuSelected(MenuEvent e) {
@@ -977,6 +1018,7 @@ public class Menu extends JMenuBar {
                 Lizzie.config.kataGoEstimateMode.equals("large+stones"));
             kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode.equals("size"));
             kataEstimateBlend.setState(Lizzie.config.kataGoEstimateBlend);
+            showStoneEntropy.setState(Lizzie.config.showStoneEntropy);
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);
@@ -1162,6 +1204,45 @@ public class Menu extends JMenuBar {
           }
         });
     gameMenu.add(pass);
+
+    final JMenuItem continueLadder =
+        new JMenuItem(resourceBundle.getString("Menu.game.continueLadder"));
+    continueLadder.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (Lizzie.board.continueLadder() == 0)
+              JOptionPane.showMessageDialog(
+                  Lizzie.frame,
+                  String.format(
+                      resourceBundle.getString("Menu.game.continueLadderFail"),
+                      Lizzie.board.MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION));
+          }
+        });
+    gameMenu.add(continueLadder);
+
+    gameMenu.addSeparator();
+
+    final JMenuItem editComment = new JMenuItem(resourceBundle.getString("Menu.game.editComment"));
+    editComment.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.editComment();
+          }
+        });
+    gameMenu.add(editComment);
+
+    final JMenuItem copyComment = new JMenuItem(resourceBundle.getString("Menu.game.copyComment"));
+    copyComment.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.copyCommentToClipboard();
+          }
+        });
+    gameMenu.add(copyComment);
+
     gameMenu.addSeparator();
 
     final JMenuItem clearBoard = new JMenuItem(resourceBundle.getString("Menu.game.clearBoard"));
@@ -1233,6 +1314,19 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoRight);
 
+    gameMenu.addSeparator();
+
+    scoreMode = new JCheckBoxMenuItem(resourceBundle.getString("Menu.game.scoreGame"));
+    gameMenu.add(scoreMode);
+    scoreMode.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.board.setScoreMode(scoreMode.isSelected());
+            Lizzie.frame.repaint();
+          }
+        });
+
     final JMenu analyzeMenu = new JMenu(resourceBundle.getString("Menu.analyze"));
     this.add(analyzeMenu);
 
@@ -1247,6 +1341,7 @@ public class Menu extends JMenuBar {
               Lizzie.leelaz.isThinking = false;
             }
             Lizzie.leelaz.togglePonder();
+            Lizzie.frame.refresh();
           }
         });
     analyzeMenu.add(toggleAnalyze);
@@ -1293,6 +1388,35 @@ public class Menu extends JMenuBar {
           }
         });
     analyzeMenu.add(estimate);
+
+    kataGoRuleMenu = new JMenu(resourceBundle.getString("Menu.analyze.rule"));
+    kataGoRuleMenu.setEnabled(false);
+    analyzeMenu.add(kataGoRuleMenu);
+
+    final ButtonGroup kataGoRuleGroup = new ButtonGroup();
+
+    for (String rule : kataGoRuleNames) {
+      boolean selected = rule.equals(Lizzie.config.kataGoRule);
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(rule, selected);
+      item.addActionListener(
+          new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              if (rule.equals(Lizzie.config.kataGoRule)) return;
+              Lizzie.config.setKataGoRule(rule);
+              Lizzie.leelaz.updateKataGoRule(true);
+              Lizzie.board.clearAnalysis();
+              Lizzie.frame.refresh();
+              try {
+                Lizzie.config.save();
+              } catch (IOException es) {
+                // TODO Auto-generated catch block
+              }
+            }
+          });
+      kataGoRuleGroup.add(item);
+      kataGoRuleMenu.add(item);
+    }
 
     analyzeMenu.addMenuListener(
         new MenuListener() {
@@ -1372,6 +1496,33 @@ public class Menu extends JMenuBar {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+
+    final JMenu helpMenu = new JMenu(resourceBundle.getString("Menu.helpMenu"));
+    this.add(helpMenu);
+
+    final JMenuItem keyboardControlsHelp =
+        new JMenuItem(resourceBundle.getString("Menu.helpMenu.keyboardControls"));
+    keyboardControlsHelp.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            browse("https://github.com/featurecat/lizzie/issues/832");
+          }
+        });
+    helpMenu.add(keyboardControlsHelp);
+  }
+
+  private void browse(String uriString) {
+    if (Desktop.isDesktopSupported()) {
+      try {
+        Desktop.getDesktop().browse(new URI(uriString));
+      } catch (Exception ex) {
+      }
+    }
+  }
+
+  public void updateScoreMenu(boolean on) {
+    scoreMode.setSelected(on);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
@@ -1384,8 +1535,9 @@ public class Menu extends JMenuBar {
       engine[i].setVisible(false);
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
-        if (engineDt.currentWeight() != "")
-          engine[i].setText(engine[i].getText() + " : " + engineDt.currentWeight());
+        if (engineDt.nicknameOrCurrentWeight() != "")
+          engine[i].setText(engine[i].getText() + " : " + engineDt.nicknameOrCurrentWeight());
+        engine[i].setToolTipText(engineDt.engineCommand());
         engine[i].setVisible(true);
         int a = i;
         engine[i].addActionListener(
@@ -1407,6 +1559,7 @@ public class Menu extends JMenuBar {
             if (i == currentEngineNo) {
               engine[i].setIcon(running);
               engineMenu.setText(engine[i].getText());
+              kataGoRuleMenu.setEnabled(engineDt.isKataGo);
             } else if (engineDt.isLoaded()) engine[i].setIcon(ready);
             else if (engine[i].getIcon() != null) engine[i].setIcon(null);
           }

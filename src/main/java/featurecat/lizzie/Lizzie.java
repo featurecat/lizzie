@@ -7,9 +7,11 @@ import featurecat.lizzie.gui.LizzieFrame;
 import featurecat.lizzie.gui.LizzieMain;
 import featurecat.lizzie.gui.MainFrame;
 import featurecat.lizzie.rules.Board;
+import featurecat.lizzie.util.Utils;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -29,28 +31,39 @@ public class Lizzie {
     setLookAndFeel();
     mainArgs = args;
     config = new Config();
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            mainInEDT();
+          }
+        });
+  }
+
+  private static void mainInEDT() {
     frame = config.panelUI ? new LizzieMain() : new LizzieFrame();
     gtpConsole = new GtpConsolePane(frame);
-    gtpConsole.setVisible(config.leelazConfig.optBoolean("print-comms", false));
+    gtpConsole.setVisible(config.persistedUi.optBoolean("gtp-console-opened", false));
     initializeEngineManager();
   }
 
   public static void initializeEngineManager() {
     try {
       engineManager = new EngineManager(config);
-      if (mainArgs.length == 1) {
-        frame.loadFile(new File(mainArgs[0]));
-      } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
-        board.resumePreviousGame();
-      }
     } catch (IOException e) {
       frame.openConfigDialog();
-      JOptionPane.showMessageDialog(frame, "Please restart Lizzie to apply changes.");
+      Utils.showMessageDialog(frame, "Please restart Lizzie to apply changes.");
       System.exit(1);
+    }
+
+    if (mainArgs.length == 1) {
+      frame.loadFile(new File(mainArgs[0]));
+    } else if (config.config.getJSONObject("ui").getBoolean("resume-previous-game")) {
+      board.resumePreviousGame();
     }
   }
 
   public static void initializeAfterVersionCheck(Leelaz lz) {
+    lz.updateKataGoRule();
     if (config.handicapInsteadOfWinrate) {
       lz.estimatePassWinrate();
     }
@@ -81,7 +94,7 @@ public class Lizzie {
     if (config.config.getJSONObject("ui").getBoolean("confirm-exit")) {
       int ret =
           JOptionPane.showConfirmDialog(
-              null, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
+              frame, "Do you want to save this SGF?", "Save SGF?", JOptionPane.OK_CANCEL_OPTION);
       if (ret == JOptionPane.OK_OPTION) {
         frame.saveFile();
       }
@@ -89,6 +102,7 @@ public class Lizzie {
     board.autosaveToMemory();
 
     try {
+      config.save();
       config.persist();
     } catch (IOException e) {
       e.printStackTrace(); // Failed to save config

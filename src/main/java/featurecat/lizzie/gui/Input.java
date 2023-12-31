@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.*;
 
 public class Input implements MouseListener, KeyListener, MouseWheelListener, MouseMotionListener {
   @Override
@@ -19,6 +20,11 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
   public void mousePressed(MouseEvent e) {
     Lizzie.frame.toolBar.setTxtUnfocus();
     if (Lizzie.frame.subBoardOnClick(e)) return;
+    if (e.isAltDown() && e.getButton() == MouseEvent.BUTTON1) {
+      startSettingRegionOfInterest(e);
+      Lizzie.frame.refresh();
+      return;
+    }
     if (e.getButton() == MouseEvent.BUTTON1) { // left click
       if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
         Lizzie.frame.onDoubleClicked(e.getX(), e.getY());
@@ -27,21 +33,29 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
       }
     } else if (e.getButton() == MouseEvent.BUTTON3) // right click
     {
-      if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) undo(1);
+      Lizzie.frame.onRightClicked(e.getX(), e.getY());
+    }
+    if (e.getButton() == MouseEvent.BUTTON2) { // center click
+      Lizzie.frame.onCenterClicked(e.getX(), e.getY());
     }
   }
 
   @Override
-  public void mouseReleased(MouseEvent e) {}
+  public void mouseReleased(MouseEvent e) {
+    finishSettingRegionOfInterest();
+  }
 
   @Override
   public void mouseEntered(MouseEvent e) {}
 
   @Override
-  public void mouseExited(MouseEvent e) {}
+  public void mouseExited(MouseEvent e) {
+    Lizzie.frame.onMouseExited(e.getX(), e.getY());
+  }
 
   @Override
   public void mouseDragged(MouseEvent e) {
+    if (dragRegionOfInterest(e)) return;
     Lizzie.frame.onMouseDragged(e.getX(), e.getY());
   }
 
@@ -52,6 +66,33 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   @Override
   public void keyTyped(KeyEvent e) {}
+
+  public void startSettingRegionOfInterest(MouseEvent e) {
+    Optional<int[]> coord = mouseToCoord(e);
+    if (coord.isPresent()) Lizzie.board.regionOfInterest.startSetting(coord.get());
+  }
+
+  private void finishSettingRegionOfInterest() {
+    if (!Lizzie.board.regionOfInterest.isInSetting()) return;
+    Lizzie.board.regionOfInterest.finishSetting();
+    Lizzie.frame.refresh();
+    if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
+  }
+
+  public boolean dragRegionOfInterest(MouseEvent e) {
+    boolean applied = e.isAltDown();
+    if (applied && updateRegionOfInterest(e)) Lizzie.frame.refresh();
+    return applied;
+  }
+
+  private boolean updateRegionOfInterest(MouseEvent e) {
+    Optional<int[]> coord = mouseToCoord(e);
+    return coord.isPresent() && Lizzie.board.regionOfInterest.updateSetting(coord.get());
+  }
+
+  private Optional<int[]> mouseToCoord(MouseEvent e) {
+    return Lizzie.frame.convertScreenToCoordinates(e.getX(), e.getY());
+  }
 
   public static void undo() {
     undo(1);
@@ -156,10 +197,12 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
 
   private void moveBranchUp() {
     Lizzie.board.moveBranchUp();
+    Lizzie.frame.repaint();
   }
 
   private void moveBranchDown() {
     Lizzie.board.moveBranchDown();
+    Lizzie.frame.repaint();
   }
 
   private void deleteMove() {
@@ -216,7 +259,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           undo(10);
         } else {
-          if (Lizzie.frame.isMouseOver) {
+          if (Lizzie.frame.isMouseOver && !Lizzie.config.showRawBoard) {
             Lizzie.frame.doBranch(-1);
           } else {
             undo();
@@ -238,7 +281,7 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         } else if (controlIsPressed(e)) {
           redo(10);
         } else {
-          if (Lizzie.frame.isMouseOver) {
+          if (Lizzie.frame.isMouseOver && !Lizzie.config.showRawBoard) {
             Lizzie.frame.doBranch(1);
           } else {
             redo();
@@ -391,7 +434,9 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_C:
-        if (controlIsPressed(e)) {
+        if (controlIsPressed(e) && e.isShiftDown()) {
+          Lizzie.frame.copyCommentToClipboard();
+        } else if (controlIsPressed(e)) {
           Lizzie.frame.copySgf();
         } else {
           Lizzie.config.toggleCoordinates();
@@ -470,23 +515,19 @@ public class Input implements MouseListener, KeyListener, MouseWheelListener, Mo
         break;
 
       case VK_D:
-        if (Lizzie.leelaz.isKataGo) {
-          if (Lizzie.config.showKataGoScoreMean && Lizzie.config.kataGoNotShowWinrate) {
-            Lizzie.config.showKataGoScoreMean = false;
-            Lizzie.config.kataGoNotShowWinrate = false;
+        if (Lizzie.leelaz.supportScoremean()) {
+          if (Lizzie.config.showScoremeanInSuggestion && !Lizzie.config.showWinrateInSuggestion) {
+            Lizzie.config.showScoremeanInSuggestion = false;
+            Lizzie.config.showWinrateInSuggestion = true;
             break;
           }
-          if (Lizzie.config.showKataGoScoreMean && !Lizzie.config.kataGoNotShowWinrate) {
-            Lizzie.config.kataGoNotShowWinrate = true;
+          if (Lizzie.config.showScoremeanInSuggestion && Lizzie.config.showWinrateInSuggestion) {
+            Lizzie.config.showWinrateInSuggestion = false;
             break;
           }
-          if (Lizzie.config.showKataGoScoreMean) {
-            Lizzie.config.showKataGoScoreMean = false;
-            break;
-          }
-          if (!Lizzie.config.showKataGoScoreMean) {
-            Lizzie.config.showKataGoScoreMean = true;
-            Lizzie.config.kataGoNotShowWinrate = false;
+          if (!Lizzie.config.showScoremeanInSuggestion) {
+            Lizzie.config.showScoremeanInSuggestion = true;
+            Lizzie.config.showWinrateInSuggestion = true;
           }
         } else {
           toggleShowDynamicKomi();

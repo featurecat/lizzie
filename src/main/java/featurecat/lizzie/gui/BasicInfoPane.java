@@ -173,6 +173,13 @@ public class BasicInfoPane extends LizziePane {
     g.drawString(bTime, posX + width / 10, posY + height / 6);
     g.drawString(wTime, posX + width * 3 / 5, posY + height / 6);
 
+    // Rule
+    if (Lizzie.leelaz.isKataGo) {
+      String rule = Lizzie.config.kataGoRule;
+      int rw = g.getFontMetrics().stringWidth(rule);
+      g.drawString(rule, posX - strokeRadius + width / 2 - rw / 2, posY + height * 5 / 16);
+    }
+
     // Komi
     String komi =
         GameInfoDialog.FORMAT_KOMI.format(Lizzie.board.getHistory().getGameInfo().getKomi());

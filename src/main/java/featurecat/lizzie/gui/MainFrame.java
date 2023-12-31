@@ -6,12 +6,17 @@ import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.YaZenGtp;
 import featurecat.lizzie.rules.GIBParser;
 import featurecat.lizzie.rules.SGFParser;
+import featurecat.lizzie.util.Utils;
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.HeadlessException;
 import java.awt.LayoutManager;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
@@ -23,6 +28,10 @@ import java.util.ResourceBundle;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.json.JSONObject;
 
@@ -78,6 +87,8 @@ public abstract class MainFrame extends JFrame {
 
   public MainFrame() throws HeadlessException {
     super(DEFAULT_TITLE);
+    Utils.mustBeEventDispatchThread();
+    ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
   }
 
   public boolean isDesignMode() {
@@ -89,6 +100,20 @@ public abstract class MainFrame extends JFrame {
   public void updateBasicInfo() {}
 
   public void updateBasicInfo(String bTime, String wTime) {}
+
+  public void repaint() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            repaintInEDT();
+          }
+        });
+  }
+
+  private void repaintInEDT() {
+    Utils.mustBeEventDispatchThread();
+    super.repaint();
+  }
 
   public void refresh() {
     repaint();
@@ -115,15 +140,35 @@ public abstract class MainFrame extends JFrame {
     return false;
   }
 
-  public abstract void removeEstimateRect();
+  public void removeEstimateRect() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            removeEstimateRectInEDT();
+          }
+        });
+  }
 
-  public abstract void drawEstimateRectKata(ArrayList<Double> estimateArray);
+  protected abstract void removeEstimateRectInEDT();
+
+  public void drawEstimateRectKata(ArrayList<Double> estimateArray) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            drawEstimateRectKataInEDT(estimateArray);
+          }
+        });
+  }
+
+  protected abstract void drawEstimateRectKataInEDT(ArrayList<Double> estimateArray);
 
   public abstract void drawControls();
 
   public abstract void replayBranch(boolean generateGif);
 
   public abstract void refreshBackground();
+
+  public abstract void resetImages();
 
   public abstract void clear();
 
@@ -133,9 +178,27 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void onDoubleClicked(int x, int y);
 
+  public void checkRightClick(MouseEvent e) {
+    if (e.getButton() == MouseEvent.BUTTON3) {
+      onRightClickedOutsideBoard();
+    }
+  }
+
+  public void onRightClicked(int x, int y) {
+    if (!openRightClickMenu(x, y)) onRightClickedOutsideBoard();
+  }
+
+  private void onRightClickedOutsideBoard() {
+    Input.undo();
+  }
+
   public abstract boolean subBoardOnClick(MouseEvent e);
 
+  public abstract void onCenterClicked(int x, int y);
+
   public abstract void onMouseDragged(int x, int y);
+
+  public void onMouseExited(int x, int y) {}
 
   public abstract void onMouseMoved(int x, int y);
 
@@ -155,16 +218,57 @@ public abstract class MainFrame extends JFrame {
 
   public abstract void pasteSgf();
 
+  public void editComment() {
+    String oldComment = Lizzie.board.getHistory().getData().comment;
+    // https://stackoverflow.com/questions/7765478/how-to-add-text-area-on-joptionpane
+    // https://stackoverflow.com/a/55678093
+    JTextArea textArea = new JTextArea(oldComment);
+    textArea.setColumns(40);
+    textArea.setRows(20);
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    textArea.setSize(textArea.getPreferredSize().width, textArea.getPreferredSize().height);
+    int ret =
+        JOptionPane.showConfirmDialog(
+            this, new JScrollPane(textArea), "Comment", JOptionPane.OK_CANCEL_OPTION);
+    if (ret == JOptionPane.OK_OPTION) {
+      Lizzie.board.getHistory().getData().comment = textArea.getText();
+      refresh();
+    }
+  }
+
+  public void copyCommentToClipboard() {
+    String comment = Lizzie.board.getHistory().getData().comment;
+    if (comment.isEmpty()) return;
+    try {
+      Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+      Transferable transferableString = new StringSelection(comment);
+      clipboard.setContents(transferableString, null);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public void setPlayers(String whitePlayer, String blackPlayer) {
     playerTitle = String.format("(%s [W] vs %s [B])", whitePlayer, blackPlayer);
     updateTitle();
   }
 
   public void updateTitle() {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateTitleInEDT();
+          }
+        });
+  }
+
+  private void updateTitleInEDT() {
+    Utils.mustBeEventDispatchThread();
     StringBuilder sb = new StringBuilder(DEFAULT_TITLE);
     sb.append(playerTitle);
-    sb.append(" [" + Lizzie.leelaz.engineCommand() + "]");
     sb.append(visitsString);
+    sb.append(" [" + Lizzie.leelaz.nicknameOrEngineCommand() + "]");
     setTitle(sb.toString());
   }
 
@@ -288,18 +392,22 @@ public abstract class MainFrame extends JFrame {
   }
 
   public void saveFile() {
-    FileNameExtensionFilter filter = new FileNameExtensionFilter("*.sgf", "*.SGF");
+    FileNameExtensionFilter filter =
+        new FileNameExtensionFilter("Smart Game Format (*.sgf *.SGF)", "sgf");
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
     JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
     chooser.setFileFilter(filter);
     chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showSaveDialog(null);
+    int result = chooser.showSaveDialog(this);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
+      if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF"))) {
+        file = new File(file.getPath() + ".sgf");
+      }
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
-                null,
+                this,
                 resourceBundle.getString("LizzieFrame.prompt.sgfExists"),
                 "Warning",
                 JOptionPane.OK_CANCEL_OPTION);
@@ -307,15 +415,14 @@ public abstract class MainFrame extends JFrame {
           return;
         }
       }
-      if (!file.getPath().endsWith(".sgf")) {
-        file = new File(file.getPath() + ".sgf");
-      }
       try {
         SGFParser.save(Lizzie.board, file.getPath());
-        filesystem.put("last-folder", file.getParent());
+        if (file.getParent() != null) {
+          filesystem.put("last-folder", file.getParent());
+        }
       } catch (IOException err) {
         JOptionPane.showConfirmDialog(
-            null,
+            this,
             resourceBundle.getString("LizzieFrame.prompt.failedTosaveFile"),
             "Error",
             JOptionPane.ERROR);
@@ -338,20 +445,25 @@ public abstract class MainFrame extends JFrame {
 
   public void loadFile(File file) {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    if (!(file.getPath().endsWith(".sgf") || file.getPath().endsWith(".gib"))) {
+    if (!(file.getPath().endsWith(".sgf")
+        || file.getPath().endsWith(".gib")
+        || file.getPath().endsWith(".SGF")
+        || file.getPath().endsWith(".GIB"))) {
       file = new File(file.getPath() + ".sgf");
     }
     try {
       System.out.println(file.getPath());
-      if (file.getPath().endsWith(".sgf")) {
+      if (file.getPath().endsWith(".sgf") || file.getPath().endsWith(".SGF")) {
         SGFParser.load(file.getPath());
       } else {
         GIBParser.load(file.getPath());
       }
-      filesystem.put("last-folder", file.getParent());
+      if (file.getParent() != null) {
+        filesystem.put("last-folder", file.getParent());
+      }
     } catch (IOException err) {
       JOptionPane.showConfirmDialog(
-          null,
+          this,
           resourceBundle.getString("LizzieFrame.prompt.failedToOpenFile"),
           "Error",
           JOptionPane.ERROR);
@@ -386,11 +498,40 @@ public abstract class MainFrame extends JFrame {
 
   public void saveImage() {};
 
-  public abstract void updateEngineMenu(List<Leelaz> engineList);
+  public void updateEngineMenu(List<Leelaz> engineList) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateEngineMenuInEDT(engineList);
+          }
+        });
+  }
 
-  public abstract void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo);
+  protected abstract void updateEngineMenuInEDT(List<Leelaz> engineList);
+
+  public void updateEngineIcon(List<Leelaz> engineList, int currentEngineNo) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateEngineIconInEDT(engineList, currentEngineNo);
+          }
+        });
+  }
+
+  protected abstract void updateEngineIconInEDT(List<Leelaz> engineList, int currentEngineNo);
 
   public abstract Optional<int[]> convertScreenToCoordinates(int x, int y);
+
+  public void updateScoreMenu(boolean on) {
+    SwingUtilities.invokeLater(
+        new Runnable() {
+          public void run() {
+            updateScoreMenuInEDT(on);
+          }
+        });
+  }
+
+  protected abstract void updateScoreMenuInEDT(boolean on);
 
   public abstract boolean openRightClickMenu(int x, int y);
 
