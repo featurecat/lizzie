@@ -307,6 +307,25 @@ public class Leelaz {
     return bestMoves;
   }
 
+  private double getStoneEntropy(ArrayList<Double> estimateArray) {
+    Stone[] stones = Lizzie.board.getData().stones;
+    double sum = 0;
+    for (int i = 0; i < estimateArray.size(); i++) {
+      int[] c = Lizzie.board.getCoordKataGo(i);
+      Stone stone = stones[Board.getIndex(c[0], c[1])];
+      if (stone == Stone.BLACK || stone == Stone.WHITE) {
+        double probability = (estimateArray.get(i) + 1) * 0.5;
+        sum += entropy(probability);
+      }
+    }
+    return sum;
+  }
+
+  private double entropy(double p) {
+    if (p <= 0 || 1 <= p) return 0;
+    else return (-p * Math.log(p) - (1 - p) * Math.log(1 - p)) / Math.log(2);
+  }
+
   /**
    * Parse a line of Leelaz output
    *
@@ -351,6 +370,7 @@ public class Leelaz {
                   estimateArray.add(Double.parseDouble(params2[i]));
                 }
                 Lizzie.frame.drawEstimateRectKata(estimateArray);
+                Lizzie.board.getData().tryToSetStoneEntropy(getStoneEntropy(estimateArray));
               }
             }
           } else {

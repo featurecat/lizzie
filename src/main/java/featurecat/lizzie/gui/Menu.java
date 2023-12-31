@@ -956,6 +956,23 @@ public class Menu extends JMenuBar {
         });
     kataEstimate.add(kataEstimateBlend);
 
+    final JCheckBoxMenuItem showStoneEntropy =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.stoneEntropy"));
+    showStoneEntropy.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleShowStoneEntropy();
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    kataEstimate.add(showStoneEntropy);
+
     viewMenu.addMenuListener(
         new MenuListener() {
           public void menuSelected(MenuEvent e) {
@@ -1001,6 +1018,7 @@ public class Menu extends JMenuBar {
                 Lizzie.config.kataGoEstimateMode.equals("large+stones"));
             kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode.equals("size"));
             kataEstimateBlend.setState(Lizzie.config.kataGoEstimateBlend);
+            showStoneEntropy.setState(Lizzie.config.showStoneEntropy);
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);

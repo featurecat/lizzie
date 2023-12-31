@@ -138,6 +138,9 @@ public class WinrateGraph {
     }
 
     while (node.previous().isPresent()) {
+      if (Lizzie.config.showStoneEntropy) {
+        drawStoneEntropy(movenum, numMoves, node, g, posx, posy, width, height);
+      }
       double wr = node.getData().winrate;
       int playouts = node.getData().getPlayouts();
       if (node == curMove) {
@@ -330,6 +333,29 @@ public class WinrateGraph {
     params[2] = width;
     params[3] = height;
     params[4] = numMoves;
+  }
+
+  private void drawStoneEntropy(
+      int movenum,
+      int numMoves,
+      BoardHistoryNode node,
+      Graphics2D g,
+      int posx,
+      int posy,
+      int width,
+      int height) {
+    double entropy = node.getData().getStoneEntropy();
+    if (entropy < 0) return;
+    int radius = entropy > 40 ? DOT_RADIUS / 2 : DOT_RADIUS / 6;
+    double mag = 0.5;
+    Color oldColor = g.getColor();
+    g.setColor(Lizzie.config.blunderBarColor);
+    g.fillOval(
+        posx + (movenum * width / numMoves) - radius,
+        posy + height - (int) (convertWinrate(entropy * mag) * height / 100) - radius,
+        radius * 2,
+        radius * 2);
+    g.setColor(oldColor);
   }
 
   private double convertScoreMean(double coreMean) {

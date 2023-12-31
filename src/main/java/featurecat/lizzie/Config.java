@@ -57,6 +57,7 @@ public class Config {
   public boolean showKataGoEstimateOnMainboard = true;
   public String kataGoEstimateMode = "small+dead";
   public boolean kataGoEstimateBlend = true;
+  public boolean showStoneEntropy = false;
   public String kataGoRule = "tromp-taylor";
 
   public boolean showStatus = true;
@@ -278,6 +279,7 @@ public class Config {
     showKataGoEstimateOnMainboard = uiConfig.optBoolean("show-katago-estimate-onmainboard", true);
     kataGoEstimateMode = uiConfig.optString("katago-estimate-mode", "small+dead");
     kataGoEstimateBlend = uiConfig.optBoolean("katago-estimate-blend", true);
+    showStoneEntropy = uiConfig.optBoolean("show-stone-entropy", false);
     kataGoRule = uiConfig.optString("katago-rule", "tromp-taylor");
     showWinrateInSuggestion = uiConfig.optBoolean("show-winrate-in-suggestion", true);
     showPlayoutsInSuggestion = uiConfig.optBoolean("show-playouts-in-suggestion", true);
@@ -464,6 +466,11 @@ public class Config {
     uiConfig.put("katago-estimate-blend", kataGoEstimateBlend);
   }
 
+  public void toggleShowStoneEntropy() {
+    showStoneEntropy = !showStoneEntropy;
+    uiConfig.put("show-stone-entropy", showStoneEntropy);
+  }
+
   public void setKataGoRule(String rule) {
     kataGoRule = rule;
     uiConfig.put("katago-rule", kataGoRule);
@@ -607,6 +614,7 @@ public class Config {
     ui.put("show-katago-estimate-onmainboard", true);
     ui.put("katago-estimate-mode", "small");
     ui.put("katago-estimate-blend", true);
+    ui.put("show-stone-entropy", false);
     ui.put("katago-rule", "tromp-taylor");
     config.put("ui", ui);
     return config;
