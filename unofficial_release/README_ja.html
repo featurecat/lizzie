@@ -15,8 +15,8 @@
 <h2>内容</h2>
 
 <ul>
-<li>Lizzie: <a href="https://github.com/featurecat/lizzie/issues/798">patched-0.7.4</a> 2022-05-10版 (Lizzie 0.7.4の大バグも修正済)</li>
-<li>KataGo: <a href="https://github.com/lightvector/KataGo/releases/tag/v1.11.0">1.11.0</a> + <a href="https://katagotraining.org/networks/">15ブロックネットワーク</a> (kata1-b15c192-s1672)</li>
+<li>Lizzie: <a href="https://github.com/featurecat/lizzie/issues/798">patched-0.7.4</a> 2023-12-31版 (Lizzie 0.7.4の大バグも修正済)</li>
+<li>KataGo: <a href="https://github.com/lightvector/KataGo/releases/tag/v1.14.0">1.14.0</a> + <a href="https://katagotraining.org/networks/">15ブロックネットワーク</a> (kata1-b15c192-s1672)</li>
 <li>Java: Lizzieに必要な最低限の実行環境入り (<a href="http://openjdk.java.net/">OpenJDK 11</a>より)
 </li>
 </ul>
@@ -30,6 +30,18 @@
 <li>KataGo (GPU): GPUがうまく動けば圧倒的に速い。ただし、初回は長時間のチューニングが必要。</li>
 </ul>
 
+<h2>独自機能</h2>
+
+<h3>石のエントロピー</h3>
+
+<p>
+メニュー（表示 &gt; KataGoの設定 &gt; 形勢情報 &gt; Show stone entropy）からこの機能を有効にすると、勝率グラフに赤い点列が表示されます。点の高さは石の生死のあいまいさを表し、大きな攻合いや見合いを含んだ激しい局面だと高くなります。もし表示されない場合は、メニューの表示 &gt; KataGoの設定 &gt; 形勢情報 &gt; 表示をオンにしてください。
+</p>
+
+<p>
+この機能は<a href="https://github.com/kaorahi/lizgoban">LizGoban</a>から移植されました。（本家Lizzieへの取り込みは断念しました。他の未採択の修正提案たちに依存するからです。）
+</p>
+
 <h2>ライセンス</h2>
 
 <ul>
@@ -41,6 +53,7 @@
 <h2>更新履歴</h2>
 
 <ul>
+<li>231231a: KataGo 1.14.0, 石の生死のあいまいさをプロット, その他微修正</li>
 <li>220510a: KataGo 1.11.0, 自動解析時のちらつきを修正</li>
 <li>211211b: 日本語フォルダ名でのエラーを再回避 (thx &gt; 江場さん)</li>
 <li>211211a: 翻訳の更新 (露, 日)</li>

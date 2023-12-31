@@ -15,8 +15,8 @@
 <h2>Contents</h2>
 
 <ul>
-<li>Lizzie: <a href="https://github.com/featurecat/lizzie/issues/798">patched-0.7.4</a> on 2022-05-10 (Major bugs in Lizzie 0.7.4 are fixed.)</li>
-<li>KataGo: <a href="https://github.com/lightvector/KataGo/releases/tag/v1.11.0">1.11.0</a> + <a href="https://katagotraining.org/networks/">15 blocks network</a> (kata1-b15c192-s1672)</li>
+<li>Lizzie: <a href="https://github.com/featurecat/lizzie/issues/798">patched-0.7.4</a> on 2023-12-31 (Major bugs in Lizzie 0.7.4 are fixed.)</li>
+<li>KataGo: <a href="https://github.com/lightvector/KataGo/releases/tag/v1.14.0">1.14.0</a> + <a href="https://katagotraining.org/networks/">15 blocks network</a> (kata1-b15c192-s1672)</li>
 <li>Java: minimum runtime environment for Lizzie (from <a href="http://openjdk.java.net/">OpenJDK 11</a>)
 </li>
 </ul>
@@ -30,6 +30,18 @@
 <li>KataGo (GPU): much faster if your GPU works successfully. Note that it takes long time for initial tuning at the first run.</li>
 </ul>
 
+<h2>Original feature</h2>
+
+<h3>Stone entropy</h3>
+
+<p>
+If this feature is activated via the menu (View &gt; KataGo settings &gt; Estimate info &gt; Show stone entropy), red dots will be plotted on the winrate chart. Their height indicates the uncertainty of the stones' life/death status. They tend to be higher in heated situations involving large capturing races or miai. Should they not be displayed, open the menu (View &gt; KataGo settings &gt; Estimate info &gt; Display) and enable it.
+</p>
+
+<p>
+This feature was imported from <a href="https://github.com/kaorahi/lizgoban">LizGoban</a>. (I am giving up on integrating this feature into the original Lizzie, as it depends on other proposed changes that have not yet been accepted.)
+</p>
+
 <h2>License</h2>
 
 <ul>
@@ -41,6 +53,7 @@
 <h2>Changes</h2>
 
 <ul>
+<li>231231a: KataGo 1.14.0, stone entropy plot, minor fixes</li>
 <li>220510a: KataGo 1.11.0, fix of flicker in auto-analysis</li>
 <li>211211b: workaround for non-ASCII path names again (thx &gt; Eba san)</li>
 <li>211211a: updated translations (ru, ja)</li>
