@@ -54,7 +54,8 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.mouseWheelScroll"),
     resourceBundle.getString("LizzieFrame.commands.keyC"),
     resourceBundle.getString("LizzieFrame.commands.keyP"),
-    resourceBundle.getString("LizzieFrame.commands.keyPeriod"),
+    // scoreMode has no keyboard binding in 0.7.4.
+    // resourceBundle.getString("LizzieFrame.commands.keyPeriod"),
     resourceBundle.getString("LizzieFrame.commands.keyA"),
     resourceBundle.getString("LizzieFrame.commands.keyM"),
     resourceBundle.getString("LizzieFrame.commands.keyI"),
@@ -79,7 +80,8 @@ public class BoardPane extends LizziePane {
     resourceBundle.getString("LizzieFrame.commands.keyControl"),
     resourceBundle.getString("LizzieFrame.commands.keyDelete"),
     resourceBundle.getString("LizzieFrame.commands.keyBackspace"),
-    resourceBundle.getString("LizzieFrame.commands.keyE"),
+    // This is keyK actually in 0.7.4.
+    // resourceBundle.getString("LizzieFrame.commands.keyE"),
   };
 
   private static BoardRenderer boardRenderer;
@@ -92,6 +94,7 @@ public class BoardPane extends LizziePane {
 
   private long lastAutosaveTime = System.currentTimeMillis();
   private boolean isReplayVariation = false;
+  private boolean isPonderingBeforeReplayVariation = false;
 
   LizzieMain owner;
   /** Creates a window */
@@ -108,6 +111,11 @@ public class BoardPane extends LizziePane {
         new MouseAdapter() {
           @Override
           public void mousePressed(MouseEvent e) {
+            if (e.isAltDown() && e.getButton() == MouseEvent.BUTTON1) {
+              owner.input.startSettingRegionOfInterest(e);
+              Lizzie.frame.refresh();
+              return;
+            }
             if (e.getButton() == MouseEvent.BUTTON1) { // left click
               if (e.getClickCount() == 2) { // TODO: Maybe need to delay check
                 onDoubleClicked(e.getX(), e.getY());
@@ -118,9 +126,14 @@ public class BoardPane extends LizziePane {
               // if (Lizzie.frame.isMouseOver) {
               //  Lizzie.frame.addSuggestionAsBranch();
               // } else {
-              if (!Lizzie.frame.openRightClickMenu(e.getX(), e.getY())) Input.undo();
+              Lizzie.frame.onRightClicked(e.getX(), e.getY());
               // }
             }
+          }
+
+          @Override
+          public void mouseReleased(MouseEvent e) {
+            owner.input.mouseReleased(e);
           }
 
           @Override
@@ -140,12 +153,19 @@ public class BoardPane extends LizziePane {
           }
 
           @Override
-          public void mouseDragged(MouseEvent e) {}
+          public void mouseDragged(MouseEvent e) {
+            owner.input.dragRegionOfInterest(e);
+          }
         });
+  }
+
+  protected void checkRightClick(MouseEvent e) {
+    // cancel default behavior of LizziePane
   }
 
   /** Clears related status from empty board. */
   public void clear() {
+    Utils.mustBeEventDispatchThread();
     if (LizzieMain.winratePane != null) {
       LizzieMain.winratePane.clear();
     }
@@ -162,6 +182,7 @@ public class BoardPane extends LizziePane {
    */
   @Override
   protected void paintComponent(Graphics g0) {
+    Utils.mustBeEventDispatchThread();
     super.paintComponent(g0);
     autosaveMaybe();
 
@@ -219,6 +240,7 @@ public class BoardPane extends LizziePane {
 
   /** Display the controls */
   void drawControls() {
+    Utils.mustBeEventDispatchThread();
     userAlreadyKnowsAboutCommandString = true;
 
     cachedImage = new BufferedImage(getWidth(), getHeight(), TYPE_INT_ARGB);
@@ -343,8 +365,8 @@ public class BoardPane extends LizziePane {
       if (!owner.isPlayingAgainstLeelaz
           || (owner.playerIsBlack == Lizzie.board.getData().blackToPlay))
         Lizzie.board.place(coords[0], coords[1]);
-      //      repaint();
-      //      owner.updateStatus();
+      repaint(); // for #772
+      owner.updateStatus();
     }
   }
 
@@ -445,23 +467,7 @@ public class BoardPane extends LizziePane {
   }
 
   public void doBranch(int moveTo) {
-    if (moveTo > 0) {
-      if (boardRenderer.isShowingNormalBoard()) {
-        setDisplayedBranchLength(2);
-      } else {
-        if (boardRenderer.getReplayBranch() > boardRenderer.getDisplayedBranchLength()) {
-          boardRenderer.incrementDisplayedBranchLength(1);
-        }
-      }
-    } else {
-      if (boardRenderer.isShowingNormalBoard()) {
-        setDisplayedBranchLength(boardRenderer.getReplayBranch());
-      } else {
-        if (boardRenderer.getDisplayedBranchLength() > 1) {
-          boardRenderer.incrementDisplayedBranchLength(-1);
-        }
-      }
-    }
+    boardRenderer.doBranch(moveTo);
   }
 
   public void addSuggestionAsBranch() {
@@ -521,17 +527,18 @@ public class BoardPane extends LizziePane {
     if (generateGif) {
       FileNameExtensionFilter filter = new FileNameExtensionFilter("*.gif", "GIF");
       JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-      JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+      JFileChooser chooser = new JFileChooser(filesystem.getString("last-image-folder"));
       chooser.setAcceptAllFileFilterUsed(false);
       chooser.setFileFilter(filter);
       chooser.setMultiSelectionEnabled(false);
-      int result = chooser.showSaveDialog(null);
+      int result = chooser.showSaveDialog(Lizzie.frame);
       if (result == JFileChooser.APPROVE_OPTION) {
         File file = chooser.getSelectedFile();
+        filesystem.put("last-image-folder", file.getParent());
         if (file.exists()) {
           int ret =
               JOptionPane.showConfirmDialog(
-                  null,
+                  Lizzie.frame,
                   resourceBundle.getString("LizzieFrame.prompt.fileExists"),
                   "Warning",
                   JOptionPane.OK_CANCEL_OPTION);
@@ -547,6 +554,7 @@ public class BoardPane extends LizziePane {
     int height = this.getHeight();
     int oriBranchLength = boardRenderer.getDisplayedBranchLength();
     isReplayVariation = true;
+    isPonderingBeforeReplayVariation = Lizzie.leelaz.isPondering();
     if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
     Runnable runnable =
         new Runnable() {
@@ -574,7 +582,8 @@ public class BoardPane extends LizziePane {
             }
             boardRenderer.setDisplayedBranchLength(oriBranchLength);
             isReplayVariation = false;
-            if (!Lizzie.leelaz.isPondering()) Lizzie.leelaz.togglePonder();
+            if (isPonderingBeforeReplayVariation && !Lizzie.leelaz.isPondering())
+              Lizzie.leelaz.togglePonder();
           }
         };
     Thread thread = new Thread(runnable);
@@ -593,9 +602,13 @@ public class BoardPane extends LizziePane {
     boardRenderer.drawEstimateRect(estimateArray, isZen);
   }
 
+  public void resetImages() {
+    boardRenderer.resetImages();
+  }
+
   public void saveImage() {
     JSONObject filesystem = Lizzie.config.persisted.getJSONObject("filesystem");
-    JFileChooser chooser = new JFileChooser(filesystem.getString("last-folder"));
+    JFileChooser chooser = new JFileChooser(filesystem.getString("last-image-folder"));
     chooser.setAcceptAllFileFilterUsed(false);
     //    String writerNames[] = ImageIO.getWriterFormatNames();
     FileNameExtensionFilter filter1 = new FileNameExtensionFilter("*.png", "PNG");
@@ -607,13 +620,23 @@ public class BoardPane extends LizziePane {
     chooser.addChoosableFileFilter(filter3);
     chooser.addChoosableFileFilter(filter4);
     chooser.setMultiSelectionEnabled(false);
-    int result = chooser.showSaveDialog(null);
+    int result = chooser.showSaveDialog(Lizzie.frame);
     if (result == JFileChooser.APPROVE_OPTION) {
       File file = chooser.getSelectedFile();
+      filesystem.put("last-image-folder", file.getParent());
+      String ext =
+          chooser.getFileFilter() instanceof FileNameExtensionFilter
+              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
+              : "";
+      if (!Utils.isBlank(ext)) {
+        if (!chooser.getFileFilter().accept(file)) {
+          file = new File(file.getPath() + "." + ext);
+        }
+      }
       if (file.exists()) {
         int ret =
             JOptionPane.showConfirmDialog(
-                null,
+                Lizzie.frame,
                 resourceBundle.getString("LizzieFrame.prompt.fileExists"),
                 "Warning",
                 JOptionPane.OK_CANCEL_OPTION);
@@ -621,21 +644,21 @@ public class BoardPane extends LizziePane {
           return;
         }
       }
-      String ext =
-          chooser.getFileFilter() instanceof FileNameExtensionFilter
-              ? ((FileNameExtensionFilter) chooser.getFileFilter()).getExtensions()[0].toLowerCase()
-              : "";
-      if (!Utils.isBlank(ext)) {
-        if (!file.getPath().toLowerCase().endsWith("." + ext)) {
-          file = new File(file.getPath() + "." + ext);
-        }
-      }
+      // Never use ARGB here for supporting JPG!
+      // (cf.)
+      // https://stackoverflow.com/questions/57673051/writing-jpg-or-jpeg-image-with-imageio-write-does-not-create-image-file
       BufferedImage bImg =
-          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_ARGB);
+          new BufferedImage(this.getWidth(), this.getHeight(), BufferedImage.TYPE_INT_RGB);
       Graphics2D cg = bImg.createGraphics();
       paintAll(cg);
       try {
-        ImageIO.write(bImg, ext, file);
+        boolean supported = ImageIO.write(bImg, ext, file);
+        if (!supported) {
+          String displayedMessage =
+              String.format("Failed to save \"%s\".\n(unsupported image format?)", file.getName());
+          JOptionPane.showMessageDialog(
+              Lizzie.frame, displayedMessage, "Lizzie - Error!", JOptionPane.ERROR_MESSAGE);
+        }
       } catch (IOException e) {
         e.printStackTrace();
       }

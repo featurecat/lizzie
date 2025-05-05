@@ -17,7 +17,6 @@ import java.text.ParseException;
 import java.util.ResourceBundle;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -25,7 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 /** @author unknown */
-public class NewGameDialog extends JDialog {
+public class NewGameDialog extends LizzieDialog {
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
   // create formatters
   public static final DecimalFormat FORMAT_KOMI = new DecimalFormat("#0.0");

@@ -7,6 +7,7 @@ import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
 import featurecat.lizzie.analysis.LeelazListener;
 import featurecat.lizzie.analysis.MoveData;
+import featurecat.lizzie.util.Utils;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.json.JSONException;
 
 public class Board implements LeelazListener {
@@ -58,6 +60,8 @@ public class Board implements LeelazListener {
   public boolean isAvoding = false;
   public boolean isKeepingAvoid = false;
 
+  public RegionOfInterest regionOfInterest = new RegionOfInterest();
+
   // Save the node for restore move when in the branch
   private Optional<BoardHistoryNode> saveNode;
 
@@ -93,6 +97,12 @@ public class Board implements LeelazListener {
     return new int[] {x, y};
   }
 
+  public static int[] getCoordKataGo(int index) {
+    int x = index % Board.boardWidth;
+    int y = (index - x) / Board.boardWidth;
+    return new int[] {x, y};
+  }
+
   /**
    * Converts a named coordinate eg C16, T5, K10, etc to an x and y coordinate
    *
@@ -110,7 +120,11 @@ public class Board implements LeelazListener {
     Pattern p = Pattern.compile(reg);
     Matcher m = p.matcher(namedCoordinate);
     if (m.find() && m.groupCount() == 2) {
-      int x = asDigit(m.group(1));
+      String xCoords = m.group(1);
+      int x =
+          xCoords.length() == 2
+              ? (asDigit(xCoords.substring(0, 1)) + 1) * 25 + asDigit(xCoords.substring(1, 2))
+              : asDigit(xCoords);
       int y = boardHeight - Integer.parseInt(m.group(2));
       return Optional.of(new int[] {x, y});
     } else {
@@ -221,6 +235,14 @@ public class Board implements LeelazListener {
       clear();
       Lizzie.leelaz.boardSize(boardWidth, boardHeight);
       Lizzie.frame.setForceRefresh(true);
+      Lizzie.frame.refresh();
+      Lizzie.frame.removeEstimateRect();
+      if (Lizzie.leelaz.isPondering()) {
+        // The above boardSize() stops pondering.
+        // To restart it, call togglePonder() twice.
+        Lizzie.leelaz.togglePonder(); // turn off
+        Lizzie.leelaz.togglePonder(); // turn on ==> restart pondering
+      }
     }
   }
 
@@ -410,6 +432,7 @@ public class Board implements LeelazListener {
       Stone[] stones = history.getStones().clone();
       Zobrist zobrist = history.getZobrist();
       int moveNumber = history.getMoveNumber() + 1;
+      int moveMNNumber = nextMoveMNNumber(newBranch);
       int[] moveNumberList =
           newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardWidth * Board.boardHeight]
@@ -430,6 +453,7 @@ public class Board implements LeelazListener {
               0.0,
               0,
               0.0);
+      newState.moveMNNumber = moveMNNumber;
       newState.dummy = dummy;
 
       // update leelaz with pass
@@ -447,6 +471,12 @@ public class Board implements LeelazListener {
   /** overloaded method for pass(), chooses color in an alternating pattern */
   public void pass() {
     pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
+  }
+
+  private int nextMoveMNNumber(boolean newBranch) {
+    boolean isNewSubBranch = newBranch && (history.getCurrentHistoryNode().numberOfChildren() > 0);
+    boolean isMissingMoveMNNumber = history.getMoveMNNumber() < 0;
+    return isNewSubBranch ? 1 : isMissingMoveMNNumber ? -1 : history.getMoveMNNumber() + 1;
   }
 
   /**
@@ -518,8 +548,7 @@ public class Board implements LeelazListener {
       Zobrist zobrist = history.getZobrist();
       Optional<int[]> lastMove = Optional.of(new int[] {x, y});
       int moveNumber = history.getMoveNumber() + 1;
-      int moveMNNumber =
-          history.getMoveMNNumber() > -1 && !newBranch ? history.getMoveMNNumber() + 1 : -1;
+      int moveMNNumber = nextMoveMNNumber(newBranch);
       int[] moveNumberList =
           newBranch && history.getNext(true).isPresent()
               ? new int[Board.boardWidth * Board.boardHeight]
@@ -612,6 +641,47 @@ public class Board implements LeelazListener {
     } else {
       pass(history.isBlacksTurn() ? Stone.BLACK : Stone.WHITE);
     }
+  }
+
+  // at least 5. increase this to avoid wrong detection of ladders
+  public final int MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION = 5;
+
+  public int continueLadder() {
+    int k;
+    // Repeating continueLadderByOne() is inefficient. So what? :p
+    for (k = 0; continueLadderByOne(); k++) ;
+    Lizzie.frame.refresh();
+    return k;
+  }
+
+  private boolean continueLadderByOne() {
+    final int PERIOD = 4, CHECK_LENGTH = MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION;
+    BoardHistoryList copiedHistory = history.shallowCopy();
+    int[][] pastMove = new int[CHECK_LENGTH][];
+    int dx = 0, dy = 0;
+    for (int k = 0; k < CHECK_LENGTH; k++) {
+      Optional<int[]> lastMoveOpt = copiedHistory.getLastMove();
+      if (!lastMoveOpt.isPresent()) return false;
+      int[] move = pastMove[k] = lastMoveOpt.get();
+      copiedHistory.previous();
+      if (k < PERIOD) continue;
+      // check repeated pattern
+      int[] periodMove = pastMove[k - PERIOD];
+      int deltaX = periodMove[0] - move[0], deltaY = periodMove[1] - move[1];
+      if (k == PERIOD) { // first periodical move
+        dx = deltaX;
+        dy = deltaY;
+      }
+      boolean isRepeated = (deltaX == dx && deltaY == dy);
+      boolean isDiagonal = (Math.abs(deltaX) == 1 && Math.abs(deltaY) == 1);
+      if (!isRepeated || !isDiagonal) return false;
+    }
+    int[] myPeriodMove = pastMove[PERIOD - 1];
+    int x = myPeriodMove[0] + dx, y = myPeriodMove[1] + dy;
+    boolean continued = isValidEmpty(x, y) && isValidEmpty(x + dx, y) && isValidEmpty(x, y + dy);
+    if (!continued) return false;
+    place(x, y);
+    return true;
   }
 
   /** for handicap */
@@ -823,15 +893,10 @@ public class Board implements LeelazListener {
 
   /** Restore move number by node */
   public void restoreMoveNumber(BoardHistoryNode node) {
-    Stone[] stones = history.getStones();
-    for (int i = 0; i < stones.length; i++) {
-      Stone stone = stones[i];
-      if (stone.isBlack() || stone.isWhite()) {
-        int y = i % Board.boardWidth;
-        int x = (i - y) / Board.boardHeight;
-        Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
-      }
-    }
+    Lizzie.leelaz.clear();
+    boolean blackToPlay = node.getData().blackToPlay;
+    restoreInitialStones(blackToPlay);
+    restoreInitialStones(!blackToPlay);
     int moveNumber = node.getData().moveNumber;
     if (moveNumber > 0) {
       if (node.isMainTrunk()) {
@@ -839,6 +904,18 @@ public class Board implements LeelazListener {
       } else {
         // If in Branch, restore by the back routing
         goToMoveNumberByBackChildren(moveNumber);
+      }
+    }
+  }
+
+  private void restoreInitialStones(boolean isBlack) {
+    Stone[] stones = history.getStones();
+    for (int i = 0; i < stones.length; i++) {
+      Stone stone = stones[i];
+      if (isBlack ? stone.isBlack() : stone.isWhite()) {
+        int y = i % Board.boardWidth;
+        int x = (i - y) / Board.boardHeight;
+        Lizzie.leelaz.playMove(stone, convertCoordinatesToName(x, y));
       }
     }
   }
@@ -1066,7 +1143,7 @@ public class Board implements LeelazListener {
         // Will delete more than one move, ask for confirmation
         int ret =
             JOptionPane.showConfirmDialog(
-                null,
+                Lizzie.frame,
                 "This will delete all moves and branches after this move",
                 "Delete",
                 JOptionPane.OK_CANCEL_OPTION);
@@ -1140,6 +1217,9 @@ public class Board implements LeelazListener {
   }
 
   public void setScoreMode(boolean on) {
+    if (history.getMoveNumber() == 0) {
+      on = false;
+    }
     if (on) {
       // load a copy of the data at the current node of history
       capturedStones = history.getStones().clone();
@@ -1147,6 +1227,7 @@ public class Board implements LeelazListener {
       capturedStones = new Stone[] {};
     }
     scoreMode = on;
+    Lizzie.frame.updateScoreMenu(on);
   }
 
   /*
@@ -1385,10 +1466,13 @@ public class Board implements LeelazListener {
       Lizzie.leelaz.removeListener(this);
       analysisMode = false;
     } else {
-      if (!getNextMove().isPresent()) return;
+      if (!getNextMove().isPresent()) {
+        JOptionPane.showMessageDialog(Lizzie.frame, "No next move.");
+        return;
+      }
       String answer =
           JOptionPane.showInputDialog(
-              "# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
+              Lizzie.frame, "# playouts for analysis (e.g. 100 (fast) or 50000 (slow)): ");
       try {
         playoutsAnalysis = Integer.parseInt(answer);
       } catch (NumberFormatException err) {
@@ -1402,6 +1486,11 @@ public class Board implements LeelazListener {
   }
 
   public void bestMoveNotification(List<MoveData> bestMoves) {
+    SwingUtilities.invokeLater(() -> bestMoveNotificationInEDT(bestMoves));
+  }
+
+  private void bestMoveNotificationInEDT(List<MoveData> bestMoves) {
+    Utils.mustBeEventDispatchThread();
     if (analysisMode) {
       boolean isSuccessivePass =
           (history.getPrevious().isPresent()
@@ -1422,6 +1511,10 @@ public class Board implements LeelazListener {
           sum += move.playouts;
         }
         if (sum >= playoutsAnalysis) {
+          // We need to call this "nextMove()" in EDT.
+          // Otherwise, it can flip history.isBlacksTurn() BEFORE
+          // drawEstimateRectKataInEDT().
+          // Then the ownerships are drawn with wrong colors.
           nextMove();
         }
       }
@@ -1640,6 +1733,10 @@ public class Board implements LeelazListener {
       return false;
     }
     return true;
+  }
+
+  private boolean isValidEmpty(int x, int y) {
+    return isValid(x, y) && isCoordsEmpty(x, y);
   }
 
   public boolean setAsMainBranch() {

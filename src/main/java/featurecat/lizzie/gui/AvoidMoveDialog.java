@@ -9,7 +9,6 @@ import java.text.NumberFormat;
 import java.util.ResourceBundle;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,7 +18,7 @@ import javax.swing.SwingConstants;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 
-public class AvoidMoveDialog extends JDialog {
+public class AvoidMoveDialog extends LizzieDialog {
   public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
   private JRadioButton rdoAvoid;
   private JRadioButton rdoAllow;

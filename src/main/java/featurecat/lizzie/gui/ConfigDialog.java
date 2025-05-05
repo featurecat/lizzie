@@ -41,13 +41,11 @@ import java.nio.file.Path;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -82,6 +80,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -99,37 +98,37 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ConfigDialog extends JDialog {
+public class ConfigDialog extends LizzieDialog {
   public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
 
   public String enginePath = "";
   public String weightPath = "";
+  public String configPath = "";
   public String commandHelp = "";
 
-  private String osName;
   private Path curPath;
   private BufferedInputStream inputStream;
   private JSONObject leelazConfig;
   private List<String> fontList;
   private Theme theme;
 
-  public JPanel uiTab;
-  public JPanel themeTab;
-  public JPanel aboutTab;
+  public PanelWithToolTip uiTab;
+  public PanelWithToolTip themeTab;
+  public PanelWithToolTip aboutTab;
   public JButton okButton;
 
   // Engine Tab
-  private JTextField txtEngine;
-  private JTextField txtEngine1;
-  private JTextField txtEngine2;
-  private JTextField txtEngine3;
-  private JTextField txtEngine4;
-  private JTextField txtEngine5;
-  private JTextField txtEngine6;
-  private JTextField txtEngine7;
-  private JTextField txtEngine8;
-  private JTextField txtEngine9;
-  private JTextField[] txts;
+  private LeftTextField txtEngine;
+  private LeftTextField txtEngine1;
+  private LeftTextField txtEngine2;
+  private LeftTextField txtEngine3;
+  private LeftTextField txtEngine4;
+  private LeftTextField txtEngine5;
+  private LeftTextField txtEngine6;
+  private LeftTextField txtEngine7;
+  private LeftTextField txtEngine8;
+  private LeftTextField txtEngine9;
+  private LeftTextField[] txts;
   private JCheckBox chkPreload1;
   private JCheckBox chkPreload2;
   private JCheckBox chkPreload3;
@@ -223,9 +222,7 @@ public class ConfigDialog extends JDialog {
   public ConfigDialog() {
     setTitle(resourceBundle.getString("LizzieConfig.title.config"));
     setModalityType(ModalityType.APPLICATION_MODAL);
-    if (isWindows()) { // avoid suspicious behavior on Linux (#616)
-      setType(Type.POPUP);
-    }
+    setType(Type.POPUP);
     setBounds(100, 100, 661, 716);
     getContentPane().setLayout(new BorderLayout());
     JPanel buttonPane = new JPanel();
@@ -235,6 +232,7 @@ public class ConfigDialog extends JDialog {
     okButton.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
+            finalizeEditedBlunderColors();
             setVisible(false);
             saveConfig();
             applyChange();
@@ -256,7 +254,7 @@ public class ConfigDialog extends JDialog {
     tabbedPane = new JTabbedPane(JTabbedPane.TOP);
     getContentPane().add(tabbedPane, BorderLayout.CENTER);
 
-    JPanel engineTab = new JPanel();
+    PanelWithToolTip engineTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.engine"), null, engineTab, null);
     engineTab.setLayout(null);
 
@@ -270,7 +268,7 @@ public class ConfigDialog extends JDialog {
     lblEngine.setHorizontalAlignment(SwingConstants.LEFT);
     engineTab.add(lblEngine);
 
-    txtEngine = new JTextField();
+    txtEngine = new LeftTextField();
     txtEngine.setBounds(87, 40, 481, 26);
     engineTab.add(txtEngine);
     txtEngine.setColumns(10);
@@ -285,7 +283,7 @@ public class ConfigDialog extends JDialog {
     lblEngine1.setBounds(6, 80, 92, 16);
     engineTab.add(lblEngine1);
 
-    txtEngine2 = new JTextField();
+    txtEngine2 = new LeftTextField();
     txtEngine2.setColumns(10);
     txtEngine2.setBounds(87, 105, 481, 26);
     engineTab.add(txtEngine2);
@@ -298,7 +296,7 @@ public class ConfigDialog extends JDialog {
     lblEngine2.setBounds(6, 110, 92, 16);
     engineTab.add(lblEngine2);
 
-    txtEngine1 = new JTextField();
+    txtEngine1 = new LeftTextField();
     txtEngine1.setColumns(10);
     txtEngine1.setBounds(87, 75, 481, 26);
     engineTab.add(txtEngine1);
@@ -311,7 +309,7 @@ public class ConfigDialog extends JDialog {
     lblEngine3.setBounds(6, 140, 92, 16);
     engineTab.add(lblEngine3);
 
-    txtEngine3 = new JTextField();
+    txtEngine3 = new LeftTextField();
     txtEngine3.setColumns(10);
     txtEngine3.setBounds(87, 135, 481, 26);
     engineTab.add(txtEngine3);
@@ -324,7 +322,7 @@ public class ConfigDialog extends JDialog {
     lblEngine4.setBounds(6, 170, 92, 16);
     engineTab.add(lblEngine4);
 
-    txtEngine4 = new JTextField();
+    txtEngine4 = new LeftTextField();
     txtEngine4.setColumns(10);
     txtEngine4.setBounds(87, 165, 481, 26);
     engineTab.add(txtEngine4);
@@ -337,7 +335,7 @@ public class ConfigDialog extends JDialog {
     lblEngine5.setBounds(6, 200, 92, 16);
     engineTab.add(lblEngine5);
 
-    txtEngine5 = new JTextField();
+    txtEngine5 = new LeftTextField();
     txtEngine5.setColumns(10);
     txtEngine5.setBounds(87, 195, 481, 26);
     engineTab.add(txtEngine5);
@@ -350,7 +348,7 @@ public class ConfigDialog extends JDialog {
     lblEngine6.setBounds(6, 230, 92, 16);
     engineTab.add(lblEngine6);
 
-    txtEngine6 = new JTextField();
+    txtEngine6 = new LeftTextField();
     txtEngine6.setColumns(10);
     txtEngine6.setBounds(87, 225, 481, 26);
     engineTab.add(txtEngine6);
@@ -363,7 +361,7 @@ public class ConfigDialog extends JDialog {
     lblEngine7.setBounds(6, 260, 92, 16);
     engineTab.add(lblEngine7);
 
-    txtEngine7 = new JTextField();
+    txtEngine7 = new LeftTextField();
     txtEngine7.setColumns(10);
     txtEngine7.setBounds(87, 255, 481, 26);
     engineTab.add(txtEngine7);
@@ -376,7 +374,7 @@ public class ConfigDialog extends JDialog {
     lblEngine8.setBounds(6, 290, 92, 16);
     engineTab.add(lblEngine8);
 
-    txtEngine8 = new JTextField();
+    txtEngine8 = new LeftTextField();
     txtEngine8.setColumns(10);
     txtEngine8.setBounds(87, 285, 481, 26);
     engineTab.add(txtEngine8);
@@ -384,7 +382,7 @@ public class ConfigDialog extends JDialog {
     chkPreload8.setBounds(570, 286, 23, 23);
     engineTab.add(chkPreload8);
 
-    txtEngine9 = new JTextField();
+    txtEngine9 = new LeftTextField();
     txtEngine9.setColumns(10);
     txtEngine9.setBounds(87, 315, 481, 26);
     engineTab.add(txtEngine9);
@@ -658,17 +656,17 @@ public class ConfigDialog extends JDialog {
     chkPrintEngineLog.setBounds(167, 425, 201, 23);
     engineTab.add(chkPrintEngineLog);
 
-    uiTab = new JPanel();
+    uiTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.ui"), null, uiTab, null);
     uiTab.setLayout(null);
 
     // Theme Tab
-    themeTab = new JPanel();
+    themeTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.theme"), null, themeTab, null);
     themeTab.setLayout(null);
 
     // About Tab
-    aboutTab = new JPanel();
+    aboutTab = new PanelWithToolTip();
     tabbedPane.addTab(resourceBundle.getString("LizzieConfig.title.about"), null, aboutTab, null);
 
     JLabel lblLizzieName = new JLabel("Lizzie " + Lizzie.lizzieVersion);
@@ -684,7 +682,7 @@ public class ConfigDialog extends JDialog {
 
     LinkLabel lblContributors =
         new LinkLabel(resourceBundle.getString("LizzieConfig.lizzie.contributors"));
-    lblContributors.setFont(new Font("Tahoma", Font.PLAIN, 14));
+    lblContributors.setFont(new Font("Tahoma", Font.PLAIN, 12));
     GroupLayout gl = new GroupLayout(aboutTab);
     gl.setHorizontalGroup(
         gl.createParallelGroup(Alignment.LEADING)
@@ -738,7 +736,7 @@ public class ConfigDialog extends JDialog {
 
     // Engines
     txts =
-        new JTextField[] {
+        new LeftTextField[] {
           txtEngine1,
           txtEngine2,
           txtEngine3,
@@ -761,6 +759,9 @@ public class ConfigDialog extends JDialog {
                     txts[i].setText(a.getString(i));
                   });
         });
+    Arrays.asList(txts)
+        .stream()
+        .forEach(t -> t.setToolTipText("Engine Command or <Label> Engine Command"));
 
     chkPreloads =
         new JCheckBox[] {
@@ -792,7 +793,6 @@ public class ConfigDialog extends JDialog {
         String.valueOf(leelazConfig.getInt("max-game-thinking-time-seconds")));
     chkPrintEngineLog.setSelected(leelazConfig.getBoolean("print-comms"));
     curPath = (new File("")).getAbsoluteFile().toPath();
-    osName = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
     setShowLcbWinrate();
     JLabel lblBoardSize = new JLabel(resourceBundle.getString("LizzieConfig.title.boardSize"));
     lblBoardSize.setBounds(6, 6, 67, 16);
@@ -1101,7 +1101,7 @@ public class ConfigDialog extends JDialog {
 
     JLabel lblNotRefreshVaritions =
         new JLabel(resourceBundle.getString("LizzieConfig.title.notRefreshVariation"));
-    lblNotRefreshVaritions.setBounds(372, 308, 187, 16);
+    lblNotRefreshVaritions.setBounds(372, 308, 157, 16);
     uiTab.add(lblNotRefreshVaritions);
     chkNotRefreshVariation = new JCheckBox("");
     chkNotRefreshVariation.setBounds(536, 305, 57, 23);
@@ -1131,7 +1131,7 @@ public class ConfigDialog extends JDialog {
             }
           }
         });
-    sldBoardPositionProportion.setValue(4);
+    sldBoardPositionProportion.setValue(Lizzie.frame.boardPositionProportion);
     sldBoardPositionProportion.setMaximum(8);
     sldBoardPositionProportion.setBounds(170, 333, 200, 28);
     uiTab.add(sldBoardPositionProportion);
@@ -1213,7 +1213,6 @@ public class ConfigDialog extends JDialog {
     chkShowBestMovesByHold.setSelected(Lizzie.config.showBestMovesByHold);
     chkNotRefreshVariation.setSelected(Lizzie.config.notRefreshVariation);
     chkColorByWinrateInsteadOfVisits.setSelected(Lizzie.config.colorByWinrateInsteadOfVisits);
-    sldBoardPositionProportion.setValue(Lizzie.config.boardPositionProportion);
     txtLimitBestMoveNum.setText(String.valueOf(Lizzie.config.limitBestMoveNum));
     txtLimitBranchLength.setText(String.valueOf(Lizzie.config.limitBranchLength));
     chkShowWinrateInSuggestion.setSelected(Lizzie.config.showWinrateInSuggestion);
@@ -1541,7 +1540,7 @@ public class ConfigDialog extends JDialog {
       btnAdd.addActionListener(
           new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              ((BlunderNodeTableModel) tblBlunderNodes.getModel()).addRow("", Color.WHITE);
+              ((BlunderNodeTableModel) tblBlunderNodes.getModel()).addRow(null, Color.WHITE);
             }
           });
       themeTab.add(btnAdd);
@@ -1683,7 +1682,12 @@ public class ConfigDialog extends JDialog {
                 int squareLength = 30;
                 int stoneRadius = squareLength < 4 ? 1 : squareLength / 2 - 1;
                 int size = stoneRadius * 2 + 1;
-                double r = stoneRadius * Lizzie.config.shadowSize / 100;
+                double r =
+                    stoneRadius
+                        * (theme == null || cmbThemes.getSelectedIndex() <= 0
+                            ? Lizzie.config.shadowSize
+                            : theme.shadowSize())
+                        / 100;
                 int shadowSize = (int) (r * 0.3) == 0 ? 1 : (int) (r * 0.3);
                 int fartherShadowSize = (int) (r * 0.17) == 0 ? 1 : (int) (r * 0.17);
                 int stoneX = x + squareLength * 2;
@@ -1815,7 +1819,32 @@ public class ConfigDialog extends JDialog {
     @Override
     protected void done() {
       okButton.setEnabled(true);
-      pnlBoardPreview.repaint();
+      tabbedPane.repaint();
+    }
+  }
+
+  private class PanelWithToolTip extends JPanel {
+    public void add(JLabel label) {
+      String texts[] = label.getText().split("\n", 2);
+      String labelText = texts[0];
+      String toolTipText = (texts.length >= 2) ? texts[1] : labelText;
+      String displayedText =
+          SwingUtilities.layoutCompoundLabel(
+              label,
+              label.getFontMetrics(label.getFont()),
+              labelText,
+              label.getIcon(),
+              label.getVerticalAlignment(),
+              label.getHorizontalAlignment(),
+              label.getVerticalTextPosition(),
+              label.getHorizontalTextPosition(),
+              label.getBounds(),
+              label.getBounds(),
+              label.getBounds(),
+              label.getIconTextGap());
+      label.setText(labelText);
+      if (displayedText != toolTipText) label.setToolTipText(toolTipText);
+      super.add(label);
     }
   }
 
@@ -1829,17 +1858,15 @@ public class ConfigDialog extends JDialog {
           new FileNameExtensionFilter(
               resourceBundle.getString("LizzieConfig.title.engine"), "exe", "bat", "sh");
       chooser.setFileFilter(filter);
-    } else {
-      setVisible(false);
     }
+
     chooser.setMultiSelectionEnabled(false);
     chooser.setDialogTitle(resourceBundle.getString("LizzieConfig.prompt.selectEngine"));
     int result = chooser.showOpenDialog(this);
     if (result == JFileChooser.APPROVE_OPTION) {
       engineFile = chooser.getSelectedFile();
       if (engineFile != null) {
-        enginePath = engineFile.getAbsolutePath();
-        enginePath = relativizePath(engineFile.toPath(), this.curPath);
+        enginePath = relativizePath(engineFile.toPath(), this.curPath, true);
         getCommandHelp();
         JFileChooser chooserw = new JFileChooser(".");
         chooserw.setMultiSelectionEnabled(false);
@@ -1849,7 +1876,9 @@ public class ConfigDialog extends JDialog {
           weightFile = chooserw.getSelectedFile();
           if (weightFile != null) {
             weightPath = relativizePath(weightFile.toPath(), this.curPath);
-            EngineParameter ep = new EngineParameter(enginePath, weightPath, this);
+            configPath = selectConfigFile();
+            EngineParameter ep =
+                new EngineParameter(enginePath, weightPath, configPath, guessedEngineType(), this);
             ep.setVisible(true);
             if (!ep.commandLine.isEmpty()) {
               engineLine = ep.commandLine;
@@ -1859,6 +1888,27 @@ public class ConfigDialog extends JDialog {
       }
     }
     return engineLine;
+  }
+
+  private String selectConfigFile() {
+    if (!guessedEngineType().equals("katago")) return "";
+    String titleKey = "LizzieConfig.prompt.selectConfig";
+    // dare to copy code redundantly to keep the original code as much as possible
+    JFileChooser chooser = new JFileChooser(".");
+    chooser.setMultiSelectionEnabled(false);
+    chooser.setDialogTitle(resourceBundle.getString(titleKey));
+    int result = chooser.showOpenDialog(this);
+    if (result != JFileChooser.APPROVE_OPTION) return "";
+    File file = chooser.getSelectedFile();
+    if (file == null) return "";
+    return relativizePath(file.toPath(), this.curPath);
+  }
+
+  private String guessedEngineType() {
+    String engineFileName = (new File(enginePath)).toPath().getFileName().toString();
+    // fixme: ad hoc!
+    Boolean isKataGo = engineFileName.toLowerCase().contains("katago");
+    return isKataGo ? "katago" : "leelaz";
   }
 
   private String getImagePath() {
@@ -1883,11 +1933,19 @@ public class ConfigDialog extends JDialog {
   }
 
   private String relativizePath(Path path, Path curPath) {
+    return relativizePath(path, curPath, false);
+  }
+
+  private String relativizePath(Path path, Path curPath, Boolean isCommand) {
     Path relatPath;
     if (path.startsWith(curPath)) {
       relatPath = curPath.relativize(path);
     } else {
       relatPath = path;
+    }
+    if (isCommand && relatPath.getFileName().equals(relatPath) && !isWindows()) {
+      // "leelaz" ==> "./leelaz" for Linux
+      relatPath = (new File(".")).toPath().resolve(relatPath);
     }
     return relatPath.toString();
   }
@@ -1896,12 +1954,14 @@ public class ConfigDialog extends JDialog {
 
     List<String> commands = new ArrayList<String>();
     commands.add(enginePath);
+    if (guessedEngineType().equals("katago")) {
+      commands.add("gtp");
+    }
     commands.add("-h");
 
-    ProcessBuilder processBuilder = new ProcessBuilder(commands);
-    processBuilder.directory();
-    processBuilder.redirectErrorStream(true);
     try {
+      ProcessBuilder processBuilder = new ProcessBuilder(commands);
+      processBuilder.redirectErrorStream(true);
       Process process = processBuilder.start();
       inputStream = new BufferedInputStream(process.getInputStream());
       ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
@@ -1925,6 +1985,7 @@ public class ConfigDialog extends JDialog {
   }
 
   private void applyChange() {
+    Lizzie.config.applyTheme();
     int[] size = getBoardSize();
     Lizzie.board.reopen(size[0], size[1]);
     if (Lizzie.engineManager == null) {
@@ -1937,6 +1998,9 @@ public class ConfigDialog extends JDialog {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    Lizzie.frame.resetImages();
+    Lizzie.frame.refreshBackground();
+    Lizzie.frame.refresh();
   }
 
   private Integer txtFieldIntValue(JTextField txt) {
@@ -2088,7 +2152,7 @@ public class ConfigDialog extends JDialog {
       if (blunderWinrateThresholds != null) {
         for (Double d : blunderWinrateThresholds) {
           Vector<Object> row = new Vector<Object>();
-          row.add(String.valueOf(d));
+          row.add(d);
           row.add(blunderNodeColors.get(d));
           data.add(row);
         }
@@ -2097,7 +2161,7 @@ public class ConfigDialog extends JDialog {
 
     public JSONArray getThresholdArray() {
       JSONArray thresholds = new JSONArray("[]");
-      data.forEach(d -> thresholds.put(new Double((String) d.get(0))));
+      data.forEach(d -> thresholds.put(toDouble(d.get(0))));
       return thresholds;
     }
 
@@ -2107,7 +2171,7 @@ public class ConfigDialog extends JDialog {
       return colors;
     }
 
-    public void addRow(String threshold, Color color) {
+    public void addRow(Double threshold, Color color) {
       Vector<Object> row = new Vector<Object>();
       row.add(threshold);
       row.add(color);
@@ -2118,7 +2182,7 @@ public class ConfigDialog extends JDialog {
     public void removeRow(int index) {
       if (index >= 0 && index < data.size()) {
         data.remove(index);
-        fireTableRowsDeleted(0, data.size() - 1);
+        fireTableRowsDeleted(index, index);
       }
     }
 
@@ -2139,7 +2203,7 @@ public class ConfigDialog extends JDialog {
     }
 
     public Class<?> getColumnClass(int c) {
-      return getValueAt(0, c).getClass();
+      return c == 0 ? Double.class : Color.class;
     }
 
     public void setValueAt(Object value, int row, int col) {
@@ -2150,10 +2214,24 @@ public class ConfigDialog extends JDialog {
     public boolean isCellEditable(int row, int col) {
       return true;
     }
-  }
 
-  public boolean isWindows() {
-    return osName != null && !osName.contains("darwin") && osName.contains("win");
+    private double toDouble(Object x) {
+      final double invalid = 0.0;
+      try {
+        return (Double) x;
+      } catch (Exception e) {
+        return invalid;
+      }
+    }
+
+    public void sortData() {
+      data.sort(
+          new Comparator<Vector<Object>>() {
+            public int compare(Vector<Object> a, Vector<Object> b) {
+              return Double.compare(toDouble(a.get(0)), toDouble(b.get(0)));
+            }
+          });
+    }
   }
 
   private void setShowLcbWinrate() {
@@ -2477,6 +2555,14 @@ public class ConfigDialog extends JDialog {
         ((BlunderNodeTableModel) tblBlunderNodes.getModel()).getColorArray());
   }
 
+  private void finalizeEditedBlunderColors() {
+    if (tblBlunderNodes == null) return;
+    TableCellEditor editor = tblBlunderNodes.getCellEditor();
+    BlunderNodeTableModel model = (BlunderNodeTableModel) tblBlunderNodes.getModel();
+    if (editor != null) editor.stopCellEditing();
+    if (model != null) model.sortData();
+  }
+
   private void saveConfig() {
     try {
       leelazConfig.putOpt("max-analyze-time-minutes", txtFieldIntValue(txtMaxAnalyzeTime));
@@ -2571,16 +2657,5 @@ public class ConfigDialog extends JDialog {
 
   public void switchTab(int index) {
     tabbedPane.setSelectedIndex(index);
-    if (index == 2) {
-      Timer timer = new Timer();
-      timer.schedule(
-          new TimerTask() {
-            public void run() {
-              tabbedPane.repaint();
-              this.cancel();
-            }
-          },
-          100);
-    }
   }
 }

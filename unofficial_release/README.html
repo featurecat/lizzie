@@ -1,0 +1,73 @@
+<html>
+<head><meta charset="utf-8" /><title>README</title></head>
+<body>
+
+<h1>Lizzie patched-0.7.4</h1>
+
+<p>
+(<a href="README.html">English</a> / <a href="README_ja.html">日本語</a>)
+</p>
+
+<p>
+(Unofficial Windows package) This is an ALL-IN-ONE package of <a href="https://github.com/featurecat/lizzie">Lizzie</a>, one of the most popular tools for Go AI. You need no installation, no Java setup, no GPU to enjoy it.
+</p>
+
+<h2>Contents</h2>
+
+<ul>
+<li>Lizzie: <a href="https://github.com/featurecat/lizzie/issues/798">patched-0.7.4</a> on 2025-04-05 (Major bugs in Lizzie 0.7.4 are fixed.)</li>
+<li>KataGo: <a href="https://github.com/lightvector/KataGo/releases/tag/v1.15.1">1.15.1</a> + <a href="https://katagotraining.org/networks/">18 block network</a> (kata1-b18c384nbt-s9996) + <a href="https://github.com/lightvector/KataGo/releases/tag/v1.15.0">human SL model</a> (b18c384nbt-humanv0)</li>
+<li>Java: minimum runtime environment for Lizzie (from <a href="http://openjdk.java.net/">OpenJDK 11</a>)
+</li>
+</ul>
+
+<h2>Usage</h2>
+
+<font color="red">Right-click the downloaded file to UNZIP it (Never double-click the zip file directly to open it).</font> Then just double-click "Lizzie" (Lizzie.vbs) in it. Press SPACE key to stop/start analysis. You may want to switch the rule from "Analyze" menu. You can also switch among four AIs from "Engine" menu:
+<ul>
+<li>KataGo (CPU): Slow but simple to use</li>
+<li>KataGo (GPU): Faster if your GPU works properly. Note that the initial tuning takes a long time on the first run.</li>
+<li>Human-like (CPU): Play against human-like AI. You can set the humanSL profile, e.g., "rank_5k" (5 kyu) or "proyear_1960" (professional style in 1960), from the Game menu. This doesn't affect the analysis; it only impacts the gameplay.</li>
+<li>Human-like (GPU): Same as above.</li>
+</ul>
+
+<h2>Original feature</h2>
+
+<h3>Stone entropy</h3>
+
+<p>
+If this feature is activated via the menu (View &gt; KataGo settings &gt; Estimate info &gt; Show stone entropy), red dots will be plotted on the winrate chart. Their height indicates the uncertainty of the stones' life/death status. They tend to be higher in heated situations involving large capturing races or miai. Should they not be displayed, open the menu (View &gt; KataGo settings &gt; Estimate info &gt; Display) and enable it.
+</p>
+
+<p>
+This feature was imported from <a href="https://github.com/kaorahi/lizgoban">LizGoban</a>. (I am giving up on integrating this feature into the original Lizzie, as it depends on other proposed changes that have not yet been accepted.)
+</p>
+
+<h2>License</h2>
+
+<ul>
+<li><a href="https://github.com/featurecat/lizzie/blob/master/LICENSE.txt">Lizzie</a></li>
+<li><a href="https://github.com/lightvector/KataGo/blob/master/LICENSE">KataGo</a> (<a href="https://katagotraining.org/network_license/">neural network</a>)</li>
+<li><a href="jre/legal/">Java</a></li>
+</ul>
+
+<h2>Changes</h2>
+
+<ul>
+<li>250405a: minor fix on version warning</li>
+<li>240720b: KataGo 1.15.1, human-like play, removed old CPU support</li>
+<li>231231a: KataGo 1.14.0, stone entropy plot, minor fixes</li>
+<li>220510a: KataGo 1.11.0, fix of flicker in auto-analysis</li>
+<li>211211b: workaround for non-ASCII path names again (thx &gt; Eba san)</li>
+<li>211211a: updated translations (ru, ja)</li>
+<li>211113a: <a href="https://github.com/featurecat/lizzie/pull/904">auto-continuation of ladders</a></li>
+<li>211026a: KataGo 1.10.0</li>
+<li>210912a: improved winrate bar, etc.</li>
+<li>210826a: bug fix for SGF &amp; tooltips for Setting menu</li>
+<li>210710a: bug fixes for engine menu and dual display</li>
+<li>210704b: workaround for non-ASCII path names (thx &gt; Eba san)</li>
+<li>210704a: initial version</li>
+</ul>
+
+</body>
+</html>

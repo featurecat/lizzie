@@ -83,6 +83,10 @@ public class SubBoardPane extends LizziePane {
         });
   }
 
+  protected void checkRightClick(MouseEvent e) {
+    // cancel default behavior of LizziePane
+  }
+
   /**
    * Draws the game board and interface
    *
@@ -136,6 +140,10 @@ public class SubBoardPane extends LizziePane {
     bsGraphics.dispose();
     // TODO BufferStrategy does not support transparent background?
     //    bs.show();
+  }
+
+  public void resetImages() {
+    subBoardRenderer.resetImages();
   }
 
   /**

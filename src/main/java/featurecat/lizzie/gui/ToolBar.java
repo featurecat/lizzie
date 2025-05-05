@@ -212,7 +212,7 @@ public class ToolBar extends JToolBar {
     forward10.addActionListener(
         new ActionListener() {
           public void actionPerformed(ActionEvent e) {
-            Input.redo(1);
+            Input.redo(10);
           }
         });
     add(forward10);

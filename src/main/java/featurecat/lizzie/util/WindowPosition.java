@@ -39,6 +39,7 @@ public class WindowPosition {
 
     ui.put("window-maximized", false);
     ui.put("toolbar-position", "South");
+    ui.put("gtp-console-opened", false);
 
     return ui;
   }
@@ -52,6 +53,7 @@ public class WindowPosition {
     ui.put("window-maximized", windowIsMaximized);
     ui.put("toolbar-position", Lizzie.config.toolbarPosition);
     ui.put("board-position-proportion", Lizzie.frame.boardPositionProportion);
+    ui.put("gtp-console-opened", Lizzie.gtpConsole.isVisible());
 
     JSONArray mainPos = new JSONArray();
     if (!windowIsMaximized) {

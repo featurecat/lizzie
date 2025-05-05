@@ -14,7 +14,6 @@ import java.util.ResourceBundle;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,7 +25,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.InternationalFormatter;
 
-public class ChangeMoveDialog extends JDialog {
+public class ChangeMoveDialog extends LizzieDialog {
   public final ResourceBundle resourceBundle = MainFrame.resourceBundle;
   private JRadioButton rdoChangeCoord;
   private JRadioButton rdoPass;

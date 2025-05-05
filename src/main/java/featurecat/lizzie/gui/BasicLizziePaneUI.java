@@ -204,7 +204,7 @@ public class BasicLizziePaneUI extends LizziePaneUI implements SwingConstants {
    * @return a <code>RootPaneContainer</code> object, containing the lizziePane.
    */
   protected RootPaneContainer createFloatingWindow(LizziePane lizziePane) {
-    class LizziePaneDialog extends JDialog {
+    class LizziePaneDialog extends LizzieDialog {
       public LizziePaneDialog(Frame owner, String title, boolean modal) {
         super(owner, title, modal);
       }

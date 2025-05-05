@@ -1,3 +1,7 @@
+.classpath
+.project
+.settings
+gtp.log
 persist.properties
 persist
 lizzie.properties
@@ -15,3 +19,4 @@ target
 leelaz_opencl_tuning
 *.sh
 *.jar
+gtp_logs

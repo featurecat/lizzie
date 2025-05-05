@@ -2,9 +2,11 @@ package featurecat.lizzie.gui;
 
 import featurecat.lizzie.Lizzie;
 import featurecat.lizzie.analysis.Leelaz;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.imageio.ImageIO;
@@ -22,7 +24,104 @@ public class Menu extends JMenuBar {
   public static ImageIcon ready;
   public static JMenuItem[] engine;
   public static JMenu engineMenu;
+  private static JCheckBoxMenuItem scoreMode;
   private static final ResourceBundle resourceBundle = MainFrame.resourceBundle;
+
+  private static JMenu kataGoRuleMenu;
+  private static JMenu setHumanSLProfile;
+  private static final String[] kataGoRuleNames = {
+    "tromp-taylor",
+    "chinese",
+    "chinese-ogs",
+    "chinese-kgs",
+    "japanese",
+    "korean",
+    "stone-scoring",
+    "aga",
+    "bga",
+    "new-zealand",
+    "aga-button",
+  };
+  private static final String[] humaSLProfilesRank = {
+    "rank_9d",
+    "rank_8d",
+    "rank_7d",
+    "rank_6d",
+    "rank_5d",
+    "rank_4d",
+    "rank_3d",
+    "rank_2d",
+    "rank_1d",
+    "rank_1k",
+    "rank_2k",
+    "rank_3k",
+    "rank_4k",
+    "rank_5k",
+    "rank_6k",
+    "rank_7k",
+    "rank_8k",
+    "rank_9k",
+    "rank_10k",
+    "rank_11k",
+    "rank_12k",
+    "rank_13k",
+    "rank_14k",
+    "rank_15k",
+    "rank_16k",
+    "rank_17k",
+    "rank_18k",
+    "rank_19k",
+    "rank_20k",
+  };
+  private static final String[] humaSLProfilesPreAZ = {
+    "preaz_9d",
+    "preaz_8d",
+    "preaz_7d",
+    "preaz_6d",
+    "preaz_5d",
+    "preaz_4d",
+    "preaz_3d",
+    "preaz_2d",
+    "preaz_1d",
+    "preaz_1k",
+    "preaz_2k",
+    "preaz_3k",
+    "preaz_4k",
+    "preaz_5k",
+    "preaz_6k",
+    "preaz_7k",
+    "preaz_8k",
+    "preaz_9k",
+    "preaz_10k",
+    "preaz_11k",
+    "preaz_12k",
+    "preaz_13k",
+    "preaz_14k",
+    "preaz_15k",
+    "preaz_16k",
+    "preaz_17k",
+    "preaz_18k",
+    "preaz_19k",
+    "preaz_20k",
+  };
+  private static final String[] humaSLProfilesProYear = {
+    "proyear_1800",
+    "proyear_1850",
+    "proyear_1900",
+    "proyear_1950",
+    "proyear_1960",
+    "proyear_1970",
+    "proyear_1980",
+    "proyear_1990",
+    "proyear_2000",
+    "proyear_2005",
+    "proyear_2010",
+    "proyear_2015",
+    "proyear_2017",
+    "proyear_2019",
+    "proyear_2021",
+    "proyear_2023",
+  };
 
   public Menu() {
     setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -698,6 +797,12 @@ public class Menu extends JMenuBar {
             Lizzie.config.showKataGoEstimate = false;
             if (Lizzie.leelaz.isPondering()) Lizzie.leelaz.ponder();
             Lizzie.frame.removeEstimateRect();
+            Lizzie.config.uiConfig.put("show-katago-estimate", Lizzie.config.showKataGoEstimate);
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
           }
         });
 
@@ -932,6 +1037,23 @@ public class Menu extends JMenuBar {
         });
     kataEstimate.add(kataEstimateBlend);
 
+    final JCheckBoxMenuItem showStoneEntropy =
+        new JCheckBoxMenuItem(
+            resourceBundle.getString("Menu.view.kataGo.kataEstimate.stoneEntropy"));
+    showStoneEntropy.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.config.toggleShowStoneEntropy();
+            try {
+              Lizzie.config.save();
+            } catch (IOException es) {
+              // TODO Auto-generated catch block
+            }
+          }
+        });
+    kataEstimate.add(showStoneEntropy);
+
     viewMenu.addMenuListener(
         new MenuListener() {
           public void menuSelected(MenuEvent e) {
@@ -977,6 +1099,7 @@ public class Menu extends JMenuBar {
                 Lizzie.config.kataGoEstimateMode.equals("large+stones"));
             kataEstimateModeSize.setState(Lizzie.config.kataGoEstimateMode.equals("size"));
             kataEstimateBlend.setState(Lizzie.config.kataGoEstimateBlend);
+            showStoneEntropy.setState(Lizzie.config.showStoneEntropy);
             if (Lizzie.config.uiConfig.getBoolean("win-rate-always-black"))
               winrateAlwaysBlack.setState(true);
             else winrateAlwaysBlack.setState(false);
@@ -1143,6 +1266,15 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(setInfo);
 
+    setHumanSLProfile = new JMenu(resourceBundle.getString("Menu.game.setHumanSLProfile"));
+    setHumanSLProfile.setEnabled(false);
+    gameMenu.add(setHumanSLProfile);
+    addHumanSLProfileMenu("Rank", humaSLProfilesRank, setHumanSLProfile);
+    addHumanSLProfileMenu("PreAZ", humaSLProfilesPreAZ, setHumanSLProfile);
+    addHumanSLProfileMenu("ProYear", humaSLProfilesProYear, setHumanSLProfile);
+    addHumanSLProfileMenuItem(
+        resourceBundle.getString("Menu.game.resetHumanSLProfile"), null, setHumanSLProfile);
+
     final JMenuItem bestOne = new JMenuItem(resourceBundle.getString("Menu.game.bestOne"));
     bestOne.addActionListener(
         new ActionListener() {
@@ -1162,6 +1294,45 @@ public class Menu extends JMenuBar {
           }
         });
     gameMenu.add(pass);
+
+    final JMenuItem continueLadder =
+        new JMenuItem(resourceBundle.getString("Menu.game.continueLadder"));
+    continueLadder.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            if (Lizzie.board.continueLadder() == 0)
+              JOptionPane.showMessageDialog(
+                  Lizzie.frame,
+                  String.format(
+                      resourceBundle.getString("Menu.game.continueLadderFail"),
+                      Lizzie.board.MINIMUM_LADDER_LENGTH_FOR_AUTO_CONTINUATION));
+          }
+        });
+    gameMenu.add(continueLadder);
+
+    gameMenu.addSeparator();
+
+    final JMenuItem editComment = new JMenuItem(resourceBundle.getString("Menu.game.editComment"));
+    editComment.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.editComment();
+          }
+        });
+    gameMenu.add(editComment);
+
+    final JMenuItem copyComment = new JMenuItem(resourceBundle.getString("Menu.game.copyComment"));
+    copyComment.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.frame.copyCommentToClipboard();
+          }
+        });
+    gameMenu.add(copyComment);
+
     gameMenu.addSeparator();
 
     final JMenuItem clearBoard = new JMenuItem(resourceBundle.getString("Menu.game.clearBoard"));
@@ -1233,6 +1404,19 @@ public class Menu extends JMenuBar {
         });
     gameMenu.add(gotoRight);
 
+    gameMenu.addSeparator();
+
+    scoreMode = new JCheckBoxMenuItem(resourceBundle.getString("Menu.game.scoreGame"));
+    gameMenu.add(scoreMode);
+    scoreMode.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            Lizzie.board.setScoreMode(scoreMode.isSelected());
+            Lizzie.frame.repaint();
+          }
+        });
+
     final JMenu analyzeMenu = new JMenu(resourceBundle.getString("Menu.analyze"));
     this.add(analyzeMenu);
 
@@ -1247,6 +1431,7 @@ public class Menu extends JMenuBar {
               Lizzie.leelaz.isThinking = false;
             }
             Lizzie.leelaz.togglePonder();
+            Lizzie.frame.refresh();
           }
         });
     analyzeMenu.add(toggleAnalyze);
@@ -1293,6 +1478,35 @@ public class Menu extends JMenuBar {
           }
         });
     analyzeMenu.add(estimate);
+
+    kataGoRuleMenu = new JMenu(resourceBundle.getString("Menu.analyze.rule"));
+    kataGoRuleMenu.setEnabled(false);
+    analyzeMenu.add(kataGoRuleMenu);
+
+    final ButtonGroup kataGoRuleGroup = new ButtonGroup();
+
+    for (String rule : kataGoRuleNames) {
+      boolean selected = rule.equals(Lizzie.config.kataGoRule);
+      JRadioButtonMenuItem item = new JRadioButtonMenuItem(rule, selected);
+      item.addActionListener(
+          new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              if (rule.equals(Lizzie.config.kataGoRule)) return;
+              Lizzie.config.setKataGoRule(rule);
+              Lizzie.leelaz.updateKataGoRule(true);
+              Lizzie.board.clearAnalysis();
+              Lizzie.frame.refresh();
+              try {
+                Lizzie.config.save();
+              } catch (IOException es) {
+                // TODO Auto-generated catch block
+              }
+            }
+          });
+      kataGoRuleGroup.add(item);
+      kataGoRuleMenu.add(item);
+    }
 
     analyzeMenu.addMenuListener(
         new MenuListener() {
@@ -1372,6 +1586,53 @@ public class Menu extends JMenuBar {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+
+    final JMenu helpMenu = new JMenu(resourceBundle.getString("Menu.helpMenu"));
+    this.add(helpMenu);
+
+    final JMenuItem keyboardControlsHelp =
+        new JMenuItem(resourceBundle.getString("Menu.helpMenu.keyboardControls"));
+    keyboardControlsHelp.addActionListener(
+        new ActionListener() {
+          @Override
+          public void actionPerformed(ActionEvent e) {
+            browse("https://github.com/featurecat/lizzie/issues/832");
+          }
+        });
+    helpMenu.add(keyboardControlsHelp);
+  }
+
+  private void addHumanSLProfileMenuItem(String label, String profile, JMenu parentMenu) {
+    final JMenuItem item = new JMenuItem(label);
+    item.addActionListener(
+        e -> {
+          Lizzie.leelaz.humanSLProfile = profile;
+          Lizzie.frame.updateTitle();
+        });
+    parentMenu.add(item);
+  }
+
+  private void addHumanSLProfileMenu(String label, String profiles[], JMenu parentMenu) {
+    final JMenu menu = new JMenu(label);
+    parentMenu.add(menu);
+    for (String profile : profiles) addHumanSLProfileMenuItem(profile, profile, menu);
+  }
+
+  private void browse(String uriString) {
+    if (Desktop.isDesktopSupported()) {
+      try {
+        Desktop.getDesktop().browse(new URI(uriString));
+      } catch (Exception ex) {
+      }
+    }
+  }
+
+  public void updateScoreMenu(boolean on) {
+    scoreMode.setSelected(on);
+  }
+
+  public void enableHumanSLProfileMenu(boolean enabled) {
+    setHumanSLProfile.setEnabled(enabled);
   }
 
   public void updateEngineMenu(List<Leelaz> engineList) {
@@ -1384,8 +1645,9 @@ public class Menu extends JMenuBar {
       engine[i].setVisible(false);
       Leelaz engineDt = engineList.get(i);
       if (engineDt != null) {
-        if (engineDt.currentWeight() != "")
-          engine[i].setText(engine[i].getText() + " : " + engineDt.currentWeight());
+        if (engineDt.nicknameOrCurrentWeight() != "")
+          engine[i].setText(engine[i].getText() + " : " + engineDt.nicknameOrCurrentWeight());
+        engine[i].setToolTipText(engineDt.engineCommand());
         engine[i].setVisible(true);
         int a = i;
         engine[i].addActionListener(
@@ -1407,6 +1669,7 @@ public class Menu extends JMenuBar {
             if (i == currentEngineNo) {
               engine[i].setIcon(running);
               engineMenu.setText(engine[i].getText());
+              kataGoRuleMenu.setEnabled(engineDt.isKataGo);
             } else if (engineDt.isLoaded()) engine[i].setIcon(ready);
             else if (engine[i].getIcon() != null) engine[i].setIcon(null);
           }
